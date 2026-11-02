@@ -565,8 +565,7 @@ export const digest: Stage<E2EContext> = {
   needs: ['submit'],
   run: async (ctx, s) => {
     const build = await optionalExport<(campaignId: string, date?: string) => Promise<unknown>>([
-      ['server/campaign/index.ts', 'buildDigest'],
-      ['server/campaign/digest.ts', 'buildDigest'],
+      ['server/campaign/index.ts', 'buildCampaignDigest'],
     ]);
     if (!build) return s.pending('server/campaign has no buildDigest(campaignId, date?) yet (requests/A11.md §4)');
     await build(ctx.campaignId);
@@ -751,14 +750,9 @@ export const external: Stage<E2EContext> = {
       assert.equal(mcp.status, 401, `/mcp without a key → ${mcp.status}`);
       s.note('without a valid key, /api/v1 (all path spellings) and /mcp refuse with 401');
 
-      const createKey = await optionalExport<(name: string, scopes: string[]) => { key: string; info: { id: string } } | Promise<{ key: string; info: { id: string } }>>([
-        ['server/api/keys.ts', 'createApiKey'],
-        ['server/api/index.ts', 'createApiKey'],
-        ['server/api/auth.ts', 'createApiKey'],
-      ]);
-      if (!createKey) return s.pending('no createApiKey(name, scopes) export yet (requests/A11.md §5)');
-      const full = await createKey('e2e fake agent', ['jobs:read', 'packets:read', 'answers:read', 'recipes:read', 'traces:write', 'applications:write']);
-      const narrow = await createKey('e2e read-only', ['jobs:read']);
+      const { createApiKey } = await import('../../server/api/keys.ts');
+      const full = await createApiKey({ name: 'e2e fake agent', scopes: ['jobs:read', 'packets:read', 'answers:read', 'recipes:read', 'traces:write', 'applications:write'] });
+      const narrow = await createApiKey({ name: 'e2e read-only', scopes: ['jobs:read'] });
       const H = (k: string) => ({ authorization: `Bearer ${k}`, 'content-type': 'application/json' });
       const api = async (method: string, p: string, body?: unknown, key = full.key) => {
         const r = await fetch(`${base}/api/v1${p}`, { method, headers: H(key), body: body === undefined ? undefined : JSON.stringify(body) });

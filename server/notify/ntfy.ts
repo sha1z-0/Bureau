@@ -1,5 +1,5 @@
-import { fetch as undiciFetch } from 'undici';
 import { AppError } from '../errors.ts';
+import { safeFetch } from '../security/safeFetch.ts';
 import { offline } from './telegram.ts';
 
 /** ntfy.sh (or a self-hosted ntfy) as an alternative push channel. */
@@ -18,16 +18,18 @@ const realHttp: NtfyHttp = async (url, msg) => {
   if (offline()) throw new AppError(503, 'OFFLINE', 'ntfy is disabled in offline mode.');
   // Header values must be single-line Latin-1; titles are plain words anyway.
   const header = (s: string) => s.replace(/[\r\n]+/g, ' ').replace(/[^\x20-\x7e]/g, '').slice(0, 200);
-  const res = await undiciFetch(url, {
+  const res = await safeFetch(url, {
     method: 'POST',
     body: msg.body.slice(0, 3500),
+    noRedirect: true,
+    timeoutMs: 15_000,
     headers: {
+      'content-type': 'text/plain; charset=utf-8',
       Title: header(msg.title),
       Priority: msg.priority === 'high' ? '4' : '3',
       ...(msg.tags?.length ? { Tags: header(msg.tags.join(',')) } : {}),
       ...(msg.click && /^https?:\/\//.test(msg.click) ? { Click: header(msg.click) } : {}),
     },
-    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new AppError(502, 'NTFY', `ntfy answered HTTP ${res.status}`);
 };

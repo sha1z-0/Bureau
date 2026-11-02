@@ -97,7 +97,7 @@ export function makeFakes(fx: FixtureServer, launch: () => Promise<Browser>) {
     modules: {
       'server/forms/index.ts': { fillApplication },
       'server/inbox/index.ts': { ingestRaw },
-      'server/campaign/index.ts': { buildDigest },
+      'server/campaign/index.ts': { buildCampaignDigest: buildDigest },
     } as Record<string, Record<string, unknown>>,
     close: async () => {
       if (browser) await (await browser).close();

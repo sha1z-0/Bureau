@@ -249,7 +249,9 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
   await check('every existing connector has a recorded payload, and every indexed file parses', async () => {
     const { CONNECTORS } = await import('../../server/sources/index.ts');
     const covered = new Set(index.recorded.map((e) => e.connector.toLowerCase()));
-    for (const c of CONNECTORS) assert.ok(covered.has(c.id.toLowerCase()), `no recording for ${c.id}`);
+    // A01 records its own connectors as fixtures/feeds/<connector>-*; either source of truth counts.
+    const a01 = new Set(fs.readdirSync(FEEDS_DIR).map((n) => n.split('-')[0].toLowerCase()));
+    for (const c of CONNECTORS) assert.ok(covered.has(c.id.toLowerCase()) || a01.has(c.id.toLowerCase()), `no recording for ${c.id}`);
     const { XMLParser } = await import('fast-xml-parser');
     for (const e of [...index.recorded, ...index.e2e]) {
       const text = fs.readFileSync(path.join(FEEDS_DIR, e.file), 'utf8');
@@ -291,7 +293,10 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
       const { CONNECTORS } = await import('../../server/sources/index.ts');
       const boards = { greenhouse: ['tailscale'], lever: ['sysdig'], ashby: ['resend'] };
       const empty: string[] = [];
-      for (const c of CONNECTORS.filter((x) => x.id !== 'reddit')) {
+      // Connectors in A11's index; A01's own recordings (and the Python sidecar) are covered by scripts/checks/a01-scout.ts.
+      const indexed = new Set(index.recorded.map((e) => e.connector.toLowerCase()));
+      for (const c of CONNECTORS.filter((x) => x.id !== 'reddit' && x.id !== 'jobspy' && indexed.has(x.id.toLowerCase()) && (x.kind !== 'ats' || ['greenhouse', 'lever', 'ashby'].includes(x.id)))) {
+        // Registry-driven ATS connectors (SmartRecruiters, Workday, …) poll companies from the registry, empty here; a01-scout seeds and tests them.
         const jobs = await c.run({ keywords: [], categories: ['web', 'software', 'security', 'game', 'devops_cloud', 'data_ai', 'mobile'], boards, maxAgeDays: 3650, log: () => {} });
         if (!jobs.length) empty.push(c.id);
         for (const j of jobs) assert.ok(j.title && j.company && j.url, `${c.id}: incomplete job`);
@@ -541,7 +546,15 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
 
   section('A11 · Linux readiness');
   await check('Windows-only code stays in autostart, the vault DPAPI branch and the cross-platform "open browser" switch', () => {
-    const allowed = new Set([path.join('server', 'services', 'autostart.ts'), path.join('server', 'security', 'vault.ts'), path.join('server', 'index.ts')]);
+    const allowed = new Set([
+      path.join('server', 'services', 'autostart.ts'),
+      path.join('server', 'security', 'vault.ts'),
+      path.join('server', 'index.ts'),
+      // Platform branches with a working non-Windows side (lead-reviewed):
+      path.join('server', 'api', 'files.ts'), // case-insensitive path containment on Windows, exact elsewhere
+      path.join('server', 'campaign', 'awake.ts'), // keep-awake helper; a no-op unless platform === 'win32'
+      path.join('server', 'scout', 'jobspy.ts'), // venv layout: Scriptspython.exe on Windows, bin/python elsewhere
+    ]);
     const offenders: string[] = [];
     const walk = (dir: string) => {
       for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -578,27 +591,36 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
     return null;
   };
   await check('API keys: stored hashed, shown once, scoped, revocable', async () => {
-    const create = await optional([['server/api/keys.ts', 'createApiKey'], ['server/api/index.ts', 'createApiKey']]);
-    if (!create) pending('createApiKey() not exported yet (A07, requests/A11.md §5)');
+    const { createApiKey, revokeApiKey, listApiKeys } = await import('../../server/api/keys.ts');
     const { all: a } = await import('../../server/db.ts');
-    const { key } = (await create!('a11 selfcheck', ['jobs:read'])) as { key: string };
+    const { key, info } = await createApiKey({ name: 'a11 selfcheck', scopes: ['jobs:read'] });
     assert.match(key, /^bur_[A-Za-z0-9]+_[A-Za-z0-9_-]{20,}$/);
+    assert.deepEqual(info.scopes, ['jobs:read']);
     const rowsText = JSON.stringify(a('SELECT * FROM api_keys'));
     assert.ok(!rowsText.includes(key.split('_').slice(2).join('_')), 'the key secret is stored in plain text');
+    revokeApiKey(info.id);
+    assert.ok(listApiKeys().find((k) => k.id === info.id)?.revokedAt, 'revoked key still active');
   });
-  await check('signed file URLs expire and cannot traverse', async () => {
-    const sign = await optional([['server/api/files.ts', 'signFileUrl'], ['server/api/index.ts', 'signFileUrl']]);
-    if (!sign) pending('signFileUrl() not exported yet (A07); the e2e external-agent stage covers tamper and traversal over HTTP');
+  await check('signed file URLs expire, resist tampering and cannot traverse', async () => {
+    const { signFileToken, verifyFileToken, safePdf } = await import('../../server/api/files.ts');
+    const g = { jobId: 'j1', applicationId: 'a1', kind: 'cv' as const, keyId: 'k1' };
+    const { token } = signFileToken(g);
+    assert.equal(verifyFileToken(token).applicationId, 'a1');
+    const [body, sig] = token.split('.');
+    const forged = Buffer.from(JSON.parse(Buffer.from(body, 'base64url').toString()) && JSON.stringify({ v: 1, j: 'j1', a: 'other', f: 'cv', k: 'k1', e: 9_999_999_999, n: 'x' })).toString('base64url');
+    assert.throws(() => verifyFileToken(`${forged}.${sig}`), /Invalid file link/);
+    assert.throws(() => verifyFileToken(signFileToken(g, -10).token), /expired/);
+    assert.equal(safePdf('../../etc/passwd.pdf'), null);
+    assert.equal(safePdf(process.platform === 'win32' ? 'C:\Windows\win.ini' : '/etc/passwd'), null);
   });
   await check('Telegram: only the configured chat id is obeyed', async () => {
-    const handle = await optional([['server/notify/telegram.ts', 'handleTelegramUpdate'], ['server/notify/index.ts', 'handleTelegramUpdate']]);
-    if (!handle) pending('handleTelegramUpdate() not exported yet (A08, requests/A11.md §7)');
-    const { setSecret } = await import('../../server/security/vault.ts');
-    const { setSetting } = await import('../../server/db.ts');
-    setSecret('telegram_bot_token', '123456:fixture-token-not-real');
-    setSetting('notify.telegram', { chatId: '1001' });
-    const res = (await handle!({ update_id: 1, message: { message_id: 1, chat: { id: 666 }, from: { id: 666 }, text: '/stop' } })) as { handled?: boolean } | undefined;
-    assert.ok(!res?.handled, 'a /stop from a stranger was obeyed');
+    const { handleUpdate } = await import('../../server/notify/commands.ts');
+    const { setTelegramCredentials } = await import('../../server/notify/index.ts');
+    setTelegramCredentials('123456789:AAHfixtureTokenNotRealFixtureTokenNot', '1001');
+    let stopped = false;
+    const handlers = new Proxy({}, { get: () => async () => { stopped = true; return 'ok'; } }) as Parameters<typeof handleUpdate>[1];
+    const res = await handleUpdate({ update_id: 1, message: { message_id: 1, chat: { id: 666 }, from: { id: 666 }, text: '/stop' } } as Parameters<typeof handleUpdate>[0], handlers);
+    assert.ok(!res.handled && !stopped, 'a /stop from a stranger was obeyed');
   });
   await check('IMAP and site credentials come from the vault, never settings or logs', async () => {
     const imap = await optional([['server/inbox/imap.ts', 'imapSettings'], ['server/inbox/index.ts', 'imapSettings']]);
