@@ -205,7 +205,7 @@ export function Empty({ title, children, action }: { title: string; children?: R
 /* ── Formatting ────────────────────────────────────────────────────── */
 
 export function ago(iso: string | null | undefined): string {
-  if (!iso) return '—';
+  if (!iso) return '–';
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 60) return 'just now';
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;

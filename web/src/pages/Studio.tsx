@@ -280,7 +280,7 @@ function Editor({ id }: { id: string }) {
                 Review them
               </Btn>
               <Btn variant="primary" onClick={() => { setConfirmIssues(false); approve.mutate(true); }}>
-                I've checked — approve
+                I've checked, approve
               </Btn>
             </>
           }
@@ -362,7 +362,7 @@ function CvTab({ cv, onChange, pdfUrl, dirty }: { cv: TailoredCv; onChange: (cv:
             />
           </Field>
           {cv.experience.map((e, i) => (
-            <Field key={i} label={`${e.role} — ${e.company}`} help="One bullet per line">
+            <Field key={i} label={`${e.role} at ${e.company}`} help="One bullet per line">
               <textarea
                 className="textarea"
                 rows={Math.max(3, e.bullets.length + 1)}
