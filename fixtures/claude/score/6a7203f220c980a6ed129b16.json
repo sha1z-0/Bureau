@@ -1,0 +1,148 @@
+{
+  "task": "score",
+  "hash": "6a7203f220c980a6ed129b16",
+  "model": "claude-haiku-5-5",
+  "case": "strong (v1 scoreJobs)",
+  "usage": {
+    "input_tokens": 640,
+    "output_tokens": 1180,
+    "cache_creation_input_tokens": 2780,
+    "cache_read_input_tokens": 0
+  },
+  "output": {
+    "results": [
+      {
+        "id": "fx-match-strong",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1-3 years of React and TypeScript",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "1.5 years of React and TypeScript at Kestrel Apps"
+          },
+          {
+            "text": "Node.js and Express APIs",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Wrote the Node.js/Express REST API (14 endpoints)"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Owns the PostgreSQL schema and migrations"
+          },
+          {
+            "text": "Automated tests (Jest, Playwright)",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Added Jest and Playwright tests; coverage 31% to 74%"
+          },
+          {
+            "text": "REST API design",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Designed the booking platform REST API"
+          },
+          {
+            "text": "Clear written English for async work",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Works async with a UK PM; writes release notes"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "learning",
+            "proof": "currently learning"
+          },
+          {
+            "text": "Healthcare or regulated data",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "Built a booking platform used by 40 clinics"
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 4,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 4
+        },
+        "legitimacy": "ok",
+        "confidence": "high",
+        "verdict": "Apply now: a near-exact match on stack, level and even the clinic-booking domain.",
+        "strengths": [
+          "Same stack: React, TypeScript, Node/Express, PostgreSQL",
+          "Clinic booking platform maps to their product",
+          "Jest and Playwright testing with measured coverage gains",
+          "Proven async remote work"
+        ],
+        "gaps": [
+          "Docker is still being learned",
+          "No formal healthcare compliance experience"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "React",
+          "TypeScript",
+          "Node.js",
+          "Express",
+          "PostgreSQL",
+          "Jest",
+          "Playwright",
+          "REST API",
+          "async"
+        ],
+        "seniorityFit": "match"
+      }
+    ]
+  }
+}
