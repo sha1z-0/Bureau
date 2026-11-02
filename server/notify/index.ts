@@ -3,7 +3,7 @@ import { redact } from '../errors.ts';
 import { emit } from '../services/bus.ts';
 import { ownerAddress, sendDigestMail } from './email.ts';
 import { sendNtfy } from './ntfy.ts';
-import { notifySettings, ntfyTopic, telegramCredentials } from './settings.ts';
+import { notifySettings, ntfyTopic, telegramCredentials, type NotifySettings } from './settings.ts';
 import { escapeHtml, sendTelegram } from './telegram.ts';
 
 /** A08: Telegram, email digest and ntfy. */
@@ -39,8 +39,8 @@ function telegramHtml(kind: NotifyKind, p: NotifyPayload): string {
  * Send to every channel switched on for this kind. Never throws: a dead
  * channel is logged and reported in the result, the others still go out.
  */
-export async function deliver(kind: NotifyKind, payload: NotifyPayload): Promise<Delivery> {
-  const s = notifySettings();
+export async function deliver(kind: NotifyKind, payload: NotifyPayload, override?: NotifySettings): Promise<Delivery> {
+  const s = override ?? notifySettings();
   const out: Delivery = { via: [], errors: [] };
   const attempt = async (channel: string, fn: () => Promise<unknown>) => {
     try {
