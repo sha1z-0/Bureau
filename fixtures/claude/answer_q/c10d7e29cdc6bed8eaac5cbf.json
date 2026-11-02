@@ -1,0 +1,27 @@
+{
+  "task": "answer_q",
+  "hash": "c10d7e29cdc6bed8eaac5cbf",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 520,
+    "cache_read_input_tokens": 3600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Daftar Pay is building for thousands of shops the thing I built for one. My family's hardware store ran on a paper ledger until I wrote LedgerLite, a double-entry bookkeeping API in Go and PostgreSQL. Your post on moving the ledger to PostgreSQL logical replication so reconciliation never blocks posting is the kind of problem I want to spend my days on. And \"every rupee accounted for\" is how my uncle talks about his books."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Backend Engineer, Payments role is about the part of software I already love: keeping a ledger correct. I automated reconciliation at my family's store and cut month-end closing from 3 days to 2 hours. The role also asks for AWS and Kubernetes, which I'm learning now, and I'd rather learn them on a team that cares about idempotent posting than on my own."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "LedgerLite is a double-entry bookkeeping API I wrote in Go with PostgreSQL and sqlc for my family's hardware store. The hard part wasn't the code; it was the accounting. I had to learn why every debit needs a credit before I could write a single migration, and I got it wrong twice. It now runs both branches and posts about 400 entries a day, and month-end closing takes 2 hours instead of 3 days."
+      }
+    ]
+  }
+}
