@@ -286,6 +286,7 @@ export async function startFixtureServer(opts: { portA?: number; portB?: number;
 
     for (const spec of manifest.forms) {
       app.get(spec.route, async (_req, reply) => sendFile(reply, spec.file, { FORM_ID: spec.id }));
+      for (const extra of spec.extraRoutes) app.get(extra.route, async (_req, reply) => sendFile(reply, extra.file, { FORM_ID: spec.id }));
     }
     app.get('/ats/*', async (req, reply) => sendFile(reply, (req.params as { '*': string })['*']));
 

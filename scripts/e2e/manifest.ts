@@ -40,6 +40,8 @@ export const FormSpecSchema = z.object({
   route: z.string().startsWith('/'),
   /** File under fixtures/ats/ that the route serves. */
   file: z.string(),
+  /** More pages this replica needs (iframe documents, wizard pages, account screens). Served on both origins. */
+  extraRoutes: z.array(z.object({ route: z.string().startsWith('/'), file: z.string() })).default([]),
   /** Which origin the entry page lives on. "b" is the second, cross-origin server. */
   origin: z.enum(['a', 'b']).default('a'),
   /** Confirmation page served at /__confirm/<id> after a valid submit, and the text that proves it. */
@@ -73,9 +75,19 @@ export const ManifestSchema = z.object({
 });
 export type Manifest = z.infer<typeof ManifestSchema>;
 
+const FragmentSchema = z.object({ forms: z.array(FormSpecSchema) });
+
+/** fixtures/ats/manifest.json (canaries) merged with every fixtures/ats/<dir>/manifest.json (forms). */
 export function loadManifest(): Manifest {
   const raw = JSON.parse(fs.readFileSync(path.join(ATS_DIR, 'manifest.json'), 'utf8')) as unknown;
   const m = ManifestSchema.parse(raw);
+  for (const dir of fs.readdirSync(ATS_DIR, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
+    const file = path.join(ATS_DIR, dir, 'manifest.json');
+    if (!fs.existsSync(file)) continue;
+    const frag = FragmentSchema.safeParse(JSON.parse(fs.readFileSync(file, 'utf8')));
+    if (!frag.success) throw new Error(`fixtures/ats/${dir}/manifest.json: ${frag.error.message}`);
+    m.forms.push(...frag.data.forms);
+  }
   const ids = new Set<string>();
   for (const f of m.forms) {
     if (ids.has(f.id)) throw new Error(`Duplicate fixture form id ${f.id}`);

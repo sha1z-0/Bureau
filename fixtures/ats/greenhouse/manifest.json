@@ -1,0 +1,52 @@
+{
+  "forms": [
+    {
+      "id": "greenhouse-classic",
+      "ats": "greenhouse",
+      "title": "Greenhouse classic hosted board (boards.greenhouse.io)",
+      "route": "/boards.greenhouse.io/lumenledger/jobs/4012345",
+      "file": "greenhouse/classic.html",
+      "confirmationFile": "greenhouse/classic-confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "required": [
+        "job_application[first_name]",
+        "job_application[last_name]",
+        "job_application[email]",
+        "job_application[phone]",
+        "job_application[location]",
+        "job_application[resume]",
+        "job_application[answers_attributes][2][answer_selected_options_attributes][2][question_option_id]",
+        "job_application[answers_attributes][3][boolean_value]",
+        "job_application[answers_attributes][4][text_value]"
+      ],
+      "expect": {
+        "job_application[first_name]": "profile:firstName",
+        "job_application[last_name]": "profile:lastName",
+        "job_application[email]": "profile:email",
+        "job_application[phone]": "profile:phone",
+        "job_application[location]": "contains:Lahore",
+        "job_application[latitude]": "nonempty",
+        "job_application[resume]": "file:cv",
+        "job_application[cover_letter]": "file:letter",
+        "job_application[answers_attributes][0][text_value]": "profile:linkedin",
+        "job_application[answers_attributes][1][text_value]": "profile:portfolio",
+        "job_application[answers_attributes][2][answer_selected_options_attributes][2][question_option_id]": "=31870103",
+        "job_application[answers_attributes][3][boolean_value]": "=1",
+        "job_application[answers_attributes][4][text_value]": "nonempty",
+        "job_application[gender]": "=3",
+        "job_application[hispanic_ethnicity]": "decline",
+        "job_application[veteran_status]": "=3",
+        "job_application[disability_status]": "=3"
+      },
+      "quirks": [
+        "attach-or-paste resume chooser over hidden file input",
+        "Select2 v3 dropdowns over hidden selects (values are option ids)",
+        "Google Places location with hidden lat/long",
+        "boolean question as 1/0 select",
+        "EEOC voluntary section",
+        "multipart POST, server redirect to confirmation"
+      ],
+      "reference": "Public boards.greenhouse.io job pages (legacy Rails board markup)"
+    }
+  ]
+}
