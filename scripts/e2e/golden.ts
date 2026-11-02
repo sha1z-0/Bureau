@@ -51,8 +51,7 @@ export async function runGolden(browser: Browser, fx: FixtureServer, formId: str
     await mod.default(page, goldenCtx(fx));
     // Confirmations can render inside an (even cross-origin) iframe, as with Greenhouse embeds.
     const texts = await Promise.all(page.frames().map((f) => f.locator('body').innerText({ timeout: 5000 }).catch(() => '')));
-    const body = texts.join('
-');
+    const body = texts.join(' ');
     const all = fx.submissions({ formId }).slice(before);
     const final = all.filter((s) => s.final).at(-1) ?? null;
     return {
