@@ -130,10 +130,14 @@ export function remoteRestriction(job: Pick<MatchJob, 'location' | 'descriptionT
 
 // ── Salary ───────────────────────────────────────────────────────────────────
 
-/** Annualise a stated pay figure: under 500 is hourly, under 20,000 monthly, otherwise yearly. */
+/**
+ * Annualise a stated pay figure: under 200 is hourly (2,080 hours), under 10,000
+ * monthly, otherwise yearly. Ambiguous figures resolve to the higher reading, so
+ * the floor only rejects pay that is low under every plausible reading.
+ */
 export function annualise(n: number): number {
-  if (n < 500) return n * 2080;
-  if (n < 20_000) return n * 12;
+  if (n < 200) return n * 2080;
+  if (n < 10_000) return n * 12;
   return n;
 }
 
