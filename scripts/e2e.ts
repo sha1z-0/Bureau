@@ -33,7 +33,7 @@ const keep = flag('--keep');
 const headful = flag('--headful');
 
 // 0. A pinned clock, so date-bearing prompts hash the same every day (scripts/e2e/clock.ts).
-process.env.BUREAU_E2E_NOW ??= E2E_NOW_DEFAULT;
+if (!process.env.BUREAU_E2E_NOW) process.env.BUREAU_E2E_NOW = E2E_NOW_DEFAULT;
 installClock();
 
 // 1. Sandbox and environment, before any app module reads it.
