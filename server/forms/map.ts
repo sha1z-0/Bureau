@@ -157,7 +157,7 @@ const ALT_QUESTIONS: Record<string, string[]> = {
 };
 
 const COUNTRY_WORDS: [string, RegExp][] = [
-  ...Object.keys(DIAL_CODES).map((c) => [c, new RegExp(`\b${c}\b`)] as [string, RegExp]),
+  ...Object.keys(DIAL_CODES).map((c) => [c, new RegExp(`\\b${c}\\b`)] as [string, RegExp]),
   ['united states', /\b(usa|u s a|u s|us|united states|america)\b(?! dollars?)/],
   ['united kingdom', /\b(uk|u k|great britain|britain|england)\b/],
   ['european union', /\b(eu|european union|europe|schengen)\b/],
@@ -167,6 +167,21 @@ const COUNTRY_WORDS: [string, RegExp][] = [
 function countriesIn(s: string): Set<string> {
   const t = normText(s).replace(/\bwork for us\b|\bjoin us\b|\bwith us\b|\babout us\b|\bfor us\b|\bto us\b/g, ' ');
   return new Set(COUNTRY_WORDS.filter(([, re]) => re.test(t)).map(([c]) => c));
+}
+
+/** Words an attestation may add or drop without changing what is being attested. */
+const ATTEST_GENERIC = new Set('legally lawfully currently presently now future eligible authorized authorised permitted entitled allowed work working employment employed employer job role position require requires need needs visa sponsorship sponsor permit right status here country located based company us this least older over above age years old'.split(' '));
+
+/**
+ * May the owner's saved answer to `saved` answer the attestation `asked`? Only when they ask the same thing:
+ * every word the form adds is generic ("legally", "now or in the future"), never a new place or condition.
+ */
+export function sameAttestation(asked: string, saved: string): boolean {
+  const a = contentWords(asked);
+  const s = contentWords(saved);
+  for (const w of a) if (!s.has(w) && !ATTEST_GENERIC.has(w)) return false;
+  for (const w of s) if (!a.has(w) && !ATTEST_GENERIC.has(w)) return false;
+  return true;
 }
 
 const STOP = new Set('a an and are as at be by can could do does for from have how i if in is it of on or our please the this to us we what when which will with would you your yourself now future currently'.split(' '));
@@ -472,6 +487,30 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
   }
   return out;
 
+  /** The saved question behind an answer-bank answer must be the same attestation (or a canonical re-wording of it). */
+  function attestOk(f: Field, a: Answered, key?: string): boolean {
+    let saved: string | undefined;
+    try {
+      saved = get<{ question_raw: string }>('SELECT question_raw FROM answer_bank WHERE id = ?', a.key)?.question_raw;
+    } catch {
+      saved = undefined;
+    }
+    if (!saved) return !opts.deps?.answerFor ? false : true;
+    // The employer's own name is not a condition ("…to work for Harbor & Pine?").
+    let asked = normText(f.label);
+    for (const w of normText(job?.company ?? '').split(' ')) if (w.length >= 3) asked = asked.replace(new RegExp(`\\b${w}\\b`, 'g'), ' ');
+    if (sameAttestation(asked, saved)) return true;
+    // Only the country differs, and the saved answer is the cautious one: "I need sponsorship" / "I am not authorised"
+    // never overstates the candidate's rights anywhere. The reverse (a "yes, authorised" stretched to another country) is never done.
+    const extra = [...contentWords(asked)].filter((w) => !contentWords(saved!).has(w) && !ATTEST_GENERIC.has(w)).join(' ');
+    const onlyCountry = !!extra && countriesIn(extra).size > 0 && extra.split(' ').every((w) => countriesIn(w).size > 0 || /^(the|in|for|of)$/.test(w));
+    if (onlyCountry && countriesIn(saved).size === 0) {
+      if (key === 'sponsorship' && truthy(a.value) === true) return true;
+      if (key === 'work_authorization' && truthy(a.value) === false) return true;
+    }
+    return sameAttestation(f.label, saved) || Object.values(ALT_QUESTIONS).some((qs) => qs.includes(saved!) && sameAttestation(f.label, saved!)) || sameAttestation(f.label.replace(/\bwill you now or in the future\b/i, ''), saved);
+  }
+
   async function mapOne(f: Field): Promise<MappedValue | null> {
     const g = groupOf(f);
     const ln = f.labelNorm || normLabel(f.label);
@@ -584,10 +623,10 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           const numeric = f.kind === 'number' || /\((usd|eur|gbp|pkr|number|numbers? only|amount)\)|\bnumber only\b|\bin (usd|eur|gbp)\b/i.test(f.label);
           // A start date in a free date field must be a date ("2 weeks" is a notice period, not a date).
           const wantsDate = f.kind === 'date' || ((key === 'start_date' || key === 'graduation_date') && !f.options?.length);
-          const accept = (x: Answered) => (wantsDate ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true);
+          const accept = (x: Answered) => (wantsDate ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true) && (!e!.attestation || (x.source === 'answer_bank' && attestOk(f, x, key)));
           const a = await ask(f, numeric && money ? `${key}_number` : key, accept);
           if (e.attestation) {
-            if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: key });
+            if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE && attestOk(f, a, key)) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: key });
             return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true, synKey: key }) : null;
           }
           // "Were you referred?" -> "No" is not a referrer's name or code.
@@ -612,8 +651,8 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
 
     // 6. Attestation-like wording without a dictionary hit: answer bank only.
     if (ATTESTATION.test(f.label)) {
-      const a = await ask(f);
-      if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true });
+      const a = await ask(f, undefined, (x) => x.source === 'answer_bank' && attestOk(f, x));
+      if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE && attestOk(f, a)) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true });
       return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true }) : null;
     }
 

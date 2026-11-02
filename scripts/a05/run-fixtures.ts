@@ -39,6 +39,7 @@ if (flag('--seed-address')) {
   upsertAnswer({ question: 'What is your street address?', answer: d.addressLine1 });
   upsertAnswer({ question: 'What is your postal code?', answer: d.postalCode });
   upsertAnswer({ question: 'What is your state or province?', answer: d.region });
+  upsertAnswer({ question: 'Do you need a work permit to work for a German employer?', answer: 'Yes' });
 }
 const campaignId = insertCampaign('a05', campaignConfig());
 const browser = await launchBrowser(!flag('--headful'));

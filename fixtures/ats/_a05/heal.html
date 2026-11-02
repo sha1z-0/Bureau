@@ -25,6 +25,8 @@
     <div class="field"><label data-for="phone">Phone *</label><input data-key="phone" type="tel" required></div>
     <div class="field"><label data-for="linkedin">LinkedIn profile</label><input data-key="linkedin"></div>
     <div class="field"><label data-for="cv">Resume/CV *</label><input data-key="cv" type="file" required></div>
+    <div class="field v3"><label data-for="freedonia">Are you legally authorized to work in Freedonia? *</label>
+      <select data-key="freedonia" required><option value="">Select...</option><option>Yes</option><option>No</option></select></div>
     <div class="field"><label data-for="gender">Gender</label>
       <select data-key="gender"><option value="">Select...</option><option>Male</option><option>Female</option><option>Decline to self-identify</option></select></div>
     <button type="submit">Submit application</button>
@@ -33,6 +35,8 @@
   <script>
     (function () {
       var v = /[?&]v=2\b/.test(location.search) ? 'v2' : 'v1';
+      // v=3 adds a required legal question nobody has answered; v1/v2 leave it out.
+      if (!/[?&]v=3\b/.test(location.search)) document.querySelectorAll('.v3').forEach(function (n) { n.remove(); });
       document.querySelectorAll('[data-key]').forEach(function (el) {
         var k = el.getAttribute('data-key');
         var id = v === 'v1' ? k : 'fld_' + k.split('').reverse().join('') + '_x';
