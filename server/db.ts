@@ -383,6 +383,11 @@ db.exec(`
   );
 `);
 
+// Columns added to v2 tables after Phase 0 (they must follow the CREATE TABLEs above).
+addColumn('unknown_questions', 'answered_at', 'TEXT');
+addColumn('unknown_questions', 'answer_id', 'TEXT');
+db.exec('CREATE INDEX IF NOT EXISTS profile_facts_source ON profile_facts(source, active)');
+
 export const now = () => new Date().toISOString();
 
 type Row = Record<string, SQLInputValue>;

@@ -142,7 +142,10 @@ export async function answerUnknown(id: string, input: z.input<typeof AnswerUnkn
     const a = await answerFor(other.question_raw, { jobId: other.job_id ?? undefined, options: options.length ? options : undefined });
     if (a?.key === entry.id) siblings.push(other);
   }
-  for (const s of siblings) run("UPDATE unknown_questions SET status = 'answered' WHERE id = ?", s.id);
+  const answeredAt = new Date().toISOString();
+  for (const s of siblings) {
+    run("UPDATE unknown_questions SET status = 'answered', answered_at = ?, answer_id = ? WHERE id = ?", answeredAt, entry.id, s.id);
+  }
   const requeued: string[] = [];
   for (const s of siblings) {
     emit({ type: 'question.answered', questionId: s.id, jobId: s.job_id });

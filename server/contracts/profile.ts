@@ -67,6 +67,7 @@ export type Links = z.infer<typeof LinksSchema>;
 export const GithubSummarySchema = z.object({
   login: z.string(),
   syncedAt: z.string(),
+  profileUrl: z.string().optional(),
   repos: z.array(
     z.object({
       name: z.string(),
@@ -77,6 +78,9 @@ export const GithubSummarySchema = z.object({
       stars: z.number(),
       fork: z.boolean(),
       pushedAt: z.string().nullable(),
+      /** The candidate's own commits in the last 90 days (capped at 100). */
+      recentCommits: z.number().nullable().optional(),
+      archived: z.boolean().optional(),
     }),
   ),
 });
