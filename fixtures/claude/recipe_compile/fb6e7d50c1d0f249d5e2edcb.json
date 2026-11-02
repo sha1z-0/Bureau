@@ -1,0 +1,20 @@
+{
+  "task": "recipe_compile",
+  "hash": "fb6e7d50c1d0f249d5e2edcb",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 365,
+    "output_tokens": 65,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "steps": [
+      {
+        "index": 0,
+        "scope": "company",
+        "why": "asks about this company specifically"
+      }
+    ]
+  }
+}

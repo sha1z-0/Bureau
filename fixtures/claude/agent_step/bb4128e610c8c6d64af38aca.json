@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "bb4128e610c8c6d64af38aca",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1602,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b5",
+    "valueKey": "profile:github",
+    "file": "",
+    "question": "",
+    "reason": "\"GitHub\" takes profile:github.",
+    "action": "fill"
+  }
+}

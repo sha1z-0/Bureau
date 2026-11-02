@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "40c3fe053597354e4ee34bfd",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1818,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "k2",
+    "valueKey": "",
+    "file": "",
+    "question": "",
+    "reason": "Open the \"2. Your documents\" section to reach its fields.",
+    "action": "click"
+  }
+}

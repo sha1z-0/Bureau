@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: a two-page custom wizard. Page 1 is an ordinary form the generic
+  engine fills and verifies, but its only way forward is an arrow control ("→",
+  aria-label "Onwards") that no adapter or heuristic knows, and the submit button
+  sits on page 2. The generic run cannot verify, so the browser agent finishes it.
+  Fictional employer. Local only (window.__posted).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Web Developer - Orchard Lane Studio</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 640px; margin: 24px auto; }
+    .field { margin: 12px 0; } label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; padding: 6px; box-sizing: border-box; }
+    .onwards { display: inline-block; font-size: 28px; cursor: pointer; padding: 0 12px; border: 1px solid #999; border-radius: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Junior Web Developer</h1>
+  <p>Orchard Lane Studio designs websites for small farms and food co-ops.</p>
+  <form id="app" novalidate>
+    <section id="page1">
+      <h2>About you</h2>
+      <div class="field"><label for="ol-first">First name *</label><input id="ol-first" name="first" type="text" required></div>
+      <div class="field"><label for="ol-last">Last name *</label><input id="ol-last" name="last" type="text" required></div>
+      <div class="field"><label for="ol-email">Email *</label><input id="ol-email" name="email" type="email" required></div>
+      <span class="onwards" id="onwards" role="button" tabindex="0" aria-label="Onwards">→</span>
+    </section>
+    <section id="page2" style="display:none">
+      <h2>Your work</h2>
+      <div class="field"><label for="ol-phone">Phone *</label><input id="ol-phone" name="phone" type="tel" required></div>
+      <div class="field"><label for="ol-gh">GitHub</label><input id="ol-gh" name="github" type="url"></div>
+      <div class="field"><label for="ol-cv">Resume/CV *</label><input id="ol-cv" name="cv" type="file" required></div>
+      <button type="submit">Send application</button>
+    </section>
+  </form>
+  <div id="done" hidden><h2>Thank you for applying!</h2></div>
+  <script>
+    (function () {
+      document.getElementById('onwards').addEventListener('click', function () {
+        var ok = ['ol-first', 'ol-last', 'ol-email'].every(function (id) { return document.getElementById(id).value; });
+        if (!ok) return;
+        document.getElementById('page1').style.display = 'none';
+        document.getElementById('page2').style.display = 'block';
+      });
+      document.getElementById('app').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var missing = Array.prototype.filter.call(this.querySelectorAll('[required]'), function (el) { return !el.value; });
+        if (missing.length) { window.__rejected = (window.__rejected || 0) + 1; return; }
+        window.__posted = (window.__posted || 0) + 1;
+        this.hidden = true;
+        document.getElementById('done').hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

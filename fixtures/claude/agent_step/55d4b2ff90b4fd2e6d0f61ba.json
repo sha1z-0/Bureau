@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "55d4b2ff90b4fd2e6d0f61ba",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1540,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "k1",
+    "valueKey": "",
+    "file": "",
+    "question": "",
+    "reason": "No form is visible yet; \"Let's get started\" should open it.",
+    "action": "click"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "d48d05291fbffa34237d97ab",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1775,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b1",
+    "valueKey": "profile:first_name",
+    "file": "",
+    "question": "",
+    "reason": "\"First name\" takes profile:first_name.",
+    "action": "fill"
+  }
+}
