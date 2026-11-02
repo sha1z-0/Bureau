@@ -281,6 +281,27 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
     assert.equal(shiftDates('"2026-10-31T10:00:00Z" 1793599200 Sat, 31 Oct 2026', 3), '"2026-11-03T10:00:00Z" 1793858400 Tue, 03 Nov 2026');
   });
 
+  await check('every connector parses its recorded payload through the replay layer (offline)', async () => {
+    const { installFetchReplay } = await import('../e2e/fetch-replay.ts');
+    const misses: string[] = [];
+    if (!(await installFetchReplay(feedResolver('recorded', {}, { onMiss: (u) => misses.push(u) })))) {
+      pending('safeFetch has no setFetchReplay() hook yet (requests/A11.md §1)');
+    }
+    try {
+      const { CONNECTORS } = await import('../../server/sources/index.ts');
+      const boards = { greenhouse: ['tailscale'], lever: ['sysdig'], ashby: ['resend'] };
+      const empty: string[] = [];
+      for (const c of CONNECTORS.filter((x) => x.id !== 'reddit')) {
+        const jobs = await c.run({ keywords: [], categories: ['web', 'software', 'security', 'game', 'devops_cloud', 'data_ai', 'mobile'], boards, maxAgeDays: 3650, log: () => {} });
+        if (!jobs.length) empty.push(c.id);
+        for (const j of jobs) assert.ok(j.title && j.company && j.url, `${c.id}: incomplete job`);
+      }
+      assert.deepEqual(empty, [], `connectors that parsed nothing from their recording (misses: ${misses.slice(0, 3).join(', ')})`);
+    } finally {
+      await installFetchReplay(null);
+    }
+  });
+
   // ───────────────────────────────────────────── mail
   section('A11 · Mail fixtures');
   await check('25+ .eml files cover every inbox class at least twice and parse cleanly', async () => {
