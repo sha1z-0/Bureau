@@ -19,11 +19,14 @@ import { currentScan, runScan, scanSettings } from '../services/scanner.ts';
 import { loadProfile } from '../services/profileStore.ts';
 import { sourceHealth } from '../scout/index.ts';
 import { body, json } from './util.ts';
+import { uiRoutes } from './ui.ts';
 
 const token = z.string().regex(/^[a-z0-9][a-z0-9-_.]{0,80}$/i, 'Board tokens are letters, digits, dashes');
 
 export async function systemRoutes(app: FastifyInstance) {
   app.get('/api/health', async () => ({ ok: true }));
+  // A10's UI read models and onboarding state live beside the v1 routes.
+  await uiRoutes(app);
 
   // ── Overview ──────────────────────────────────────────────────────────
   app.get('/api/overview', async () => {
