@@ -61,3 +61,58 @@ export async function sendApplicationEmail(opts: {
   });
   return info.messageId as string;
 }
+
+// ── Plain follow-up mail (A09) ───────────────────────────────────────────────
+
+export interface PlainMail {
+  to: string;
+  subject: string;
+  text: string;
+  /** Message-ID of the mail this replies to, so it lands in the same thread. */
+  inReplyTo?: string | null;
+  references?: string[];
+}
+
+export type PlainSender = (mail: PlainMail) => Promise<string>;
+
+/** Offline and replay modes never send mail. */
+export const mailOffline = () => process.env.BUREAU_REPLAY === '1' || process.env.BUREAU_NOTIFY_OFFLINE === '1' || process.env.BUREAU_MAIL_OFFLINE === '1';
+
+const realPlainSender: PlainSender = async (mail) => {
+  if (mailOffline()) throw new AppError(503, 'OFFLINE', 'Email is disabled in offline mode.');
+  const { transporter, settings } = transport();
+  const info = await transporter.sendMail({
+    from: settings.from || settings.user,
+    to: mail.to,
+    bcc: settings.bccSelf ? settings.from || settings.user : undefined,
+    subject: mail.subject,
+    text: mail.text,
+    inReplyTo: mail.inReplyTo ?? undefined,
+    references: mail.references?.length ? mail.references : undefined,
+  });
+  return info.messageId as string;
+};
+
+let plainSender: PlainSender = realPlainSender;
+
+/** Swap the sender (tests). Returns a restore function. */
+export function setPlainSender(fake: PlainSender | null): () => void {
+  const prev = plainSender;
+  plainSender = fake ?? realPlainSender;
+  return () => {
+    plainSender = prev;
+  };
+}
+
+/** A short plain-text email with no attachment (follow-ups). Returns the Message-ID. */
+export async function sendPlainEmail(mail: PlainMail): Promise<string> {
+  if (!EMAIL_RE.test(mail.to)) throw new AppError(400, 'BAD_EMAIL', 'That recipient address does not look valid.');
+  const clean = (s: string) => s.replace(/[\r\n]+/g, ' ').trim();
+  return plainSender({
+    to: mail.to,
+    subject: clean(mail.subject).slice(0, 200),
+    text: mail.text,
+    inReplyTo: mail.inReplyTo ? clean(mail.inReplyTo) : null,
+    references: mail.references?.map(clean).filter(Boolean),
+  });
+}
