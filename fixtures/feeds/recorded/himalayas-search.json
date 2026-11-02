@@ -1,0 +1,215 @@
+{
+  "comments": "Search results come 20 to a page. Pass ?page=2, ?page=3 and so on for more; there is no cursor on search. Cursor pagination (nextCursor) is only on /jobs/api, the browse feed. 13/03/2026: The API has been updated to include the companySlug field in the response.",
+  "updatedAt": 1793533306,
+  "offset": 0,
+  "limit": 20,
+  "totalCount": 5000,
+  "jobs": [
+    {
+      "title": "Software Engineer, AI Coding Tasks (Contract)",
+      "excerpt": "We're looking for experienced software engineers to build AI coding tasks from a codebase they know well.",
+      "companyName": "Askable",
+      "companySlug": "askable",
+      "companyLogo": "https://cdn-images.himalayas.app/y4eojs8toyo9ocht137iss4uee48",
+      "employmentType": "Contractor",
+      "minSalary": 100,
+      "maxSalary": 100,
+      "salaryPeriod": "hourly",
+      "seniority": [
+        "Mid-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [],
+      "timezoneRestrictions": [
+        -11,
+        -10,
+        -9.5,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3.5,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        3.5,
+        4,
+        4.5,
+        5,
+        5.5,
+        5.75,
+        6,
+        6.5,
+        7,
+        8,
+        8.75,
+        9,
+        9.5,
+        10,
+        10.5,
+        11,
+        12,
+        12.75,
+        13,
+        14
+      ],
+      "categories": [
+        "Freelance-AI-Software-Engineer",
+        "Contract-Software-Engineer",
+        "AI-ML-Software-Engineer",
+        "Contract-Software-Engineering-Jobs",
+        "AI-Coding-Specialist",
+        "Software-Engineer",
+        "Developer"
+      ],
+      "parentCategories": [
+        "Developer"
+      ],
+      "description": "<p>We're looking for experienced software engineers to build AI coding tasks from a codebase they know well. US$1,000 per task, and you can do as many tasks as you want.</p><p>You turn a real change from a repository you know into a task that today's best AI coding models struggle with: hard for the models, but fair for a skilled engineer. Your tasks are used to measure and train AI coding models.</p><p>Remote, any location. US$1,000 per task that passes review. Minimum of one task a week, about 10 hours a week.</p><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1792198336,
+      "expiryDate": 1794790336,
+      "applicationLink": "https://himalayas.app/companies/askable/jobs/software-engineer-ai-coding-tasks-contract?utm_source=api",
+      "guid": "https://himalayas.app/companies/askable/jobs/software-engineer-ai-coding-tasks-contract"
+    },
+    {
+      "title": "Senior Software Engineer",
+      "excerpt": "We are an AI-first company building innovative agentic frameworks, the systems that let LLM-driven agents research, plan, and act reliably in production.",
+      "companyName": "Alien Intellect",
+      "companySlug": "alien-intellect",
+      "companyLogo": "https://cdn-images.himalayas.app/mbvefydaivkhdqjf6l6s6hgqm8rt",
+      "employmentType": "Full Time",
+      "minSalary": 2000,
+      "maxSalary": 3000,
+      "salaryPeriod": "monthly",
+      "seniority": [
+        "Senior",
+        "Manager"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [],
+      "timezoneRestrictions": [
+        3.5
+      ],
+      "categories": [
+        "Senior-Software-Developer",
+        "Senior-Software-Engineer-Jobs",
+        "Senior-Engineer",
+        "Software-Engineer"
+      ],
+      "parentCategories": [
+        "Developer"
+      ],
+      "description": "<p>We are an <span><strong>AI-first</strong></span> company building innovative agentic frameworks, the systems that let LLM-driven agents research, plan, and act reliably in production. That means orchestrating multi-step workflows with retries, skips, and parallel execution; keeping long-running work persistent and observable; and serving per-tenant retrieval at scale. This isn't about wrapping an LLM in an API call, it's the hard backend engineering that makes agents dependable.</p><p>Our stack is <span><strong>Python</strong></span> (<span><strong>FastAPI</strong></span>) on <span><strong>AWS</strong></span>, with Terraform. We hire on engineering depth and judgment, not on a keyword count, and we work in whichever language you're strongest in during the interview (more below). As a Senior Engineer, you will own backend services and the orchestration layer on top of them, from design through deployment, operation, and the on-call that follows.</p><p>Our team is based in <span><strong>Tehran</strong></span> and pays <span><strong>salaries</strong></span> monthly in <span><strong>USD</strong></span>.</p><p><span><strong>What You Will Do:</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><span><strong>Design, build, and own backend services</strong></span> and the agent-orchestration layer end to end.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Build resilient systems</strong></span> that stay correct under load and degrade gracefully when a model, tool, or dependency fails.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Ensure operational excellence</strong></span> by making long-running, multi-step work observable and debuggable in production.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Shape technical direction </strong></span>through rigorous code reviews, mentorship, and pushing back on specifications when they misalign with engineering reality.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Drive the full software development lifecycle</strong></span>, translating ambiguous requirements into durable architectures and actionable technical plans.</p></li>\n</ul><p><span><strong>What We Are Looking For:</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><span><strong>5+ years</strong></span> <span><strong>building and operating production backend systems</strong></span>, with deep ownership of at least one non-trivial service you can talk through end to end.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Deep fluency in your primary backend language</strong></span>, and the ability to pick up a new one fast. We work in <span><strong>Python</strong></span>; if it is not your daily language today, we expect you to ramp quickly.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Strong systems fundamentals</strong></span> — concurrency, data modeling, and failure modes — and the judgment to choose the right abstraction rather than the cleverest one.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Sound reasoning under ambiguity</strong></span>: you ask the clarifying question first, make the trade-offs explicit, and adapt when the constraints change.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Solid grasp of infrastructure and operations</strong></span>, including message brokers (Kafka, RabbitMQ), SQL and NoSQL stores, and running services in containers with an orchestrator (Kubernetes, ECS, Nomad, or similar).</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Professional written English</strong></span>, enabling you to write crisp design documents and align stakeholders on complex technical trade-offs.</p></li>\n</ul><p><span><strong>Even Better:</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p>AWS (especially ECS) and Terraform, or comparable cloud and Infrastructure-as-Code experience.</p></li>\n<li class=\"leading-normal -mb-2\"><p>Hands-on work with LLM, agentic, or RAG systems (LangChain, CrewAI, OpenAI/Anthropic SDKs, Hugging Face) and a real grasp of how non-deterministic agent steps differ from ordinary functions.</p></li>\n<li class=\"leading-normal -mb-2\"><p>A recognized-bar engineering background, owned open-source work, or another verifiable standout signal.</p></li>\n</ul><p><span><strong>How We Hire:</strong></span></p><p>We use a deliberate, transparent two-stage process designed to see how you think and build:</p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p>1. <span><strong>A 120-minute conversation</strong></span> focusing on your background and a collaborative system-design exercise and cultural fit..</p></li>\n<li class=\"leading-normal -mb-2\"><p>2. <span><strong>A 120-minute live technical session </strong></span>involving code review, live coding, and a self-review.</p></li>\n</ul><p>You may complete the technical session in your strongest language (Python, Go, Java, Kotlin, PHP, or TypeScript/Node.js). Web search is encouraged; AI assistants are not used. We want to see your fundamental engineering judgment.</p><p><span><strong>What We Offer:</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><span><strong>Competitive USD-based salary and a comprehensive benefits package.</strong></span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>Hybrid work flexibility </strong></span>with hours that support deep work.</p></li>\n<li class=\"leading-normal -mb-2\"><p>The opportunity to <span><strong>work at the frontier of agentic AI</strong></span>, tackling hard problems with high ownership.</p></li>\n<li class=\"leading-normal -mb-2\"><p><span><strong>A highly educated, agile senior team</strong></span> that values pragmatism, learning, and continuous improvement.</p></li>\n</ul><p>If you would rather be judged on how you think than on a buzzword list, we would like to talk!</p><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1793013430,
+      "expiryDate": 1795605430,
+      "applicationLink": "https://himalayas.app/companies/alien-intellect/jobs/senior-software-engineer-8699633569?utm_source=api",
+      "guid": "https://himalayas.app/companies/alien-intellect/jobs/senior-software-engineer-8699633569"
+    },
+    {
+      "title": "Principal Software Systems Engineer",
+      "excerpt": "Do you want to help a small company make a BIG difference in space?",
+      "companyName": "Red Canyon Engineering & Software",
+      "companySlug": "red-canyon-engineering-software",
+      "companyLogo": "",
+      "employmentType": "Contractor",
+      "minSalary": null,
+      "maxSalary": null,
+      "salaryPeriod": "hourly",
+      "seniority": [
+        "Senior"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [
+        "United States"
+      ],
+      "timezoneRestrictions": [
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        14
+      ],
+      "categories": [
+        "Systems-Engineering",
+        "Aerospace-Engineering",
+        "Software-Systems-Engineering",
+        "Spacecraft-Engineering",
+        "Flight-Software-Engineering",
+        "Principal-Software-Engineer",
+        "Principal-Systems-Engineer",
+        "Principal-Software-Development-Engineer",
+        "Principal-Software-Engineering",
+        "Senior-Systems-Software-Engineer",
+        "Software-Systems-Engineer",
+        "Principal-Systems-Developer",
+        "Systems-Software-Engineer",
+        "Principal-Software-Developer"
+      ],
+      "parentCategories": [
+        "Developer"
+      ],
+      "description": "<div>Do you want to help a small company make a BIG difference in space? Do you take ownership of your job and responsibility for your actions? Then come work for Red Canyon and help us continue our mission of helping humankind reach the stars!</div><div>\n<p>Red Canyon Software is looking for an enthusiastic and creative Principal Software Systems Engineer (Contract) to design and analyze new satellite and aerospace systems. We're looking for candidates who can bring exceptional engineering skills and strong experience in aerospace programs to the team.</p>\n<h3>Position Responsibilities:</h3>\n<p>The Principal Software Systems Engineer's primary responsibility will be driving the development of customer satellite systems with a focus on flight software delivery. This engineer will be involved in the full lifecycle of development, from requirements definition, validation, verification and operations. Being at the cutting edge of space technology, we need someone who is eager to learn, grow, and take on new and potentially unfamiliar challenges. There is no shortage of fascinating problems to solve.</p>\n<p>The Principal Software Systems Engineer will provide autonomous solutions of complex problems, through direct work or delegation, under the leadership of the Systems Engineering Manager. The Principal Systems Engineer will have project and subject matter responsibility and authority.</p>\n<h3>Systems Engineering 75%</h3>\n<ul>\n<li>Perform systems engineering tasks for satellite software systems, including the heritage platform:<ul>\n<li>Requirements development – initial definition, decomposition and flow down, management of Software and Avionics Subsystem requirements</li>\n<li>System design and trade studies – high level concept trades to support subsequent detail design</li>\n<li>Verification planning and testing – verification matrices, buy-off / sell-off, test planning, analysis planning, etc.</li>\n<li>Ensure proper Systems Engineering processes are followed including requirements traces / RVTMs</li>\n<li>Coordinate and collaborate with internal and external stake holders to ensure that technical requirements are met</li>\n<li>Flight Software anomaly resolution and troubleshooting</li>\n</ul>\n</li>\n<li>Demonstrated ability to participate in cross-functional planning, coordination, and task execution situations involving the full spectrum of engineering and integration activities</li>\n</ul>\n<h3>Roadmap Development 15%</h3>\n<ul>\n<li>Support spacecraft development product roadmap; includes design adjustments, schedule, and cost targets aligned for future business captures</li>\n<li>Support the definition of spacecraft customization process for customer mission needs</li>\n</ul>\n<h3>Additional Responsibilities 10%</h3>\n<ul>\n<li>Perform all the necessary systems engineering activities to build, to maintain and to evolve the spacecraft products</li>\n<li>Promote and optimize cost savings by reuse of the heritage platform designs and manufacturing infrastructures in the pursuit of various constellation prospects.</li>\n</ul>\n<h3>Qualified Experience / Skills / Training:</h3>\n<h3>Education:</h3>\n<ul>\n<li>Bachelor's degree in STEM (Science, Technical, Engineering, Math) or related scientific areas</li>\n<li>Preferred: Masters in STEM (Science, Technical, Engineering, Math) or related scientific areas</li>\n</ul>\n<h3>Experience:</h3>\n<ul>\n<li>A minimum of 15 years with a bachelor's degree, or 12 years with a master's degree</li>\n<li>Proven track-record of working with aerospace software systems, starting from conceptual designs and tradeoffs thru detailed design, development, integration, test, deployment, and operations</li>\n<li>Proven track-record of leading multi-disciplinary teams to solve problems</li>\n</ul>\n<h3>Knowledge, Skills, Demonstrated Capabilities:</h3>\n<ul>\n<li>Familiarity with elements of space mission architectures extending beyond the satellite platform – including launch, flight operations, mission CONOPS, user interfaces, etc.</li>\n<li>Experience with systems architecture, requirements definition and decomposition, and requirements verification and validation (e.g. Requirements Verification and Traceability Matrices)</li>\n<li>Experience with Model Based Systems Engineering (MBSE) tools and methods</li>\n<li>Experience with requirements management tools (DOORS or similar)</li>\n<li>Experience leading and/or performing analyses for affordability, safety, reliability, maintainability, testability, human systems integration, survivability, vulnerability, susceptibility, system security, regulatory, certification, product assurance or other specialties engineering disciplines</li>\n<li>Communicate in a clear and concise manner effectively across multiple levels</li>\n<li>Be team-minded and ready to work in a multi-functional and multi-cultural, fast-moving and complex/technical environment</li>\n<li>Flexible attitude and strong initiative</li>\n<li>Demonstrated ability to deliver results</li>\n</ul>\n<div>MUST BE A US CITIZEN</div>\n</div><div>Red Canyon Engineering and Software: <b>“Exploring Other Planets, Improving our Own”</b>\n</div><div>Red Canyon contracts with NASA, NOAA, NREL, JPL, and DOD, in addition to customers such as Lockheed Martin Space, Raytheon, Sierra Space, a.i. solutions, Walt Disney Imagineering, SAIC, Sidus Space, Ball Aerospace, SpaceX, Honeywell, KBRwyle, Peraton, LASP, Maxar, Blue Origin, and Moog. We specialize in building spacecraft, developing renewable energy technologies to help make our planet a better world and cutting edge research and development. Our disciplines include embedded flight software, software testing,  GN&amp;C, systems engineering, mechanical design, structural analysis, real time flight and ground software, simulation software, user interface software, and mission management software. We help our contractors with the full life cycle of product development from requirements to test and delivery.</div><div>Some of the programs we have previously or currently worked on include: Human Lander System, Artemis I-II, WorldView Legion V, Perseverance Rover, InSight, GeoXO, Tranche-1, LizzieSat, Dream Chaser, Psyche, Mars 98, Odyssey 01, Stardust, Genesis and Deep Impact, Mars Phoenix, Joint Polar Satellite System, Mars Reconnaissance Orbiter, Orion, Lunar Reconnaissance Orbiter, GOES-R, OSIRIS-REx, Maven, JUNO, Grail, and the MarsFlight and LunarSIM Simulation. </div><div>Red Canyon’s home office is located in scenic Denver, Colorado, and our regional office, Launch Now, is in historic downtown Titusville, Florida. We are a small company that maintains a flat organization to decrease our overhead and costs to our customers. Our number one focus is to solve some of the most complicated engineering problems humankind is facing.</div><div>Does it sound like you want to join our mission? </div><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1789341689,
+      "expiryDate": 1794525688,
+      "applicationLink": "https://himalayas.app/companies/red-canyon-engineering-software/jobs/principal-software-systems-engineer?utm_source=api",
+      "guid": "https://himalayas.app/companies/red-canyon-engineering-software/jobs/principal-software-systems-engineer"
+    },
+    {
+      "title": "Software or Systems Engineers - Flight Controls",
+      "excerpt": "We have an immediate need for an Avionics Software or Systems Engineer.",
+      "companyName": "Performance Software",
+      "companySlug": "performance-software",
+      "companyLogo": "",
+      "employmentType": "Full Time",
+      "minSalary": 75000,
+      "maxSalary": 145000,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Mid-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [
+        "United States"
+      ],
+      "timezoneRestrictions": [
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        14
+      ],
+      "categories": [
+        "Software-Engineer",
+        "Systems-Engineer",
+        "Avionics-Software-Engineer",
+        "Embedded-Software-Engineer",
+        "Flight-Controls-Engineer",
+        "Flight-Control-Systems-Engineer",
+        "Flight-Control-Systems-Engineering",
+        "Flight-Controls-Engineering",
+        "Flight-Systems-Engineering",
+        "Flight-Software-Engineering",
+        "Flight-Control-Engineering"
+      ],
+      "parentCategories": [
+        "Developer",
+        "Operations"
+      ],
+      "description": "<p>We have an immediate need for an Avionics Software or Systems Engineer. This position can either be direct in one of our office locations or as a remote contract. We are located in Phoenix, AZ, Cedar Rapids, IA, Grand Rapids, MI, Bothell, WA, Lexington, KY, and New Orleans, LA.</p><p>Pay Range: $75/hr - $110/hr - DOE - Contract</p><p>                    $75,000 - $145,000 - DOE - Direct</p><h3>Job Requirements</h3><ul>\n<li>Due to compliance with U.S. export control laws and regulations, candidate must be a U.S. Person, which is defined as, a U.S. citizen, a U.S. permanent resident, or have protected status in the U.S. under asylum or refugee status or have the ability to obtain an export authorization</li>\n<li>Bachelors or advanced degree in Computer Science, Computer Engineering, Electrical Engineering, Computer Systems Engineering, Mathematics, or equivalent development experience</li>\n<li>Significant Avionics Flight Controls software experience is required</li>\n<li>Strong object oriented language (C++, C#, Python, etc.) and software development methodologies (Waterfall, Agile, etc.)</li>\n<li>Demonstrated teamwork and leadership abilities</li>\n<li>Embedded software experience is required</li>\n</ul><p>Why work with those of us at <a href=\"https://himalayas.app/companies/performance-software\">Performance Software</a>? Why change jobs or begin your career with us?</p><h3>Our Mission:</h3><p>Your success. How, you might ask? … By providing a company culture dedicated to a sensible work/life balance by hiring carefully selected team players with whom you will work; by encouraging each other to produce the best embedded software for safety critical (Avionics &amp; Medical Instruments) systems in the country; by having “raving fans” (customers who come back to us regularly because we get it done right and on time).</p><p>We’re a medium-sized company that’s growing rapidly, but which maintains that small company feel. At Performance, you’re not just a name &amp; face or locked onto a fixed team maintaining legacy systems; instead, you’ll be working on a wide variety of projects using the full gamut of advanced software development technologies.</p><p>We provide what great talent wants and deserves!</p><h3>About Performance:</h3><p>Performance Inc. is engaged in the design of Real-time Embedded Software. This includes avionics and healthcare applications such as CT Scanner, Synthetic Vision Cockpit Displays, Flight Management System Guidance and Navigation, Platforms (I/O, BITE, Driver, Boot, BSP, DSP, A/D, Dataloader), and Datalink Applications (FANS, VDL Mode 2, ATN, CPDLC). Our customers are both Commercial and Defense related healthcare and avionics manufacturers.</p><p>We have locations in Phoenix, AZ, Cedar Rapids, IA, Grand Rapids, MI, Bothell, WA, Lexington, KY, and New Orleans, LA. We have been in business since 1998 and have been awarded INC 5000 Fastest Growing Companies and Best Places to Work in Arizona multiple years.</p><p><a href=\"https://himalayas.app/companies/performance-software\">Performance Software</a> is an affirmative action and equal opportunity employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, disability, age, sexual orientation, gender identity, national origin, veteran status, or genetic information. We are committed to providing access, equal opportunity and reasonable accommodation for individuals with disabilities in employment, its services, programs, and activities. If you need reasonable accommodation to participate in the job application or interview process, to perform essential job functions, and/or to receive other benefits and privileges of employment, please discuss this with your recruiter if you are selected for an interview.</p><h3>To learn more about us: www.psware.com</h3>Salary: $75,000-$145,000 DOE<p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1792845790,
+      "expiryDate": 1798029789,
+      "applicationLink": "https://himalayas.app/companies/performance-software/jobs/software-or-systems-engineers-flight-controls?utm_source=api",
+      "guid": "https://himalayas.app/companies/performance-software/jobs/software-or-systems-engineers-flight-controls"
+    }
+  ]
+}

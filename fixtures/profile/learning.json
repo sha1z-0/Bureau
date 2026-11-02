@@ -1,0 +1,6 @@
+[
+  { "id": "ll-go", "skill": "Go", "status": "learning", "startedAt": "2026-08-15T00:00:00.000Z", "notes": "Porting ledger-lite's trial-balance endpoint to Go (net/http, pgx)." },
+  { "id": "ll-k8s", "skill": "Kubernetes", "status": "learning", "startedAt": "2026-09-01T00:00:00.000Z", "notes": "Evening course; running workloads on kind locally only. Nothing in production." },
+  { "id": "ll-aws", "skill": "AWS", "status": "queued", "startedAt": null, "notes": "Planned after Kubernetes: ECS and RDS basics." },
+  { "id": "ll-graphql", "skill": "GraphQL", "status": "done", "startedAt": "2025-02-01T00:00:00.000Z", "notes": "Finished a course; not used at work." }
+]

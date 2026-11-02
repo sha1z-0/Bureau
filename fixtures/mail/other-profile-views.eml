@@ -1,0 +1,46 @@
+Return-Path: <notifications-noreply@linkfolio.example>
+From: Linkfolio <notifications-noreply@linkfolio.example>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: Rania, 7 people viewed your profile this week
+Date: Sat, 31 Oct 2026 06:12:00 +0000
+Message-ID: <notif.views.20261031.88a1@linkfolio.example>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0027_fixture.tnxifp"
+
+------=_Part_0027_fixture.tnxifp
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Rania, your profile is getting noticed
+
+7 people viewed your profile this week, including:
+- A Technical Recruiter at Quillstack
+- A Talent Partner at Lumen Ledger
+- Someone in the Software Development industry from Berlin
+
+See all viewers: https://linkfolio.example/me/profile-views
+
+Members with a complete profile get up to 3x more views. Add your skills: https://linkfolio.example/me/edit
+
+Unsubscribe: https://linkfolio.example/settings/notifications
+
+------=_Part_0027_fixture.tnxifp
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Rania, your profile is getting noticed</p>
+<p>7 people viewed your profile this week, including:<br>
+- A Technical Recruiter at Quillstack<br>
+- A Talent Partner at Lumen Ledger<br>
+- Someone in the Software Development industry from Berlin</p>
+<p>See all viewers: <a href="https://linkfolio.example/me/profile-views">https://linkfolio.example/me/profile-views</a></p>
+<p>Members with a complete profile get up to 3x more views. Add your skills: <a href="https://linkfolio.example/me/edit">https://linkfolio.example/me/edit</a></p>
+<p>Unsubscribe: <a href="https://linkfolio.example/settings/notifications">https://linkfolio.example/settings/notifications</a></p>
+</body>
+</html>
+
+------=_Part_0027_fixture.tnxifp--

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Breezy HR portal application page (<company>.breezy.hr/p/<id>-<slug>/apply).
+  Markup follows the live AngularJS 1.2 portal: form[name=form][ng-submit="apply()"] with
+  ng-model attributes (candidate.name, candidate.email_address, candidate.phone_number,
+  candidate.address via the googleplace directive, candidate.salary.salary + period,
+  candidate.work_history / candidate.education ng-repeat entries, candidate.summary,
+  candidate.cover_letter), "polygot" placeholders that are literal %PLACEHOLDER_FULL_NAME%-style
+  tokens until translate.breezy.js swaps them, the "Upload Resume" button over a hidden
+  input#main-attachment that uploads at once (spinner "Uploading Resume", then "Attached"),
+  "Apply Using LinkedIn" / "Use My Indeed Resume" buttons, error-container spans shown with
+  ng-hide after a submit attempt, the off-screen honeypot input#hp_7f2b + form_token, and the
+  v2 questionnaire wizard: application -> questionnaire section (radio / checkboxes / text /
+  paragraph / dropdown) -> GDPR consent, navigated with Next/Back inside one page.
+  Submit = PortalClient.apply(positionId, candidate) JSON, then location -> .../apply/submitted.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Software Developer at Pebble Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "Open Sans", Arial, sans-serif; color: #333; background: #f7f7f7; }
+    .header { background: #1f3b57; color: #fff; padding: 18px 24px; }
+    .header .brand-name { font-size: 20px; font-weight: 700; }
+    .container-wrapper { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+    .position-header { background: #fff; padding: 28px 0; border-bottom: 1px solid #e5e5e5; }
+    .position-header h1 { margin: 0 0 6px; font-size: 28px; }
+    .position-header .meta { color: #777; font-size: 14px; }
+    .description { background: #fff; margin: 20px 0; padding: 20px 24px; border-radius: 4px; line-height: 1.6; font-size: 15px; }
+    form { background: #fff; padding: 24px; border-radius: 4px; margin-bottom: 40px; }
+    .ng-hide { display: none !important; }
+    .apply-buttons { list-style: none; display: flex; gap: 10px; padding: 0; margin: 0 0 16px; flex-wrap: wrap; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; border-radius: 4px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; }
+    .button.blue { background: #2a7ab0; } .button.gray { background: #8a8a8a; } .button.green { background: #3a9b5c; } .button.large { padding: 14px 28px; font-size: 16px; }
+    .button.linkedin { background: #0a66c2; } .button.indeed { background: #2557a7; }
+    .section { margin-top: 18px; }
+    .section-header h2 { font-size: 20px; margin: 10px 0; }
+    h3 { font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
+    .required { color: #d9534f; margin-left: 2px; }
+    input[type=text], input[type=email], input[type=date], input[type=number], select, textarea { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 3px; font: inherit; }
+    textarea { min-height: 110px; }
+    .formSubmitted input.ng-invalid, .formSubmitted textarea.ng-invalid, .formSubmitted select.ng-invalid { border-color: #d9534f; }
+    .error-container .error { color: #d9534f; font-size: 13px; display: block; margin-top: 4px; }
+    .form-divider { height: 6px; }
+    .options { list-style: none; padding: 0; margin: 8px 0; font-size: 13px; }
+    .experience { border: 1px solid #e3e3e3; border-radius: 4px; padding: 12px; margin-bottom: 10px; list-style: none; }
+    ul.entries { padding: 0; }
+    .bzyLinkColor { color: #2a7ab0; cursor: pointer; text-decoration: none; font-size: 14px; }
+    .date-label { font-size: 12px; color: #777; }
+    .salary-row { display: flex; gap: 8px; }
+    .salary-row input { flex: 2; } .salary-row select { flex: 1; }
+    .question { margin-bottom: 18px; }
+    .question label.opt { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 14px; font-weight: 400; }
+    .navigation-buttons { list-style: none; display: flex; justify-content: space-between; padding: 0; margin: 24px 0 0; }
+    .file-attached { margin: 8px 0; font-size: 14px; }
+    .pac-container { font-family: Arial, sans-serif; }
+    .footer { text-align: center; font-size: 13px; color: #888; padding: 24px; }
+    .gdpr-notice { background: #f5f8fb; border: 1px solid #dfe7ef; padding: 12px; border-radius: 4px; font-size: 13px; line-height: 1.5; }
+  </style>
+</head>
+<body class="breezy-portal-bold">
+<div ng-controller="PositionApplyViewCtrl" data-friendly-id="pebble-analytics" class="body-wrapper landing position">
+  <div class="header headerStyle"><div class="container-wrapper"><span class="brand-name">Pebble Analytics</span></div></div>
+  <div class="position-header"><div class="container-wrapper">
+    <h1>Junior Software Developer</h1>
+    <div class="meta"><span class="polygot">%LABEL_POSITION_TYPE_FULL_TIME%</span> · Remote · Engineering</div>
+  </div></div>
+
+  <div class="container-wrapper">
+    <div class="description">
+      <p>Pebble Analytics builds reporting dashboards for 400 independent gyms and fitness studios. Our small engineering team (seven people) runs a Python/Django backend, a TypeScript front end and a PostgreSQL warehouse fed by nightly pipelines.</p>
+      <p><strong>Responsibilities</strong></p>
+      <ul><li>Build API endpoints and background jobs that load booking and payment data</li><li>Write SQL for new dashboard metrics and keep existing ones correct</li><li>Ship small front-end changes in TypeScript</li></ul>
+      <p><strong>Requirements</strong></p>
+      <ul><li>1-2 years of professional development experience</li><li>Python or TypeScript, and solid SQL</li><li>Comfortable working asynchronously across time zones</li></ul>
+    </div>
+
+    <form name="form" ng-submit="apply()" class="" novalidate>
+      <input type="hidden" id="questionnaireVersion" value="2">
+      <!-- ===================== section: application ===================== -->
+      <div data-section="application" class="form-section-application">
+        <div class="apply-container"><ul class="apply-buttons apply-buttons-3">
+          <li class="apply-button"><div class="file-input-container type"><a href="#" id="upload-resume-btn" class="polygot-parent button resume btn-flex-center blue"><div class="app-resume-btn"><span class="polygot">%LINK_UPLOAD_RESUME%</span><span title="Required" class="required">*</span></div></a></div></li>
+          <li class="apply-button"><a href="#" id="indeed-btn" class="polygot-parent button blue indeed button-indeed btn-flex-center"><span class="polygot">%BUTTON_APPLY_USING_INDEED%</span></a></li>
+          <li class="apply-button"><a target="_self" href="#linkedin" id="linkedin-btn" class="button blue linkedin btn-flex-center"><span class="polygot">%BUTTON_APPLY_USING_LINKED_IN%</span></a></li>
+        </ul></div>
+        <div class="section-header"><input type="hidden" id="resume_required" value="required">
+          <div class="file-input-container type">
+            <div class="file-attached ng-hide" id="resume-attached"><span class="fa fa-paperclip">📎</span> <a href="" class="bzyLinkColor"></a></div>
+            <input id="main-attachment" name="cResume" style="display:none;" type="file" ng-model="candidate.resume" ng-file-select="onFileSelect($files)" accept=".pdf, .doc, .docx, .txt, .rtd, .pages" class="attachment">
+            <div class="error-container ng-hide" data-err="resume"><span class="error polygot">%ERROR_INVALID_FORM_RESUME%</span></div>
+            <div class="form-divider"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><h2 class="polygot">%HEADER_PERSONAL_DETAILS%</h2></div>
+          <h3><span class="polygot">%PLACEHOLDER_FULL_NAME%</span><span title="Required" class="required">*</span></h3>
+          <input name="cName" ng-model="candidate.name" type="text" placeholder="%PLACEHOLDER_FULL_NAME%" required class="polygot ng-pristine ng-invalid ng-invalid-required">
+          <div class="error-container ng-hide" data-err="cName"><span class="error polygot">%ERROR_INVALID_FORM_FULL_NAME%</span></div>
+          <div class="form-divider"></div>
+          <h3><span class="polygot">%PLACEHOLDER_EMAIL_ADDRESS%</span><span title="Required" class="required">*</span></h3>
+          <input name="cEmail" ng-model="candidate.email_address" type="email" placeholder="%PLACEHOLDER_EMAIL_ADDRESS%" required class="email-address polygot ng-pristine ng-invalid ng-invalid-required">
+          <div class="error-container ng-hide" data-err="cEmail"><span class="error polygot">%ERROR_INVALID_FORM_EMAIL_ADDRESS%</span></div>
+          <div class="form-divider"></div>
+          <h3><span class="polygot">%PLACEHOLDER_PHONE_NUMBER%</span><span title="Required" class="required">*</span></h3>
+          <input name="cPhoneNumber" ng-model="candidate.phone_number" type="text" placeholder="%PLACEHOLDER_PHONE_NUMBER%" required class="phone-number polygot ng-pristine ng-invalid ng-invalid-required">
+          <div class="error-container ng-hide" data-err="cPhoneNumber"><span class="error polygot">%ERROR_INVALID_FORM_PHONE_NUMBER%</span></div>
+          <ul class="options"><li class="option consent-form"><label><input type="checkbox" name="smsConsent" ng-model="$storage[positionId].sms_consent"> <span class="polygot">I agree to receive SMS messages about my application from Pebble Analytics. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label></li></ul>
+          <div class="form-divider"></div>
+          <h3><span class="polygot">%PLACEHOLDER_ADDRESS%</span><span title="Required" class="required">*</span></h3>
+          <input id="fullAddress" name="cAddress" googleplace="" ng-model="candidate.address" type="text" placeholder="%PLACEHOLDER_ADDRESS%" required class="polygot ng-pristine ng-invalid ng-invalid-required">
+          <div class="error-container ng-hide" data-err="cAddress"><span class="error polygot">%ERROR_INVALID_FORM_ADDRESS%</span></div>
+          <div class="form-divider"></div>
+          <h3><span class="polygot">%PLACEHOLDER_SALARY%</span></h3>
+          <div class="salary-row">
+            <input name="cSalary" ng-model="candidate.salary.salary" type="text" placeholder="%PLACEHOLDER_SALARY%" class="polygot">
+            <select name="cSalaryPeriod" ng-model="candidate.salary.period" ng-options="freq.label for freq in salaryFreq track by freq._id"><option value="yearly" selected>Yearly</option><option value="monthly">Monthly</option><option value="biweekly">Biweekly</option><option value="weekly">Weekly</option><option value="daily">Daily</option><option value="hourly">Hourly</option></select>
+          </div>
+          <div class="form-divider"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><h2 class="polygot">%HEADER_EXPERIENCE%</h2></div>
+          <input type="hidden" id="work_required" value="optional">
+          <div class="section-header"><h3><span class="polygot">%HEADER_WORK_HISTORY%</span></h3></div>
+          <ul class="entries" id="work-history"></ul>
+          <div class="section-footer"><a href="" id="add-position" class="blue bzyLinkColor">＋ <span class="polygot">%LINK_ADD_POSITION%</span></a></div>
+          <div class="form-divider"></div>
+          <input type="hidden" id="education_required" value="optional">
+          <div class="section-header"><h3><span class="polygot">%HEADER_EDUCATION%</span></h3></div>
+          <ul class="entries" id="education"></ul>
+          <div class="section-footer"><a href="" id="add-education" class="blue bzyLinkColor">＋ <span class="polygot">%LINK_ADD_EDUCATION%</span></a></div>
+          <div class="form-divider"></div>
+          <div class="section-header"><h3><span class="polygot">%HEADER_EXPERIENCE_SUMMARY%</span></h3></div>
+          <textarea name="cSummary" ng-model="candidate.summary" placeholder="" class="description"></textarea>
+        </div>
+        <div class="section">
+          <div class="section-header"><h3><span class="polygot">%HEADER_COVER_LETTER%</span></h3></div>
+          <textarea name="cCoverLetter" ng-model="candidate.cover_letter" placeholder="" class="description"></textarea>
+        </div>
+      </div>
+
+      <!-- ===================== section: questionnaire ===================== -->
+      <div data-section="5e8a2c71b4d9" class="form-section-questionnaire ng-hide">
+        <div class="section-header"><h2>A few questions</h2></div>
+        <div class="question" data-question-id="q1f04a7c" data-type="multiplechoice" data-required="true">
+          <h3>Will you now or in the future require visa sponsorship to work for Pebble Analytics?<span title="Required" class="required">*</span></h3>
+          <label class="opt"><input type="radio" name="question_q1f04a7c" ng-model="question.response" value="Yes"> Yes</label>
+          <label class="opt"><input type="radio" name="question_q1f04a7c" ng-model="question.response" value="No"> No</label>
+          <div class="error-container ng-hide"><span class="error polygot">%ERROR_INVALID_FORM_RESPONSE%</span></div>
+        </div>
+        <div class="question" data-question-id="q2b93e10" data-type="checkboxes" data-required="true">
+          <h3>Which of the following have you used at work?<span title="Required" class="required">*</span></h3>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[0]" ng-change="checkCheckboxResponses(question)" value="Python"> Python</label>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[1]" ng-change="checkCheckboxResponses(question)" value="SQL"> SQL</label>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[2]" ng-change="checkCheckboxResponses(question)" value="dbt"> dbt</label>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[3]" ng-change="checkCheckboxResponses(question)" value="Airflow"> Airflow</label>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[4]" ng-change="checkCheckboxResponses(question)" value="TypeScript"> TypeScript</label>
+          <label class="opt"><input type="checkbox" ng-model="question.responses[5]" ng-change="checkCheckboxResponses(question)" value="Tableau"> Tableau</label>
+          <div class="error-container ng-hide"><span class="error polygot">%ERROR_INVALID_FORM_RESPONSE%</span></div>
+        </div>
+        <div class="question" data-question-id="q3c5d822" data-type="text" data-required="true">
+          <h3>What is your notice period?<span title="Required" class="required">*</span></h3>
+          <input type="text" ng-model="question.response" name="question_q3c5d822">
+          <div class="error-container ng-hide"><span class="error polygot">%ERROR_INVALID_FORM_RESPONSE%</span></div>
+        </div>
+        <div class="question" data-question-id="q4e7a019" data-type="paragraph" data-required="true">
+          <h3>Describe a data pipeline or backend service you built. What would you do differently now?<span title="Required" class="required">*</span></h3>
+          <textarea ng-model="question.response" name="question_q4e7a019" msd-elastic=" "></textarea>
+          <div class="error-container ng-hide"><span class="error polygot">%ERROR_INVALID_FORM_RESPONSE%</span></div>
+        </div>
+        <div class="question" data-question-id="q5a1b6f3" data-type="dropdown" data-required="false">
+          <h3>How did you hear about this position?</h3>
+          <select ng-model="question.response" name="question_q5a1b6f3"><option value="">--</option><option value="Job board">Job board</option><option value="LinkedIn">LinkedIn</option><option value="Pebble Analytics website">Pebble Analytics website</option><option value="Friend or colleague">Friend or colleague</option><option value="Other">Other</option></select>
+        </div>
+      </div>
+
+      <!-- ===================== section: gdpr ===================== -->
+      <div data-section="gdpr" class="form-section-gdpr ng-hide">
+        <div class="section-header"><h2>Privacy Notice</h2></div>
+        <div class="gdpr-notice">Pebble Analytics will process the personal data you submit to evaluate your application, using Breezy HR as its applicant tracking system. Your data is kept for 12 months after the position is filled and then deleted. <a href="#privacy" class="bzyLinkColor">Read the full privacy notice</a>.</div>
+        <ul class="options"><li class="option"><label><input type="checkbox" name="gdprAgreement" ng-model="gdpr.consent" required> I have read the privacy notice and consent to Pebble Analytics processing my data for this application.<span class="required">*</span></label></li></ul>
+        <div class="error-container ng-hide" data-err="gdprAgreement"><span class="error">Please accept the privacy notice to continue</span></div>
+      </div>
+
+      <div aria-hidden="true" style="position:absolute;left:-9999px;height:0;overflow:hidden;opacity:0" class="apply-field-extra"><label for="hp_7f2b"></label><input id="hp_7f2b" type="text" name="hp_7f2b" ng-model="candidate.hp_7f2b" tabindex="-1" autocomplete="hp-4f3c9a"><input id="form_token" type="hidden" value="1793611428922.7c2e90ab4f1d3e88a51c6b07d2e4f9130b8a6c5d"></div>
+
+      <div class="apply-container"><ul class="navigation-buttons">
+        <li class="apply-button"><button type="button" id="nav-back" class="button gray ng-hide"><span class="polygot">%BUTTON_BACK%</span></button></li>
+        <li class="apply-button"><button type="button" id="nav-next" class="button blue large"><span class="polygot">%BUTTON_NEXT%</span></button>
+          <button type="submit" id="nav-submit" class="button green large bzyButtonColor ng-hide"><span class="polygot">%BUTTON_SUBMIT_APPLICATION%</span></button></li>
+      </ul></div>
+      <div class="error-container ng-hide" id="form-invalid"><span class="error polygot">%ERROR_INVALID_FORM%</span></div>
+      <div class="error-container ng-hide" id="error-message"><span class="error"></span></div>
+    </form>
+  </div>
+  <div class="container footer"><div class="container-wrapper light bzy-footer"><p><span class="polygot label">%FOOTER_POWERED_BY%</span> <span class="brand">breezy</span></p></div></div>
+</div>
+
+<script src="/ats/_shared/places.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var form = document.forms.form;
+  var loadedAt = Date.now();
+  var human = false;
+  ['keydown', 'pointerdown'].forEach(function (t) { document.addEventListener(t, function () { human = true; }, { once: true }); });
+
+  // ---- translate.breezy.js: swap %TOKENS% shortly after load ------------------------------------
+  var EN = {
+    LABEL_POSITION_TYPE_FULL_TIME: 'Full-Time', LINK_UPLOAD_RESUME: 'Upload Resume', BUTTON_APPLY_USING_INDEED: 'Use My Indeed Resume', BUTTON_APPLY_USING_LINKED_IN: 'Apply Using LinkedIn',
+    ERROR_INVALID_FORM_RESUME: 'A resume is required', HEADER_PERSONAL_DETAILS: 'Personal Details', PLACEHOLDER_FULL_NAME: 'Full Name', ERROR_INVALID_FORM_FULL_NAME: 'A full name is required',
+    PLACEHOLDER_EMAIL_ADDRESS: 'Email Address', ERROR_INVALID_FORM_EMAIL_ADDRESS: 'An email is required', PLACEHOLDER_PHONE_NUMBER: 'Phone Number', ERROR_INVALID_FORM_PHONE_NUMBER: 'A phone number is required',
+    PLACEHOLDER_ADDRESS: 'Address', ERROR_INVALID_FORM_ADDRESS: 'Address is required', PLACEHOLDER_SALARY: 'Desired Salary', HEADER_EXPERIENCE: 'Experience', HEADER_WORK_HISTORY: 'Work History',
+    LINK_ADD_POSITION: 'Add Position', HEADER_EDUCATION: 'Education', LINK_ADD_EDUCATION: 'Add Education', HEADER_EXPERIENCE_SUMMARY: 'Experience Summary', HEADER_COVER_LETTER: 'Cover Letter',
+    ERROR_INVALID_FORM_RESPONSE: 'A response is required', BUTTON_BACK: 'Back', BUTTON_NEXT: 'Next', BUTTON_SUBMIT_APPLICATION: 'Submit Application', ERROR_INVALID_FORM: 'Your application contains errors',
+    FOOTER_POWERED_BY: 'Powered by', PLACEHOLDER_COMPANY: 'Company', PLACEHOLDER_TITLE: 'Title', PLACEHOLDER_SUMMARY: 'Summary', START_DATE: 'Start date', END_DATE: 'End date', LINK_DELETE: 'Delete',
+    PLACEHOLDER_SCHOOL: 'School', PLACEHOLDER_FIELD_OF_STUDY: 'Field of Study', FORM_FILE_ATTACHED: 'Attached'
+  };
+  function tr(s) { return String(s).replace(/%([A-Z_]+)%/g, function (m, k) { return EN[k] || m; }); }
+  function translate(root) {
+    $$('.polygot', root).forEach(function (el) {
+      if (el.placeholder && /%[A-Z_]+%/.test(el.placeholder)) el.placeholder = tr(el.placeholder);
+      if (el.children.length === 0 && /%[A-Z_]+%/.test(el.textContent)) el.textContent = tr(el.textContent);
+    });
+  }
+  setTimeout(function () { translate(document); }, 120);
+
+  $('#linkedin-btn').addEventListener('click', function (e) { e.preventDefault(); alert('LinkedIn is not available in this environment.'); });
+  $('#indeed-btn').addEventListener('click', function (e) { e.preventDefault(); alert('Indeed is not available in this environment.'); });
+
+  // ---- resume: Upload Resume -> hidden input -> immediate $upload ------------------------------------
+  var candidate = { resume: null, work_history: [], education: [], address_details: null };
+  var btn = $('#upload-resume-btn');
+  var fileInput = $('#main-attachment');
+  btn.addEventListener('click', function (e) { e.preventDefault(); if (!btn.hasAttribute('disabled')) fileInput.click(); });
+  fileInput.addEventListener('change', function () {
+    var f = fileInput.files && fileInput.files[0];
+    fileInput.value = '';
+    if (!f) return;
+    if (f.size > 50000000) { alert(tr('%ERROR_INVALID_FORM_FILE_SIZE%').replace(/%.*%/, 'The file attachment is limited to 50MB')); return; }
+    btn.setAttribute('disabled', '');
+    btn.classList.remove('blue'); btn.classList.add('gray');
+    $('.app-resume-btn', btn).innerHTML = '<span>⟳</span> <span>Uploading Resume</span>';
+    var fd = new FormData();
+    fd.append('lastModified', String(f.lastModified || Date.now()));
+    fd.append('file', f, f.name);
+    fetch('/pebble-analytics.breezy.hr/api/portal/pebble-analytics/upload', { method: 'POST', body: fd })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        btn.removeAttribute('disabled');
+        if (!res.ok) { candidate.resume = { error: true }; $('.app-resume-btn', btn).innerHTML = '<span>Upload Resume</span>'; btn.classList.add('blue'); return; }
+        candidate.resume = res.body;
+        $('.app-resume-btn', btn).innerHTML = '<span>☁✓</span> <span class="polygot">Attached</span>';
+        var att = $('#resume-attached');
+        att.classList.remove('ng-hide');
+        $('a', att).textContent = res.body.file_name;
+        $('[data-err=resume]').classList.add('ng-hide');
+      });
+  });
+
+  // ---- address: googleplace directive (Places Autocomplete) -------------------------------------------
+  var addr = $('#fullAddress');
+  FXPlaces.attach(addr, {
+    onPick: function (p) {
+      var parts = p.region.split(',').map(function (s) { return s.trim(); });
+      candidate.address_details = { city: { long_name: p.name, type: 'city' }, state: parts.length > 1 ? { long_name: parts[0], type: 'state' } : null, country: { long_name: parts[parts.length - 1], type: 'country' } };
+      addr.classList.remove('ng-invalid', 'ng-invalid-required');
+    },
+    onClear: function () { candidate.address_details = null; }
+  });
+
+  // ---- ng-repeat work history / education -------------------------------------------------------------
+  function entry(listId, kind) {
+    var li = document.createElement('li');
+    li.className = 'experience';
+    if (kind === 'work') {
+      li.innerHTML = '<input ng-model="candidatePosition.company_name" data-k="company_name" type="text" placeholder="%PLACEHOLDER_COMPANY%" class="polygot"><div class="form-divider"></div>' +
+        '<input ng-model="candidatePosition.title" data-k="title" type="text" placeholder="%PLACEHOLDER_TITLE%" class="polygot"><div class="form-divider"></div>' +
+        '<textarea ng-model="candidatePosition.summary" data-k="summary" placeholder="%PLACEHOLDER_SUMMARY%" class="polygot"></textarea><div class="form-divider"></div>' +
+        '<span class="polygot date-label">%START_DATE%</span><input ng-model="candidatePosition.date_start" data-k="date_start" type="date" class="polygot input-date"><div class="form-divider"></div>' +
+        '<span class="polygot date-label">%END_DATE%</span><input ng-model="candidatePosition.date_end" data-k="date_end" type="date" class="polygot input-date"><div class="form-divider"></div>' +
+        '<a href="" class="blue bzyLinkColor polygot date-label del-pos">%LINK_DELETE%</a>';
+    } else {
+      li.innerHTML = '<input ng-model="candidateSchool.school_name" data-k="school_name" type="text" placeholder="%PLACEHOLDER_SCHOOL%" class="polygot"><div class="form-divider"></div>' +
+        '<input ng-model="candidateSchool.field_of_study" data-k="field_of_study" type="text" placeholder="%PLACEHOLDER_FIELD_OF_STUDY%" class="polygot"><div class="form-divider"></div>' +
+        '<textarea ng-model="candidateSchool.summary" data-k="summary" placeholder="%PLACEHOLDER_SUMMARY%" class="polygot"></textarea><div class="form-divider"></div>' +
+        '<span class="polygot date-label">%START_DATE%</span><input ng-model="candidateSchool.date_start" data-k="date_start" type="date" class="polygot input-date"><div class="form-divider"></div>' +
+        '<span class="polygot date-label">%END_DATE%</span><input ng-model="candidateSchool.date_end" data-k="date_end" type="date" class="polygot input-date"><div class="form-divider"></div>' +
+        '<a href="" class="blue bzyLinkColor polygot date-label del-pos">%LINK_DELETE%</a>';
+    }
+    translate(li);
+    $('.del-pos', li).addEventListener('click', function (e) { e.preventDefault(); li.remove(); });
+    $('#' + listId).appendChild(li);
+    $('input', li).focus();
+  }
+  $('#add-position').addEventListener('click', function (e) { e.preventDefault(); entry('work-history', 'work'); });
+  $('#add-education').addEventListener('click', function (e) { e.preventDefault(); entry('education', 'edu'); });
+  function collect(listId) {
+    return $$('#' + listId + ' > li').map(function (li) {
+      var o = {};
+      $$('[data-k]', li).forEach(function (el) { o[el.getAttribute('data-k')] = el.value; });
+      return o;
+    });
+  }
+
+  // ---- v2 questionnaire wizard ------------------------------------------------------------------------
+  var sections = $$('[data-section]');
+  var idx = 0;
+  function show(i) {
+    idx = i;
+    sections.forEach(function (s, j) { s.classList.toggle('ng-hide', j !== i); });
+    $('#nav-back').classList.toggle('ng-hide', i === 0);
+    $('#nav-next').classList.toggle('ng-hide', i === sections.length - 1);
+    $('#nav-submit').classList.toggle('ng-hide', i !== sections.length - 1);
+    $('#form-invalid').classList.add('ng-hide');
+    form.classList.remove('formSubmitted');
+    window.scrollTo(0, 0);
+  }
+  function errShow(el, on) { if (el) el.classList.toggle('ng-hide', !on); }
+  function markInvalid(el, bad) {
+    el.classList.toggle('ng-invalid', bad);
+    el.classList.toggle('ng-valid', !bad);
+    el.classList.remove('ng-pristine');
+    el.classList.add('ng-dirty');
+  }
+  function sectionInvalid(sec) {
+    var name = sec.getAttribute('data-section');
+    var bad = false;
+    if (name === 'application') {
+      [['cName', function (v) { return !!v.trim(); }], ['cEmail', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }], ['cPhoneNumber', function (v) { return v.replace(/\D/g, '').length >= 7; }], ['cAddress', function (v) { return !!v.trim(); }]].forEach(function (p) {
+        var el = form.elements[p[0]];
+        var b = !p[1](el.value);
+        markInvalid(el, b);
+        errShow($('[data-err=' + p[0] + ']'), b);
+        if (b) bad = true;
+      });
+      var noResume = !candidate.resume || !candidate.resume.file_name;
+      errShow($('[data-err=resume]'), noResume);
+      if (noResume) bad = true;
+    } else if (name === 'gdpr') {
+      var c = form.elements.gdprAgreement;
+      errShow($('[data-err=gdprAgreement]'), !c.checked);
+      if (!c.checked) bad = true;
+    } else {
+      $$('.question', sec).forEach(function (q) {
+        if (q.getAttribute('data-required') !== 'true') return;
+        var type = q.getAttribute('data-type');
+        var empty = type === 'multiplechoice' || type === 'checkboxes' ? !$$('input', q).some(function (i) { return i.checked; }) : !$('input, textarea, select', q).value.trim();
+        errShow($('.error-container', q), empty);
+        if (empty) bad = true;
+      });
+    }
+    return bad;
+  }
+  $('#nav-next').addEventListener('click', function () {
+    var sec = sections[idx];
+    if (sectionInvalid(sec)) { form.classList.add('formSubmitted'); $('#form-invalid').classList.remove('ng-hide'); return; }
+    show(idx + 1);
+  });
+  $('#nav-back').addEventListener('click', function () { show(idx - 1); });
+
+  // ---- apply() --------------------------------------------------------------------------------------------
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (idx < sections.length - 1) { $('#nav-next').click(); return; } // ng-submit on an earlier section acts as Next
+    if (sectionInvalid(sections[idx])) { form.classList.add('formSubmitted'); $('#form-invalid').classList.remove('ng-hide'); return; }
+    var questionnaire = $$('.question').map(function (q) {
+      var type = q.getAttribute('data-type');
+      var opts = $$('input[type=radio], input[type=checkbox], option', q).filter(function (o) { return o.value; }).map(function (o, i) { return { id: q.getAttribute('data-question-id') + '_' + i, text: o.value }; });
+      var out = { _id: q.getAttribute('data-question-id'), text: $('h3', q).childNodes[0].textContent.trim(), type: { id: type }, required: q.getAttribute('data-required') === 'true', options: opts };
+      if (type === 'checkboxes') out.responses = $$('input[type=checkbox]', q).map(function (c) { return c.checked; });
+      else if (type === 'multiplechoice') { var r = $$('input[type=radio]', q).find(function (x) { return x.checked; }); out.response = r ? r.value : ''; }
+      else out.response = $('input, textarea, select', q).value;
+      return out;
+    });
+    var salary = form.elements.cSalary.value.replace(/[^\d.]+/g, '');
+    var period = form.elements.cSalaryPeriod;
+    var body = {
+      name: form.elements.cName.value.trim(),
+      email_address: form.elements.cEmail.value.trim(),
+      phone_number: form.elements.cPhoneNumber.value.trim(),
+      address: form.elements.cAddress.value.trim(),
+      address_details: candidate.address_details,
+      resume: candidate.resume,
+      work_history: collect('work-history'),
+      education: collect('education'),
+      summary: form.elements.cSummary.value,
+      cover_letter: form.elements.cCoverLetter.value,
+      salary: { salary: salary ? Number(salary) : null, period: { _id: period.value, label: period.options[period.selectedIndex].text }, currency: { code: 'USD', symbol: '$' } },
+      questionnaire: questionnaire,
+      gdpr: { consent: form.elements.gdprAgreement.checked, consent_date: new Date().toISOString() },
+      sms_consent: { has_consent: form.elements.smsConsent.checked, consent_date: new Date().toISOString() },
+      hp_7f2b: $('#hp_7f2b').value,
+      _form_timing: Date.now() - loadedAt,
+      _has_interaction: human,
+      _form_token: $('#form_token').value,
+      _portal_language: 'en',
+      source: { id: 'portal', name: 'Breezy Portal' }
+    };
+    var sub = $('#nav-submit');
+    sub.setAttribute('disabled', '');
+    sub.classList.add('submitting');
+    fetch('/pebble-analytics.breezy.hr/api/apply/6f1c2e9a8b7d', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json;charset=utf-8', accept: 'application/json, text/plain, */*' } })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (res.ok) { window.location.href = window.location.pathname + '/submitted'; return; }
+        sub.removeAttribute('disabled');
+        sub.classList.remove('submitting');
+        var em = $('#error-message');
+        em.classList.remove('ng-hide');
+        $('.error', em).textContent = 'There was an error submitting your application. Please try again.';
+      });
+  });
+})();
+</script>
+</body>
+</html>

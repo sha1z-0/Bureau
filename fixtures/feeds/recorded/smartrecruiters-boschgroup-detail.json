@@ -1,0 +1,165 @@
+{
+  "id": "744000159074300",
+  "name": "Calibration Engineer - Vehicle calibration",
+  "uuid": "6ab30d85-3203-4ebd-8981-07847f1bc517",
+  "jobId": "e4a7e5b3-6ed6-43e7-9df2-8847f7e35bf0",
+  "jobAdId": "cddeb256-d1c9-4c3b-ab25-1dab8af50db0",
+  "defaultJobAd": true,
+  "refNumber": "REF290175G",
+  "company": {
+    "name": "Bosch Group",
+    "identifier": "BoschGroup"
+  },
+  "location": {
+    "city": "pune",
+    "country": "in",
+    "address": "2nd and 3rd floor, tower a,  panchshil business park , ii, survey no 20, balewadi village, haveli taluk,",
+    "postalCode": "411045",
+    "remote": false,
+    "hybrid": false,
+    "fullLocation": "pune, , India"
+  },
+  "customField": [
+    {
+      "fieldId": "5abe2a4ab60a5e486a2d9b1d",
+      "fieldLabel": "Contract type",
+      "valueId": "1e46492b-d24f-460c-b095-38cf08a778d8",
+      "valueLabel": "Unlimited"
+    },
+    {
+      "fieldId": "5abe28e96d8bc56863dd9746",
+      "fieldLabel": "Tariff Area",
+      "valueId": "2473485f-051f-4fbc-b802-f3620b73998c",
+      "valueLabel": "India Local Grades"
+    },
+    {
+      "fieldId": "586a997ee4b05fd937b86098",
+      "fieldLabel": "Legal Entity(acronym)",
+      "valueId": "RBEI",
+      "valueLabel": "BGSW"
+    },
+    {
+      "fieldId": "586a99b5e4b0daa006ae1079",
+      "fieldLabel": "Working Location",
+      "valueId": "Pune",
+      "valueLabel": "Pune"
+    },
+    {
+      "fieldId": "5abe295a6d8bc56863dd9747",
+      "fieldLabel": "Global Salary Level",
+      "valueId": "427b1359-5057-4375-a2ae-6c649782296d",
+      "valueLabel": "Experienced/ Middle Tariff"
+    },
+    {
+      "fieldId": "69ca83a2489188782a1e9f87",
+      "fieldLabel": "Direct Or Indirect",
+      "valueId": "1aefbf4c-c10a-422e-a975-a504a7117792",
+      "valueLabel": "Indirect"
+    },
+    {
+      "fieldId": "5abe29f9b60a5e486a2d9b1c",
+      "fieldLabel": "Working hours",
+      "valueId": "60756b3e-dbab-4353-ac3a-0064d2bb27d8",
+      "valueLabel": "Full-time"
+    },
+    {
+      "fieldId": "586a9995e4b0daa006ae1078",
+      "fieldLabel": "Legal Entity",
+      "valueId": "Robert Bosch Engineering and Business Solutions Private Ltd.",
+      "valueLabel": "Bosch Global Software Technologies Private Limited"
+    },
+    {
+      "fieldId": "691cf1c93001c782b9560ab7",
+      "fieldLabel": "Division full name",
+      "valueId": "2c84b9fd-f59a-4d8f-8666-3d3e8b6d5cef",
+      "valueLabel": "BGSW"
+    },
+    {
+      "fieldId": "5abe27936d8bc56863dd9745",
+      "fieldLabel": "Position type",
+      "valueId": "c7b4da31-6f38-405a-b2e8-08a76e3c3f2c",
+      "valueLabel": "Professional"
+    },
+    {
+      "fieldId": "COUNTRY",
+      "fieldLabel": "Country/Region",
+      "valueId": "in",
+      "valueLabel": "India"
+    },
+    {
+      "fieldId": "586a971ee4b0daa006ae1077",
+      "fieldLabel": "Brands",
+      "valueId": "default",
+      "valueLabel": "Bosch Group"
+    },
+    {
+      "fieldId": "586a996ce4b05fd937b86097",
+      "fieldLabel": "Working Country",
+      "valueId": "IN",
+      "valueLabel": "India"
+    },
+    {
+      "fieldId": "586a9b22e4b05fd937b8609a",
+      "fieldLabel": "Local Grade",
+      "valueId": "IN_RBEI_52",
+      "valueLabel": "IN_RBEI_52"
+    },
+    {
+      "fieldId": "586a99a5e4b05fd937b86099",
+      "fieldLabel": "Division",
+      "valueId": "RBEI",
+      "valueLabel": "BGSW"
+    }
+  ],
+  "releasedDate": "2026-11-02T08:58:19.770Z",
+  "creator": {
+    "name": "[redacted by fixture recorder]",
+    "avatarUrl": ""
+  },
+  "postingUrl": "https://jobs.smartrecruiters.com/BoschGroup/744000159074300-calibration-engineer-vehicle-calibration",
+  "applyUrl": "https://jobs.smartrecruiters.com/BoschGroup/744000159074300-calibration-engineer-vehicle-calibration?oga=true",
+  "referralUrl": "https://jobs.smartrecruiters.com/external-referrals/company/BoschGroup/publication/6ab30d85-3203-4ebd-8981-07847f1bc517?dcr_ci=BoschGroup",
+  "jobAd": {
+    "sections": {
+      "companyDescription": {
+        "title": "Company Description",
+        "text": "<p><strong>Bosch Global Software Technologies Private Limited</strong>&#xa0;is a 100% owned subsidiary of Robert Bosch GmbH, one of the world's leading global supplier of technology and services, offering end-to-end Engineering, IT and Business Solutions. With over 27,000+ associates, it’s the largest software development center of Bosch, outside Germany, indicating that it is the Technology Powerhouse of Bosch in India with a global footprint and presence in the US, Europe and the Asia Pacific region.</p>"
+      },
+      "jobDescription": {
+        "title": "Job Description",
+        "text": "<p><strong>About the Role</strong>&#xa0;</p><p>We are looking for an experienced Diesel system Calibration Expert to lead and support vehicle calibration and calibration project management activities across the product development lifecycle, with a strong focus on diesel, CNG &amp; alternative fuels, vehicle calibration.&#xa0;</p><p>In this role, you will work closely with OEM customers, sales project management teams, and cross-functional engineering stakeholders to develop vehicles and support successful project delivery. This is an excellent opportunity for a professional who combines deep technical expertise with strong stakeholder engagement.&#xa0;</p><p><strong>Key Responsibilities</strong>&#xa0;</p><ul><li><p>Vehicle Testing, Performance Evaluation, Application and Calibration of control algorithms in diesel engines for Off-Road and Large Engines.&#xa0;</p></li></ul><ul><li><p>Understand and analyze customers’ performance &amp; controller requirements.&#xa0;</p></li></ul><ul><li><p>Experience with powertrain calibration like drivability, speed governing, engine protection functions, injection corrections &amp; hot/cold startability.&#xa0;</p></li></ul><ul><li><p>Conduct Vehicle tests in summer and winter sessions and calibrate system performance per Bosch, Customer's and legal requirements.&#xa0;</p></li></ul><ul><li><p>Troubleshooting in vehicle for hardware, software development.&#xa0;</p></li></ul><ul><li><p>Interface with customers to provide technical support.&#xa0;</p></li></ul><ul><li><p>Follow company development and quality processes.&#xa0;</p></li></ul><ul><li><p>Support sales PjM for new project acquisition and technical activities.&#xa0;</p></li></ul><ul><li><p>Flexible mindset of working on field testing, off-road construction machinery.&#xa0;</p></li></ul><p>&#xa0;</p><p><strong>What We’re Looking For</strong>&#xa0;</p><ul><li><p>B.E, M.Tech (Mechanical, Automobile, E&amp;C, EEE).&#xa0;</p></li></ul><ul><li><p>4 to 6 years of relevant work experience.&#xa0;</p></li></ul><ul><li><p>Experienced in technically leading / working on calibration development projects&#xa0;</p></li></ul><ul><li><p>Experience in calibrating torque-based control systems (diesel &amp; alternative fuels) including emissions and climate development&#xa0;</p></li></ul><ul><li><p>Excellent knowledge of powertrain systems and sub-systems&#xa0;</p></li></ul><ul><li><p>Good knowledge of developing engine management systems and testing techniques&#xa0;</p></li></ul><ul><li><p>Ability to use model-based calibration tools e.g. Inca, Uniplot, Cameo, ASCMO, AVL Puma, etc.&#xa0;</p></li></ul><ul><li><p>Experienced user of analytical software tools to handle large volumes of data.&#xa0;</p></li></ul><ul><li><p>Ability to understand, interpret and evaluate numerical data&#xa0;</p></li></ul><ul><li><p>Knowledge of Modelling and Simulation techniques&#xa0;</p></li></ul><ul><li><p>Knowledge of coding/programming languages&#xa0;</p></li></ul><ul><li><p>Experience with Hardware-in-the-Loop (HIL) systems&#xa0;</p></li></ul><ul><li><p>Sound understanding of engine combustion processes and emissions formulation&#xa0;</p></li></ul><ul><li><p>Knowledge and experience of INCA and ETAS tools.&#xa0;</p></li></ul><ul><li><p>Skilled in statistical testing techniques i.e. Design of Experiments (DoE)&#xa0;</p></li></ul><ul><li><p>Complete work in a safe, timely and professional manner with the minimum of supervision Flexibility to undertake additional task to meet business requirements&#xa0;</p></li></ul><ul><li><p>Highly motivated, keen to learn and share knowledge. High attention to detail&#xa0;</p></li></ul><ul><li><p>Excellent communication skills.&#xa0;</p></li></ul><ul><li><p>Flexibility to travel as and when required.&#xa0;</p></li></ul>"
+      },
+      "qualifications": {
+        "title": "Qualifications",
+        "text": "<p>Bachelor Degree</p>"
+      },
+      "additionalInformation": {
+        "title": "Additional Information",
+        "text": "<p>4-6 years</p>"
+      }
+    }
+  },
+  "active": true,
+  "visibility": "PUBLIC",
+  "industry": {
+    "id": "computer_software",
+    "label": "Computer Software"
+  },
+  "function": {
+    "id": "engineering",
+    "label": "Engineering"
+  },
+  "experienceLevel": {
+    "id": "associate",
+    "label": "Associate"
+  },
+  "typeOfEmployment": {
+    "id": "part-time",
+    "label": "Part-time"
+  },
+  "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+  }
+}

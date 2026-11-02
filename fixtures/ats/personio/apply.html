@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Personio application page (<company>.jobs.personio.de/job/<id>/apply?display=en),
+  current personio-jobs Next.js "DynamicForm". Markup follows the live SSR output:
+  form.DynamicForm_formContainer__PHnT_ > fieldset, the role=group "Name" block with
+  sr-only "First"/"Last" labels (name=first_name/last_name, placeholders First/Last),
+  inputs with id="field-<name>", custom questions as custom_attribute_<id> (select option
+  values custom_option_<id>), recruiting_channel_id with numeric ids, salary_expectations,
+  available_from (a TEXT input, as on the live site), the "Documents" section with one
+  "Add file" button per category over a hidden multiple file input (name=documents.<category>),
+  privacy acceptance, and a "Submit Application" button that stays DISABLED until the
+  required fields are complete.
+  Behaviour follows the app bundle: every added file is uploaded at once
+  (POST /api/v1/documents, FormData "file" -> uuid); submit POSTs JSON to
+  /api/v1/jobs/<id>/application with an Idempotency-Key header and
+  { attributes:[{id,value}], files:[{uuid,...,category}], email, idempotencyToken, ... };
+  on success the page swaps in the company's thank_you_message (URL unchanged).
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apply: Junior Backend Developer (m/w/d) | Jobs at Kranich Software GmbH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/ats/personio/personio.css">
+</head>
+<body>
+<div class="Header_header">Kranich Software GmbH</div>
+<main class="page_container__x1Fq2" id="app">
+  <div class="ApplyPage_applyFormContainer__Xq2 apply-form-container application-form" id="apply-root">
+    <div class="page_jobHeader__b_ebM job-header">
+      <h1 class="page_jobTitle__ydmA2 jb-title">Junior Backend Developer (m/w/d)</h1>
+      <div class="job-details-info">Permanent employee, Full-time · Leipzig, Remote</div>
+      <p><a href="/kranich.jobs.personio.de/job/1458822?display=en">Back to job description</a></p>
+    </div>
+
+    <form class="DynamicForm_formContainer__PHnT_" novalidate>
+      <fieldset class="DynamicForm_fieldset__Ti4mU">
+        <div class="DynamicForm_fieldRow__JaOBt">
+          <div class="DynamicForm_nameGroupInputsContainer__bjoUs name-group-container" role="group" aria-labelledby="name-group-label">
+            <span id="name-group-label" class="DynamicForm_formLabel__aTROQ form-label">Name<span aria-hidden="true">*</span><span class="sr-only" style="position:absolute;left:-9999px">(required)</span></span>
+            <div class="DynamicForm_nameGroupInputs__cCgoN name-group-inputs">
+              <div class="DynamicForm_halfWidth__qgqPh"><label for="field-first_name" class="sr-only" style="position:absolute;left:-9999px">First</label><input id="field-first_name" type="text" maxlength="255" class="DynamicForm_textField__r9bZB name-group-input" placeholder="First" name="first_name" value="" aria-required="true"><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div>
+              <div class="DynamicForm_halfWidth__qgqPh"><label for="field-last_name" class="sr-only" style="position:absolute;left:-9999px">Last</label><input id="field-last_name" type="text" maxlength="255" class="DynamicForm_textField__r9bZB name-group-input" placeholder="Last" name="last_name" value="" aria-required="true"><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div>
+            </div>
+          </div>
+          <div class="DynamicForm_fullWidth__vAHrb"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-email" class="DynamicForm_formLabel__aTROQ form-label">Email<span aria-hidden="true">*</span></label><div class="form-control"><input id="field-email" type="email" maxlength="255" class="DynamicForm_textField__r9bZB text-input-field" placeholder="yourmail@domain.com" name="email" value="" aria-required="true"><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-phone" class="DynamicForm_formLabel__aTROQ form-label">Phone</label><div class="form-control"><input id="field-phone" type="text" maxlength="255" class="DynamicForm_textField__r9bZB text-input-field" placeholder="+49 176 123 4455" name="phone" value=""><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-custom_attribute_2771001" class="DynamicForm_formLabel__aTROQ form-label">Link to LinkedIn profile</label><div class="form-control"><input id="field-custom_attribute_2771001" type="text" maxlength="5000" class="DynamicForm_textField__r9bZB text-input-field" placeholder="Link to LinkedIn profile" name="custom_attribute_2771001" value=""><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-salary_expectations" class="DynamicForm_formLabel__aTROQ form-label">Expected salary</label><div class="form-control"><input id="field-salary_expectations" type="text" maxlength="255" class="DynamicForm_textField__r9bZB text-input-field" placeholder="Expected salary" name="salary_expectations" value=""><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-available_from" class="DynamicForm_formLabel__aTROQ form-label">Available from</label><div class="form-control"><input id="field-available_from" type="text" maxlength="255" class="DynamicForm_textField__r9bZB text-input-field" placeholder="Available from" name="available_from" value=""><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-recruiting_channel_id" class="DynamicForm_formLabel__aTROQ form-label">How did you hear about us?<span aria-hidden="true">*</span></label><div class="form-control"><select name="recruiting_channel_id" id="field-recruiting_channel_id" class="DynamicForm_selectField__fun8W select-field" aria-required="true"><option value="" selected>Please select</option><option value="1032847">LinkedIn</option><option value="1032848">Indeed</option><option value="1032849">StepStone</option><option value="1032850">Job board</option><option value="1032851">Company website</option><option value="1032852">Recommendation by a Kranich employee</option><option value="1032853">Other</option></select><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_halfWidth__qgqPh"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-custom_attribute_2771002" class="DynamicForm_formLabel__aTROQ form-label">Do you need a work permit to work for a German employer?<span aria-hidden="true">*</span></label><div class="form-control"><select name="custom_attribute_2771002" id="field-custom_attribute_2771002" class="DynamicForm_selectField__fun8W select-field" aria-required="true"><option value="" selected>Please select</option><option value="custom_option_44101">Yes</option><option value="custom_option_44102">No</option></select><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+          <div class="DynamicForm_fullWidth__vAHrb"><div class="DynamicForm_fieldWrapper__bb5uT" role="group" aria-labelledby="label-custom_attribute_2771003"><span id="label-custom_attribute_2771003" class="DynamicForm_formLabel__aTROQ form-label">Which languages have you used professionally?</span><div class="form-control DynamicForm_checkboxGroup__Qm2xP">
+            <label><input type="checkbox" name="custom_attribute_2771003" value="opt_kotlin">Kotlin</label>
+            <label><input type="checkbox" name="custom_attribute_2771003" value="opt_java">Java</label>
+            <label><input type="checkbox" name="custom_attribute_2771003" value="opt_typescript">TypeScript</label>
+            <label><input type="checkbox" name="custom_attribute_2771003" value="opt_python">Python</label>
+            <label><input type="checkbox" name="custom_attribute_2771003" value="opt_go">Go</label>
+          </div></div></div>
+          <div class="DynamicForm_fullWidth__vAHrb"><div class="DynamicForm_fieldWrapper__bb5uT"><label for="field-custom_attribute_2771004" class="DynamicForm_formLabel__aTROQ form-label">Why would you like to join Kranich?<span aria-hidden="true">*</span></label><div class="form-control"><textarea id="field-custom_attribute_2771004" maxlength="5000" class="DynamicForm_textArea__u1d8V" placeholder="Why would you like to join Kranich?" name="custom_attribute_2771004" aria-required="true"></textarea><div class="DynamicForm_fieldFeedback__Q5F6M"></div></div></div></div>
+        </div>
+
+        <div class="DynamicForm_sectionSpacing__fNn9P">
+          <div class="DynamicForm_documentContainer__CL7Te document-container"><h3 class="DynamicForm_documentHeader__OIt1C document-header">Documents</h3></div>
+          <div class="DynamicForm_documentCategoryWrapper__Hwpk_ document-field-wrapper" role="group" aria-labelledby="doc-label-cv" data-category="cv" data-required="true">
+            <div id="doc-label-cv" class="DynamicForm_documentCategoryLabel__nUd68">CV<span aria-hidden="true">*</span></div>
+            <div class="document-input-wrapper"><button type="button" class="DynamicForm_addFileButton__3mZlN add-file-button">+ Add file</button><input id="doc-input-cv" type="file" multiple class="DynamicForm_hidden__lwBPb" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt,.odt,.ods,.xlsx,.rtf,.xls,.pptx,.ppt,.gif,.tif,.tiff,.bmp,.csv,.rar,.gz,.zip,.7z,.mp4,.3gp,.mov,.avi,.wmv" aria-label="Upload CV" name="documents.cv"></div>
+            <ul class="DynamicForm_fileList__Zp4cR"></ul><div class="DynamicForm_fieldFeedback__Q5F6M"></div>
+          </div>
+          <div class="DynamicForm_documentCategoryWrapper__Hwpk_ document-field-wrapper" role="group" aria-labelledby="doc-label-cover_letter" data-category="cover_letter">
+            <div id="doc-label-cover_letter" class="DynamicForm_documentCategoryLabel__nUd68">Cover letter<span class="DynamicForm_optionalText__oW3Xm">(Optional)</span></div>
+            <div class="document-input-wrapper"><button type="button" class="DynamicForm_addFileButton__3mZlN add-file-button">+ Add file</button><input id="doc-input-cover_letter" type="file" multiple class="DynamicForm_hidden__lwBPb" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt,.odt,.ods,.xlsx,.rtf,.xls,.pptx,.ppt,.gif,.tif,.tiff,.bmp,.csv,.rar,.gz,.zip,.7z,.mp4,.3gp,.mov,.avi,.wmv" aria-label="Upload Cover letter" name="documents.cover_letter"></div>
+            <ul class="DynamicForm_fileList__Zp4cR"></ul><div class="DynamicForm_fieldFeedback__Q5F6M"></div>
+          </div>
+          <div class="DynamicForm_documentCategoryWrapper__Hwpk_ document-field-wrapper" role="group" aria-labelledby="doc-label-certificate" data-category="certificate">
+            <div id="doc-label-certificate" class="DynamicForm_documentCategoryLabel__nUd68">Certificates<span class="DynamicForm_optionalText__oW3Xm">(Optional)</span></div>
+            <div class="document-input-wrapper"><button type="button" class="DynamicForm_addFileButton__3mZlN add-file-button">+ Add file</button><input id="doc-input-certificate" type="file" multiple class="DynamicForm_hidden__lwBPb" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg" aria-label="Upload Certificates" name="documents.certificate"></div>
+            <ul class="DynamicForm_fileList__Zp4cR"></ul><div class="DynamicForm_fieldFeedback__Q5F6M"></div>
+          </div>
+          <div class="DynamicForm_documentCategoryWrapper__Hwpk_ document-field-wrapper" role="group" aria-labelledby="doc-label-other" data-category="other">
+            <div id="doc-label-other" class="DynamicForm_documentCategoryLabel__nUd68">Other<span class="DynamicForm_optionalText__oW3Xm">(Optional)</span></div>
+            <div class="document-input-wrapper"><button type="button" class="DynamicForm_addFileButton__3mZlN add-file-button">+ Add file</button><input id="doc-input-other" type="file" multiple class="DynamicForm_hidden__lwBPb" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt,.zip" aria-label="Upload Other" name="documents.other"></div>
+            <ul class="DynamicForm_fileList__Zp4cR"></ul><div class="DynamicForm_fieldFeedback__Q5F6M"></div>
+          </div>
+        </div>
+
+        <div class="DynamicForm_sectionSpacing__fNn9P">
+          <div class="DynamicForm_privacy__s8Jq1"><input type="checkbox" id="field-privacy_policy_acceptance" name="privacy_policy_acceptance" aria-required="true"><label for="field-privacy_policy_acceptance">I have read the <a href="#privacy" class="privacy-policy-link" target="_blank">data privacy statement</a> and agree that Kranich Software GmbH processes my data for this application.<span aria-hidden="true" style="color:#d0021b">*</span></label></div>
+          <div class="DynamicForm_fieldFeedback__Q5F6M" id="privacy-feedback"></div>
+        </div>
+
+        <div class="DynamicForm_sectionSpacing__fNn9P"><button class="Button_buttonWrapper___5Rvi Button_emphasized__bo9oK Button_large__Z2ozi career-btn-primary career-submit-application-btn" disabled type="submit">Submit Application</button>
+          <div class="DynamicForm_formError__Pp0Qe" role="alert"></div></div>
+      </fieldset>
+    </form>
+    <div id="cf-turnstile" data-sitekey="0x4AAAAAAA-fixture"></div>
+  </div>
+</main>
+<footer class="Footer_footerWrapper__k4I53 footer"><span>Powered by <strong>Personio</strong></span><a class="privacy-policy-link" href="#privacy">Data privacy statement</a><a href="#imprint">Legal Notice</a></footer>
+
+<script>
+(function () {
+  'use strict';
+  var HOST = '/kranich.jobs.personio.de';
+  var JOB_ID = '1458822';
+  var form = document.querySelector('form.DynamicForm_formContainer__PHnT_');
+  var submitBtn = form.querySelector('.career-submit-application-btn');
+  var formError = form.querySelector('.DynamicForm_formError__Pp0Qe');
+  var docs = { cv: [], cover_letter: [], certificate: [], other: [] };
+  var touched = {};
+  var turnstileToken = '';
+  // Turnstile (managed, invisible here): the token arrives a moment after load.
+  setTimeout(function () { turnstileToken = 'fx-turnstile-' + Math.random().toString(36).slice(2); validateAll(false); }, 400);
+
+  function feedback(el) { var w = el.closest('.form-control, .DynamicForm_halfWidth__qgqPh, .document-field-wrapper'); return w && w.querySelector('.DynamicForm_fieldFeedback__Q5F6M'); }
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var REQUIRED = ['first_name', 'last_name', 'email', 'recruiting_channel_id', 'custom_attribute_2771002', 'custom_attribute_2771004'];
+  function fieldError(name) {
+    var el = form.elements[name];
+    var v = String(el.value || '').trim();
+    if (REQUIRED.indexOf(name) !== -1 && !v) return 'This field is required';
+    if (name === 'email' && v && !EMAIL.test(v)) return 'Please enter a valid email address';
+    if (name === 'phone' && v && !/^\+?[\d\s()/-]{6,}$/.test(v)) return 'Please enter a valid phone number';
+    return '';
+  }
+  function show(name, msg) {
+    var el = form.elements[name];
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    var fb = feedback(el);
+    if (fb) fb.textContent = msg;
+  }
+  function validateAll(paint) {
+    var ok = true;
+    REQUIRED.concat(['phone']).forEach(function (n) {
+      var m = fieldError(n);
+      if (m) ok = false;
+      if (paint || touched[n]) show(n, m);
+    });
+    if (!docs.cv.length || docs.cv.some(function (d) { return d.pending; })) ok = false;
+    var priv = form.elements.privacy_policy_acceptance.checked;
+    if (!priv) ok = false;
+    if (paint) {
+      document.getElementById('privacy-feedback').textContent = priv ? '' : 'Please accept the data privacy statement';
+      form.querySelector('[data-category=cv] .DynamicForm_fieldFeedback__Q5F6M').textContent = docs.cv.length ? '' : 'Please upload your CV';
+    }
+    // The real button stays disabled until the form is valid and the Turnstile token arrived.
+    submitBtn.disabled = !ok || !turnstileToken;
+    return ok;
+  }
+  Array.prototype.forEach.call(form.querySelectorAll('input[name], select[name], textarea[name]'), function (el) {
+    if (el.type === 'file') return;
+    el.addEventListener('blur', function () { touched[el.name] = true; validateAll(false); });
+    el.addEventListener('input', function () { validateAll(false); });
+    el.addEventListener('change', function () { touched[el.name] = true; validateAll(false); });
+  });
+
+  // ---- documents: "Add file" -> hidden multiple input -> immediate upload ------------------
+  Array.prototype.forEach.call(form.querySelectorAll('.document-field-wrapper'), function (wrap) {
+    var cat = wrap.getAttribute('data-category');
+    var input = wrap.querySelector('input[type=file]');
+    var list = wrap.querySelector('.DynamicForm_fileList__Zp4cR');
+    var fb = wrap.querySelector('.DynamicForm_fieldFeedback__Q5F6M');
+    wrap.querySelector('.add-file-button').addEventListener('click', function () { input.click(); });
+    function draw() {
+      list.innerHTML = '';
+      docs[cat].forEach(function (d, i) {
+        var li = document.createElement('li');
+        li.className = 'DynamicForm_fileItem__k2V9s document-item';
+        var name = document.createElement('span');
+        name.textContent = d.original_filename + (d.pending ? ' (uploading…)' : '');
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.textContent = 'Remove';
+        rm.setAttribute('aria-label', 'Remove ' + d.original_filename);
+        rm.addEventListener('click', function () { docs[cat].splice(i, 1); draw(); validateAll(false); });
+        li.append(name, rm);
+        list.appendChild(li);
+      });
+    }
+    input.addEventListener('change', function () {
+      var picked = Array.prototype.slice.call(input.files || []);
+      input.value = '';
+      fb.textContent = '';
+      picked.forEach(function (file) {
+        var entry = { original_filename: file.name, pending: true };
+        docs[cat].push(entry);
+        draw();
+        validateAll(false);
+        var fd = new FormData();
+        fd.append('file', file);
+        fetch(HOST + '/api/v1/documents', { method: 'POST', body: fd, headers: { accept: 'application/json' } })
+          .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+          .then(function (res) {
+            if (res.status !== 201) {
+              docs[cat].splice(docs[cat].indexOf(entry), 1);
+              fb.textContent = res.status === 413 ? 'The file is too large' : 'This file could not be uploaded';
+            } else Object.assign(entry, res.body, { pending: false });
+            draw();
+            validateAll(false);
+          });
+      });
+    });
+  });
+  form.elements.privacy_policy_acceptance.addEventListener('change', function () { validateAll(false); document.getElementById('privacy-feedback').textContent = ''; });
+
+  // ---- submit -----------------------------------------------------------------------
+  var SKIP = ['documents', 'privacy_policy_acceptance'];
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    formError.textContent = '';
+    if (!validateAll(true)) return;
+    var values = {};
+    Array.prototype.forEach.call(form.querySelectorAll('input[name], select[name], textarea[name]'), function (el) {
+      if (el.type === 'file' || SKIP.indexOf(el.name) !== -1) return;
+      if (el.type === 'checkbox') { (values[el.name] = values[el.name] || []); if (el.checked) values[el.name].push(el.value); return; }
+      values[el.name] = el.value.trim();
+    });
+    var attributes = Object.keys(values).map(function (k) {
+      var v = values[k];
+      return { id: k, value: Array.isArray(v) ? v.map(String).join(',') : String(v == null ? '' : v) };
+    }).filter(function (a) { return a.value !== ''; });
+    var files = [];
+    Object.keys(docs).forEach(function (cat) { docs[cat].forEach(function (d) { files.push({ uuid: d.uuid, original_filename: d.original_filename, extension: d.extension, mimetype: d.mimetype, size: d.size, category: cat }); }); });
+    var token = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+    var body = {
+      subcompanyId: null,
+      channelId: null,
+      postingId: null,
+      autoPostingChannelId: null,
+      sender: { id: 'sender' + Math.floor(1e6 * Math.random()), value: '' },
+      attributes: attributes,
+      files: files,
+      email: values.email || '',
+      idempotencyToken: token,
+      'cf-turnstile-response': turnstileToken
+    };
+    submitBtn.disabled = true;
+    fetch(HOST + '/api/v1/jobs/' + JOB_ID + '/application', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'content-type': 'application/json', accept: 'application/json', 'Idempotency-Key': token }
+    }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); }).then(function (res) {
+      if (res.status === 201 || res.status === 200) {
+        var root = document.getElementById('apply-root');
+        root.className = 'ApplyPage_applyFormContainer__Xq2 apply-form-container';
+        root.innerHTML = '<div class="page_jobHeader__b_ebM job-header"><h1 class="page_jobTitle__ydmA2 jb-title">Junior Backend Developer (m/w/d)</h1></div>' +
+          '<div class="ApplyPage_applicationForm__Rk1 application-form"><div class="ApplyPage_applicationContent__d0P application-content"><h5>Thank you for your application</h5>We have received your application and will get back to you within two weeks. Your Kranich recruiting team</div></div>';
+        window.scrollTo(0, 0);
+      } else {
+        formError.textContent = 'Your application could not be submitted. Please check your entries and try again.';
+        turnstileToken = 'fx-turnstile-' + Math.random().toString(36).slice(2);
+        validateAll(true);
+      }
+    });
+  });
+  validateAll(false);
+})();
+</script>
+</body>
+</html>

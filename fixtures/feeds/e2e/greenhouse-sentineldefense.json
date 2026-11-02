@@ -1,0 +1,76 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "{{ORIGIN_A}}/boards.greenhouse.io/sentineldefense/jobs/6600123",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 6600044,
+      "location": {
+        "name": "Huntsville, AL"
+      },
+      "metadata": [
+        {
+          "id": 7500124,
+          "name": "Employment Type",
+          "value": "Full-time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 7500125,
+          "name": "Location Type",
+          "value": "On-site",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 6600123,
+      "updated_at": "2026-10-30T08:31:10-05:00",
+      "requisition_id": "SDS-24-1187",
+      "title": "Junior Software Engineer",
+      "pay_input_ranges": [
+        {
+          "min_cents": 7200000,
+          "max_cents": 8800000,
+          "currency_type": "USD",
+          "title": "Annual base salary",
+          "blurb": ""
+        }
+      ],
+      "company_name": "Sentinel Defense Systems",
+      "first_published": "2026-10-30T08:30:00-05:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;p&gt;Sentinel Defense Systems develops secure communications and mission-planning software for U.S. Department of Defense and intelligence community customers. Our Huntsville, Alabama engineering center is hiring a Junior Software Engineer for the Mission Data team.&lt;/p&gt;\n&lt;h3&gt;Responsibilities&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Develop and test TypeScript and Java components for a mission-planning web application deployed on classified networks.&lt;/li&gt;&lt;li&gt;Write unit and integration tests and support system-level verification events.&lt;/li&gt;&lt;li&gt;Document software changes according to DoD configuration-management processes.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Basic qualifications (required)&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;&lt;strong&gt;An active U.S. Secret security clearance&lt;/strong&gt; at the time of application. We cannot sponsor a clearance for this position.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;U.S. citizenship is required&lt;/strong&gt; as a condition of the clearance.&lt;/li&gt;&lt;li&gt;A bachelor's degree in Computer Science or a related field.&lt;/li&gt;&lt;li&gt;0-2 years of software development experience.&lt;/li&gt;&lt;li&gt;Ability to work on site in Huntsville, AL five days a week. This role is not eligible for remote work.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Preferred qualifications&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Experience with Node.js, React or Spring Boot.&lt;/li&gt;&lt;li&gt;Security+ or another DoD 8570 baseline certification.&lt;/li&gt;&lt;/ul&gt;\n&lt;p&gt;Salary range: USD 72,000-88,000. Sentinel Defense Systems is an equal opportunity employer. U.S. citizenship and an active clearance are required due to the nature of the work.&lt;/p&gt;",
+      "departments": [
+        {
+          "id": 7400124,
+          "name": "Mission Data",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "offices": [
+        {
+          "id": 7300124,
+          "name": "Huntsville, AL",
+          "location": "Huntsville, Alabama, United States",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

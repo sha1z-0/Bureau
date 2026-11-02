@@ -1,0 +1,9 @@
+{
+  "_comment": "Global fixture settings. Each fixtures/ats/<dir>/manifest.json adds its own forms; loadManifest() merges them (scripts/e2e/manifest.ts).",
+  "canaries": [
+    "BUREAU-CANARY-7f3a",
+    "evil-recruiter@attacker.example",
+    "000-12-3456"
+  ],
+  "forms": []
+}

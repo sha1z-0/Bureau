@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Workable candidate application (apply.workable.com/<account>/j/<shortcode>/apply/).
+  Field ids, labels, sections and option ids follow Workable's public form
+  definition (apply.workable.com/api/v1/jobs/<shortcode>/form): "Personal
+  information" (firstname, lastname, email, headline, phone, address, avatar),
+  "Profile" (education and experience groups, summary, resume), "Details"
+  (cover_letter, CA_* account questions, QA_* job questions) and the GDPR
+  consent. Widgets reproduce Workable's styled React form: data-ui hooks, the
+  phone input with a flag/dial-code country dropdown (defaults to United States
+  and re-detects the country from a typed "+<code>"), "+ Add" on Education and
+  Experience opening inline sub-forms (school / field_of_study / degree /
+  start_date / end_date; title / company / industry / summary / start_date /
+  end_date / "I currently work here") that save into cards, the resume drop zone
+  "Upload a file or drag and drop here", Yes/No questions as a radio group, a
+  custom listbox dropdown (CA_ notice period, whose option ids are the values),
+  inline "This field is required" errors with aria-invalid, and
+  "Submit application" posting multipart FormData with XMLHttpRequest.
+  Fictional employer (Brightwater Health). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Junior Node.js Developer - Brightwater Health</title>
+  <link rel="stylesheet" href="/ats/workable/apply.css">
+</head>
+<body>
+<div id="app">
+  <main class="styles--3Pn6J" data-ui="job-application">
+    <header class="styles--2CsDg" data-ui="company-header">
+      <a class="styles--1j7Gf" data-ui="company-logo" href="/apply.workable.com/brightwater-health/"><span class="logo-mark" aria-hidden="true">B</span>Brightwater Health</a>
+    </header>
+
+    <section class="styles--1kOSy" data-ui="job-header">
+      <h1 class="styles--2TdGW" data-ui="job-title">Junior Node.js Developer</h1>
+      <div class="styles--3TJHk" data-ui="job-details"><span data-ui="job-location">Lahore, Punjab, Pakistan</span> · <span data-ui="job-workplace">Hybrid</span> · <span data-ui="job-type">Full time</span> · <span data-ui="job-department">Engineering</span></div>
+      <nav class="styles--tabs" role="tablist">
+        <a role="tab" data-ui="overview-tab" aria-selected="false" href="/apply.workable.com/brightwater-health/j/3F9A2C71B4/">Overview</a>
+        <a role="tab" data-ui="application-tab" aria-selected="true" href="/apply.workable.com/brightwater-health/j/3F9A2C71B4/apply/">Application</a>
+      </nav>
+    </section>
+
+    <section class="styles--description" data-ui="job-description">
+      <h2>Description</h2>
+      <p>Brightwater Health runs appointment booking, e-prescriptions and lab-result delivery for 220 clinics across Punjab. Our patient app handles 60,000 bookings a week, and our clinic dashboard is open on reception desks from 8am to midnight.</p>
+      <h2>Requirements</h2>
+      <ul>
+        <li>1–2 years of professional experience with Node.js and TypeScript</li>
+        <li>Working knowledge of PostgreSQL and REST API design</li>
+        <li>Comfortable writing tests and reading logs when something breaks</li>
+        <li>Good written English; Urdu is a plus for clinic-facing work</li>
+      </ul>
+      <h2>Benefits</h2>
+      <ul>
+        <li>Hybrid: three days a week in our Johar Town office</li>
+        <li>Health insurance for you and your family</li>
+        <li>Paid certification courses</li>
+      </ul>
+    </section>
+
+    <form class="styles--3Mb1Q" data-ui="application-form" novalidate>
+      <div class="styles--summary-error" data-ui="form-error" role="alert" hidden></div>
+
+      <section class="styles--2kqW6" data-ui="personal-information">
+        <h2 class="styles--3TJHk">Personal information</h2>
+        <div class="styles--row">
+          <div class="styles--1Sarc" data-ui="firstname">
+            <label for="firstname" class="styles--QTMDv">First name<span class="styles--required" aria-hidden="true">*</span></label>
+            <input id="firstname" name="firstname" type="text" maxlength="127" required aria-required="true" autocomplete="given-name" class="styles--3da1I">
+          </div>
+          <div class="styles--1Sarc" data-ui="lastname">
+            <label for="lastname" class="styles--QTMDv">Last name<span class="styles--required" aria-hidden="true">*</span></label>
+            <input id="lastname" name="lastname" type="text" maxlength="127" required aria-required="true" autocomplete="family-name" class="styles--3da1I">
+          </div>
+        </div>
+        <div class="styles--1Sarc" data-ui="email">
+          <label for="email" class="styles--QTMDv">Email<span class="styles--required" aria-hidden="true">*</span></label>
+          <input id="email" name="email" type="email" maxlength="255" required aria-required="true" autocomplete="email" class="styles--3da1I">
+        </div>
+        <div class="styles--1Sarc" data-ui="headline">
+          <label for="headline" class="styles--QTMDv">Headline <span class="styles--optional">(Optional)</span></label>
+          <input id="headline" name="headline" type="text" maxlength="255" class="styles--3da1I">
+        </div>
+        <div class="styles--1Sarc" data-ui="phone">
+          <label for="phone" class="styles--QTMDv">Phone<span class="styles--required" aria-hidden="true">*</span></label>
+          <div class="styles--phone">
+            <button type="button" class="styles--country" data-ui="phone-country" aria-haspopup="listbox" aria-expanded="false" aria-label="Country code: United States +1"><span class="flag" aria-hidden="true">🇺🇸</span><span class="dial">+1</span><span class="caret" aria-hidden="true">▾</span></button>
+            <input id="phone" name="phone" type="tel" maxlength="255" required aria-required="true" autocomplete="tel" class="styles--3da1I" aria-describedby="phone-helper">
+            <div class="styles--country-menu" hidden>
+              <input type="text" class="styles--country-search" placeholder="Search country" aria-label="Search country" autocomplete="off">
+              <ul role="listbox" aria-label="Country code" class="styles--country-list"></ul>
+            </div>
+          </div>
+          <p id="phone-helper" class="styles--helper">The hiring team may use this number to contact you about this job.</p>
+        </div>
+        <div class="styles--1Sarc" data-ui="address">
+          <label for="address" class="styles--QTMDv">Address <span class="styles--optional">(Optional)</span></label>
+          <input id="address" name="address" type="text" maxlength="255" class="styles--3da1I" autocomplete="street-address">
+        </div>
+        <div class="styles--1Sarc" data-ui="avatar">
+          <span class="styles--QTMDv" id="avatar-label">Photo <span class="styles--optional">(Optional)</span></span>
+          <div class="styles--avatar">
+            <span class="styles--avatar-preview" aria-hidden="true">👤</span>
+            <button type="button" class="styles--link-button" data-ui="avatar-upload">Upload photo</button>
+            <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/gif" hidden aria-labelledby="avatar-label">
+            <span class="styles--avatar-name"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="styles--2kqW6" data-ui="profile">
+        <h2 class="styles--3TJHk">Profile</h2>
+
+        <div class="styles--group" data-ui="education">
+          <div class="styles--group-head"><span class="styles--QTMDv" id="education-label">Education <span class="styles--optional">(Optional)</span></span><button type="button" class="styles--add" data-ui="add-section" aria-describedby="education-label">+ Add</button></div>
+          <div class="styles--entries" data-ui="education-entries"></div>
+          <div class="styles--subform" data-ui="education-form" hidden>
+            <div class="styles--1Sarc"><label for="education-school" class="styles--QTMDv">School<span class="styles--required" aria-hidden="true">*</span></label><input id="education-school" name="school" type="text" maxlength="255" required aria-required="true" class="styles--3da1I"></div>
+            <div class="styles--1Sarc"><label for="education-field_of_study" class="styles--QTMDv">Field of study</label><input id="education-field_of_study" name="field_of_study" type="text" maxlength="255" class="styles--3da1I"></div>
+            <div class="styles--1Sarc"><label for="education-degree" class="styles--QTMDv">Degree</label><input id="education-degree" name="degree" type="text" maxlength="255" class="styles--3da1I"></div>
+            <div class="styles--row">
+              <div class="styles--1Sarc"><label for="education-start_date" class="styles--QTMDv">Start date</label><input id="education-start_date" name="start_date" type="text" inputmode="numeric" placeholder="MM/YYYY" maxlength="7" class="styles--3da1I styles--date"></div>
+              <div class="styles--1Sarc"><label for="education-end_date" class="styles--QTMDv">End date</label><input id="education-end_date" name="end_date" type="text" inputmode="numeric" placeholder="MM/YYYY" maxlength="7" class="styles--3da1I styles--date"></div>
+            </div>
+            <div class="styles--subform-actions"><button type="button" class="styles--link-button" data-ui="cancel-section">Cancel</button><button type="button" class="styles--save" data-ui="save-section">Save</button></div>
+          </div>
+        </div>
+
+        <div class="styles--group" data-ui="experience">
+          <div class="styles--group-head"><span class="styles--QTMDv" id="experience-label">Experience <span class="styles--optional">(Optional)</span></span><button type="button" class="styles--add" data-ui="add-section" aria-describedby="experience-label">+ Add</button></div>
+          <div class="styles--entries" data-ui="experience-entries"></div>
+          <div class="styles--subform" data-ui="experience-form" hidden>
+            <div class="styles--1Sarc"><label for="experience-title" class="styles--QTMDv">Title<span class="styles--required" aria-hidden="true">*</span></label><input id="experience-title" name="title" type="text" maxlength="255" required aria-required="true" class="styles--3da1I"></div>
+            <div class="styles--1Sarc"><label for="experience-company" class="styles--QTMDv">Company</label><input id="experience-company" name="company" type="text" maxlength="255" class="styles--3da1I"></div>
+            <div class="styles--1Sarc"><label for="experience-industry" class="styles--QTMDv">Industry</label><input id="experience-industry" name="industry" type="text" maxlength="255" class="styles--3da1I"></div>
+            <div class="styles--1Sarc"><label for="experience-summary" class="styles--QTMDv">Summary</label><textarea id="experience-summary" name="summary" rows="3" class="styles--3da1I"></textarea></div>
+            <div class="styles--row">
+              <div class="styles--1Sarc"><label for="experience-start_date" class="styles--QTMDv">Start date</label><input id="experience-start_date" name="start_date" type="text" inputmode="numeric" placeholder="MM/YYYY" maxlength="7" class="styles--3da1I styles--date"></div>
+              <div class="styles--1Sarc"><label for="experience-end_date" class="styles--QTMDv">End date</label><input id="experience-end_date" name="end_date" type="text" inputmode="numeric" placeholder="MM/YYYY" maxlength="7" class="styles--3da1I styles--date"></div>
+            </div>
+            <label class="styles--checkbox"><input id="experience-current" name="current" type="checkbox" value="true"> <span>I currently work here</span></label>
+            <div class="styles--subform-actions"><button type="button" class="styles--link-button" data-ui="cancel-section">Cancel</button><button type="button" class="styles--save" data-ui="save-section">Save</button></div>
+          </div>
+        </div>
+
+        <div class="styles--1Sarc" data-ui="summary">
+          <label for="summary" class="styles--QTMDv">Summary <span class="styles--optional">(Optional)</span></label>
+          <textarea id="summary" name="summary" rows="4" class="styles--3da1I"></textarea>
+        </div>
+
+        <div class="styles--1Sarc" data-ui="resume">
+          <span class="styles--QTMDv" id="resume-label">Resume<span class="styles--required" aria-hidden="true">*</span></span>
+          <div class="styles--dropzone" data-ui="resume-dropzone" role="button" tabindex="0" aria-labelledby="resume-label" aria-describedby="resume-hint">
+            <span class="styles--dropzone-icon" aria-hidden="true">⇪</span>
+            <span><span class="styles--dropzone-link">Upload a file</span> or drag and drop here</span>
+            <span class="styles--dropzone-file" data-ui="resume-filename"></span>
+          </div>
+          <p id="resume-hint" class="styles--helper">Accepted files: PDF, DOC, DOCX, ODT, RTF up to 12MB</p>
+          <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/rtf" hidden aria-required="true">
+        </div>
+      </section>
+
+      <section class="styles--2kqW6" data-ui="details">
+        <h2 class="styles--3TJHk">Details</h2>
+        <div class="styles--1Sarc" data-ui="cover_letter">
+          <label for="cover_letter" class="styles--QTMDv">Cover letter <span class="styles--optional">(Optional)</span></label>
+          <textarea id="cover_letter" name="cover_letter" rows="8" maxlength="200000" class="styles--3da1I"></textarea>
+        </div>
+
+        <div class="styles--1Sarc" data-ui="CA_18811">
+          <span class="styles--QTMDv" id="CA_18811-label">Notice period / availability <span class="styles--optional">(Optional)</span></span>
+          <div class="styles--select">
+            <button type="button" id="CA_18811" class="styles--select-button" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="CA_18811-listbox" aria-labelledby="CA_18811-label"><span class="styles--select-value styles--placeholder">Select an option</span><span class="caret" aria-hidden="true">▾</span></button>
+            <ul id="CA_18811-listbox" role="listbox" aria-labelledby="CA_18811-label" class="styles--listbox" tabindex="-1" hidden>
+              <li role="option" data-value="139527" aria-selected="false">Available immediately</li>
+              <li role="option" data-value="139528" aria-selected="false"> 1 week</li>
+              <li role="option" data-value="139529" aria-selected="false"> 2 weeks</li>
+              <li role="option" data-value="139530" aria-selected="false"> 3 weeks</li>
+              <li role="option" data-value="139531" aria-selected="false"> 1 month</li>
+              <li role="option" data-value="139532" aria-selected="false"> 2 months</li>
+              <li role="option" data-value="139533" aria-selected="false"> 3 months or more</li>
+            </ul>
+            <input type="hidden" name="CA_18811" value="">
+          </div>
+        </div>
+
+        <fieldset class="styles--1Sarc styles--fieldset" data-ui="QA_9102341">
+          <legend class="styles--QTMDv">Are you legally authorized to work in Pakistan?<span class="styles--required" aria-hidden="true">*</span></legend>
+          <div role="radiogroup" class="styles--radios" aria-required="true">
+            <label class="styles--radio"><input type="radio" name="QA_9102341" value="true" required> <span>Yes</span></label>
+            <label class="styles--radio"><input type="radio" name="QA_9102341" value="false"> <span>No</span></label>
+          </div>
+        </fieldset>
+
+        <div class="styles--1Sarc" data-ui="QA_9102342">
+          <label for="QA_9102342" class="styles--QTMDv">Describe a Node.js service you have built or maintained. What would you change about it today?<span class="styles--required" aria-hidden="true">*</span></label>
+          <textarea id="QA_9102342" name="QA_9102342" rows="5" required aria-required="true" class="styles--3da1I"></textarea>
+        </div>
+      </section>
+
+      <section class="styles--2kqW6" data-ui="gdpr">
+        <label class="styles--checkbox styles--gdpr">
+          <input id="gdpr" name="gdpr" type="checkbox" value="true" required aria-required="true">
+          <span>I have read and accept the <a href="#privacy" target="_blank" rel="noopener">Privacy Notice</a>, and I agree that Brightwater Health may process my personal data to evaluate my application.<span class="styles--required" aria-hidden="true">*</span></span>
+        </label>
+      </section>
+
+      <div class="styles--actions">
+        <button type="submit" class="styles--submit" data-ui="apply-button">Submit application</button>
+      </div>
+    </form>
+
+    <footer class="styles--footer">Powered by <strong>Workable</strong> · <a href="#privacy">Privacy</a></footer>
+  </main>
+</div>
+<script>window.__FX_FORM_ID = '{{FORM_ID}}';</script>
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/workable/apply.js"></script>
+</body>
+</html>

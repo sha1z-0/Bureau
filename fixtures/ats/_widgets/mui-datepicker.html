@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: MUI X DatePicker (v6/v7 "single input" field + desktop calendar popover), vanilla JS.
+
+  Field (DateField, format MM/DD/YYYY):
+    .MuiFormControl-root.MuiTextField-root > label.MuiInputLabel-root[for] + .MuiInputBase-root.MuiOutlinedInput-root
+      > input.MuiInputBase-input[placeholder="MM/DD/YYYY"][inputmode=text][aria-invalid] + .MuiInputAdornment-root > button[aria-label^="Choose date"]
+      + p.MuiFormHelperText-root
+    - Focusing shows the section placeholders "MM/DD/YYYY" as the input value and selects a section.
+    - keydown is preventDefault'ed: typed digits fill the ACTIVE section and auto-advance when the section is
+      complete (month "1" waits for a second digit, "3"-"9" advance at once; day "4"-"9" advance; year takes 4 digits).
+      Letters and "/" are ignored. Clicking selects the section under the caret.
+    - ArrowUp/ArrowDown increment/decrement the active section (an empty section jumps to today's value);
+      ArrowLeft/ArrowRight move between sections; Backspace/Delete clear the active section (all, after Ctrl+A).
+    - A whole date pasted/inserted at once (paste, IME, Playwright fill) is parsed like MUI's paste handler;
+      any other free-text input is rejected and the sections are re-rendered.
+    - Impossible dates (02/31/2026) or out-of-range years set aria-invalid="true", the Mui-error state and
+      helper text "Invalid date"; the hidden ISO input stays empty. Partially filled fields stay partial.
+  Calendar popover (DesktopDatePicker):
+    div.MuiPopper-root.MuiPickersPopper-root[role=dialog] > .MuiPaper-root.MuiPickersPopper-paper > .MuiDateCalendar-root
+      .MuiPickersCalendarHeader-root: .MuiPickersCalendarHeader-label "November 2026",
+        button.MuiPickersCalendarHeader-switchViewButton[aria-label="calendar view is open, switch to year view"],
+        .MuiPickersArrowSwitcher-root > button[aria-label="Previous month"] / button[aria-label="Next month"]
+      day view: div.MuiDayCalendar-root[role=grid] > rows > button.MuiPickersDay-root[role=gridcell][aria-colindex][data-timestamp]
+                (Mui-selected/aria-selected, MuiPickersDay-today/aria-current=date)
+      year view: div.MuiYearCalendar-root[role=radiogroup] > .MuiPickersYear-root > button.MuiPickersYear-yearButton[role=radio]
+    - picking a year returns to the day view of that year; picking a day commits and closes; Escape/outside click closes.
+  Committed values are submitted as ISO yyyy-mm-dd in hidden inputs (start_date, graduation_date).
+
+  Traps: no free text; the visible format (MM/DD/YYYY) differs from the submitted one (ISO); the calendar opens on
+  the current month, so June 2023 needs the year view plus month navigation.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Software Engineer I (Integrations) - Brightwater Health Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "Roboto", "Helvetica", "Arial", sans-serif; background: #fafafa; color: rgba(0,0,0,.87); }
+    .MuiAppBar-root { background: #00695c; color: #fff; padding: 16px 32px; font-size: 20px; font-weight: 500; box-shadow: 0 2px 4px -1px rgba(0,0,0,.2); }
+    .MuiContainer-root { max-width: 760px; margin: 24px auto; }
+    .MuiCard-root { background: #fff; border-radius: 4px; box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12); padding: 24px 28px; }
+    h1 { font-size: 26px; font-weight: 400; margin: 0 0 6px; }
+    .sub { color: rgba(0,0,0,.6); margin-bottom: 16px; }
+    .about { line-height: 1.6; color: rgba(0,0,0,.7); margin-bottom: 20px; }
+    h2 { font-size: 18px; font-weight: 500; margin: 26px 0 12px; }
+    .grid { display: flex; gap: 16px; flex-wrap: wrap; } .grid > * { flex: 1 1 300px; }
+    .MuiFormControl-root { display: inline-flex; flex-direction: column; position: relative; min-width: 0; padding: 0; margin: 8px 0 16px; border: 0; vertical-align: top; width: 100%; }
+    .MuiInputLabel-root { color: rgba(0,0,0,.6); font-size: 12px; line-height: 1.4375em; padding: 0 4px; position: absolute; left: 10px; top: -9px; background: #fff; z-index: 1; }
+    .Mui-focused > .MuiInputLabel-root, .MuiInputLabel-root.Mui-focused { color: #1976d2; }
+    .Mui-error .MuiInputLabel-root { color: #d32f2f; }
+    .MuiFormLabel-asterisk { color: inherit; }
+    .MuiInputBase-root { position: relative; display: inline-flex; align-items: center; box-sizing: border-box; cursor: text; font-size: 16px; border: 1px solid rgba(0,0,0,.23); border-radius: 4px; padding-right: 14px; background: #fff; }
+    .MuiInputBase-root.Mui-focused { border: 2px solid #1976d2; margin: -1px; }
+    .MuiInputBase-root.Mui-error { border-color: #d32f2f; }
+    .MuiInputBase-input { font: inherit; letter-spacing: inherit; color: currentColor; padding: 16.5px 14px; border: 0; box-sizing: content-box; background: none; height: 1.4375em; margin: 0; display: block; min-width: 0; width: 100%; outline: 0; }
+    .MuiIconButton-root { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; cursor: pointer; padding: 8px; border-radius: 50%; color: rgba(0,0,0,.54); margin-right: -12px; }
+    .MuiIconButton-root:hover { background: rgba(0,0,0,.04); }
+    .MuiSvgIcon-root { width: 1em; height: 1em; font-size: 1.5rem; fill: currentColor; }
+    .MuiFormHelperText-root { color: rgba(0,0,0,.6); font-size: 12px; margin: 3px 14px 0; min-height: 1em; }
+    .MuiFormHelperText-root.Mui-error { color: #d32f2f; }
+    .MuiButton-contained { background: #1976d2; color: #fff; border: 0; border-radius: 4px; padding: 8px 22px; font-size: 15px; font-weight: 500; letter-spacing: .03em; text-transform: uppercase; cursor: pointer; box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14); }
+    .MuiAlert-root { display: none; background: #fdeded; color: #5f2120; padding: 10px 16px; border-radius: 4px; margin-bottom: 14px; }
+
+    .MuiPickersPopper-root { position: absolute; z-index: 1300; }
+    .MuiPickersPopper-paper { background: #fff; border-radius: 4px; box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12); outline: 0; }
+    .MuiDateCalendar-root { width: 320px; height: 334px; display: flex; flex-direction: column; overflow: hidden; }
+    .MuiPickersCalendarHeader-root { display: flex; align-items: center; margin: 16px 0 8px; padding: 0 12px 0 24px; min-height: 30px; max-height: 30px; }
+    .MuiPickersCalendarHeader-labelContainer { display: flex; align-items: center; margin-right: auto; font-weight: 500; font-size: 16px; cursor: pointer; }
+    .MuiPickersCalendarHeader-switchViewButton { margin-right: 0; padding: 5px; }
+    .MuiPickersArrowSwitcher-root { display: flex; }
+    .MuiPickersArrowSwitcher-spacer { width: 24px; }
+    .MuiPickersArrowSwitcher-button { margin: 0; }
+    .MuiDayCalendar-header { display: flex; justify-content: center; align-items: center; }
+    .MuiDayCalendar-weekDayLabel { width: 36px; height: 40px; margin: 0 2px; text-align: center; display: flex; justify-content: center; align-items: center; color: rgba(0,0,0,.6); font-size: 12px; }
+    .MuiDayCalendar-monthContainer { min-height: 240px; }
+    .MuiDayCalendar-weekContainer { margin: 2px 0; display: flex; justify-content: center; }
+    .MuiPickersDay-root { width: 36px; height: 36px; margin: 0 2px; padding: 0; border-radius: 50%; border: 0; background: transparent; font-size: 12px; cursor: pointer; color: rgba(0,0,0,.87); }
+    .MuiPickersDay-root:hover { background: rgba(25,118,210,.04); }
+    .MuiPickersDay-today { border: 1px solid rgba(0,0,0,.6); }
+    .MuiPickersDay-root.Mui-selected { background: #1976d2; color: #fff; font-weight: 500; }
+    .MuiPickersDay-hiddenDaySpacingFiller { width: 36px; height: 36px; margin: 0 2px; visibility: hidden; }
+    .MuiYearCalendar-root { display: flex; flex-wrap: wrap; overflow-y: auto; height: 100%; padding: 0 4px; width: 320px; max-height: 280px; box-sizing: border-box; }
+    .MuiPickersYear-root { flex-basis: 33.3%; display: flex; align-items: center; justify-content: center; }
+    .MuiPickersYear-yearButton { background: transparent; border: 0; font-size: 16px; margin: 8px 0; height: 36px; width: 72px; border-radius: 18px; cursor: pointer; color: inherit; }
+    .MuiPickersYear-yearButton:hover { background: rgba(0,0,0,.04); }
+    .MuiPickersYear-yearButton.Mui-selected { background: #1976d2; color: #fff; }
+  </style>
+</head>
+<body>
+<header class="MuiAppBar-root">Brightwater Health &middot; Careers</header>
+<div class="MuiContainer-root">
+  <div class="MuiCard-root">
+    <h1>Software Engineer I (Integrations)</h1>
+    <div class="sub">Remote, Asia/Pacific time zones &middot; Engineering &middot; Req #BH-2219</div>
+    <div class="about">
+      Brightwater Health connects 300 independent clinics to labs and insurers. The Integrations team builds the
+      TypeScript services that translate HL7 and FHIR messages into our scheduling and billing platform.
+      We hire graduates in cohorts, so please tell us when you graduated and the earliest date you could start.
+    </div>
+
+    <div class="MuiAlert-root" id="form-alert" role="alert">Please correct the highlighted fields.</div>
+    <form id="application" novalidate>
+      <h2>Your details</h2>
+      <div class="grid">
+        <div class="MuiFormControl-root MuiTextField-root" data-text>
+          <label class="MuiInputLabel-root" for="first_name">First name<span aria-hidden="true" class="MuiFormLabel-asterisk"> *</span></label>
+          <div class="MuiInputBase-root MuiOutlinedInput-root"><input class="MuiInputBase-input" id="first_name" name="first_name" type="text" required autocomplete="given-name"></div>
+          <p class="MuiFormHelperText-root"></p>
+        </div>
+        <div class="MuiFormControl-root MuiTextField-root" data-text>
+          <label class="MuiInputLabel-root" for="last_name">Last name<span aria-hidden="true" class="MuiFormLabel-asterisk"> *</span></label>
+          <div class="MuiInputBase-root MuiOutlinedInput-root"><input class="MuiInputBase-input" id="last_name" name="last_name" type="text" required autocomplete="family-name"></div>
+          <p class="MuiFormHelperText-root"></p>
+        </div>
+      </div>
+      <div class="MuiFormControl-root MuiTextField-root" data-text>
+        <label class="MuiInputLabel-root" for="email">Email<span aria-hidden="true" class="MuiFormLabel-asterisk"> *</span></label>
+        <div class="MuiInputBase-root MuiOutlinedInput-root"><input class="MuiInputBase-input" id="email" name="email" type="email" required autocomplete="email"></div>
+        <p class="MuiFormHelperText-root"></p>
+      </div>
+
+      <h2>Dates</h2>
+      <div class="grid">
+        <div id="start-date-picker" data-label="Earliest start date" data-name="start_date" data-id=":r1:" data-helper="The first day you could join us."></div>
+        <div id="graduation-date-picker" data-label="Graduation date" data-name="graduation_date" data-id=":r3:" data-helper="Date of your final exam or convocation."></div>
+      </div>
+
+      <button class="MuiButton-contained" type="submit" id="submit">Submit application</button>
+    </form>
+  </div>
+</div>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DOW = [['S', 'Sunday'], ['M', 'Monday'], ['T', 'Tuesday'], ['W', 'Wednesday'], ['T', 'Thursday'], ['F', 'Friday'], ['S', 'Saturday']];
+  var CAL_ICON = '<svg class="MuiSvgIcon-root" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CalendarIcon"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"></path></svg>';
+  var LEFT = '<svg class="MuiSvgIcon-root" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowLeftIcon"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path></svg>';
+  var RIGHT = '<svg class="MuiSvgIcon-root" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowRightIcon"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg>';
+  var DROP = '<svg class="MuiSvgIcon-root MuiPickersCalendarHeader-switchViewIcon" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ArrowDropDownIcon"><path d="M7 10l5 5 5-5z"></path></svg>';
+
+  function pad(n, l) { n = String(n); while (n.length < l) n = '0' + n; return n; }
+  function daysIn(y, m) { return new Date(y, m, 0).getDate(); } // m 1-based
+  function iso(d) { return pad(d.y, 4) + '-' + pad(d.m, 2) + '-' + pad(d.d, 2); }
+  function short(d) { return MONTHS[d.m - 1].slice(0, 3) + ' ' + d.d + ', ' + d.y; }
+  var now = new Date();
+  var TODAY = { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
+
+  function DatePicker(mount) {
+    var label = mount.dataset.label, name = mount.dataset.name, id = mount.dataset.id;
+    var root = document.createElement('div');
+    root.className = 'MuiFormControl-root MuiTextField-root';
+    root.innerHTML =
+      '<label class="MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined" data-shrink="true" for="' + id + '" id="' + id + '-label">' + label +
+      '<span aria-hidden="true" class="MuiFormLabel-asterisk MuiInputLabel-asterisk"> *</span></label>' +
+      '<div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd">' +
+      '<input aria-invalid="false" aria-describedby="' + id + '-helper-text" autocomplete="off" id="' + id + '" inputmode="text" placeholder="MM/DD/YYYY" type="text" required class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd" value="">' +
+      '<div class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium">' +
+      '<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium" tabindex="0" type="button" aria-label="Choose date">' + CAL_ICON + '</button></div></div>' +
+      '<p class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained" id="' + id + '-helper-text"></p>' +
+      '<input type="hidden" name="' + name + '" value="">';
+    mount.appendChild(root);
+    var input = root.querySelector('input.MuiInputBase-input');
+    var base = root.querySelector('.MuiInputBase-root');
+    var btn = root.querySelector('button[aria-label^="Choose date"]');
+    var helper = root.querySelector('.MuiFormHelperText-root');
+    var hidden = root.querySelector('input[type=hidden]');
+    var helperDefault = mount.dataset.helper || '';
+    helper.textContent = helperDefault;
+
+    // ---- sectioned field ----
+    var S = [
+      { type: 'month', ph: 'MM', len: 2, start: 0, min: 1, max: 12 },
+      { type: 'day', ph: 'DD', len: 2, start: 3, min: 1, max: 31 },
+      { type: 'year', ph: 'YYYY', len: 4, start: 6, min: 0, max: 9999 }
+    ];
+    var vals = ['', '', ''];
+    var active = -1; // -1 = all sections selected
+    var pending = ''; // digits typed into the active section so far
+    var focused = false;
+    var mouseDownInField = false;
+    var value = null; // committed {y,m,d}
+    var forceError = false;
+
+    function text() { return S.map(function (s, i) { return vals[i] || s.ph; }).join('/'); }
+    function anyFilled() { return vals.some(function (v) { return v !== ''; }); }
+    function render() {
+      var t = focused || anyFilled() ? text() : '';
+      if (input.value !== t) input.value = t;
+      if (focused) {
+        if (active < 0) input.setSelectionRange(0, t.length);
+        else input.setSelectionRange(S[active].start, S[active].start + S[active].len);
+      }
+    }
+    function computeValue() {
+      var m = parseInt(vals[0], 10), d = parseInt(vals[1], 10), y = parseInt(vals[2], 10);
+      var complete = vals[0] && vals[1] && vals[2] && vals[2].replace(/^0+/, '').length >= 1;
+      var invalid = false;
+      value = null;
+      if (complete) {
+        if (m < 1 || m > 12 || d < 1 || y < 1900 || y > 2099 || d > daysIn(y, m)) invalid = true;
+        else value = { y: y, m: m, d: d };
+      }
+      var err = invalid || forceError;
+      input.setAttribute('aria-invalid', err ? 'true' : 'false');
+      base.classList.toggle('Mui-error', err);
+      root.classList.toggle('Mui-error', err);
+      helper.classList.toggle('Mui-error', err);
+      helper.textContent = invalid ? 'Invalid date' : forceError ? 'This field is required' : helperDefault;
+      hidden.value = value ? iso(value) : '';
+      btn.setAttribute('aria-label', value ? 'Choose date, selected date is ' + short(value) : 'Choose date');
+    }
+    function setDate(d) {
+      vals = [pad(d.m, 2), pad(d.d, 2), pad(d.y, 4)];
+      pending = '';
+      forceError = false;
+      computeValue();
+      render();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function sectionAt(pos) { return pos <= 2 ? 0 : pos <= 5 ? 1 : 2; }
+    function typeDigit(ch) {
+      if (active < 0) active = 0;
+      var s = S[active];
+      var digit = parseInt(ch, 10);
+      var advance = false;
+      if (s.type === 'year') {
+        pending = (pending + ch).slice(-4);
+        if (pending.length > 4) pending = ch;
+        vals[2] = pad(pending, 4);
+        if (pending.length === 4) pending = '';
+      } else {
+        var cand = pending + ch;
+        var n = parseInt(cand, 10);
+        if (pending && n <= s.max && n >= (s.type === 'day' ? 1 : 1)) {
+          vals[active] = pad(n, 2); pending = ''; advance = true;
+        } else if (pending && (n > s.max || n === 0)) {
+          // restart the section with this digit
+          pending = '';
+          return typeDigit(ch);
+        } else {
+          // first digit
+          var firstMax = s.type === 'month' ? 1 : 3;
+          if (digit > firstMax) { vals[active] = pad(digit, 2); pending = ''; advance = true; }
+          else { vals[active] = pad(digit, 2); pending = ch; }
+        }
+      }
+      if (advance && active < 2) active++;
+      forceError = false;
+      computeValue();
+      render();
+    }
+    function step(delta) {
+      if (active < 0) active = 0;
+      var s = S[active];
+      var cur = vals[active] === '' ? null : parseInt(vals[active], 10);
+      var nv;
+      if (cur === null) nv = s.type === 'month' ? TODAY.m : s.type === 'day' ? TODAY.d : TODAY.y;
+      else if (s.type === 'year') nv = cur + delta;
+      else { nv = cur + delta; if (nv > s.max) nv = s.min; if (nv < s.min) nv = s.max; }
+      vals[active] = pad(nv, s.len);
+      pending = '';
+      computeValue();
+      render();
+    }
+
+    input.addEventListener('mousedown', function () { mouseDownInField = true; });
+    input.addEventListener('focus', function () {
+      focused = true;
+      base.classList.add('Mui-focused');
+      root.classList.add('Mui-focused');
+      active = mouseDownInField ? active : -1;
+      pending = '';
+      render();
+    });
+    input.addEventListener('mouseup', function () {
+      // Synchronous on purpose: keystrokes are scheduled ahead of timers, so a deferred
+      // section switch could land after the first typed digit.
+      mouseDownInField = false;
+      active = sectionAt(input.selectionStart || 0);
+      pending = '';
+      render();
+    });
+    input.addEventListener('blur', function () {
+      focused = false;
+      active = -1;
+      pending = '';
+      base.classList.remove('Mui-focused');
+      root.classList.remove('Mui-focused');
+      render();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'a' || e.key === 'A') { e.preventDefault(); active = -1; render(); }
+        return; // allow copy/paste shortcuts
+      }
+      if (e.key === 'Tab' || e.key === 'Escape') return;
+      e.preventDefault();
+      if (/^[0-9]$/.test(e.key)) typeDigit(e.key);
+      else if (e.key === 'ArrowRight') { active = active < 0 ? 0 : Math.min(2, active + 1); pending = ''; render(); }
+      else if (e.key === 'ArrowLeft') { active = active < 0 ? 0 : Math.max(0, active - 1); pending = ''; render(); }
+      else if (e.key === 'ArrowUp') step(1);
+      else if (e.key === 'ArrowDown') step(-1);
+      else if (e.key === 'Home') { active = 0; render(); }
+      else if (e.key === 'End') { active = 2; render(); }
+      else if (e.key === 'Backspace' || e.key === 'Delete') {
+        if (active < 0) vals = ['', '', '']; else vals[active] = '';
+        pending = '';
+        computeValue();
+        render();
+      }
+      // every other key (letters, '/', space) is swallowed
+    });
+    function tryParse(str) {
+      var m = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/.exec(str);
+      if (!m) return false;
+      vals = [pad(m[1], 2), pad(m[2], 2), m[3]];
+      pending = '';
+      active = 2;
+      forceError = false;
+      computeValue();
+      render();
+      return true;
+    }
+    input.addEventListener('paste', function (e) {
+      e.preventDefault();
+      var t = (e.clipboardData || window.clipboardData).getData('text');
+      tryParse(t);
+    });
+    // Insertions that bypass keydown (IME, autofill, Playwright fill): accept only a whole date.
+    input.addEventListener('input', function () {
+      var t = input.value;
+      if (!tryParse(t)) render();
+    });
+
+    // ---- calendar popover ----
+    var popper = null, view = 'day', shown = { y: TODAY.y, m: TODAY.m };
+    function close() {
+      if (!popper) return;
+      popper.remove();
+      popper = null;
+      document.removeEventListener('mousedown', outside, true);
+      document.removeEventListener('keydown', onEsc, true);
+    }
+    function outside(e) { if (popper && !popper.contains(e.target) && !btn.contains(e.target)) close(); }
+    function onEsc(e) { if (e.key === 'Escape') { e.preventDefault(); close(); btn.focus(); } }
+    function open() {
+      if (popper) return close();
+      var start = value || TODAY;
+      shown = { y: start.y, m: start.m };
+      view = 'day';
+      popper = document.createElement('div');
+      popper.className = 'MuiPopper-root MuiPickersPopper-root';
+      popper.setAttribute('role', 'dialog');
+      popper.setAttribute('aria-labelledby', id + '-label');
+      var r = base.getBoundingClientRect();
+      popper.style.left = r.left + window.scrollX + 'px';
+      popper.style.top = r.bottom + window.scrollY + 4 + 'px';
+      document.body.appendChild(popper);
+      drawCal();
+      document.addEventListener('mousedown', outside, true);
+      document.addEventListener('keydown', onEsc, true);
+    }
+    function drawCal() {
+      var gridLabelId = id + '-grid-label';
+      var h = '<div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 MuiPickersPopper-paper" tabindex="-1">' +
+        '<div class="MuiDateCalendar-root">' +
+        '<div class="MuiPickersCalendarHeader-root">' +
+        '<div role="presentation" class="MuiPickersCalendarHeader-labelContainer" aria-live="polite">' +
+        '<div class="MuiPickersFadeTransitionGroup-root"><div class="MuiPickersCalendarHeader-label" id="' + gridLabelId + '">' + MONTHS[shown.m - 1] + ' ' + shown.y + '</div></div>' +
+        '<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiPickersCalendarHeader-switchViewButton" tabindex="0" type="button" aria-label="' +
+        (view === 'day' ? 'calendar view is open, switch to year view' : 'year view is open, switch to calendar view') + '">' + DROP + '</button></div>';
+      if (view === 'day') {
+        h += '<div class="MuiPickersArrowSwitcher-root">' +
+          '<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium MuiPickersArrowSwitcher-button MuiPickersArrowSwitcher-previousIconButton" tabindex="0" type="button" aria-label="Previous month" title="Previous month">' + LEFT + '</button>' +
+          '<div class="MuiPickersArrowSwitcher-spacer"></div>' +
+          '<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeStart MuiIconButton-sizeMedium MuiPickersArrowSwitcher-button MuiPickersArrowSwitcher-nextIconButton" tabindex="0" type="button" aria-label="Next month" title="Next month">' + RIGHT + '</button></div>';
+      }
+      h += '</div><div class="MuiPickersFadeTransitionGroup-root MuiDateCalendar-viewTransitionContainer">';
+      if (view === 'day') {
+        h += '<div role="grid" aria-labelledby="' + gridLabelId + '" class="MuiDayCalendar-root"><div role="row" class="MuiDayCalendar-header">';
+        DOW.forEach(function (d) { h += '<span role="columnheader" aria-label="' + d[1] + '" class="MuiTypography-root MuiTypography-caption MuiDayCalendar-weekDayLabel">' + d[0] + '</span>'; });
+        h += '</div><div role="presentation" class="MuiPickersSlideTransition-root MuiDayCalendar-slideTransition"><div role="rowgroup" class="MuiDayCalendar-monthContainer">';
+        var first = new Date(shown.y, shown.m - 1, 1).getDay();
+        var n = daysIn(shown.y, shown.m);
+        var cells = [];
+        for (var i = 0; i < first; i++) cells.push(null);
+        for (var d = 1; d <= n; d++) cells.push(d);
+        while (cells.length % 7) cells.push(null);
+        for (var w = 0; w < cells.length / 7; w++) {
+          h += '<div role="row" class="MuiDayCalendar-weekContainer" aria-rowindex="' + (w + 1) + '">';
+          for (var c = 0; c < 7; c++) {
+            var day = cells[w * 7 + c];
+            if (day === null) { h += '<div role="gridcell" aria-colindex="' + (c + 1) + '" class="MuiPickersDay-root MuiPickersDay-hiddenDaySpacingFiller"></div>'; continue; }
+            var sel = value && value.y === shown.y && value.m === shown.m && value.d === day;
+            var today = TODAY.y === shown.y && TODAY.m === shown.m && TODAY.d === day;
+            h += '<button class="MuiButtonBase-root MuiPickersDay-root MuiPickersDay-dayWithMargin' + (sel ? ' Mui-selected' : '') + (today ? ' MuiPickersDay-today' : '') +
+              '" tabindex="' + (sel || (!value && today) ? '0' : '-1') + '" type="button" role="gridcell" aria-colindex="' + (c + 1) + '" aria-selected="' + (sel ? 'true' : 'false') + '"' +
+              (today ? ' aria-current="date"' : '') + ' data-timestamp="' + new Date(shown.y, shown.m - 1, day).getTime() + '" data-day="' + day + '">' + day + '</button>';
+          }
+          h += '</div>';
+        }
+        h += '</div></div></div>';
+      } else {
+        h += '<div role="radiogroup" class="MuiYearCalendar-root">';
+        for (var y = 1900; y <= 2099; y++) {
+          var ysel = y === (value ? value.y : shown.y);
+          h += '<div class="MuiPickersYear-root"><button type="button" role="radio" aria-checked="' + (ysel ? 'true' : 'false') + '" tabindex="' + (ysel ? '0' : '-1') + '" class="MuiPickersYear-yearButton' + (ysel ? ' Mui-selected' : '') + '" data-year="' + y + '">' + y + '</button></div>';
+        }
+        h += '</div>';
+      }
+      h += '</div></div></div>';
+      popper.innerHTML = h;
+      if (view === 'year') {
+        var yc = popper.querySelector('.MuiYearCalendar-root');
+        var sy = popper.querySelector('.MuiPickersYear-yearButton.Mui-selected');
+        if (yc && sy) yc.scrollTop = sy.parentNode.offsetTop - yc.clientHeight / 2 + 30;
+      }
+    }
+    btn.addEventListener('click', function () { open(); });
+    document.addEventListener('click', function (e) {
+      if (!popper || !popper.contains(e.target)) return;
+      var t = e.target.closest('button');
+      if (!t) {
+        if (e.target.closest('.MuiPickersCalendarHeader-labelContainer')) { view = view === 'day' ? 'year' : 'day'; drawCal(); }
+        return;
+      }
+      if (t.classList.contains('MuiPickersCalendarHeader-switchViewButton')) { view = view === 'day' ? 'year' : 'day'; drawCal(); return; }
+      if (t.getAttribute('aria-label') === 'Previous month') { shown.m--; if (shown.m < 1) { shown.m = 12; shown.y--; } drawCal(); return; }
+      if (t.getAttribute('aria-label') === 'Next month') { shown.m++; if (shown.m > 12) { shown.m = 1; shown.y++; } drawCal(); return; }
+      if (t.dataset.year) { shown.y = parseInt(t.dataset.year, 10); view = 'day'; drawCal(); return; }
+      if (t.dataset.day) {
+        setDate({ y: shown.y, m: shown.m, d: parseInt(t.dataset.day, 10) });
+        close();
+        input.focus();
+      }
+    });
+
+    return {
+      hidden: hidden,
+      validate: function () { forceError = !hidden.value && !input.getAttribute('aria-invalid').match(/true/); computeValue(); return !!hidden.value; }
+    };
+  }
+
+  var pickers = [DatePicker(document.getElementById('start-date-picker')), DatePicker(document.getElementById('graduation-date-picker'))];
+
+  // focus styling for plain text fields
+  document.querySelectorAll('[data-text] input').forEach(function (inp) {
+    inp.addEventListener('focus', function () { inp.parentNode.classList.add('Mui-focused'); });
+    inp.addEventListener('blur', function () { inp.parentNode.classList.remove('Mui-focused'); });
+  });
+
+  var form = document.getElementById('application');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var bad = 0;
+    document.querySelectorAll('[data-text]').forEach(function (fc) {
+      var inp = fc.querySelector('input');
+      var msg = !inp.value.trim() ? 'This field is required' : inp.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value) ? 'Enter a valid email address' : '';
+      fc.classList.toggle('Mui-error', !!msg);
+      inp.parentNode.classList.toggle('Mui-error', !!msg);
+      inp.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      var p = fc.querySelector('.MuiFormHelperText-root');
+      p.textContent = msg;
+      p.classList.toggle('Mui-error', !!msg);
+      if (msg) bad++;
+    });
+    pickers.forEach(function (p) { if (!p.validate()) bad++; });
+    document.getElementById('form-alert').style.display = bad ? 'block' : 'none';
+    if (bad) return;
+    var b = document.getElementById('submit');
+    b.disabled = true;
+    var res = await FX.postForm(FORM_ID, new FormData(form));
+    if (!FX.finish(res)) {
+      b.disabled = false;
+      var a = document.getElementById('form-alert');
+      a.textContent = 'Submission failed: ' + (res.errors || []).join('; ');
+      a.style.display = 'block';
+    }
+  });
+})();
+</script>
+</body>
+</html>

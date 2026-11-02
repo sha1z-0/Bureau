@@ -1,0 +1,24 @@
+Return-Path: <no-reply@teamtailor.com>
+From: Saffron Studio <no-reply@teamtailor.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: We have received your application!
+Date: Sat, 31 Oct 2026 12:31:40 +0100
+Message-ID: <6721b3c4d5e6f7a8.application-4471203@teamtailor.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<div style="max-width:600px;margin:0 auto;padding:32px;background:#fff8ef">
+<h1 style="font-size:22px;color:#b35c00">Thanks, Rania!</h1>
+<p>We have received your application for <strong>Full-Stack Developer, Early Career</strong> at Saffron Studio.</p>
+<p>Our team reads every application. You will hear from us within 10 working days.</p>
+<p>Warm regards,<br>Saffron Studio</p>
+<hr>
+<p style="font-size:11px;color:#999">You received this email because you applied for a job at Saffron Studio. <a href="https://saffronstudio.teamtailor.com/candidate/privacy">Manage your data</a></p>
+</div>
+</body>
+</html>

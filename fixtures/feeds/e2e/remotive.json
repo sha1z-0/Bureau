@@ -1,0 +1,47 @@
+{
+  "00-warning": "Remotive main domain moved to remotive.com ! Please make your API calls to https://remotive.com/api/remote-jobs",
+  "0-legal-notice": "Legal warning - Hey, thanks for using Remotive's API, we appreciate it! Please note: Remotive's API is free, and we'd like to keep it free. You're welcome to use it, but please link back to the original job posting on Remotive and mention Remotive as a source.",
+  "job-count": 2,
+  "total-job-count": 2,
+  "jobs": [
+    {
+      "id": 2101234,
+      "url": "https://remotive.com/remote-jobs/software-development/junior-backend-engineer-remote-2101234",
+      "title": "Junior Backend Engineer (Remote)",
+      "company_name": "Lumen Ledger",
+      "company_logo": "https://remotive.com/job/2101234/logo",
+      "category": "Software Development",
+      "tags": [
+        "node.js",
+        "typescript",
+        "postgresql",
+        "backend",
+        "docker",
+        "aws"
+      ],
+      "job_type": "full_time",
+      "publication_date": "2026-11-01T12:04:51",
+      "candidate_required_location": "EMEA, South Asia",
+      "salary": "$28k - $36k",
+      "description": "<p><strong>Lumen Ledger</strong> is hiring a Junior Backend Engineer (100% remote, EMEA / South Asia).</p>\n<p>Lumen Ledger makes reconciliation and month-end close software for small finance teams: accountants at companies of 20 to 200 people who no longer want to match bank lines in spreadsheets. The team is 34 people, fully remote, and this is their second junior backend hire.</p>\n<p><strong>Responsibilities</strong></p>\n<ul><li>Build and maintain Node.js/TypeScript services that import bank feeds and match transactions to invoices</li><li>Write PostgreSQL migrations and tune the queries behind the matching engine</li><li>Ship small, well-tested changes several times a week, reviewed by a senior engineer</li><li>Take part in a daytime-only support rotation after onboarding</li></ul>\n<p><strong>Requirements</strong></p>\n<ul><li>1+ year of professional backend experience with Node.js and TypeScript</li><li>Comfortable with SQL and relational data modelling (PostgreSQL preferred)</li><li>Clear written English for async collaboration</li><li>4+ hours of overlap with 09:00-17:00 CET</li></ul>\n<p><strong>Nice to have:</strong> Docker / Docker Compose, some AWS (RDS, ECS, Lambda), interest in accounting or payments.</p>\n<p><strong>Salary:</strong> USD 28k-36k per year, paid monthly via an employer of record, plus a USD 600 learning budget and home-office stipend.</p>"
+    },
+    {
+      "id": 2101299,
+      "url": "https://remotive.com/remote-jobs/software-development/junior-developer-work-from-home-2101299",
+      "title": "Junior Developer - Work From Home ($4,000/week)",
+      "company_name": "GlobalTech Recruit Solutions",
+      "company_logo": "https://remotive.com/job/2101299/logo",
+      "category": "Software Development",
+      "tags": [
+        "junior",
+        "work from home",
+        "no experience"
+      ],
+      "job_type": "full_time",
+      "publication_date": "2026-11-01T19:40:02",
+      "candidate_required_location": "Worldwide",
+      "salary": "$4,000 per week",
+      "description": "<p>URGENT HIRING!!! GlobalTech Recruit Solutions is hiring Junior Developers to work from home. No experience needed, all training provided. Earn <strong>$4,000 per week</strong> testing websites and apps from your phone or laptop, only 2 hours per day.</p>\n<p><strong>Requirements</strong></p>\n<ul><li>Any basic computer knowledge</li><li>Smartphone or laptop with internet</li><li>Must be available to start immediately</li></ul>\n<p><strong>How to apply</strong></p>\n<p>Due to high demand, all candidates must pay a one-time <strong>registration fee of $49</strong> to reserve their training slot and receive the onboarding kit. The fee is fully refundable after your first week. Send your CV, a copy of your national ID card and your bank details to our hiring manager at <strong>globaltech.hr.desk2026@gmail.com</strong> or message us on WhatsApp.</p>\n<p><strong>Payment</strong></p>\n<p>All salaries are paid weekly in <strong>USDT (crypto)</strong> to your wallet for fast international payment. Bonus paid in Bitcoin for top performers. Limited positions available, apply today before the slots are filled!</p>\n<p>We are an equal opportunity employer and welcome applicants from all countries. No interview needed, you will be hired on the same day after the registration fee is received.</p>"
+    }
+  ]
+}

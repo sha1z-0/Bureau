@@ -1,0 +1,43 @@
+{
+  "forms": [
+    {
+      "id": "recruitee-careers",
+      "ats": "recruitee",
+      "title": "Recruitee careers site application (React, dotted field names, in-page success)",
+      "route": "/tulipandtern.recruitee.com/o/junior-web-developer/c/new",
+      "file": "recruitee/apply.html",
+      "confirmationFile": "recruitee/confirmation.html",
+      "confirmationText": "Your application has been successfully submitted",
+      "required": ["candidate[name]", "candidate[email]", "candidate[phone]", "candidate[cv]", "candidate[agreements][0][consent]"],
+      "expect": {
+        "candidate[name]": "profile:fullName",
+        "candidate[email]": "profile:email",
+        "candidate[phone]": "profile:phone",
+        "candidate[cv]": "file:cv",
+        "candidate[coverLetterFile]": "file:letter",
+        "candidate[openQuestionAnswers][7731401][flag]": "=true",
+        "candidate[openQuestionAnswers][7731402][content]": "=1-2 years",
+        "candidate[openQuestionAnswers][7731403][multiContent][0]": "=React",
+        "candidate[openQuestionAnswers][7731403][multiContent][1]": "=TypeScript",
+        "candidate[openQuestionAnswers][7731404][content]": "oneOf:30000|30,000|USD 30,000|USD 30000|USD 30,000 per year|$30,000|30000 USD",
+        "candidate[openQuestionAnswers][7731405][content]": "answer:startDate",
+        "candidate[openQuestionAnswers][7731406][content]": "nonempty",
+        "candidate[openQuestionAnswers][7731407][flag]": "=false",
+        "candidate[agreements][0][agreementId]": "=38811",
+        "candidate[agreements][0][consent]": "true"
+      },
+      "quirks": [
+        "react-hook-form dotted input names (candidate.openQuestionAnswers.<id>.content) differ from the bracketed multipart keys actually sent",
+        "radix ids containing dots and colons (CSS selectors must escape them)",
+        "single full-name field",
+        "phone input pre-filled with \"+1\" behind a downshift country-code listbox; typing +92 switches the country",
+        "file inputs stretched invisibly (opacity 0) over 'Upload a file or drag and drop here' areas",
+        "cover letter file/text toggle ('Write it here instead' / 'Clear and upload a cover letter instead')",
+        "open questions: boolean radios (true/false), single-choice radios valued by option text, multi-choice checkboxes (indexed multiContent), single-line, date, multi-line",
+        "GDPR agreement checkbox (required) + optional legal 'keep my data for future jobs' question (careful applicant leaves it unchecked)",
+        "fetch() multipart FormData (object-to-formdata, indices:true); success swaps tab panels in place, URL unchanged"
+      ],
+      "reference": "Live <company>.recruitee.com/o/<slug>/c/new SSR markup, the public /api/offers/ JSON (open question kinds/options) and the careers-site main bundle (object-to-formdata submit, agreements), studied read-only"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: the EMBEDDED application form for widget-cross-origin-iframe.
+  Served on origin B ({{ORIGIN_B}}) inside an iframe on the employer page (origin A).
+   - Ordinary fields, but in a cross-origin frame (top-document scripts can't see them).
+   - Resume upload is a nested same-origin iframe (/widgets/cross-origin-iframe/embed/upload).
+     That frame owns the <input type=file>; once a file is chosen it hands the File
+     object to this frame with postMessage (structured clone). This frame keeps it
+     and appends it to the FormData on submit. The file input in the nested frame
+     has no name and is never part of a form.
+   - Submits via fetch to {{ORIGIN_B}}/__submit/{{FORM_ID}} from inside this frame,
+     then navigates this frame (not the top page) to the confirmation, which
+     notifies the host page.
+   - Reports its height to the host ({{ORIGIN_A}}) with postMessage.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apply - Halcyon Freight (powered by TalentBridge)</title>
+  <style>
+    html, body { margin: 0; }
+    body { font-family: Arial, Helvetica, sans-serif; color: #24323c; padding: 8px 28px 28px; background: #fff; }
+    .tb-field { margin-bottom: 16px; }
+    .tb-field > label, .tb-field > .tb-label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
+    .tb-req { color: #c0392b; }
+    .tb-field input[type=text], .tb-field input[type=email], .tb-field input[type=tel], .tb-field input[type=url], .tb-field select {
+      width: 100%; max-width: 520px; box-sizing: border-box; padding: 8px 10px; border: 1px solid #b7c3cc; border-radius: 3px; font-size: 14px; }
+    .tb-field.tb-invalid input, .tb-field.tb-invalid select, .tb-field.tb-invalid iframe { border-color: #c0392b !important; }
+    .tb-error { display: none; color: #c0392b; font-size: 12px; margin-top: 4px; }
+    .tb-field.tb-invalid .tb-error { display: block; }
+    #resume-frame { width: 100%; max-width: 520px; height: 96px; border: 1px dashed #b7c3cc; border-radius: 3px; display: block; }
+    #resume-status { font-size: 13px; margin-top: 6px; color: #2f6f4f; min-height: 1em; }
+    .tb-row { display: flex; gap: 16px; } .tb-row .tb-field { flex: 1; }
+    #tb-submit { background: #0f3b57; color: #fff; border: 0; padding: 11px 26px; font-size: 15px; border-radius: 3px; cursor: pointer; }
+    #tb-banner { display: none; background: #fdecea; border: 1px solid #f5b7b1; color: #922b21; padding: 10px; margin-bottom: 14px; font-size: 14px; }
+    .tb-powered { font-size: 11px; color: #8a99a4; margin-top: 18px; }
+  </style>
+</head>
+<body>
+<form id="tb-form" novalidate>
+  <div id="tb-banner" role="alert"></div>
+  <div class="tb-row">
+    <div class="tb-field"><label for="tb_first_name">First name <span class="tb-req">*</span></label><input type="text" id="tb_first_name" name="first_name" autocomplete="given-name" aria-required="true"><div class="tb-error">First name is required</div></div>
+    <div class="tb-field"><label for="tb_last_name">Last name <span class="tb-req">*</span></label><input type="text" id="tb_last_name" name="last_name" autocomplete="family-name" aria-required="true"><div class="tb-error">Last name is required</div></div>
+  </div>
+  <div class="tb-field"><label for="tb_email">Email <span class="tb-req">*</span></label><input type="email" id="tb_email" name="email" autocomplete="email" aria-required="true"><div class="tb-error">Enter a valid email address</div></div>
+  <div class="tb-field"><label for="tb_phone">Phone</label><input type="tel" id="tb_phone" name="phone" autocomplete="tel"></div>
+  <div class="tb-field"><label for="tb_linkedin">LinkedIn URL</label><input type="url" id="tb_linkedin" name="linkedin"></div>
+  <div class="tb-field" id="resume-field">
+    <span class="tb-label" id="resume-label">Resume <span class="tb-req">*</span></span>
+    <iframe id="resume-frame" title="Resume upload" aria-labelledby="resume-label" src="/widgets/cross-origin-iframe/embed/upload?field=resume"></iframe>
+    <div id="resume-status" aria-live="polite"></div>
+    <div class="tb-error">Please upload your resume</div>
+  </div>
+  <div class="tb-field">
+    <label for="tb_work_auth">Are you legally authorized to work in the United States? <span class="tb-req">*</span></label>
+    <select id="tb_work_auth" name="work_auth_us" aria-required="true">
+      <option value="">Select...</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+    <div class="tb-error">Please answer this question</div>
+  </div>
+  <button type="submit" id="tb-submit">Submit Application</button>
+  <div class="tb-powered">Powered by TalentBridge &middot; Halcyon Freight is an equal opportunity employer.</div>
+</form>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var HOST_ORIGIN = '{{ORIGIN_A}}';
+  var resumeFile = null;
+
+  function postHeight() {
+    try { window.parent.postMessage({ type: 'hf-embed', event: 'resize', height: document.documentElement.scrollHeight + 8 }, HOST_ORIGIN); } catch (e) { /* not embedded */ }
+  }
+  new ResizeObserver(postHeight).observe(document.body);
+  postHeight();
+
+  // The nested upload frame (same origin as this frame) hands us the File.
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin || !e.data || e.data.type !== 'tb-upload') return;
+    var status = document.getElementById('resume-status');
+    if (e.data.event === 'selected' && e.data.file) {
+      resumeFile = e.data.file;
+      status.textContent = 'Attached: ' + resumeFile.name + ' (' + Math.round(resumeFile.size / 1024) + ' KB)';
+      document.getElementById('resume-field').classList.remove('tb-invalid');
+    } else if (e.data.event === 'removed') {
+      resumeFile = null;
+      status.textContent = '';
+    }
+  });
+
+  var form = document.getElementById('tb-form');
+  function setInvalid(el, on) { el.closest('.tb-field').classList.toggle('tb-invalid', on); }
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var bad = 0;
+    ['tb_first_name', 'tb_last_name', 'tb_email', 'tb_work_auth'].forEach(function (id) {
+      var el = document.getElementById(id);
+      var empty = FX.isBlank(el) || (id === 'tb_email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value));
+      setInvalid(el, empty);
+      if (empty) bad++;
+    });
+    document.getElementById('resume-field').classList.toggle('tb-invalid', !resumeFile);
+    if (!resumeFile) bad++;
+    var banner = document.getElementById('tb-banner');
+    if (bad) {
+      banner.textContent = 'Please complete the required fields.';
+      banner.style.display = 'block';
+      postHeight();
+      return;
+    }
+    banner.style.display = 'none';
+    var fd = new FormData(form);
+    fd.append('resume', resumeFile, resumeFile.name);
+    var btn = document.getElementById('tb-submit');
+    btn.disabled = true;
+    var res = await FX.postForm(FORM_ID, fd);
+    if (!FX.finish(res)) {
+      btn.disabled = false;
+      banner.textContent = 'Submission failed: ' + ((res && res.errors) || []).join('; ');
+      banner.style.display = 'block';
+      postHeight();
+    }
+  });
+  form.querySelectorAll('input,select').forEach(function (el) {
+    el.addEventListener('change', function () { if (!FX.isBlank(el)) setInvalid(el, false); });
+  });
+})();
+</script>
+</body>
+</html>

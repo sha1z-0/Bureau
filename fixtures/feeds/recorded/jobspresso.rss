@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	xmlns:job_listing="https://jobspresso.co"
+>
+
+<channel>
+	<title>Jobs Archive | Jobspresso</title>
+	<atom:link href="https://jobspresso.co/?feed=job_feed" rel="self" type="application/rss+xml" />
+	<link>https://jobspresso.co</link>
+	<description>Jobspresso is the easiest way to find remote jobs and careers at interesting and innovative companies.</description>
+	<lastBuildDate>Mon, 02 Nov 2026 09:05:43 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=7.1.4</generator>
+
+<image>
+	<url>https://jobspresso.co/wp-content/uploads/cropped-social-square-1080-32x32.png</url>
+	<title>Jobs Archive | Jobspresso</title>
+	<link>https://jobspresso.co</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+<site xmlns="com-wordpress:feed-additions:1">88453655</site>	<item>
+		<title>Engineering Manager, Data Platform</title>
+		<link>https://jobspresso.co/job/engineering-manager-data-platform/</link>
+		
+		<dc:creator><![CDATA[Spotify<br>⚲&nbsp;United Kingdom]]></dc:creator>
+		<pubDate>Mon, 02 Nov 2026 09:05:43 +0000</pubDate>
+				<guid isPermaLink="false">https://jobspresso.co/?post_type=job_listing&#038;p=164882</guid>
+
+					<description><![CDATA[Within the Data Platform studio, we own two critical pillars: our event delivery platform that collects trillions of events per day from producers to consumers, and another, which handles the pseudonymisation of data so Spotify can use data responsibly and in compliance with privacy regulations. These systems sit at the heart of Spotify&#8217;s data collection]]></description>
+										<content:encoded><![CDATA[<p>Within the Data Platform studio, we own two critical pillars: our event delivery platform that collects trillions of events per day from producers to consumers, and another, which handles the pseudonymisation of data so Spotify can use data responsibly and in compliance with privacy regulations. These systems sit at the heart of Spotify&#8217;s data collection and are used by hundreds of teams across the company.</p>
+<p>We&#8217;re looking for an Engineering Manager to lead a team of six experienced engineers distributed across Europe. You&#8217;ll set the technical direction, ensure the team delivers high-impact work, and, just as importantly, invest deeply in the growth and careers of your engineers. If you&#8217;re energised by both the technical challenges of large-scale data systems and the human side of building a high-performing team, we&#8217;d love to hear from you.</p>
+<p style="font-size: 1.125em;"><strong>What You&#8217;ll Do</strong></p>
+<ul>
+<li>Lead and develop a team of six experienced engineers, with a strong focus on coaching, career development, and creating an environment where people do the best work of their careers.</li>
+<li>Take accountability for the team&#8217;s delivery, ensuring clear priorities, healthy execution, and measurable outcomes.</li>
+<li>Partner with product and stakeholders to shape the roadmap for event delivery and privacy infrastructure.</li>
+<li>Drive technical strategy and architectural decisions for systems operating at Spotify scale.</li>
+<li>Build a culture of ownership, psychological safety, and continuous improvement.</li>
+<li>Collaborate across Data Platform and the wider engineering organisation to align on shared goals and dependencies.</li>
+<li>Manage on-call health, operational excellence, and reliability for the team&#8217;s services.</li>
+<li>Actively participate in hiring, onboarding, and growing the team&#8217;s capabilities.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Who You Are</strong></p>
+<ul>
+<li>You have experience managing teams of senior/experienced engineers and understand that people leadership is your primary craft, not a side responsibility.</li>
+<li>You have a track record of investing in engineers&#8217; careers, running meaningful development conversations, helping people grow into new roles, and creating clarity around expectations and progression.</li>
+<li>You&#8217;re comfortable with distributed data systems, event-driven architectures, or data infrastructure at scale. You don&#8217;t need to write the code, but you can engage credibly in technical discussions and unblock your team.</li>
+<li>You hold yourself and your team accountable for outcomes, not just activity.</li>
+<li>You communicate clearly and build trust across functions and time zones.</li>
+<li>You&#8217;ve worked with distributed teams and understand how to create cohesion and inclusion when people aren&#8217;t in the same room.</li>
+<li>You&#8217;re excited about the potential of AI and LLMs to transform how engineering teams work, whether that&#8217;s accelerating development workflows, rethinking how data infrastructure is built and operated, or helping your team adopt AI-assisted tooling effectively.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Where You&#8217;ll Be</strong></p>
+<ul>
+<li>This role is based in London.</li>
+<li>We offer you the flexibility to work where you work best! There will be some in person meetings, but still, it allows for flexibility to work from home.</li>
+</ul>
+<p>Spotify is an equal opportunity employer. You are welcome at Spotify for who you are, no matter where you come from, what you look like, or what&#8217;s playing in your headphones. Our platform is for everyone, and so is our workplace. The more voices we have represented and amplified in our business, the more we will all thrive, contribute, and be forward-thinking! So bring us your personal experience, your perspectives, and your background. It&#8217;s in our differences that we will find the power to keep revolutionizing the way the world listens.</p>
+<p>At Spotify, we are passionate about inclusivity and making sure our entire recruitment process is accessible to everyone. We have ways to request reasonable accommodations during the interview process and help assist in what you need. If you need accommodations at any stage of the application or interview process, please let us know. We&#8217;re here to support you in any way we can.</p>
+]]></content:encoded>
+					
+		
+		
+		<post-id xmlns="com-wordpress:feed-additions:1">164882</post-id><media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="image/jpeg" url="https://jobspresso.co/wp-content/uploads/spotify-400-150x150.jpg" width="70" height="70" /><job_listing:location><![CDATA[United Kingdom]]></job_listing:location>
+<job_listing:job_type><![CDATA[Engineer]]></job_listing:job_type>
+<job_listing:job_category><![CDATA[Full Time]]></job_listing:job_category>
+<job_listing:company><![CDATA[Spotify]]></job_listing:company>
+	</item>
+		<item>
+		<title>Staff Software Engineer, Edge</title>
+		<link>https://jobspresso.co/job/staff-software-engineer-edge/</link>
+		
+		<dc:creator><![CDATA[Pinterest<br>⚲&nbsp;United States]]></dc:creator>
+		<pubDate>Mon, 02 Nov 2026 08:49:25 +0000</pubDate>
+				<guid isPermaLink="false">https://jobspresso.co/?post_type=job_listing&#038;p=164879</guid>
+
+					<description><![CDATA[About Pinterest Millions of people around the world come to our platform to find creative ideas, dream about new possibilities and plan for memories that will last a lifetime. At Pinterest, we&#8217;re on a mission to bring everyone the inspiration to create a life they love, and that starts with the people behind the product.]]></description>
+										<content:encoded><![CDATA[<p style="font-size: 1.125em;"><strong>About Pinterest</strong></p>
+<p>Millions of people around the world come to our platform to find creative ideas, dream about new possibilities and plan for memories that will last a lifetime. At Pinterest, we&#8217;re on a mission to bring everyone the inspiration to create a life they love, and that starts with the people behind the product.</p>
+<p>Discover a career where you ignite innovation for millions, transform passion into growth opportunities, celebrate each other&#8217;s unique experiences and embrace the flexibility to do your best work. Creating a career you love? It&#8217;s Possible.</p>
+<p>At Pinterest, AI isn&#8217;t just a feature, it&#8217;s a powerful partner that augments our creativity and amplifies our impact, and we&#8217;re looking for candidates who are excited to be a part of that. To get a complete picture of your experience and abilities, we&#8217;ll explore your foundational skills and how you collaborate with AI.</p>
+<p>Through our interview process, what matters most is that you can always explain your approach, showing us not just what you know, but how you think.</p>
+<p style="font-size: 1.125em;"><strong>About the Role</strong></p>
+<p>The Edge team owns the systems (including CDN, TLS, DNS, ingress/egress proxy fleet, and rate limiting) that connect 600M+ users to Pinterest. We&#8217;re looking for a Staff Software Engineer to lead our efforts to manage automation traffic (such as bots and crawlers) at the Edge, while shaping the future of our rate limiting platform.</p>
+<p style="font-size: 1.125em;"><strong>What You&#8217;ll Do</strong></p>
+<ul>
+<li>Build Edge systems that combine in-house implementation, open-source software like Envoy proxy, and multiple CDN and DNS providers. Balance what to build, what to leverage from the community, and what to orchestrate across vendors.</li>
+<li>Drive automation traffic management efforts in the Edge space, designing solutions to manage bots and crawlers at scale.</li>
+<li>Design and implement request processing logic in Envoy to support Edge capabilities such as routing, traffic classification, and enforcement. Write, review, and maintain code written in C++, Golang, and Python.</li>
+<li>Collaborate with CDN vendors and internal platform teams to define integration points.</li>
+<li>Study internal user pain points with the rate limiting platform and translate findings into a prioritized roadmap.</li>
+<li>Mentor engineers within the team and demonstrate technical leadership through design reviews, pairing, and coaching.</li>
+<li>Use AI to accelerate prototyping, analysis, and operational tasks, while applying engineering judgment to verify correctness and production-readiness.</li>
+<li>Participate in oncall for Edge systems and drive incident response, post-mortems, and reliability improvements.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>What We&#8217;re Looking For</strong></p>
+<ul>
+<li>6+ years of experience in infrastructure, networking, or platform engineering, with a deep focus on traffic management systems (CDN, HTTP gateways, service mesh, or load balancing).</li>
+<li>Experience with bot detection, scraping prevention, or automation traffic management systems is a plus.</li>
+<li>Proficiency in C++, Golang, or Python, with experience developing L7 HTTP proxies such as Envoy, Nginx, Varnish, and Traefik.</li>
+<li>Deep understanding of network protocols across L3-L7 and hands-on experience debugging production networking issues at scale.</li>
+<li>Experience gathering requirements from internal users, aligning cross-functional stakeholders, and delivering credible technical plans.</li>
+<li>Proven ability to design distributed systems architectures and drive them from proposal through proof of concept to production.</li>
+<li>Demonstrated experience using AI to accelerate engineering workflows (design exploration, code generation, operational analysis), with a clear approach to validating correctness and quality.</li>
+<li>Bachelor&#8217;s, Master&#8217;s, or PhD degree in Computer Science, Computer Engineering, or a related field, or equivalent experience.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Relocation Statement</strong></p>
+<p>This position is not eligible for relocation assistance. Visit our PinFlex page to learn more about our working model.</p>
+<p style="font-size: 1.125em;"><strong>In-Office Requirement Statement</strong></p>
+<p>We recognize that the ideal environment for work is situational and may differ across departments. What this looks like day-to-day can vary based on the needs of each organization or role.</p>
+<p>This role will need to be in the office for in-person collaboration 1-2 times every 6 months and therefore can be situated anywhere in the country.</p>
+<p>#LI-REMOTE</p>
+<p>At Pinterest we believe the workplace should be equitable, inclusive, and inspiring for every employee. In an effort to provide greater transparency, we are sharing the base salary range for this position. The position is also eligible for equity. Final salary is based on a number of factors including location, travel, relevant prior experience, or particular skills and expertise.</p>
+<p>US based applicants only. $177,185 &#8211; $364,795 USD.</p>
+<p style="font-size: 1.125em;"><strong>Our Commitment to Inclusion</strong></p>
+<p>Pinterest is an equal opportunity employer and makes employment decisions on the basis of merit. We want to have the best qualified people in every job. All qualified applicants will receive consideration for employment without regard to race, color, ancestry, national origin, religion or religious creed, sex (including pregnancy, childbirth, or related medical conditions), sexual orientation, gender, gender identity, gender expression, age, marital status, status as a protected veteran, physical or mental disability, medical condition, genetic information or characteristics (or those of a family member) or any other consideration made unlawful by applicable federal, state or local laws. We also consider qualified applicants regardless of criminal histories, consistent with legal requirements. If you require a medical or religious accommodation during the job application process, please complete the accommodation form for support.</p>
+]]></content:encoded>
+					
+		
+		
+		<post-id xmlns="com-wordpress:feed-additions:1">164879</post-id><media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="image/jpeg" url="https://jobspresso.co/wp-content/uploads/pinterest-400-1-150x150.jpg" width="70" height="70" /><job_listing:location><![CDATA[United States]]></job_listing:location>
+<job_listing:job_type><![CDATA[Engineer]]></job_listing:job_type>
+<job_listing:job_category><![CDATA[Full Time]]></job_listing:job_category>
+<job_listing:company><![CDATA[Pinterest]]></job_listing:company>
+<job_listing:salary><![CDATA[US$177k - US$365k]]></job_listing:salary>
+	</item>
+		<item>
+		<title>Offensive Security Engineer</title>
+		<link>https://jobspresso.co/job/offensive-security-engineer/</link>
+		
+		<dc:creator><![CDATA[Stripe<br>⚲&nbsp;United States]]></dc:creator>
+		<pubDate>Mon, 02 Nov 2026 08:42:53 +0000</pubDate>
+				<guid isPermaLink="false">https://jobspresso.co/?post_type=job_listing&#038;p=164878</guid>
+
+					<description><![CDATA[About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies, from the world&#8217;s largest enterprises to the most ambitious startups, use Stripe to accept payments, grow their revenue, and accelerate new business opportunities. Our mission is to increase the GDP of the internet, and we have a staggering amount of work ahead.]]></description>
+										<content:encoded><![CDATA[<p style="font-size: 1.125em;"><strong>About Stripe</strong></p>
+<p>Stripe is a financial infrastructure platform for businesses. Millions of companies, from the world&#8217;s largest enterprises to the most ambitious startups, use Stripe to accept payments, grow their revenue, and accelerate new business opportunities. Our mission is to increase the GDP of the internet, and we have a staggering amount of work ahead. That means you have an unprecedented opportunity to put the global economy within everyone&#8217;s reach while doing the most important work of your career.</p>
+<p style="font-size: 1.125em;"><strong>About the Team</strong></p>
+<p>The Proactive Threat team is responsible for identifying vulnerabilities and security weaknesses across Stripe&#8217;s systems, applications, networks, and cloud infrastructure, before adversaries do. We operate as a hybrid offensive function: conducting penetration testing, emulating real-world threat actors through red team operations, and partnering closely with our defensive security teams to validate detection capabilities and improve Stripe&#8217;s overall security posture.</p>
+<p>We are builders first. Our team develops custom tooling, automation frameworks, and internal platforms that scale our offensive capabilities and enable repeatable, high-fidelity assessments. We believe the best offensive security engineers are equal parts hacker and engineer.</p>
+<p>The team is distributed across the United States, primarily operating in Eastern and Pacific time zones, and collaborates regularly with security, engineering, and product stakeholders across Stripe, including teams in Europe and Asia.</p>
+<p style="font-size: 1.125em;"><strong>What You&#8217;ll Do</strong></p>
+<p>As an Offensive Security Engineer on the Proactive Threat team, you will simulate the tactics, techniques, and procedures (TTPs) of real-world adversaries to uncover security risks across Stripe&#8217;s products and infrastructure. You&#8217;ll conduct hands-on penetration testing, lead red team engagements, and collaborate with blue team counterparts to validate and improve detection and response capabilities. Your work will directly influence how Stripe builds, ships, and secures financial infrastructure used by millions of businesses worldwide.</p>
+<p>Beyond assessments, you&#8217;ll design and build offensive tooling and automation that amplifies the team&#8217;s impact. You&#8217;ll leverage threat intelligence to prioritize testing efforts, contribute to incident investigations when needed, and act as a subject-matter expert for security initiatives across the company.</p>
+<p style="font-size: 1.125em;"><strong>Responsibilities</strong></p>
+<ul>
+<li>Conduct comprehensive penetration tests across web applications, APIs, cloud environments (AWS/GCP/Azure), mobile applications, and internal infrastructure</li>
+<li>Plan and execute red team engagements that emulate the TTPs of cyber and criminal threat actors targeting financial services, including initial access, lateral movement, persistence, and data exfiltration scenarios</li>
+<li>Perform assumed-breach and objective-based assessments to test detection and response capabilities in coordination with defensive teams</li>
+<li>Partner with detection engineering, threat intelligence, and incident response teams to validate security controls, identify coverage gaps, and improve detection fidelity</li>
+<li>Contribute adversary tradecraft insights to inform detection rule development, threat hunting hypotheses, and incident response playbooks</li>
+<li>Support incident investigations by providing offensive expertise, log analysis, and root cause analysis when required</li>
+<li>Design, develop, and maintain custom offensive tools, scripts, and automation frameworks to enhance assessment efficiency and coverage</li>
+<li>Build internal platforms and workflows that enable scalable, repeatable offensive operations</li>
+<li>Contribute to internal security tooling repositories and champion engineering best practices within the team</li>
+<li>Automate repetitive testing tasks, payload generation, and reporting workflows using modern development practices</li>
+<li>Produce clear, actionable reports that communicate technical findings, business risk, and remediation guidance to both technical and non-technical stakeholders</li>
+<li>Act as a subject-matter expert and primary point of contact for stakeholder teams engaged in offensive security programs and Stripe-wide security initiatives</li>
+<li>Lead offensive security projects end-to-end, mentor junior team members, and foster a culture of continuous learning and knowledge sharing</li>
+<li>Stay current with emerging threats, vulnerabilities, and attack techniques; share research internally and contribute to the broader security community</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Who You Are</strong></p>
+<p>We&#8217;re looking for someone who meets the minimum requirements to be considered for the role. If you meet these requirements, you are encouraged to apply. The preferred qualifications are a bonus, not a requirement.</p>
+<p style="font-size: 1.125em;"><strong>Minimum Requirements</strong></p>
+<ul>
+<li>5+ years of experience in offensive security, penetration testing, red teaming, or a related field</li>
+<li>Strong programming skills in Python, Go, or similar languages, with demonstrated experience building tools, automation, or custom exploits</li>
+<li>Deep knowledge of web application security, including OWASP Top 10, ASVS, and common vulnerability classes (injection, auth flaws, business logic, etc.)</li>
+<li>Hands-on experience with cloud platforms (AWS, Azure, or GCP), including cloud-native attack techniques and misconfigurations</li>
+<li>Proficiency with offensive tooling such as Burp Suite, Cobalt Strike, Mythic, Sliver, BloodHound, or similar frameworks</li>
+<li>Familiarity with adversary tradecraft and frameworks such as MITRE ATT&#038;CK, including TTPs for initial access, privilege escalation, lateral movement, and exfiltration</li>
+<li>Excellent written and verbal communication skills, with the ability to translate complex technical findings into clear, risk-based recommendations</li>
+<li>Ability to think like an adversary, creative, persistent, and able to holistically assess risk in complex environments</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Preferred Qualifications</strong></p>
+<ul>
+<li>Experience conducting offensive security in fintech, financial services, or other highly regulated environments</li>
+<li>Background in vulnerability research, exploit development, or CVE discovery</li>
+<li>Experience collaborating with threat intelligence, detection engineering, or incident response teams (purple team operations)</li>
+<li>Familiarity with big data and log analysis tools (Splunk, Databricks, PySpark, osquery, etc.) for threat hunting or investigative support</li>
+<li>Proficiency with AI/LLM-assisted development tools (e.g., Claude Code, Cursor, GitHub Copilot) and experience applying them to offensive security workflows</li>
+<li>Interest or experience in agentic automation, using LLMs or autonomous agents to augment reconnaissance, vulnerability discovery, or exploitation workflows</li>
+<li>Experience testing AI/ML systems or LLM-based applications for security weaknesses (prompt injection, training data extraction, model manipulation, etc.)</li>
+<li>Contributions to open-source security tools, published research, blog posts, or conference presentations</li>
+<li>Relevant certifications such as OSCP, OSWE, OSEP, OSED, CRTO, CPTS, PNPT, GXPN, or cloud security certifications</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Location</strong></p>
+<p>This role is remote within the United States. While you are welcome to visit Stripe offices for team meetings, on-sites, and events, our expectation is that you would regularly work from home. The team primarily coordinates across Eastern and Pacific time zones, with regular collaboration with stakeholders in Europe and Asia.</p>
+<p style="font-size: 1.125em;"><strong>Compensation and Benefits</strong></p>
+<p>The annual US base salary range for this role is $170,400 &#8211; $255,700. This range may span multiple career levels and will be refined during the interview process based on experience, qualifications, and location.</p>
+<p>Additional benefits include:</p>
+<ul>
+<li>Equity participation in Stripe&#8217;s growth</li>
+<li>401(k) plan with matching contributions from day one</li>
+<li>Comprehensive medical, dental, and vision coverage</li>
+<li>Wellness stipends</li>
+<li>Annual budget for training, certifications, and conference attendance</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Working Remotely at Stripe</strong></p>
+<p>A remote location is defined as being 35 miles (56 kilometers) or more from one of our offices. While you would be welcome to come into the office for team/business meetings, on-sites, meet-ups, and events, our expectation is you would regularly work from home rather than a Stripe office. Stripe does not cover the cost of relocating to a remote location. We encourage you to apply for roles that match the location where you currently live or plan to live.</p>
+<p>At Stripe, we&#8217;re looking for people with passion, grit, and integrity. You&#8217;re encouraged to apply even if your experience doesn&#8217;t precisely match the job description. Your skills and passion will stand out, and set you apart, especially if your career has taken some extraordinary twists and turns. At Stripe, we welcome diverse perspectives and people who think rigorously and aren&#8217;t afraid to challenge assumptions. Join us.</p>
+<p>The application window will remain open for 100 days after the Job Post is published. However, this opportunity will remain open based on the needs of the business, which may cause the application window to close before or after the 100-day mark.</p>
+]]></content:encoded>
+					
+		
+		
+		<post-id xmlns="com-wordpress:feed-additions:1">164878</post-id><media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="image/jpeg" url="https://jobspresso.co/wp-content/uploads/stripe-400-150x150.jpg" width="70" height="70" /><job_listing:location><![CDATA[United States]]></job_listing:location>
+<job_listing:job_type><![CDATA[Engineer]]></job_listing:job_type>
+<job_listing:job_category><![CDATA[Full Time]]></job_listing:job_category>
+<job_listing:company><![CDATA[Stripe]]></job_listing:company>
+<job_listing:salary><![CDATA[US$170k - US$256k]]></job_listing:salary>
+	</item>
+		<item>
+		<title>Field Application Engineer, South East Asia</title>
+		<link>https://jobspresso.co/job/field-application-engineer-south-east-asia/</link>
+		
+		<dc:creator><![CDATA[Tenstorrent<br>⚲&nbsp;Asia-Pacific]]></dc:creator>
+		<pubDate>Mon, 02 Nov 2026 08:22:49 +0000</pubDate>
+				<guid isPermaLink="false">https://jobspresso.co/?post_type=job_listing&#038;p=164875</guid>
+
+					<description><![CDATA[Tenstorrent is leading the industry on cutting-edge AI technology, revolutionizing performance expectations, ease of use, and cost efficiency. With AI redefining the computing paradigm, solutions must evolve to unify innovations in software models, compilers, platforms, networking, and semiconductors. Its diverse team of technologists has developed a high performance RISC-V CPU from scratch, and shares a]]></description>
+										<content:encoded><![CDATA[<p>Tenstorrent is leading the industry on cutting-edge AI technology, revolutionizing performance expectations, ease of use, and cost efficiency. With AI redefining the computing paradigm, solutions must evolve to unify innovations in software models, compilers, platforms, networking, and semiconductors. Its diverse team of technologists has developed a high performance RISC-V CPU from scratch, and shares a passion for AI and a deep desire to build the best AI platform possible. Tenstorrent values collaboration, curiosity, and a commitment to solving hard problems, and is growing its team with contributors of all seniorities. For more information, visit <a href="https://tenstorrent.com" target="_blank" rel="noopener">tenstorrent.com</a>.</p>
+<p style="font-size: 1.125em;"><strong>About the Role</strong></p>
+<p>Tenstorrent is looking for a Field Application Engineer to serve as the technical bridge between Tenstorrent and customers across Southeast Asia. Based in Singapore, you will work closely with customers, partners, sales, and global engineering teams to understand AI and machine learning workloads, guide technical evaluations and deployments, troubleshoot issues across hardware and software, and help customers realize the performance of Tenstorrent&#8217;s AI platforms. This is a highly visible, customer-facing role that combines hands-on technical problem solving, solution development, and regional relationship building, with regular travel throughout Southeast Asia to customer sites.</p>
+<p><strong>This role is remote, based out of Singapore.</strong></p>
+<p>Tenstorrent welcomes candidates at various experience levels for this role. During the interview process, candidates will be assessed for the appropriate level, and offers will align with that level, which may differ from the one in this posting.</p>
+<p style="font-size: 1.125em;"><strong>Who You Are</strong></p>
+<ul>
+<li>A customer-focused technical professional who can build trust with application developers, engineering teams, and business stakeholders.</li>
+<li>Comfortable translating complex AI and machine learning hardware and software concepts into clear recommendations for both technical and non-technical audiences.</li>
+<li>A proactive and self-directed problem solver who can coordinate internal teams, external service providers, and customer stakeholders across South East Asia.</li>
+<li>Willing and able to travel to customer sites for installations, maintenance, troubleshooting, demonstrations, and proof-of-concept delivery.</li>
+<li>5+ years of working experience with both hardware and software technology around AI.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>What We Need</strong></p>
+<ul>
+<li>Experience as a Field Application Engineer, Application Engineer, Sales Engineer, Solutions Architect, or in a similar customer-facing technical role focused on AI and machine learning software and hardware.</li>
+<li>Strong Python programming skills and deep familiarity with AI and machine learning frameworks such as PyTorch and TensorFlow. Experience with Generative AI, LLMs, vision models, model deployment, training, or fine-tuning is preferred.</li>
+<li>Experience designing scalable AI solutions and deploying applications in cloud environments, as well as physically installing, moving, and repairing servers, accelerator cards, and PCIe devices.</li>
+<li>A Bachelor&#8217;s degree or higher in Computer Science, Engineering, or a related field. Experience with C++, CUDA, parallel programming, or kernel development is a plus.</li>
+<li>Language proficiency: English is required. Mandarin and Malay would be a plus.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>What You Will Learn</strong></p>
+<ul>
+<li>How to architect and deploy innovative AI and machine learning solutions across a wide range of customer use cases, including Generative AI and LLM applications.</li>
+<li>How to lead the full customer engagement lifecycle, from pre-sales technical discovery and demonstrations through proof-of-concept delivery and production deployment.</li>
+<li>How to collaborate with product development, engineering, research, sales, and business development teams to influence the evolution of AI software and hardware solutions.</li>
+<li>How to help establish regional service capabilities and support the growth of a Tenstorrent office in South East Asia.</li>
+</ul>
+<p style="font-size: 1.125em;"><strong>Additional Information</strong></p>
+<p>Tenstorrent offers a highly competitive compensation package and benefits, and is an equal opportunity employer. An offer of employment is contingent upon the applicant being eligible to access U.S. export-controlled technology, as described in the full posting terms.</p>
+]]></content:encoded>
+					
+		
+		
+		<post-id xmlns="com-wordpress:feed-additions:1">164875</post-id><media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" type="image/jpeg" url="https://jobspresso.co/wp-content/uploads/tenstorrent-400-150x150.jpg" width="70" height="70" /><job_listing:location><![CDATA[Asia-Pacific]]></job_listing:location>
+<job_listing:job_type><![CDATA[Engineer]]></job_listing:job_type>
+<job_listing:company><![CDATA[Tenstorrent]]></job_listing:company>
+	</item>
+	</channel>
+</rss>

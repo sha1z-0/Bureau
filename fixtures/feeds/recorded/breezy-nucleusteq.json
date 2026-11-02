@@ -1,0 +1,366 @@
+[
+  {
+    "id": "2214541087a9",
+    "friendly_id": "2214541087a9-data-engineer-gcp",
+    "name": "Data Engineer-GCP",
+    "url": "https://nucleusteq.breezy.hr/p/2214541087a9-data-engineer-gcp",
+    "published_date": "2026-10-26T07:13:53.606Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Indore/Gurgram",
+      "primary": true,
+      "is_remote": false,
+      "name": "Indore/Gurgram, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Indore/Gurgram",
+        "primary": true,
+        "is_remote": false,
+        "name": "Indore/Gurgram, IN",
+        "id": "fdb45dc0d7e2"
+      }
+    ]
+  },
+  {
+    "id": "29c49b62652d",
+    "friendly_id": "29c49b62652d-gcp-data-engineer",
+    "name": "GCP Data Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/29c49b62652d-gcp-data-engineer",
+    "published_date": "2026-08-07T18:33:02.104Z",
+    "type": {
+      "id": "contract",
+      "name": "Contract"
+    },
+    "location": {
+      "country": {
+        "name": "United States",
+        "id": "US"
+      },
+      "state": {
+        "id": "AZ",
+        "name": "Arizona"
+      },
+      "city": "Phoenix",
+      "primary": true,
+      "streetAddress": {
+        "location": "4550 E Bell Rd, Phoenix, AZ 85032, USA",
+        "components": [
+          {
+            "long_name": "4550",
+            "short_name": "4550",
+            "types": [
+              "street_number"
+            ]
+          },
+          {
+            "long_name": "East Bell Road",
+            "short_name": "E Bell Rd",
+            "types": [
+              "route"
+            ]
+          },
+          {
+            "long_name": "Paradise Valley Village",
+            "short_name": "Paradise Valley Village",
+            "types": [
+              "neighborhood",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Phoenix",
+            "short_name": "Phoenix",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Maricopa County",
+            "short_name": "Maricopa County",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Arizona",
+            "short_name": "AZ",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          {
+            "long_name": "United States",
+            "short_name": "US",
+            "types": [
+              "country",
+              "political"
+            ]
+          },
+          {
+            "long_name": "85032",
+            "short_name": "85032",
+            "types": [
+              "postal_code"
+            ]
+          },
+          {
+            "long_name": "9342",
+            "short_name": "9342",
+            "types": [
+              "postal_code_suffix"
+            ]
+          }
+        ]
+      },
+      "is_remote": false,
+      "name": "Phoenix, AZ"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "United States",
+          "id": "US"
+        },
+        "state": {
+          "id": "AZ",
+          "name": "Arizona"
+        },
+        "city": "Phoenix",
+        "primary": true,
+        "streetAddress": {
+          "location": "4550 E Bell Rd, Phoenix, AZ 85032, USA",
+          "components": [
+            {
+              "long_name": "4550",
+              "short_name": "4550",
+              "types": [
+                "street_number"
+              ]
+            },
+            {
+              "long_name": "East Bell Road",
+              "short_name": "E Bell Rd",
+              "types": [
+                "route"
+              ]
+            },
+            {
+              "long_name": "Paradise Valley Village",
+              "short_name": "Paradise Valley Village",
+              "types": [
+                "neighborhood",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Phoenix",
+              "short_name": "Phoenix",
+              "types": [
+                "locality",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Maricopa County",
+              "short_name": "Maricopa County",
+              "types": [
+                "administrative_area_level_2",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Arizona",
+              "short_name": "AZ",
+              "types": [
+                "administrative_area_level_1",
+                "political"
+              ]
+            },
+            {
+              "long_name": "United States",
+              "short_name": "US",
+              "types": [
+                "country",
+                "political"
+              ]
+            },
+            {
+              "long_name": "85032",
+              "short_name": "85032",
+              "types": [
+                "postal_code"
+              ]
+            },
+            {
+              "long_name": "9342",
+              "short_name": "9342",
+              "types": [
+                "postal_code_suffix"
+              ]
+            }
+          ]
+        },
+        "is_remote": false,
+        "name": "Phoenix, AZ",
+        "id": "c7b9710dc9f3"
+      }
+    ]
+  },
+  {
+    "id": "9545a0453040",
+    "friendly_id": "9545a0453040-gke-engineer",
+    "name": "GKE Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/9545a0453040-gke-engineer",
+    "published_date": "2026-09-03T07:20:42.053Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Gurugram, Bangalore, Indore, Raipur, Chennai",
+      "primary": true,
+      "is_remote": false,
+      "name": "Gurugram, Bangalore, Indore, Raipur, Chennai, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Gurugram, Bangalore, Indore, Raipur, Chennai",
+        "primary": true,
+        "is_remote": false,
+        "name": "Gurugram, Bangalore, Indore, Raipur, Chennai, IN",
+        "id": "7f890ea8b9f3"
+      }
+    ]
+  },
+  {
+    "id": "6805f0625953",
+    "friendly_id": "6805f0625953-gen-ai-engineer",
+    "name": "Gen AI Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/6805f0625953-gen-ai-engineer",
+    "published_date": "2026-08-04T13:51:40.843Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Bangalore",
+      "primary": true,
+      "is_remote": false,
+      "name": "Bangalore, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Bangalore",
+        "primary": true,
+        "is_remote": false,
+        "name": "Bangalore, IN",
+        "id": "980a718e6cae"
+      }
+    ]
+  },
+  {
+    "id": "687f31c86ba8",
+    "friendly_id": "687f31c86ba8-accounts-executive",
+    "name": "Accounts Executive",
+    "url": "https://nucleusteq.breezy.hr/p/687f31c86ba8-accounts-executive",
+    "published_date": "2026-10-26T10:43:52.046Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Indore, Raipur",
+      "primary": true,
+      "is_remote": false,
+      "name": "Indore, Raipur, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Indore, Raipur",
+        "primary": true,
+        "is_remote": false,
+        "name": "Indore, Raipur, IN",
+        "id": "bd8cb5ef06a2"
+      }
+    ]
+  }
+]

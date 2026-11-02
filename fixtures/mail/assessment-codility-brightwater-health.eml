@@ -1,0 +1,46 @@
+Return-Path: <no-reply@codility.com>
+From: Brightwater Health via Codility <no-reply@codility.com>
+Reply-To: Fiona Doherty <fiona.doherty@brightwaterhealth.example.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: Your Codility test for Junior Node.js Developer
+Date: Sat, 31 Oct 2026 09:00:12 +0000
+Message-ID: <codility.TEST-FIXTURE-BWH-7Q2K.invite@codility.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0020_fixture.tnwbnw"
+
+------=_Part_0020_fixture.tnwbnw
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Dear Rania,
+
+Brightwater Health invites you to complete an online coding test as part of your application for Junior Node.js Developer.
+
+The test has 3 tasks and takes 80 minutes. You can use JavaScript or TypeScript.
+
+Start the test here: https://app.codility.com/test/TEST-FIXTURE-BWH-7Q2K/
+
+The link expires on 5 November 2026 at 18:00 GMT. Please complete the test before then.
+
+Regards,
+Codility, on behalf of Brightwater Health
+
+------=_Part_0020_fixture.tnwbnw
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Dear Rania,</p>
+<p>Brightwater Health invites you to complete an online coding test as part of your application for Junior Node.js Developer.</p>
+<p>The test has 3 tasks and takes 80 minutes. You can use JavaScript or TypeScript.</p>
+<p>Start the test here: <a href="https://app.codility.com/test/TEST-FIXTURE-BWH-7Q2K/">https://app.codility.com/test/TEST-FIXTURE-BWH-7Q2K/</a></p>
+<p>The link expires on 5 November 2026 at 18:00 GMT. Please complete the test before then.</p>
+<p>Regards,<br>
+Codility, on behalf of Brightwater Health</p>
+</body>
+</html>
+
+------=_Part_0020_fixture.tnwbnw--

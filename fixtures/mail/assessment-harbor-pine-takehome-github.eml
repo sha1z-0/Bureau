@@ -1,0 +1,53 @@
+Return-Path: <jordan.ellis@harborpine.example.com>
+From: Jordan Ellis <jordan.ellis@harborpine.example.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: =?UTF-8?B?SGFyYm9yICYgUGluZSDigJMgdGFrZS1ob21lIGV4ZXJjaXNlIChTb2Z0?=
+ =?UTF-8?B?d2FyZSBFbmdpbmVlciBJLCBQbGF0Zm9ybSk=?=
+Date: Mon, 02 Nov 2026 07:15:33 +0000
+Message-ID: <CAHp4n7Te1-takehome@mail.harborpine.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0019_fixture.tnw5jx"
+
+------=_Part_0019_fixture.tnw5jx
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Rania,
+
+Thanks for your patience! The next step for the Software Engineer I, Platform role is a take-home exercise.
+
+You'll build a small rate-limited event ingestion service in Go or TypeScript, with a README explaining your design choices. We expect it to take 3 to 4 hours; please don't spend more than 6.
+
+I've invited your GitHub account to this private repository, which has the brief and a starter project:
+https://github.com/harborpine-hiring/platform-takehome-rh2026
+
+Please submit within 5 days, so by the end of Saturday 7 November: open a pull request against main and reply to this email when it's ready.
+
+If anything is unclear, just reply here.
+
+Best,
+Jordan Ellis
+Technical Recruiter, Harbor & Pine
+
+------=_Part_0019_fixture.tnw5jx
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Hi Rania,</p>
+<p>Thanks for your patience! The next step for the Software Engineer I, Platform role is a take-home exercise.</p>
+<p>You'll build a small rate-limited event ingestion service in Go or TypeScript, with a README explaining your design choices. We expect it to take 3 to 4 hours; please don't spend more than 6.</p>
+<p>I've invited your GitHub account to this private repository, which has the brief and a starter project:<br>
+<a href="https://github.com/harborpine-hiring/platform-takehome-rh2026">https://github.com/harborpine-hiring/platform-takehome-rh2026</a></p>
+<p>Please submit within 5 days, so by the end of Saturday 7 November: open a pull request against main and reply to this email when it's ready.</p>
+<p>If anything is unclear, just reply here.</p>
+<p>Best,<br>
+Jordan Ellis<br>
+Technical Recruiter, Harbor &amp; Pine</p>
+</body>
+</html>
+
+------=_Part_0019_fixture.tnw5jx--

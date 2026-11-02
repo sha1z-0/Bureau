@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Lever post-submit page (jobs.lever.co/<company>/<posting uuid>/thanks):
+  the posting header plus .application-confirmation with "Application submitted!".
+  Served at /__confirm/{{FORM_ID}} (the fixture server's 303 target); the URL is
+  rewritten to the real /thanks path, which is also routed to this file.
+  Fictional employer (Northwind Labs). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northwind Labs - Backend Engineer (Junior)</title>
+  <style>
+    body { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #515357; }
+    .page-centered { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+    .main-header { border-bottom: 1px solid #e2e2e2; padding: 18px 0; }
+    .main-header-logo { font-size: 22px; font-weight: 700; color: #1d2b3a; text-decoration: none; }
+    .accent-section { background: #f9f9f9; border-bottom: 1px solid #e2e2e2; }
+    .posting-header { padding: 32px 20px; }
+    .posting-headline h2 { font-size: 34px; color: #2d2f33; margin: 0 0 8px; font-weight: 400; }
+    .posting-categories { font-size: 13px; text-transform: uppercase; color: #808080; }
+    .application-confirmation { padding: 48px 20px; text-align: center; }
+    .application-confirmation h3 { font-size: 26px; color: #2d2f33; font-weight: 400; }
+    .main-footer { border-top: 1px solid #e2e2e2; padding: 24px; text-align: center; font-size: 13px; color: #808080; }
+  </style>
+</head>
+<body class="thanks">
+<div class="page application-confirmation-page">
+  <div class="main-header page-full-width section-wrapper">
+    <div class="main-header-content page-centered narrow-section page-full-width"><a class="main-header-logo" href="/jobs.lever.co/northwind-labs">Northwind Labs</a></div>
+  </div>
+  <div class="section-wrapper accent-section page-full-width">
+    <div class="section page-centered posting-header">
+      <div class="posting-headline">
+        <h2>Backend Engineer (Junior)</h2>
+        <div class="posting-categories">Lahore, Pakistan · Engineering – Payments · Full-time · Hybrid</div>
+      </div>
+    </div>
+  </div>
+  <div class="section-wrapper page-full-width">
+    <div class="section page-centered application-confirmation" data-qa="msg-submit-success">
+      <h3>Application submitted!</h3>
+      <div class="confirmation-message">Thank you for your interest in Northwind Labs. We've received your application and will be in touch if your background is a fit for the role.</div>
+    </div>
+  </div>
+  <div class="main-footer page-full-width"><div class="main-footer-text page-centered"><p><a href="/jobs.lever.co/northwind-labs">Northwind Labs Home Page</a></p><p>Jobs powered by Lever</p></div></div>
+</div>
+<script>
+  if (location.pathname.indexOf('/__confirm/') === 0) history.replaceState(null, '', '/jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38/thanks');
+</script>
+</body>
+</html>

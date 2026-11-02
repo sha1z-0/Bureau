@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Workable post-submit state. The real SPA replaces the form with a
+  success panel ("Thank you! Your application was submitted.") on the same job
+  page; the fixture shows that panel, then follows the server redirect to
+  /__confirm/{{FORM_ID}}, which renders the same panel on a stable page.
+  Fictional employer (Brightwater Health). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Junior Node.js Developer - Brightwater Health</title>
+  <link rel="stylesheet" href="/ats/workable/apply.css">
+</head>
+<body>
+<div id="app">
+  <main class="styles--3Pn6J" data-ui="job-application">
+    <header class="styles--2CsDg" data-ui="company-header"><a class="styles--1j7Gf" data-ui="company-logo" href="/apply.workable.com/brightwater-health/"><span class="logo-mark" aria-hidden="true">B</span>Brightwater Health</a></header>
+    <section class="styles--1kOSy" data-ui="job-header">
+      <h1 class="styles--2TdGW" data-ui="job-title">Junior Node.js Developer</h1>
+      <div class="styles--3TJHk" data-ui="job-details">Lahore, Punjab, Pakistan · Hybrid · Full time · Engineering</div>
+    </section>
+    <section class="styles--success" data-ui="application-success" role="status">
+      <h2>Thank you!</h2>
+      <p>Your application was submitted. Brightwater Health will review it and get back to you.</p>
+      <p><a href="/apply.workable.com/brightwater-health/">View more jobs at Brightwater Health</a></p>
+    </section>
+    <footer class="styles--footer">Powered by <strong>Workable</strong></footer>
+  </main>
+</div>
+</body>
+</html>

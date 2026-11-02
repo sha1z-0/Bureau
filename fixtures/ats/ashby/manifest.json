@@ -1,0 +1,56 @@
+{
+  "forms": [
+    {
+      "id": "ashby",
+      "ats": "ashby",
+      "title": "Ashby hosted application (jobs.ashbyhq.com/<org>/<uuid>/application), client-rendered",
+      "route": "/jobs.ashbyhq.com/quillstack/6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68/application",
+      "file": "ashby/application.html",
+      "confirmationFile": "ashby/confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "required": [
+        "_systemfield_name",
+        "_systemfield_email",
+        "9a2b7c4d-3e5f-4061-8b7a-c9d0e1f2a3b4",
+        "_systemfield_location",
+        "_systemfield_resume",
+        "a1c3e5f7-0b2d-4f6a-8c1e-3a5c7e9b1d2f",
+        "b2d4f6a8-1c3e-4a7b-9d2f-4b6d8f0c2e3a",
+        "e5a7c9db-4f6b-4dae-8c52-7e9a1c3f5b6d"
+      ],
+      "expect": {
+        "_systemfield_name": "profile:fullName",
+        "_systemfield_email": "profile:email",
+        "9a2b7c4d-3e5f-4061-8b7a-c9d0e1f2a3b4": "profile:phone",
+        "_systemfield_location": "contains:Lahore",
+        "_systemfield_resume": "file:cv",
+        "3d4e5f60-7a8b-4c9d-8e0f-1a2b3c4d5e6f": "profile:linkedin",
+        "4e5f6071-8b9c-4dae-9f10-2b3c4d5e6f70": "profile:github",
+        "5f607182-9cad-4ebf-8021-3c4d5e6f7081": "file:letter",
+        "a1c3e5f7-0b2d-4f6a-8c1e-3a5c7e9b1d2f": "=true",
+        "b2d4f6a8-1c3e-4a7b-9d2f-4b6d8f0c2e3a": "=false",
+        "c3e5a7b9-2d4f-4b8c-ae30-5c7e9a1d3f4b": "=TypeScript",
+        "d4f6b8ca-3e5a-4c9d-bf41-6d8f0b2e4a5c": "=Job board",
+        "e5a7c9db-4f6b-4dae-8c52-7e9a1c3f5b6d": "nonempty",
+        "_systemfield_eeoc_gender": "=decline_to_self_identify",
+        "_systemfield_eeoc_race": "=decline_to_self_identify",
+        "_systemfield_eeoc_veteran_status": "=decline_to_self_identify"
+      },
+      "quirks": [
+        "client-rendered SPA: empty #root + window.__appData, form appears after an async load with a skeleton",
+        "no <form> element: Submit Application is a click handler",
+        "fields keyed by path: _systemfield_* and uuids; labels via .ashby-application-form-question-title",
+        "Overview / Application tabs; description lives in the (hidden) Overview panel",
+        "Autofill from resume pane with its own file input (feeds the Resume field)",
+        "file drop zones: Upload File button over hidden input, drag-and-drop supported",
+        "location autocomplete combobox (_systemfield_location) that must be picked from the list",
+        "Boolean questions as Yes/No toggle buttons with aria-pressed (no inputs)",
+        "MultiValueSelect checkbox group, ValueSelect radio group",
+        "EEOC survey ValueSelects as Select... comboboxes with snake_case values",
+        "errors: per-field 'Missing entry for required field' plus 'Your form needs corrections' summary",
+        "JSON POST via fetch with files inline (base64), success view swap, then redirect"
+      ],
+      "reference": "Public jobs.ashbyhq.com application pages and the public non-user-graphql ApiJobPosting form definitions (ramp, notion, linear); DOM from Ashby's hosted job board class names"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: a required field that can never hold the right value.
+  Expected outcome: verify_blocked.
+
+  The required "LinkedIn profile URL" field runs a buggy "URL cleaner" 300 ms after the
+  last keystroke and again on blur/change: it parses the URL and keeps only scheme + host,
+  so every profile URL becomes "https://www.linkedin.com/" (bare handles become
+  "https://linkedin.com/"). The result is non-empty and looks like a URL, so both the
+  client-side check and the server's required check accept it. Only a read-back comparison
+  against the intended value catches the loss.
+  A correct form engine retries, sees the mismatch persist, and stops (verify_blocked)
+  without submitting. Any valid final submission recorded for this form is a failure:
+  it means a wrong LinkedIn URL was sent under the candidate's name.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Analytics Engineer - Meridian Freightworks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif; margin: 0; background: #eef2f7; color: #1c2b39; }
+    .hero { background: #0b3d63; color: #fff; padding: 26px 40px; }
+    .hero h1 { margin: 0; font-size: 26px; }
+    .hero p { margin: 6px 0 0; opacity: .85; }
+    .card { max-width: 700px; margin: 24px auto; background: #fff; border-radius: 6px; padding: 26px 34px; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+    .field { margin: 16px 0; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+    .req { color: #c0392b; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b8c4d0; border-radius: 4px; font-size: 15px; font-family: inherit; }
+    .hint { font-size: 12px; color: #6b7c8c; margin-top: 4px; }
+    .err { color: #c0392b; font-size: 13px; margin-top: 4px; }
+    .summary { display: none; border: 1px solid #c0392b; background: #fdecea; color: #922b21; padding: 10px 12px; border-radius: 4px; margin: 14px 0; }
+    button.submit { background: #0b3d63; color: #fff; border: 0; padding: 12px 26px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="hero"><h1>Analytics Engineer</h1><p>Meridian Freightworks &middot; Remote</p></div>
+<div class="card">
+  <p>Help shippers see where their containers are. You'll model port and vessel events in dbt and PostgreSQL and build the dashboards our customer team lives in.</p>
+  <form id="application" novalidate>
+    <div class="field"><label for="first_name">First name <span class="req">*</span></label><input type="text" id="first_name" name="first_name" required></div>
+    <div class="field"><label for="last_name">Last name <span class="req">*</span></label><input type="text" id="last_name" name="last_name" required></div>
+    <div class="field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" required></div>
+    <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone"></div>
+    <div class="field" data-trap="url-cleaner">
+      <label for="linkedin">LinkedIn profile URL <span class="req">*</span></label>
+      <input type="url" id="linkedin" name="linkedin" required autocomplete="off" placeholder="https://www.linkedin.com/in/your-name">
+      <div class="hint">We tidy up the link for you.</div>
+    </div>
+    <div class="summary" id="summary" role="alert"></div>
+    <button type="submit" class="submit" id="submit_app">Submit application</button>
+  </form>
+</div>
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var form = document.getElementById('application');
+  var li = document.getElementById('linkedin');
+  var timer = null;
+
+  // The bug: "normalise" a URL by rebuilding it from protocol + host only.
+  function clean(v) {
+    v = v.trim();
+    if (!v) return v;
+    try {
+      var u = new URL(/^[a-z]+:\/\//i.test(v) ? v : 'https://' + v);
+      return u.protocol + '//' + u.host + '/';
+    } catch (e) {
+      return v;
+    }
+  }
+  function apply() {
+    var c = clean(li.value);
+    if (c !== li.value) li.value = c;
+  }
+  li.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(apply, 300);
+  });
+  li.addEventListener('blur', apply);
+  li.addEventListener('change', apply);
+
+  function mark(el, msg) {
+    var f = el.closest('.field');
+    var e = f.querySelector('.err');
+    if (msg && !e) { e = document.createElement('div'); e.className = 'err'; f.appendChild(e); }
+    if (e) { if (msg) e.textContent = msg; else e.remove(); }
+    if (msg) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+  }
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    apply();
+    var bad = 0;
+    form.querySelectorAll('[required]').forEach(function (el) {
+      var msg = FX.isBlank(el) ? 'This field is required.' : '';
+      if (!msg && el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) msg = 'Enter a valid email address.';
+      if (!msg && el.id === 'linkedin' && !/linkedin\.com/i.test(el.value)) msg = 'Enter a LinkedIn URL.';
+      mark(el, msg);
+      if (msg) bad++;
+    });
+    var summary = document.getElementById('summary');
+    if (bad) { summary.textContent = 'Please correct the highlighted fields.'; summary.style.display = 'block'; return; }
+    var res = await FX.postForm('{{FORM_ID}}', new FormData(form));
+    if (FX.finish(res)) return;
+    summary.textContent = 'We could not submit your application: ' + (res.errors || ['unknown error']).join('; ');
+    summary.style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>

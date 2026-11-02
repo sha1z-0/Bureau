@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!--
+  Fixture: BambooHR careers job page + application (<company>.bamboohr.com/careers/<id>),
+  the React careers app built from BambooHR's "Fabric" (fab-*) components.
+  Reproduces: job description with an "Apply for This Job" button that reveals the
+  application form in the same page (history.pushState to ?apply), fab-FormField /
+  fab-Label--required / fab-TextInput inputs (name=firstName, lastName, email, phone,
+  streetAddress, city, zip, desiredPay, websiteUrl, linkedinUrl, referredBy),
+  fab-SelectToggle custom selects whose menus render in a body-level portal
+  (div.fab-MenuVessel with a search box and role=option rows) over hidden inputs
+  holding numeric ids (country, state; the State/Province list DEPENDS on the
+  selected country, default United States), a fab-DatePicker text input (mm/dd/yyyy)
+  with a calendar popover (dateAvailable, submitted as yyyy-mm-dd), "Upload File"
+  buttons that upload immediately and keep only resumeFileId / coverLetterFileId,
+  custom questions, inline fab-FormNote--error messages with aria-invalid, and a
+  "Submit Application" XHR (JSON) followed by the confirmation page.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Software Engineer I - Copperline Payments</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "Lato", "Helvetica Neue", Arial, sans-serif; color: #222; background: #f4f4f4; }
+    .CareersHeader { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 16px 24px; font-weight: 700; font-size: 20px; color: #38761d; }
+    .CareersPage { max-width: 980px; margin: 24px auto; padding: 0 16px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+    .CareersPage__main { background: #fff; border-radius: 8px; padding: 32px; }
+    .CareersPage__side { background: #fff; border-radius: 8px; padding: 24px; height: fit-content; font-size: 14px; line-height: 1.6; }
+    h2.fab-Text--h2 { font-size: 26px; margin: 0 0 4px; }
+    .JobMeta { color: #686868; margin-bottom: 16px; }
+    .JobDescription { line-height: 1.6; }
+    .fab-Button { display: inline-flex; align-items: center; gap: 6px; background: #38761d; color: #fff; border: 1px solid #38761d; border-radius: 4px; padding: 10px 18px; font: 600 15px inherit; cursor: pointer; }
+    .fab-Button--outlined { background: #fff; color: #38761d; }
+    .fab-Button--small { padding: 6px 12px; font-size: 14px; }
+    .fab-Button:disabled { opacity: .6; cursor: not-allowed; }
+    .ApplicationForm { margin-top: 24px; }
+    .ApplicationForm[hidden] { display: none; }
+    .fab-FormSection { border-top: 1px solid #e6e6e6; padding-top: 20px; margin-top: 20px; }
+    .fab-FormSection__legend { font-size: 18px; font-weight: 700; margin-bottom: 12px; padding: 0; }
+    fieldset { border: 0; margin: 0; padding: 0; }
+    .fab-FormRow { display: flex; gap: 16px; flex-wrap: wrap; }
+    .fab-FormField { display: flex; flex-direction: column; margin-bottom: 16px; min-width: 200px; flex: 1 1 200px; position: relative; }
+    .fab-FormField--full { flex-basis: 100%; }
+    .fab-Label { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .fab-Label--required::after { content: "*"; color: #c20b0b; margin-left: 2px; }
+    .fab-TextInput, .fab-Textarea, .fab-SelectToggle { box-sizing: border-box; width: 100%; height: 38px; padding: 0 10px; border: 1px solid #b8b8b8; border-radius: 4px; font: 15px inherit; background: #fff; }
+    .fab-Textarea { height: 120px; padding: 8px 10px; resize: vertical; }
+    .fab-TextInput[aria-invalid=true], .fab-Textarea[aria-invalid=true], .fab-SelectToggle[aria-invalid=true] { border-color: #c20b0b; }
+    .fab-SelectToggle { display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; }
+    .fab-SelectToggle__content--placeholder { color: #8a8a8a; }
+    .fab-FormNote--error { color: #c20b0b; font-size: 13px; margin-top: 4px; }
+    .fab-MenuVessel { position: absolute; z-index: 1000; background: #fff; border: 1px solid #b8b8b8; border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+    .fab-MenuSearch { padding: 6px; border-bottom: 1px solid #eee; }
+    .fab-MenuSearch__input { box-sizing: border-box; width: 100%; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .fab-MenuList { max-height: 240px; overflow-y: auto; padding: 4px 0; margin: 0; list-style: none; }
+    .fab-MenuOption { padding: 8px 12px; cursor: pointer; font-size: 14px; }
+    .fab-MenuOption--active { background: #e8f3e2; }
+    .fab-MenuOption[aria-selected=true] { font-weight: 700; }
+    .fab-DatePicker { display: flex; }
+    .fab-DatePicker .fab-TextInput { border-radius: 4px 0 0 4px; }
+    .fab-DatePicker__toggle { border: 1px solid #b8b8b8; border-left: 0; border-radius: 0 4px 4px 0; background: #fafafa; padding: 0 10px; cursor: pointer; }
+    .fab-Calendar { padding: 10px; width: 260px; }
+    .fab-Calendar__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
+    .fab-Calendar__head button { background: none; border: 0; cursor: pointer; font-size: 16px; }
+    .fab-Calendar__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 13px; }
+    .fab-Calendar__grid button { background: none; border: 0; padding: 6px 0; cursor: pointer; border-radius: 3px; }
+    .fab-Calendar__grid button:hover { background: #e8f3e2; }
+    .fab-Calendar__grid button[aria-selected=true] { background: #38761d; color: #fff; }
+    .FileUpload__file { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; }
+    .FileUpload__file button { background: none; border: 0; color: #c20b0b; cursor: pointer; font-size: 16px; }
+    .FileUpload__hint { font-size: 12px; color: #777; margin-top: 4px; }
+    .ApplicationForm__error { color: #c20b0b; margin: 12px 0; }
+    .fab-Checkbox { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+    @media (max-width: 760px) { .CareersPage { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="root">
+  <header class="CareersHeader">Copperline Payments <span style="font-weight:400;color:#686868;font-size:14px">Careers</span></header>
+  <div class="CareersPage">
+    <div class="CareersPage__main">
+      <h2 class="fab-Text--h2">Software Engineer I</h2>
+      <div class="JobMeta">Engineering · Remote (Americas, Europe, South Asia) · Full-Time</div>
+      <div class="JobDescription" id="job-description">
+        <p>Copperline Payments helps independent pharmacies accept card and insurance co-pay payments at the counter and online. We process USD 900M a year for 3,000 pharmacies.</p>
+        <p><strong>What you'll work on</strong></p>
+        <ul><li>Payment and refund flows in our TypeScript/Node.js services</li><li>Reconciliation jobs that match card network settlements to pharmacy ledgers</li><li>Internal tools for our support team</li></ul>
+        <p><strong>What you bring</strong></p>
+        <ul><li>1-3 years of professional software engineering experience</li><li>Strong fundamentals in one backend language and SQL</li><li>Care for correctness: money has to add up</li></ul>
+        <p><strong>Compensation</strong>: USD 28,000-38,000 for contractors outside the US, depending on location and experience.</p>
+      </div>
+      <button type="button" class="fab-Button" id="apply-button">Apply for This Job</button>
+
+      <form class="ApplicationForm" id="application-form" novalidate hidden>
+        <h3 style="font-size:22px;margin:0 0 4px">Apply for This Job</h3>
+        <p style="color:#686868;margin:0 0 8px;font-size:14px"><span style="color:#c20b0b">*</span> Required</p>
+
+        <fieldset class="fab-FormSection">
+          <legend class="fab-FormSection__legend">Personal Information</legend>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="firstName">First Name</label><input class="fab-TextInput fab-TextInput--width100" id="firstName" name="firstName" type="text" autocomplete="given-name" required></div>
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="lastName">Last Name</label><input class="fab-TextInput fab-TextInput--width100" id="lastName" name="lastName" type="text" autocomplete="family-name" required></div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="email">Email</label><input class="fab-TextInput" id="email" name="email" type="email" autocomplete="email" required></div>
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="phone">Phone</label><input class="fab-TextInput" id="phone" name="phone" type="tel" autocomplete="tel" required></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fab-FormSection">
+          <legend class="fab-FormSection__legend">Address</legend>
+          <div class="fab-FormRow">
+            <div class="fab-FormField fab-FormField--full"><label class="fab-Label fab-Label--required" for="streetAddress">Street Address</label><input class="fab-TextInput" id="streetAddress" name="streetAddress" type="text" autocomplete="street-address" required></div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="city">City</label><input class="fab-TextInput" id="city" name="city" type="text" autocomplete="address-level2" required></div>
+            <div class="fab-FormField"><span class="fab-Label fab-Label--required" id="state-label">State/Province</span>
+              <div class="fab-Select" data-name="state" data-required="true" data-placeholder="–Select–"><button type="button" class="fab-SelectToggle" id="state" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="state-label state"><span class="fab-SelectToggle__content fab-SelectToggle__content--placeholder">–Select–</span><span aria-hidden="true">▾</span></button><input type="hidden" name="state" value=""></div>
+            </div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="zip">Zip</label><input class="fab-TextInput" id="zip" name="zip" type="text" autocomplete="postal-code" required></div>
+            <div class="fab-FormField"><span class="fab-Label fab-Label--required" id="country-label">Country</span>
+              <div class="fab-Select" data-name="country" data-required="true" data-placeholder="–Select–" data-searchable="true"><button type="button" class="fab-SelectToggle" id="country" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="country-label country"><span class="fab-SelectToggle__content">United States</span><span aria-hidden="true">▾</span></button><input type="hidden" name="country" value="1"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fab-FormSection">
+          <legend class="fab-FormSection__legend">Documents</legend>
+          <div class="fab-FormRow">
+            <div class="fab-FormField FileUpload" data-file-key="resumeFileId" data-required="true">
+              <span class="fab-Label fab-Label--required" id="resume-label">Resume</span>
+              <div><button type="button" class="fab-Button fab-Button--outlined fab-Button--small" aria-describedby="resume-label">Upload File</button></div>
+              <input type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt" hidden aria-labelledby="resume-label">
+              <input type="hidden" name="resumeFileId" value="">
+              <div class="FileUpload__files"></div>
+              <div class="FileUpload__hint">PDF, Word, ODT, RTF or TXT, up to 10MB</div>
+            </div>
+            <div class="fab-FormField FileUpload" data-file-key="coverLetterFileId">
+              <span class="fab-Label" id="cover-letter-label">Cover Letter</span>
+              <div><button type="button" class="fab-Button fab-Button--outlined fab-Button--small" aria-describedby="cover-letter-label">Upload File</button></div>
+              <input type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt" hidden aria-labelledby="cover-letter-label">
+              <input type="hidden" name="coverLetterFileId" value="">
+              <div class="FileUpload__files"></div>
+              <div class="FileUpload__hint">PDF, Word, ODT, RTF or TXT, up to 10MB</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fab-FormSection">
+          <legend class="fab-FormSection__legend">Additional Information</legend>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label fab-Label--required" for="dateAvailable">Date Available</label>
+              <div class="fab-DatePicker"><input class="fab-TextInput" id="dateAvailable" name="dateAvailable" type="text" placeholder="mm/dd/yyyy" autocomplete="off" required><button type="button" class="fab-DatePicker__toggle" aria-label="Open calendar">📅</button></div>
+            </div>
+            <div class="fab-FormField"><label class="fab-Label" for="desiredPay">Desired Pay</label><input class="fab-TextInput" id="desiredPay" name="desiredPay" type="text"></div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><label class="fab-Label" for="websiteUrl">Website, Blog, or Portfolio</label><input class="fab-TextInput" id="websiteUrl" name="websiteUrl" type="url"></div>
+            <div class="fab-FormField"><label class="fab-Label" for="linkedinUrl">LinkedIn Profile URL</label><input class="fab-TextInput" id="linkedinUrl" name="linkedinUrl" type="url"></div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField fab-FormField--full"><label class="fab-Label" for="referredBy">Who referred you for this position?</label><input class="fab-TextInput" id="referredBy" name="referredBy" type="text"></div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField"><span class="fab-Label fab-Label--required" id="q-1043-label">Will you now or in the future require sponsorship for employment visa status?</span>
+              <div class="fab-Select" data-name="customQuestions[1043]" data-required="true" data-placeholder="–Select–"><button type="button" class="fab-SelectToggle" id="customQuestions_1043" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="q-1043-label customQuestions_1043"><span class="fab-SelectToggle__content fab-SelectToggle__content--placeholder">–Select–</span><span aria-hidden="true">▾</span></button><input type="hidden" name="customQuestions[1043]" value=""></div>
+            </div>
+          </div>
+          <div class="fab-FormRow">
+            <div class="fab-FormField fab-FormField--full"><label class="fab-Label fab-Label--required" for="customQuestions_1044">Tell us about a bug you tracked down that you are proud of.</label><textarea class="fab-Textarea" id="customQuestions_1044" name="customQuestions[1044]" required></textarea></div>
+          </div>
+        </fieldset>
+
+        <div class="ApplicationForm__error" role="alert"></div>
+        <button type="submit" class="fab-Button" id="submit-application">Submit Application</button>
+      </form>
+    </div>
+    <aside class="CareersPage__side">
+      <div><strong>Location</strong><br>Remote</div>
+      <div style="margin-top:12px"><strong>Department</strong><br>Engineering</div>
+      <div style="margin-top:12px"><strong>Employment Type</strong><br>Full-Time</div>
+      <div style="margin-top:12px"><strong>Minimum Experience</strong><br>Entry-level</div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var form = $('#application-form');
+
+  // ---- "Apply for This Job" reveals the form in place ---------------------------------------
+  function openForm(push) {
+    form.hidden = false;
+    $('#apply-button').hidden = true;
+    if (push) history.pushState({ apply: true }, '', location.pathname + '?apply');
+    $('#firstName').focus();
+  }
+  $('#apply-button').addEventListener('click', function () { openForm(true); });
+  if (/[?&]apply\b/.test(location.search)) openForm(false);
+
+  // ---- option data (numeric ids) ------------------------------------------------------------
+  var COUNTRIES = [['1', 'United States'], ['2', 'Canada'], ['39', 'Germany'], ['104', 'India'], ['138', 'Netherlands'], ['161', 'Nigeria'], ['167', 'Pakistan'], ['223', 'United Arab Emirates'], ['224', 'United Kingdom']];
+  var STATES = {
+    '1': [['15', 'Alabama'], ['16', 'Alaska'], ['17', 'Arizona'], ['19', 'California'], ['22', 'Colorado'], ['23', 'Florida'], ['30', 'Illinois'], ['47', 'New York'], ['57', 'Texas'], ['60', 'Utah'], ['63', 'Washington']],
+    '2': [['73', 'Alberta'], ['74', 'British Columbia'], ['80', 'Ontario'], ['82', 'Quebec']],
+    '39': [['901', 'Bavaria'], ['902', 'Berlin'], ['905', 'Hamburg']],
+    '104': [['1201', 'Karnataka'], ['1205', 'Maharashtra'], ['1210', 'Delhi']],
+    '138': [['1701', 'North Holland'], ['1702', 'South Holland'], ['1703', 'Utrecht']],
+    '161': [['2001', 'Lagos'], ['2002', 'Abuja Federal Capital Territory']],
+    '167': [['2538', 'Azad Kashmir'], ['2539', 'Balochistan'], ['2540', 'Islamabad Capital Territory'], ['2541', 'Punjab'], ['2542', 'Sindh'], ['2543', 'Khyber Pakhtunkhwa'], ['2544', 'Gilgit-Baltistan']],
+    '223': [['2801', 'Abu Dhabi'], ['2802', 'Dubai']],
+    '224': [['2901', 'England'], ['2902', 'Scotland'], ['2903', 'Wales'], ['2904', 'Northern Ireland']]
+  };
+  var OPTIONS = {
+    country: function () { return COUNTRIES; },
+    state: function () { return STATES[$('input[name=country]').value] || []; },
+    'customQuestions[1043]': function () { return [['Yes', 'Yes'], ['No', 'No']]; }
+  };
+
+  // ---- fab-Select with a body-level menu portal ------------------------------------------------
+  var openMenu = null;
+  function closeMenu() {
+    if (!openMenu) return;
+    openMenu.toggle.setAttribute('aria-expanded', 'false');
+    openMenu.toggle.removeAttribute('aria-activedescendant');
+    openMenu.vessel.remove();
+    openMenu = null;
+  }
+  function setSelect(sel, value, label) {
+    var hidden = $('input[type=hidden]', sel);
+    var content = $('.fab-SelectToggle__content', sel);
+    hidden.value = value;
+    content.textContent = value ? label : sel.getAttribute('data-placeholder');
+    content.classList.toggle('fab-SelectToggle__content--placeholder', !value);
+    clearError($('.fab-SelectToggle', sel));
+    hidden.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  $$('.fab-Select').forEach(function (sel) {
+    var toggle = $('.fab-SelectToggle', sel);
+    var name = sel.getAttribute('data-name');
+    function render(vessel, q, active) {
+      var list = $('.fab-MenuList', vessel);
+      list.innerHTML = '';
+      var items = OPTIONS[name]().filter(function (o) { return !q || o[1].toLowerCase().indexOf(q.toLowerCase()) !== -1; });
+      items.forEach(function (o, i) {
+        var li = document.createElement('li');
+        li.className = 'fab-MenuOption' + (i === active ? ' fab-MenuOption--active' : '');
+        li.setAttribute('role', 'option');
+        li.id = 'fab-menu-' + name.replace(/\W/g, '') + '-' + o[0];
+        li.setAttribute('data-value', o[0]);
+        li.setAttribute('aria-selected', String($('input[type=hidden]', sel).value === o[0]));
+        li.textContent = o[1];
+        li.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        li.addEventListener('click', function () { setSelect(sel, o[0], o[1]); closeMenu(); toggle.focus(); });
+        list.appendChild(li);
+      });
+      if (items[active]) toggle.setAttribute('aria-activedescendant', 'fab-menu-' + name.replace(/\W/g, '') + '-' + items[active][0]);
+      return items;
+    }
+    function open() {
+      closeMenu();
+      var r = toggle.getBoundingClientRect();
+      var vessel = document.createElement('div');
+      vessel.className = 'fab-MenuVessel';
+      vessel.style.left = r.left + window.scrollX + 'px';
+      vessel.style.top = r.bottom + window.scrollY + 2 + 'px';
+      vessel.style.width = Math.max(r.width, 220) + 'px';
+      var searchable = sel.getAttribute('data-searchable') === 'true' || OPTIONS[name]().length > 8;
+      vessel.innerHTML = (searchable ? '<div class="fab-MenuSearch"><input class="fab-MenuSearch__input" type="text" placeholder="Search..." aria-label="Search"></div>' : '') +
+        '<ul class="fab-MenuList" role="listbox" aria-labelledby="' + toggle.getAttribute('aria-labelledby').split(' ')[0] + '"></ul>';
+      document.body.appendChild(vessel);
+      var state = { toggle: toggle, vessel: vessel, active: 0, items: [] };
+      var current = $('input[type=hidden]', sel).value;
+      state.items = render(vessel, '', 0);
+      var ci = state.items.findIndex(function (o) { return o[0] === current; });
+      if (ci > 0) { state.active = ci; state.items = render(vessel, '', ci); }
+      openMenu = state;
+      toggle.setAttribute('aria-expanded', 'true');
+      var search = $('.fab-MenuSearch__input', vessel);
+      var keyTarget = search || toggle;
+      if (search) {
+        search.focus();
+        search.addEventListener('input', function () { state.active = 0; state.items = render(vessel, search.value, 0); });
+        search.addEventListener('keydown', function (e) { keys(e); });
+        search.addEventListener('blur', function () { setTimeout(function () { if (openMenu === state && document.activeElement !== search) closeMenu(); }, 150); });
+      }
+      function keys(e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); state.active = Math.min(state.items.length - 1, state.active + 1); state.items = render(vessel, search ? search.value : '', state.active); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); state.active = Math.max(0, state.active - 1); state.items = render(vessel, search ? search.value : '', state.active); }
+        else if (e.key === 'Enter') { e.preventDefault(); var o = state.items[state.active]; if (o) { setSelect(sel, o[0], o[1]); closeMenu(); toggle.focus(); } }
+        else if (e.key === 'Escape' || e.key === 'Tab') { closeMenu(); if (e.key === 'Escape') toggle.focus(); }
+      }
+      state.keys = keyTarget === toggle ? keys : null;
+    }
+    toggle.addEventListener('click', function () { if (openMenu && openMenu.toggle === toggle) closeMenu(); else open(); });
+    toggle.addEventListener('keydown', function (e) {
+      if (openMenu && openMenu.toggle === toggle && openMenu.keys) { openMenu.keys(e); return; }
+      if (!openMenu && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(); }
+    });
+  });
+  document.addEventListener('mousedown', function (e) { if (openMenu && !openMenu.vessel.contains(e.target) && !openMenu.toggle.contains(e.target)) closeMenu(); });
+  window.addEventListener('resize', closeMenu);
+  // Changing the country resets the dependent State/Province select.
+  $('input[name=country]').addEventListener('change', function () {
+    var st = $('.fab-Select[data-name=state]');
+    setSelect(st, '', '');
+  });
+
+  // ---- fab-DatePicker ---------------------------------------------------------------------------
+  var dateInput = $('#dateAvailable');
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function parseUs(v) {
+    var m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v || '').trim());
+    if (!m) return null;
+    var d = new Date(Number(m[3]), Number(m[1]) - 1, Number(m[2]));
+    return d.getMonth() === Number(m[1]) - 1 && d.getDate() === Number(m[2]) ? d : null;
+  }
+  $('.fab-DatePicker__toggle').addEventListener('click', function () {
+    if (openMenu && openMenu.toggle === this) return closeMenu();
+    closeMenu();
+    var btn = this;
+    var base = parseUs(dateInput.value) || new Date();
+    var view = new Date(base.getFullYear(), base.getMonth(), 1);
+    var r = dateInput.getBoundingClientRect();
+    var vessel = document.createElement('div');
+    vessel.className = 'fab-MenuVessel fab-Calendar';
+    vessel.setAttribute('role', 'dialog');
+    vessel.setAttribute('aria-label', 'Choose date');
+    vessel.style.left = r.left + window.scrollX + 'px';
+    vessel.style.top = r.bottom + window.scrollY + 2 + 'px';
+    document.body.appendChild(vessel);
+    function draw() {
+      var sel = parseUs(dateInput.value);
+      var html = '<div class="fab-Calendar__head"><button type="button" data-nav="-1" aria-label="Previous month">‹</button><span class="fab-Calendar__title">' + MONTHS[view.getMonth()] + ' ' + view.getFullYear() +
+        '</span><button type="button" data-nav="1" aria-label="Next month">›</button></div><div class="fab-Calendar__grid" role="grid">';
+      ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(function (d) { html += '<span>' + d + '</span>'; });
+      for (var i = 0; i < view.getDay(); i++) html += '<span></span>';
+      var days = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+      for (var d = 1; d <= days; d++) {
+        var isSel = sel && sel.getFullYear() === view.getFullYear() && sel.getMonth() === view.getMonth() && sel.getDate() === d;
+        html += '<button type="button" role="gridcell" data-day="' + d + '" aria-label="' + MONTHS[view.getMonth()] + ' ' + d + ', ' + view.getFullYear() + '" aria-selected="' + !!isSel + '">' + d + '</button>';
+      }
+      vessel.innerHTML = html + '</div>';
+      $$('[data-nav]', vessel).forEach(function (b) { b.addEventListener('click', function () { view.setMonth(view.getMonth() + Number(b.getAttribute('data-nav'))); draw(); }); });
+      $$('[data-day]', vessel).forEach(function (b) {
+        b.addEventListener('click', function () {
+          dateInput.value = pad(view.getMonth() + 1) + '/' + pad(Number(b.getAttribute('data-day'))) + '/' + view.getFullYear();
+          clearError(dateInput);
+          closeMenu();
+          dateInput.focus();
+        });
+      });
+    }
+    draw();
+    openMenu = { toggle: btn, vessel: vessel };
+  });
+
+  // ---- file uploads (upload immediately, keep only the file id) ---------------------------------
+  $$('.FileUpload').forEach(function (box) {
+    var input = $('input[type=file]', box);
+    var idInput = $('input[type=hidden]', box);
+    var list = $('.FileUpload__files', box);
+    var btn = $('button', box);
+    btn.addEventListener('click', function () { input.click(); });
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      input.value = '';
+      if (!f) return;
+      if (f.size > 10 * 1024 * 1024) { showError(btn, 'File is too large (max 10MB)'); return; }
+      btn.disabled = true;
+      list.innerHTML = '<div class="FileUpload__file"><span>Uploading ' + f.name.replace(/[<>&]/g, '') + '…</span></div>';
+      var fd = new FormData();
+      fd.append('file', f, f.name);
+      fetch('/copperline.bamboohr.com/careers/upload-file', { method: 'POST', body: fd, headers: { accept: 'application/json', 'x-requested-with': 'XMLHttpRequest' } })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          btn.disabled = false;
+          if (!res.success) { list.innerHTML = ''; showError(btn, res.error || 'Upload failed'); return; }
+          idInput.value = String(res.fileId);
+          clearError(btn);
+          list.innerHTML = '<div class="FileUpload__file"><span class="FileUpload__name"></span><button type="button" aria-label="Remove file">×</button></div>';
+          $('.FileUpload__name', list).textContent = res.fileName;
+          $('button', list).addEventListener('click', function () { idInput.value = ''; list.innerHTML = ''; });
+        });
+    });
+  });
+
+  // ---- validation ------------------------------------------------------------------------------
+  function noteFor(el) { return el.closest('.fab-FormField'); }
+  function showError(el, msg) {
+    el.setAttribute('aria-invalid', 'true');
+    var f = noteFor(el);
+    var n = $(':scope > .fab-FormNote--error', f);
+    if (!n) { n = document.createElement('div'); n.className = 'fab-FormNote fab-FormNote--error'; n.id = (el.id || 'f') + '-error'; f.appendChild(n); }
+    n.textContent = msg;
+    el.setAttribute('aria-describedby', n.id);
+  }
+  function clearError(el) {
+    el.removeAttribute('aria-invalid');
+    var f = noteFor(el);
+    var n = f && $(':scope > .fab-FormNote--error', f);
+    if (n) n.remove();
+  }
+  form.addEventListener('input', function (e) { if (e.target.getAttribute('aria-invalid') === 'true' && e.target.value.trim()) clearError(e.target); });
+  function validate() {
+    var bad = [];
+    $$('input[required], textarea[required]', form).forEach(function (el) {
+      if (!el.value.trim()) { showError(el, 'This field is required'); bad.push(el); }
+    });
+    var em = $('#email');
+    if (em.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { showError(em, 'Please enter a valid email address'); bad.push(em); }
+    var d = dateInput.value.trim();
+    if (d && !parseUs(d)) { showError(dateInput, 'Please enter a valid date (mm/dd/yyyy)'); bad.push(dateInput); }
+    $$('.fab-Select[data-required=true]', form).forEach(function (sel) {
+      if (!$('input[type=hidden]', sel).value) { var t = $('.fab-SelectToggle', sel); showError(t, 'This field is required'); bad.push(t); }
+    });
+    $$('.FileUpload[data-required=true]', form).forEach(function (box) {
+      if (!$('input[type=hidden]', box).value) { var b = $('button', box); showError(b, 'This field is required'); bad.push(b); }
+    });
+    return bad;
+  }
+
+  // ---- submit ------------------------------------------------------------------------------------
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = $('.ApplicationForm__error');
+    err.textContent = '';
+    var bad = validate();
+    if (bad.length) { err.textContent = 'Whoops... Please fix the highlighted fields.'; bad[0].focus(); return; }
+    var data = {};
+    $$('input[name], textarea[name]', form).forEach(function (el) { if (el.type !== 'file') data[el.name] = el.value.trim(); });
+    var dt = parseUs(dateInput.value);
+    var body = {
+      firstName: data.firstName, lastName: data.lastName, email: data.email, phone: data.phone,
+      streetAddress: data.streetAddress, city: data.city, state: data.state, zip: data.zip, country: data.country,
+      resumeFileId: data.resumeFileId ? Number(data.resumeFileId) : null,
+      coverLetterFileId: data.coverLetterFileId ? Number(data.coverLetterFileId) : null,
+      dateAvailable: dt ? dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) : '',
+      desiredPay: data.desiredPay, websiteUrl: data.websiteUrl, linkedinUrl: data.linkedinUrl, referredBy: data.referredBy,
+      customQuestions: { '1043': data['customQuestions[1043]'], '1044': data['customQuestions[1044]'] },
+      jobOpeningId: 88, source: 'BambooHR Careers'
+    };
+    var btn = $('#submit-application');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    fetch('/copperline.bamboohr.com/careers/88/apply', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json', accept: 'application/json', 'x-requested-with': 'XMLHttpRequest' } })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.success && res.redirect) { window.location.assign(res.redirect); return; }
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+        err.textContent = 'Something went wrong and your application was not submitted. Please try again.';
+      });
+  });
+})();
+</script>
+</body>
+</html>
