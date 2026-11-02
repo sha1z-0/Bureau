@@ -17,6 +17,21 @@ const CRYPTO_BAIT = /\b(earn|make)\s+\$?\d[\d,]*\s*(\+\s*)?(per|a|\/)\s*(day|hou
 const PERSONAL_MAIL = /@(gmail|yahoo|hotmail|outlook|live|aol|icloud|proton(mail)?|ymail|mail)\.(com|me|co\.\w+)$/i;
 const EVERGREEN = /\b(talent (pool|community|network)|general (application|interest)|future (opportunities|openings|roles)|expression of interest|open application|spontaneous application|join our talent)\b/i;
 
+const NEGATED = /\b(never|not|no|don't|do not|won't|will not|without|against|free of charge|beware|scam|fraud|phishing)\b/i;
+
+/** True when `re` matches in a sentence that isn't a disclaimer ("we will never ask you to pay a fee"). */
+export function affirmed(re: RegExp, text: string): boolean {
+  const g = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
+  for (const m of text.matchAll(g)) {
+    const at = m.index ?? 0;
+    const from = Math.max(text.lastIndexOf('.', at), text.lastIndexOf('\n', at), text.lastIndexOf('!', at)) + 1;
+    const ends = [text.indexOf('.', at), text.indexOf('\n', at)].filter((i) => i >= 0);
+    const sentence = text.slice(from, ends.length ? Math.min(...ends) : undefined);
+    if (!NEGATED.test(sentence)) return true;
+  }
+  return false;
+}
+
 export interface LegitimacyInput {
   job: RawJob;
   /** Distinct postings of this same role by the same source and place (reposts). */
@@ -35,11 +50,12 @@ export function assessLegitimacy(i: LegitimacyInput): { legitimacy: Legitimacy; 
   const reasons: string[] = [];
   const personalOnly = !!j.applyEmail && PERSONAL_MAIL.test(j.applyEmail) && !i.fromAts;
 
-  if (PAYMENT.test(text)) reasons.push('asks the candidate for money');
-  if (CRYPTO_BAIT.test(text)) reasons.push('easy-money or crypto bait');
+  if (affirmed(PAYMENT, text)) reasons.push('asks the candidate for money');
+  if (affirmed(CRYPTO_BAIT, text)) reasons.push('easy-money or crypto bait');
   if (reasons.length) {
     if (personalOnly) reasons.push('personal email only');
-    return { legitimacy: 'scam', reasons };
+    // An employer's own ATS board is almost never a scam: flag it for a look instead.
+    return { legitimacy: i.fromAts ? 'suspect' : 'scam', reasons };
   }
 
   if (j.postedAt && now - Date.parse(j.postedAt) > i.maxAgeDays * 86_400_000) reasons.push(`older than ${i.maxAgeDays} days`);

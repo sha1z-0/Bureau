@@ -1,0 +1,101 @@
+[
+ {
+  "source": "Simplify",
+  "category": "Hardware",
+  "company_name": "ASM International",
+  "id": "7cd745e0-7a8a-4e77-acc6-f47d55c6c0d0",
+  "title": "Engineer - Field Service-Military Experience",
+  "active": true,
+  "date_updated": 1773181843,
+  "date_posted": 1773181843,
+  "url": "https://www.asm.com/open-vacancies/?gh_jid=4804690101",
+  "locations": [
+   "Chandler, AZ"
+  ],
+  "company_url": "https://simplify.jobs/c/ASM-International",
+  "is_visible": true,
+  "sponsorship": "Other",
+  "degrees": [
+   "Bachelor's",
+   "Master's"
+  ]
+ },
+ {
+  "source": "Simplify",
+  "category": "AI/ML/Data",
+  "company_name": "Waymo",
+  "id": "97a2ec87-bbed-4c9b-9026-c59186fd59b1",
+  "title": "Applied Research Scientist – New Grad - Perception Large Language Model/Vision-Language Model - PhD",
+  "active": true,
+  "date_updated": 1773268640,
+  "date_posted": 1773268640,
+  "url": "https://careers.withwaymo.com/jobs?gh_jid=7488508",
+  "locations": [
+   "SF",
+   "Mountain View, CA"
+  ],
+  "company_url": "https://simplify.jobs/c/Waymo",
+  "is_visible": true,
+  "sponsorship": "Other",
+  "degrees": [
+   "Master's",
+   "PhD"
+  ]
+ },
+ {
+  "source": "Simplify",
+  "category": "Product",
+  "company_name": "Globus Medical",
+  "id": "05d493ab-098c-46d8-aa5c-bafc4611c1a8",
+  "title": "Associate Product Manager",
+  "active": true,
+  "date_updated": 1773269329,
+  "date_posted": 1773269329,
+  "url": "https://globusmedical.wd5.myworkdayjobs.com/GMED_Careers/job/Audubon-PA/Associate-Product-Manager_JR105815",
+  "locations": [
+   "King of Prussia, PA"
+  ],
+  "company_url": "https://simplify.jobs/c/Globus-Medical",
+  "is_visible": true,
+  "sponsorship": "Other",
+  "degrees": [
+   "Bachelor's"
+  ]
+ },
+ {
+  "source": "Simplify",
+  "category": "Quant",
+  "company_name": "Sainsbury's",
+  "id": "6be0cbab-0819-4d12-9317-d153d1de3524",
+  "title": "Trading Assistant",
+  "active": false,
+  "date_updated": 1773093246,
+  "date_posted": 1773093246,
+  "url": "https://hdhe.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/job/400052618",
+  "locations": [
+   "Harrogate, UK"
+  ],
+  "company_url": "https://simplify.jobs/c/Sainsburys",
+  "is_visible": true,
+  "sponsorship": "Other",
+  "degrees": []
+ },
+ {
+  "source": "Simplify",
+  "category": "Quant",
+  "company_name": "Sainsbury's",
+  "id": "29200b38-a16d-46b1-9b81-aac1832decab",
+  "title": "Trading Assistant",
+  "active": false,
+  "date_updated": 1773093248,
+  "date_posted": 1773093248,
+  "url": "https://hdhe.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/job/400052617",
+  "locations": [
+   "Harrogate, UK"
+  ],
+  "company_url": "https://simplify.jobs/c/Sainsburys",
+  "is_visible": true,
+  "sponsorship": "Other",
+  "degrees": []
+ }
+]

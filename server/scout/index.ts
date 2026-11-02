@@ -243,6 +243,7 @@ async function pipeline(id: string, startedAt: string, t0: number, opts: ScoutOp
       locations: cfg.locations,
       remoteOnly: cfg.remoteOnly,
       detailBudget: settings.detailBudget,
+      detailTotal: { left: settings.detailPerRun },
       workdayPages: settings.workdayPages,
       targets: (ats: AtsFamily) => targetsForAts(ats, settings.boardsPerRun[ats] ?? settings.defaultBoardsPerRun),
       reportBoard: (ats, token, report) => {

@@ -1,0 +1,155 @@
+[
+ {
+  "id": "ef317746553f",
+  "friendly_id": "ef317746553f-application-engineer-i",
+  "name": "Application Engineer I",
+  "url": "https://forge-nano.breezy.hr/p/ef317746553f-application-engineer-i",
+  "published_date": "2026-10-16T16:29:56.301Z",
+  "type": {
+   "id": "fullTime",
+   "name": "Full-Time"
+  },
+  "location": {
+   "country": {
+    "name": "United States",
+    "id": "US"
+   },
+   "state": {
+    "id": "CO",
+    "name": "Colorado"
+   },
+   "city": "Thornton",
+   "primary": true,
+   "is_remote": false,
+   "name": "Thornton, CO",
+   "id": "0180f8a49921"
+  },
+  "department": "Engineering",
+  "salary": "$70,000 – $78,000 / year",
+  "company": {
+   "name": "Forge Nano",
+   "logo_url": null,
+   "friendly_id": "forge-nano",
+   "isMultipleLocationsEnabled": true
+  },
+  "locations": [
+   {
+    "country": {
+     "name": "United States",
+     "id": "US"
+    },
+    "state": {
+     "id": "CO",
+     "name": "Colorado"
+    },
+    "city": "Thornton",
+    "primary": true,
+    "is_remote": false,
+    "name": "Thornton, CO",
+    "id": "0180f8a49921"
+   }
+  ]
+ },
+ {
+  "id": "0629032f2b3b",
+  "friendly_id": "0629032f2b3b-controls-engineer-i",
+  "name": "Controls Engineer I",
+  "url": "https://forge-nano.breezy.hr/p/0629032f2b3b-controls-engineer-i",
+  "published_date": "2026-10-16T16:30:31.152Z",
+  "type": {
+   "id": "fullTime",
+   "name": "Full-Time"
+  },
+  "location": {
+   "country": {
+    "name": "United States",
+    "id": "US"
+   },
+   "state": {
+    "id": "CO",
+    "name": "Colorado"
+   },
+   "city": "Thornton",
+   "primary": true,
+   "is_remote": false,
+   "name": "Thornton, CO",
+   "id": "c0f7ae38b3e0"
+  },
+  "department": "Engineering",
+  "salary": "$80,000 – $90,000 / year",
+  "company": {
+   "name": "Forge Nano",
+   "logo_url": null,
+   "friendly_id": "forge-nano",
+   "isMultipleLocationsEnabled": true
+  },
+  "locations": [
+   {
+    "country": {
+     "name": "United States",
+     "id": "US"
+    },
+    "state": {
+     "id": "CO",
+     "name": "Colorado"
+    },
+    "city": "Thornton",
+    "primary": true,
+    "is_remote": false,
+    "name": "Thornton, CO",
+    "id": "c0f7ae38b3e0"
+   }
+  ]
+ },
+ {
+  "id": "74da06fd3ad1",
+  "friendly_id": "74da06fd3ad1-controls-engineer-ii",
+  "name": "Controls Engineer II",
+  "url": "https://forge-nano.breezy.hr/p/74da06fd3ad1-controls-engineer-ii",
+  "published_date": "2026-10-16T16:30:59.562Z",
+  "type": {
+   "id": "fullTime",
+   "name": "Full-Time"
+  },
+  "location": {
+   "country": {
+    "name": "United States",
+    "id": "US"
+   },
+   "state": {
+    "id": "CO",
+    "name": "Colorado"
+   },
+   "city": "Thornton",
+   "primary": true,
+   "is_remote": false,
+   "name": "Thornton, CO",
+   "id": "3400a9724061"
+  },
+  "department": "Engineering Design and Manufacturing",
+  "salary": "$95,000 – $105,000 / year",
+  "company": {
+   "name": "Forge Nano",
+   "logo_url": null,
+   "friendly_id": "forge-nano",
+   "isMultipleLocationsEnabled": true
+  },
+  "locations": [
+   {
+    "country": {
+     "name": "United States",
+     "id": "US"
+    },
+    "state": {
+     "id": "CO",
+     "name": "Colorado"
+    },
+    "city": "Thornton",
+    "primary": true,
+    "is_remote": false,
+    "name": "Thornton, CO",
+    "id": "3400a9724061"
+   }
+  ]
+ }
+]

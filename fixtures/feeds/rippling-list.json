@@ -1,0 +1,54 @@
+[
+ {
+  "uuid": "00dbe4a0-da1e-4696-8c15-d4724a402c42",
+  "name": "Business Systems Developer",
+  "department": {
+   "id": "Revenue Operations",
+   "label": "Revenue Operations"
+  },
+  "url": "https://ats.rippling.com/rippling/jobs/00dbe4a0-da1e-4696-8c15-d4724a402c42",
+  "workLocation": {
+   "label": "Remote (United States)",
+   "id": "Remote (United States)"
+  }
+ },
+ {
+  "uuid": "f255bf03-9173-4c0a-8a18-7cc43c27ded8",
+  "name": "Data Science Intern - Summer 2027",
+  "department": {
+   "id": "Engineering",
+   "label": "Engineering"
+  },
+  "url": "https://ats.rippling.com/rippling/jobs/f255bf03-9173-4c0a-8a18-7cc43c27ded8",
+  "workLocation": {
+   "label": "San Francisco, CA",
+   "id": "San Francisco, CA"
+  }
+ },
+ {
+  "uuid": "98b559a6-c8b2-4ede-85d9-cbf4883da996",
+  "name": "Director of Engineering, HRIS Core Flows",
+  "department": {
+   "id": "Engineering",
+   "label": "Engineering"
+  },
+  "url": "https://ats.rippling.com/rippling/jobs/98b559a6-c8b2-4ede-85d9-cbf4883da996",
+  "workLocation": {
+   "label": "San Francisco, CA",
+   "id": "San Francisco, CA"
+  }
+ },
+ {
+  "uuid": "ef0b7266-678c-4a23-a439-1a5e7362b604",
+  "name": " Account Executive, Broker Channel (Arkansas) ",
+  "department": {
+   "id": "Sales",
+   "label": "Sales"
+  },
+  "url": "https://ats.rippling.com/rippling/jobs/ef0b7266-678c-4a23-a439-1a5e7362b604",
+  "workLocation": {
+   "label": "AR",
+   "id": "AR"
+  }
+ }
+]

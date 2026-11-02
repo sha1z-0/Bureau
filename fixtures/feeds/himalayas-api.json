@@ -1,0 +1,132 @@
+{
+ "comments": "21/08/2026: Cursor pagination is now available and is the preferred way to page through the feed. Pass the nextCursor value from each response back as ?cursor=. It is faster than offset and will never return the same job twice. The offset parameter is deprecated and will be removed in a future release. 13/03/2026: The API has been updated to include the companySlug field in the response.",
+ "updatedAt": 1793608395,
+ "offset": 0,
+ "limit": 20,
+ "totalCount": 116569,
+ "jobs": [
+  {
+   "title": "Corporate Counsel - eDiscovery",
+   "excerpt": "At T-Mobile, we invest in YOU!  Our Total Rewards Package ensures that employees get the same big love we give our customers.",
+   "companyName": "T-Mobile USA, Inc.",
+   "companySlug": "t-mobile-usa-inc",
+   "companyLogo": "",
+   "employmentType": "Full Time",
+   "minSalary": 123200,
+   "maxSalary": 222200,
+   "salaryPeriod": "annual",
+   "seniority": [
+    "Mid-level"
+   ],
+   "currency": "USD",
+   "locationRestrictions": [
+    "United States"
+   ],
+   "timezoneRestrictions": [
+    -10,
+    -9,
+    -8,
+    -7,
+    -6,
+    -5,
+    14
+   ],
+   "categories": [
+    "Corporate-Counsel",
+    "E-Discovery-Attorney",
+    "Litigation-Counsel"
+   ],
+   "parentCategories": [
+    "Legal"
+   ],
+   "description": "<p>At T-Mobile, we invest in YOU!  Our Total Rewards Package ensures that employees get the same big love we give our customers.  All team members receive a competitive base salary and compensation package - this is Total Rewards. Employees enjoy multiple wealth-building opportunities through our annual stock grant, employee stock purchase plan, 401(k), and access to free, year-round money coaches. That’s how we’re UNSTOPPABLE for our employees!</p>Are you looking for a work environment which encourages teamwork and where you are respected, supported, challenged, and can grow and advance your career? If your answer is “yes,” you should join T-Mobile’s All-Star Legal Team! <br><br>T-Mobile has an exciting opportunity for an attorney with exceptional analytical and communication skills and a talent for creative problem-solving to provide legal guidance to our dynamic business teams.  A successful candidate will be ready to jump into action, working closely with experts across the legal department and business partners to provide practical, strategic legal guidance and design and implement creative, simple solutions to address complex legal and technological challenges. <br><br>Manage the legal and procedural components of T-Mobile's eDiscovery program, including legal holds, privilege review, custodian interviews, and matter strategy. Provide legal direction on managed document review and discovery motion practice and represent the organization in meet-and-confer negotiations a",
+   "pubDate": 1793608395,
+   "expiryDate": 1798792391,
+   "applicationLink": "https://himalayas.app/companies/t-mobile-usa-inc/jobs/corporate-counsel-ediscovery?utm_source=api",
+   "guid": "https://himalayas.app/companies/t-mobile-usa-inc/jobs/corporate-counsel-ediscovery"
+  },
+  {
+   "title": "Amazon Connect Support Engineer",
+   "excerpt": "We are looking for an Amazon Connect Support Engineer who will be responsible for supporting and maintaining AWS-based CCaaS and contact center environments to ensure high availability and system reliability.",
+   "companyName": "Miratech",
+   "companySlug": "miratech",
+   "companyLogo": "https://cdn-images.himalayas.app/yki2apn6bvv9h4crc3rq0cmwok10",
+   "employmentType": "Full Time",
+   "minSalary": null,
+   "maxSalary": null,
+   "salaryPeriod": "annual",
+   "seniority": [
+    "Mid-level"
+   ],
+   "currency": null,
+   "locationRestrictions": [
+    "Brazil"
+   ],
+   "timezoneRestrictions": [
+    -5,
+    -4,
+    -3,
+    -2
+   ],
+   "categories": [
+    "Amazon-Connect-Support-Engineer",
+    "Cloud-Support-Engineer",
+    "Contact-Center-Support-Engineer",
+    "Cloud-Engineer",
+    "Systems-Engineer"
+   ],
+   "parentCategories": [
+    "Developer",
+    "Operations"
+   ],
+   "description": "<p>We are looking for an <strong>Amazon Connect Support Engineer</strong> who will be responsible for supporting and maintaining AWS-based CCaaS and contact center environments to ensure high availability and system reliability. The role focuses on monitoring, troubleshooting, and resolving production issues using observability tools such as Splunk and Zabbix.</p><p>This role offers the opportunity to develop broad expertise across multiple leading CCaaS platforms in a modern enterprise contact center environment.</p><h3>Responsibilities</h3><ul>\n<li>Design, develop, and enhance proactive monitoring capabilities for the AWS Connect CCaaS platform to ensure system reliability and operational excellence.</li>\n<li>Collaborate closely with developers, architects, and platform owners to enforce logging standards and monitoring best practices that enable effective troubleshooting and observability.</li>\n<li>Participate in application design sessions and develop end-to-end interaction flows using Splunk to strengthen monitoring and diagnostics capabilities.</li>\n<li>Troubleshoot production issues, perform root cause analysis, and implement corrective actions to minimize system downtime and service disruptions.</li>\n<li>Work with vendor partners to drive operational improvements and enhance monitoring frameworks across the platform.</li>\n<li>Develop and maintain CloudWatch dashboards as a complementary monitoring solution to ensure redundancy and visibility.</li>\n</ul><ul>\n<li>4+ yea",
+   "pubDate": 1793608313,
+   "expiryDate": 1798792311,
+   "applicationLink": "https://himalayas.app/companies/miratech/jobs/amazon-connect-support-engineer-3300867401?utm_source=api",
+   "guid": "https://himalayas.app/companies/miratech/jobs/amazon-connect-support-engineer-3300867401"
+  },
+  {
+   "title": "Program Management Support",
+   "excerpt": "Sagility combines industry-leading technology and transformation-driven BPM services with decades of healthcare domain expertise to help clients draw closer to their members.",
+   "companyName": "Sagility",
+   "companySlug": "sagility",
+   "companyLogo": "https://cdn-images.himalayas.app/e6x5tpanz9wntacootgwr1j5rhc4",
+   "employmentType": "Full Time",
+   "minSalary": null,
+   "maxSalary": null,
+   "salaryPeriod": "annual",
+   "seniority": [
+    "Senior"
+   ],
+   "currency": null,
+   "locationRestrictions": [
+    "United States"
+   ],
+   "timezoneRestrictions": [
+    -10,
+    -9,
+    -8,
+    -7,
+    -6,
+    -5,
+    14
+   ],
+   "categories": [
+    "Program-Manager",
+    "Operations-Manager",
+    "Healthcare-Operations-Manager",
+    "Call-Center-Manager",
+    "Clinical-Operations-Manager"
+   ],
+   "parentCategories": [
+    "Product",
+    "Operations"
+   ],
+   "description": "<div><div><div><div><div><div><div><div><div><div><div><div><div><div><p><a href=\"https://himalayas.app/companies/sagility\">Sagility</a> combines industry-leading technology and transformation-driven BPM services with decades of healthcare domain expertise to help clients draw closer to their members. The company optimizes the entire member/patient experience through service offerings for clinical, case management, member engagement, provider solutions, payment integrity, claims cost containment, and analytics. <a href=\"https://himalayas.app/companies/sagility\">Sagility</a> has more than 25,000 employees across 5 countries.</p></div></div></div></div></div></div></div></div></div></div></div></div></div></div>The role of a Manager Operations is to contribute to the overall client satisfaction, retention and account profitability objectives by ensuring the operational performance standards for assigned accounts are met and enhanced.<div><div><div><div><div><div><div><h3>Job title:</h3></div></div></div></div></div></div></div>Program Management Support<div><div><div><div><div><div><div><h3>Job Description:</h3></div></div></div></div></div></div></div><h3>Education:</h3><p>College degree in Nursing Management, Marketing, Psychology or Life Science</p><h3>Experience:</h3><p>5 years customer service experience, 4-years managerial experience.</p><h3>Mandatory Skills:</h3><ul>\n<li><h3>People Management/ Team Orientation</h3></li>\n<li><h3>Drive for Results/ Execution</h3></li>\n<li>",
+   "pubDate": 1793608283,
+   "expiryDate": 1798792282,
+   "applicationLink": "https://himalayas.app/companies/sagility/jobs/program-management-support?utm_source=api",
+   "guid": "https://himalayas.app/companies/sagility/jobs/program-management-support"
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
-import { getJson, getText } from './http.ts';
+import { getJson, getText, usingLiveTransport } from './http.ts';
 import { cleanHtml } from '../security/sanitize.ts';
 import type { Connector, RawJob } from './types.ts';
 import { firstEmail, htmlToText, isRemote, pool, toIso } from './util.ts';
@@ -218,7 +218,7 @@ export const reddit: Connector = {
   async run(ctx) {
     const out: RawJob[] = [];
     for (const [i, sub] of SUBREDDITS.entries()) {
-      if (i) await new Promise((r) => setTimeout(r, 11_000));
+      if (i && usingLiveTransport()) await new Promise((r) => setTimeout(r, 11_000));
       const doc = await getText(`https://www.reddit.com/r/${sub}/new/.rss`, {
         accept: 'application/atom+xml, application/xml',
         headers: { 'user-agent': 'desktop:bureau-jobhunt:1.0 (personal job search; low volume)' },

@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { cleanHtml, decodeEntities } from '../security/sanitize.ts';
 import { categorize } from '../services/classify.ts';
-import { annualise, parseSalaryText, relativePosted } from '../scout/normalize.ts';
+import { annualise, parseSalaryText, relativePosted, relevantTitle } from '../scout/normalize.ts';
 import { workdayParts } from '../scout/detect.ts';
 import { getJson, getText, postJson } from './http.ts';
 import type { CompanyTarget, Connector, RawJob, SourceContext } from './types.ts';
@@ -24,7 +24,8 @@ const str = (v: unknown): string => (v === undefined || v === null ? '' : typeof
 
 /** Only spend detail requests on postings that look like tech roles. */
 function relevant(title: string): boolean {
-  return categorize({ title, tags: [], descriptionText: '' }) !== null;
+  const c = categorize({ title, tags: [], descriptionText: '' });
+  return c !== null && relevantTitle(title, c);
 }
 
 /**
@@ -50,7 +51,11 @@ async function withDetails<T>(
   for (const it of items) {
     if (!relevant(o.title(it)) || !withinDays(o.postedAt(it), ctx.maxAgeDays)) continue;
     if (ctx.isKnown?.(o.url(it))) out.push(o.minimal(it));
-    else if (budget-- > 0) todo.push(it);
+    else if (budget > 0 && (!ctx.detailTotal || ctx.detailTotal.left > 0)) {
+      budget--;
+      if (ctx.detailTotal) ctx.detailTotal.left--;
+      todo.push(it);
+    }
   }
   const details = await pool(todo, o.concurrency ?? 3, async (it) => {
     try {

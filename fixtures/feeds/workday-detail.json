@@ -1,0 +1,36 @@
+{
+ "jobPostingInfo": {
+  "id": "4f52f0483ee31032595f9c2504080000",
+  "title": "IC Practical Engineer",
+  "jobDescription": "<p>NVIDIA Networking business unit is looking for Lab practical engineer for IC product engineering group, who will work in NVIDIA R&amp;D labs in Yokneam. As an IC test practical engineer candidate will be performing various types of testing of NVIDIA/Mellanox ICs on ATE, evaluation boards and reliability platforms, as part of design and production validation, IC characterization and reliability activities. This job allows you to work in a complex, exciting engineering environment handling challenging IC testing activities.</p><p></p><p><b>What you’ll be doing:</b></p><ul><li><p>One responsibility of this position will be handling various types of testing of Nvidia ICs.</p></li><li><p>Perform IC testing in order to produce reliable and precise data to support IC devices analysis.</p></li><li><p>Maintaining and operating laboratory equipment such as IC evaluation systems, HTOL system, Scopes, DVMs and another tooling.</p></li><li><p>Reading Schematics of electronic circuits.</p></li><li><p>Support all related activities such as IQC, OQC, IC Inventory managing and shipments.</p></li><li><p>Carrying out Q&amp;R tasks and following strict execution methodologies.</p></li><li><p>Following and ensuring strict safety procedures and safety checks.</p></li></ul><p></p><p><b>What we need to see:</b></p><ul><li><p>3&#43; years of Electronic Practical Engineer experience</p></li><li><p>High School diploma or equivalent experience</p></li><li><p>Knowledge in operating laboratory equipment such as Scopes, DVM</p></li><li><p>Self-learner, independent, motivated, and reliable person.</p></li><li><p>Excellent interrelations skills.</p></li><li><p>Highly organized, flexible, and has a Can-Do approach to handle constantly evolving and fast-paced environment</p></li><li><p>Basic knowledge in Networking, computers &amp; operating systems.</p></li><li><p>Knowledge in SW programming (C&#43;&#43;, Perl, Linux, Python…)</p></li><li><p>Good English skills – written &amp; verbal</p></li><li><p>High-quality execution of tasks in a high level of integrity</p></li></ul><p></p><p><b>Ways to stand out from the crowd: </b></p><ul><li><p>Knowledge in ATE, SVB and SLT operations</p></li><li><p>Understanding of electronic circuits.</p></li><li><p>Proven understanding of Automated Test Equipment (IC testers, System Level test, and reliability equipment).</p></li></ul><p></p><p>NVIDIA has some of the most forward-thinking and hardworking people in the world working for us and, due to unprecedented growth, our elite engineering teams are growing fast. If you&#39;re a creative and autonomous practical engineer with a real passion for technology, we want to hear from you.</p><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p>",
+  "location": "Israel, Yokneam",
+  "postedOn": "Posted Today",
+  "startDate": "2026-11-02",
+  "timeType": "Full time",
+  "jobReqId": "JR2022657",
+  "jobPostingId": "IC-Practical-Engineer_JR2022657",
+  "jobPostingSiteId": "NVIDIAExternalCareerSite",
+  "country": {
+   "descriptor": "Israel",
+   "id": "084562884af243748dad7c84c304d89a"
+  },
+  "canApply": true,
+  "posted": true,
+  "includeResumeParsing": true,
+  "jobRequisitionLocation": {
+   "descriptor": "Israel, Yokneam",
+   "country": {
+    "descriptor": "Israel",
+    "id": "084562884af243748dad7c84c304d89a",
+    "alpha2Code": "IL"
+   }
+  },
+  "externalUrl": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/Israel-Yokneam/IC-Practical-Engineer_JR2022657",
+  "questionnaireId": "2f2764b3a82910064296831695150000"
+ },
+ "hiringOrganization": {
+  "name": "IL00 Mellanox Technologies, Ltd.",
+  "url": ""
+ },
+ "userAuthenticated": false
+}

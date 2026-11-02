@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<workzag-jobs>
+
+<position>
+    <id>2827202</id>
+    <subcompany>Chrono24 GmbH</subcompany>
+    <office>Remote</office>
+    <additionalOffices>
+        <office>Berlin</office>
+        <office>Karlsruhe</office>
+    </additionalOffices>
+    <department>Product &amp; Technology</department>
+    <recruitingCategory>Full time positions</recruitingCategory>
+    <name>(Senior) Full Stack Engineer (Backend Focus) (m/f/d)</name>
+    <jobDescriptions></jobDescriptions>
+    <employmentType>permanent</employmentType>
+    <seniority>experienced</seniority>
+    <schedule>full-time</schedule>
+    <occupation>software_and_web_development</occupation>
+    <occupationCategory>it_software</occupationCategory>
+    <createdAt>2026-10-05T09:29:19+00:00</createdAt>
+</position>
+<position>
+    <id>2735451</id>
+    <subcompany>Chrono24 GmbH</subcompany>
+    <office>Karlsruhe</office>
+    <department>Data</department>
+    <recruitingCategory>Full time positions</recruitingCategory>
+    <name>AI Solution Engineer (m/f/d)</name>
+    <jobDescriptions>
+        <jobDescription>
+            <name>Beschreibung</name>
+            <value>
+                <![CDATA[<p>Chrono24 ist der weltweit führende Online-Marktplatz für Luxusuhren und verbindet Käufer und Verkäufer aus über 80 Ländern. Wir sind ein schnell wachsendes, internationales Tech-Unternehmen mit Hauptsitz in Karlsruhe – mit einem leidenschaftlichen Team, das unsere Kund:innen jeden Tag in den Mittelpunkt stellt. </p><p>Als AI Solution Engineer hilfst du Teams bei Chrono24 dabei, alltägliche manuelle Arbeit in funktionierende, KI-gestützte Automatisierungen zu verwandeln. Du arbeitest nah am Business und mit nicht-technischen Fachbereichen im gesamten Unternehmen zusammen – von Growth und Marketing über Finance bis People &amp; Culture und darüber hinaus. Gemeinsam mit ihnen findest du heraus, wo sich Aufwand mit KI reduzieren lässt, und entwickelst die passende Lösung. </p><p>Du bist die Brücke zwischen einem Business-Problem und einer funktionierenden Lösung. Du bringst beide Seiten zusammen: Business-Verständnis, um zu erkennen, was ein Team wirklich braucht, und technisches Können, um es umzusetzen. Du berätst dazu, was möglich ist, grenzt den Scope ab und baust schnelle, praxisnahe Automatisierungen und Proofs-of-Concept mit bestehenden KI-Modellen und Tools. </p><p>Du baust auf den Tools, Integrationen und der Plattform auf, die das Tool-Enablement-Team bereitstellt, und arbeitest eng mit dem Machine-Learning-Team zusammen, sobald eine Lösung skaliert werden soll, in einen überwachten Produktivbetrieb übergeht oder tiefergehendes Engineering benötigt.</p>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Darauf kannst Du dich freuen</name>
+            <value>
+                <![CDATA[<ul><li><strong>Business-Teams beraten und eng mit ihnen zusammenarbeiten:</strong> Du setzt dich mit nicht-technischen Fachbereichen zusammen, um ihre Prozesse zu verstehen, deckst wertvolle Automatisierungspotenziale auf und entwickelst gemeinsam mit ihnen Lösungen.</li><li><strong>Praxisnahe Automatisierungen und POCs bauen:</strong> Du verbindest bestehende Tools und LLMs schnell zu funktionierenden Workflows, um den Nutzen zu belegen, bevor irgendetwas skaliert wird.</li><li><strong>Unsere Systeme und Daten kennen:</strong> Du verstehst, welche internen Systeme und Daten ein Use Case benötigt, beurteilst, was zugänglich gemacht werden muss, und formulierst die Anforderung klar (über APIs und idealerweise MCP).</li><li><strong>Teams zur Selbsthilfe befähigen:</strong> Du übergibst funktionierende erste Versionen und versetzt Teams in die Lage, einfache Lösungen selbst zu betreiben, anzupassen und zu pflegen.</li><li><strong>Wissen, wann du übergeben musst:</strong> Du erkennst, wann ein Use Case das ML-Team (Skalierung, Self-Hosting, Kosten- oder Qualitätsoptimierung, überwachter Produktivbetrieb), Tool Enablement (Tools, Integrationen) oder IT (Server-Infrastruktur, Zugriff und Sicherheit) braucht, und leitest ihn sauber weiter.</li><li><strong>Offen und transparent arbeiten:</strong> Du arbeitest eng mit dem ML-Team, Tool Enablement und der IT zusammen, auf deren Use-Case-Wissen und Infrastruktur diese Rolle aufbaut.</li></ul>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Was Dich auszeichnet</name>
+            <value>
+                <![CDATA[<ul><li><strong>Eine Mischung aus Business- und technischem Verständnis:</strong> Du bringst mindestens <strong>5 Jahre relevante Berufserfahrung</strong> mit und verbindest ein fundiertes Business-Verständnis mit einer praxisorientierten technischen Grundlage – zum Beispiel durch einen Hintergrund in Wirtschaftsinformatik / Informatik oder vergleichbare praktische Erfahrungen.</li><li><strong>Solide Programmierkenntnisse:</strong> Du baust selbst funktionierende MVPs, indem du bestehende Tools, LLMs und Integrationen auf praxisnahem, nicht produktionsreifem Niveau zu lauffähigen Lösungen verbindest.</li><li><strong>Praktische KI-Erfahrung:</strong> Du arbeitest routiniert mit LLMs und Prompt Engineering in echten Use Cases (Claude, GPT oder Vergleichbares) – nicht nur zum Ausprobieren.</li><li><strong>Integrationsverständnis:</strong> Ein praktisches Verständnis von APIs, HTTP/JSON und idealerweise MCP – genug, um Tools zu verbinden und einzuschätzen, welche Daten und Zugriffe eine Lösung braucht. Außerdem findest du dich schnell in den Tools und Systemen zurecht, die unsere Teams im Alltag nutzen, sodass du sie glaubwürdig beraten und erkennen kannst, wo KI ansetzt.</li><li><strong>Befähigende:r Kommunikator:in:</strong> Du erklärst nicht-technischen Stakeholdern die Möglichkeiten verständlich, übersetzt mühelos zwischen Business- und technischer Welt und entwickelst gemeinsam mit den Teams Lösungen. Starke, direkte Kommunikation ist zentraler Bestandteil der Rolle.</li><li><strong>Ownership:</strong> Du erkennst Chancen, grenzt sie ab und bringst eine erste Version zum Laufen, ohne auf Tickets zu warten.</li><li><strong>Den Status quo hinterfragen:</strong> Du stellst infrage, wie heute gearbeitet wird, und suchst gezielt nach Stellen, an denen KI den Prozess sinnvoll verändern kann.</li><li><strong>Sprache:</strong> Sehr gute Deutsch- und Englischkenntnisse.</li></ul><p><strong>Nicht Teil der Rolle (zur Klarheit) </strong></p><ul><li><strong>Training oder Fine-Tuning von Modellen: </strong>Diese Rolle nutzt bestehende Modelle in einem Deployment-Setup; sie baut sie nicht selbst.</li><li><strong>Aufbau und Verantwortung für Infrastruktur, Plattformen oder selbst gehostete Modelle:</strong> Wird von Tool Enablement, IT / ML bereitgestellt.</li><li><strong>Langfristige, überwachte, skalierte Produktivsysteme:</strong> Werden an das ML-Team übergeben, sobald ein Use Case über einen POC hinauswächst.</li></ul>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Was wir Dir bieten</name>
+            <value>
+                <![CDATA[<ul><li>Eine strategisch relevante Position mit echtem Gestaltungsspielraum </li><li>Dynamisches, internationales Umfeld mit namhaften Private Equity-Beteiligungen </li><li>Modernes Arbeitsumfeld mit flexiblen Arbeitszeiten und hybridem Arbeiten </li><li>Benefit-App mit einem monatlichen Zuschuss von 80 € für Sport, Kinderbetreuung oder flexible Mobilität </li><li>Kostenloses Mittagessen, das Energie gibt und das Team zusammenbringt </li><li>Unbefristeter Vertrag mit langfristigen Entwicklungsperspektiven </li><li>30 Tage Urlaub pro Jahr </li><li>Zusätzliche freie Tage am 24. und 31. Dezember </li><li>Option, bis zu 20 Tage pro Jahr aus dem Ausland zu arbeiten</li></ul>]]>
+            </value>
+        </jobDescription>
+    </jobDescriptions>
+    <employmentType>permanent</employmentType>
+    <seniority>experienced</seniority>
+    <schedule>full-time</schedule>
+    <occupation>general_and_other_it_software</occupation>
+    <occupationCategory>it_software</occupationCategory>
+    <createdAt>2026-07-30T14:28:03+00:00</createdAt>
+</position>
+<position>
+    <id>2732431</id>
+    <subcompany>Chrono24 GmbH</subcompany>
+    <office>Remote</office>
+    <additionalOffices>
+        <office>Berlin</office>
+        <office>Karlsruhe</office>
+    </additionalOffices>
+    <department>Product &amp; Technology</department>
+    <recruitingCategory>Full time positions</recruitingCategory>
+    <name>Android Developer (m/f/d)</name>
+    <jobDescriptions></jobDescriptions>
+    <employmentType>permanent</employmentType>
+    <seniority>experienced</seniority>
+    <schedule>full-time</schedule>
+    <occupation>software_and_web_development</occupation>
+    <occupationCategory>it_software</occupationCategory>
+    <createdAt>2026-07-28T15:33:37+00:00</createdAt>
+</position>
+
+</workzag-jobs>

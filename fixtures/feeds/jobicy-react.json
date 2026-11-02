@@ -1,0 +1,36 @@
+{
+ "apiVersion": "2.2.19",
+ "documentationUrl": "https://jobi.cy/apidocs",
+ "friendlyNotice": "Thanks for using Jobicy API! Please ensure Jobicy is clearly credited with a direct link to the source, and all application buttons redirect to the original job URL provided in this feed. That’s all! You might be building something amazing, we wish you the best of luck!",
+ "jobCount": 1,
+ "lastUpdate": "2026-10-30T17:37:04+00:00",
+ "nextCursor": null,
+ "hasMore": false,
+ "appliedFilters": {
+  "count": 20,
+  "tag": "react"
+ },
+ "jobs": [
+  {
+   "id": 158070,
+   "url": "https://jobicy.com/jobs/158070-senior-react-native-engineer-expo-typescript",
+   "jobSlug": "158070-senior-react-native-engineer-expo-typescript",
+   "jobTitle": "Senior React Native Engineer (Expo & TypeScript)",
+   "companyName": "Oowlish Technology",
+   "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2025/06/c279fe91-221.jpg",
+   "jobIndustry": [
+    "Software Engineering"
+   ],
+   "jobType": [
+    "Full-Time"
+   ],
+   "jobGeo": "Argentina,  Brazil,  Mexico",
+   "jobLevel": "Senior",
+   "jobExcerpt": "Join Our Team Oowlish, one of Latin America's rapidly expanding software development companies, is seeking experienced technology professionals to enhance our diverse and vibrant team. As a valued member of Oowlish, you will collaborate with premier clients from the United States and Europe, contributing to pioneering digital solutions. Our commitment to creating a nurturing work&hellip;",
+   "jobDescription": "<p><strong>Join Our Team</strong></p>\n<p>Oowlish, one of Latin America's rapidly expanding software development companies, is seeking experienced technology professionals to enhance our diverse and vibrant team.</p>\n<p>As a valued member of Oowlish, you will collaborate with premier clients from the United States and Europe, contributing to pioneering digital solutions. Our commitment to creating a nurturing work environment is recognized by our certification as a Great Place to Work, where you will have opportunities for professional development, growth, and a chance to make a significant international impact.</p>\n<p>We offer the convenience of remote work, allowing you to craft a work-life balance that suits your personal and professional needs. We're looking for candidates who are passionate about technology, proficient in English, and excited to engage in remote collaboration for a worldwide presence.</p>\n\n<h3>About the Role</h3>\n<p>We are looking for an experienced <strong>Senior React Native Engineer</strong> to help build, enhance, and refine a production mobile application using <strong>React Native, Expo, TypeScript, and modern React</strong>.</p>\n<p>This is a highly hands-on frontend mobile engineering role focused on delivering polished, intuitive, and high-performance experiences across iOS and Android.</p>\n<p>You'll join a small, fast-moving engineering team, collaborating directly with technical stakeholders and backend engineers to turn high-fidelity designs in",
+   "pubDate": "2026-10-30T17:37:04+00:00"
+  }
+ ],
+ "statusCode": 200,
+ "success": true
+}

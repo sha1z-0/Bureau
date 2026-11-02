@@ -55,6 +55,8 @@ export interface SourceContext {
   remoteOnly?: boolean;
   /** Max per-posting detail requests per board for ATSs whose list has no description (default 40). */
   detailBudget?: number;
+  /** Detail requests left for this connector's whole run, shared across its boards. */
+  detailTotal?: { left: number };
   /** Max list pages per Workday tenant (20 postings each, default 5). */
   workdayPages?: number;
 }

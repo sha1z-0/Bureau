@@ -7,10 +7,12 @@ import { getSetting, setSetting } from '../db.ts';
  */
 export const ScoutSettingsSchema = z.object({
   /** Boards polled per ATS family per run (oldest-checked first; signal companies and settings boards always). */
-  boardsPerRun: z.record(z.string(), z.number().int().min(0).max(5000)).default({}),
+  boardsPerRun: z.record(z.string(), z.number().int().min(0).max(5000)).default({ workday: 60, smartrecruiters: 120 }),
   defaultBoardsPerRun: z.number().int().min(0).max(5000).default(150),
   /** Detail requests per board for ATSs whose list has no description. */
   detailBudget: z.number().int().min(0).max(500).default(40),
+  /** Detail requests per connector per run, across all its boards (later runs continue where this stops). */
+  detailPerRun: z.number().int().min(0).max(20000).default(600),
   workdayPages: z.number().int().min(1).max(50).default(5),
   /** Aggregator apply links followed per run to find the employer's own ATS URL. */
   resolvePerRun: z.number().int().min(0).max(2000).default(150),

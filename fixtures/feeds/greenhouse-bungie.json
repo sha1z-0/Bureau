@@ -1,0 +1,366 @@
+{
+ "jobs": [
+  {
+   "absolute_url": "https://job-boards.greenhouse.io/bungie/jobs/6193602004",
+   "data_compliance": [
+    {
+     "type": "gdpr",
+     "requires_consent": true,
+     "requires_processing_consent": false,
+     "requires_retention_consent": true,
+     "retention_period": 730,
+     "demographic_data_consent_applies": true
+    }
+   ],
+   "internal_job_id": 5215444004,
+   "location": {
+    "name": "United States, Remote"
+   },
+   "metadata": [
+    {
+     "id": 4367803004,
+     "name": "Cost Center",
+     "value": "GAMES6US27-USU1950653 Bungie Design Marathon",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167524004,
+     "name": "Career Page - Office Location",
+     "value": "United States, Remote",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167525004,
+     "name": "Career Page - Department",
+     "value": "Bungie",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9377282004,
+     "name": "Career Page - Sub Department",
+     "value": null,
+     "value_type": "single_select"
+    },
+    {
+     "id": 20089613004,
+     "name": "Career Page - Studio Project",
+     "value": null,
+     "value_type": "single_select"
+    },
+    {
+     "id": 4395289004,
+     "name": "Worker Type",
+     "value": "Contingent Worker",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4404049004,
+     "name": "Country",
+     "value": "United States of America",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9262269004,
+     "name": "Job Family",
+     "value": "Game Design (PD)",
+     "value_type": "short_text"
+    },
+    {
+     "id": 9262270004,
+     "name": "Job Family Group",
+     "value": "Product Development",
+     "value_type": "short_text"
+    },
+    {
+     "id": 21724118004,
+     "name": "Bungie Geo Pay",
+     "value": null,
+     "value_type": "single_select"
+    }
+   ],
+   "id": 6193602004,
+   "updated_at": "2026-11-01T02:14:14-05:00",
+   "requisition_id": "R-125433",
+   "title": "Investment Designer (Contract)",
+   "pay_input_ranges": [
+    {
+     "min_cents": 4700,
+     "max_cents": 5850,
+     "currency_type": "USD",
+     "title": "The estimated base pay range for this role is listed below.",
+     "blurb": "<p><span style=\"font-weight: 400;\">At SIE, we consider several factors when setting each role’s base pay range, including the competitive benchmarking data for the market and geographic location.<br></span><span style=\"font-weight: 400;\"><br>Please note that the base pay range may vary in line with our hybrid working policy and individual base pay will be determined based on job-related factors which may include knowledge, skills, experience, and location.&nbsp;<br></span><span style=\"font-weight: 400;\"><br>In addition, this role </span><span style=\"font-weight: 400;\">is eligible</span><span style=\"font-weight: 400;\"> for SIE’s top-tier benefits package that includes medical, dental, vision, matching 401(k), paid time off, wellness program and coveted employee discounts for Sony products. </span><span style=\"font-weight: 400;\">This role also may be eligible for a bonus package.</span><span style=\"font-weight: 400;\"> Click&nbsp;</span><a href=\"https://careers.playstation.com/benefits\" target=\"_blank\"><strong>here</strong></a><span style=\"font-weight: 400;\"> to learn more.</span></p>\n<p>&nbsp;</p>"
+    }
+   ],
+   "company_name": "Bungie",
+   "first_published": "2026-09-18T15:14:44-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;p&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Do you dream about creating worlds imbued with real value and consequence? Can you imagine reward chases that excite and delight players without feeling like chores? Can you devise ways for players to meaningfully express themselves? If you answered yes to these questions, Bungie wants you on our team as our newest Investment Designer.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p style=&quot;color: !important;&quot;&gt;&lt;span style=&quot;color: #000000;&quot;&gt;RESPONSIBILITIES&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Implement a wide variety of cosmetic rewards that complement Marathon activities and store.&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Perform scripting and tool work&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Design and implement sustainable content that excite and engage players&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Tune progression values to create compelling moments and a satisfying progression&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p style=&quot;color: !important;&quot;&gt;&lt;span style=&quot;color: #000000;&quot;&gt;REQUIRED SKILLS&amp;nbsp;&lt;/span&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Professional game development experience&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Some experience working with game development software and tools&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Knowledgeable in reward and cosmetic systems&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Strong written and verbal communication skills&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;span style=&quot;color: #000000;&quot;&gt;Desire to work as part of a large team and ability to take and provide feedback and direction appropriately&amp;nbsp;&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p style=&quot;color: !important;&quot;&gt;&lt;span style=&quot;color: #000000;&quot;&gt;NICE-TO-",
+   "departments": [
+    {
+     "id": 4078476004,
+     "name": "Bungie",
+     "child_ids": [
+      4103606004
+     ],
+     "parent_id": 4078475004
+    }
+   ],
+   "offices": [
+    {
+     "id": 4023537004,
+     "name": "USA-WA-Telecommute",
+     "location": "Washington, United States",
+     "child_ids": [],
+     "parent_id": 4094639004
+    }
+   ],
+   "ai_disclaimer": "<p><strong>Use of AI in Recruiting&nbsp;</strong></p><p><br></p><p>We use artificial intelligence and other automated tools to assist with certain aspects of our recruiting process, including reviewing applications and supporting candidate evaluation. For example, we use Greenhouse's AI-powered Talent Matching tool to compare information in your application against job-related qualifications and criteria established by our recruiting team. More information about <a href=\"https://www.greenhouse.com/\" target=\"_blank\">Greenhouse</a>, including about its features and its Privacy Policy, may be found at its website. These tools assist our recruiting team and do not make hiring decisions.&nbsp;</p><p><br></p>",
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app4.greenhouse.io/ai_opt_out_request/job_post/6193602004/ai_opt_out"
+  },
+  {
+   "absolute_url": "https://job-boards.greenhouse.io/bungie/jobs/6181868004",
+   "data_compliance": [
+    {
+     "type": "gdpr",
+     "requires_consent": true,
+     "requires_processing_consent": false,
+     "requires_retention_consent": true,
+     "retention_period": 730,
+     "demographic_data_consent_applies": true
+    }
+   ],
+   "internal_job_id": 5210956004,
+   "location": {
+    "name": "United States, Remote"
+   },
+   "metadata": [
+    {
+     "id": 4367803004,
+     "name": "Cost Center",
+     "value": "GAMES6US27-USB1950676 Marketing Marathon",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167524004,
+     "name": "Career Page - Office Location",
+     "value": "United States, Remote",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167525004,
+     "name": "Career Page - Department",
+     "value": "Bungie",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9377282004,
+     "name": "Career Page - Sub Department",
+     "value": "Publishing and Marketing",
+     "value_type": "single_select"
+    },
+    {
+     "id": 20089613004,
+     "name": "Career Page - Studio Project",
+     "value": "Other",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4395289004,
+     "name": "Worker Type",
+     "value": "Contingent Worker",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4404049004,
+     "name": "Country",
+     "value": "United States of America",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9262269004,
+     "name": "Job Family",
+     "value": "Program/Projects",
+     "value_type": "short_text"
+    },
+    {
+     "id": 9262270004,
+     "name": "Job Family Group",
+     "value": "Marketing",
+     "value_type": "short_text"
+    },
+    {
+     "id": 21724118004,
+     "name": "Bungie Geo Pay",
+     "value": null,
+     "value_type": "single_select"
+    }
+   ],
+   "id": 6181868004,
+   "updated_at": "2026-11-01T02:14:12-05:00",
+   "requisition_id": "R-125265",
+   "title": "Principal Marketing Manager, Marathon (Contract)",
+   "pay_input_ranges": [
+    {
+     "min_cents": 7900,
+     "max_cents": 8900,
+     "currency_type": "USD",
+     "title": "The estimated base pay range for this role is listed below, this is an hourly rate.",
+     "blurb": "<p>At SIE, working with our partners, we consider several factors when setting each role’s base pay range, including the competitive benchmarking data for the market and geographic location.&nbsp;<br><br>Please note that the individual base pay range may vary based on job-related factors which may include knowledge, skills, experience, and location.<br><br>In addition, this role is eligible for benefit offerings that include medical, dental, and vision. Click <strong><a href=\"https://www.dzconnex.com/summary-of-benefits\" target=\"_blank\">here</a></strong>&nbsp;to learn more.</p>"
+    }
+   ],
+   "company_name": "Bungie",
+   "first_published": "2026-09-04T19:18:05-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;p&gt;The Bungie Publishing team is seeking a Principal Marketing Manager (Contract) to lead integrated global go-to-market strategy and planning for Marathon. Reporting to the Director, Marathon Franchise Marketing, this role will translate franchise strategy, product roadmaps, audience insights, and business objectives into cohesive marketing plans that acquire new players, reengage existing owners, and deepen the commitment of Marathon’s active community.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;You will serve as a senior cross-functional leader across Brand, Product Marketing, Growth, Community, Communications, Creative, Analytics, Finance, regional teams, and Development. The ideal candidate combines strategic judgment with operational leadership: someone who can create clarity from complexity, align senior stakeholders around difficult decisions, and continually improve our plans through player insight and performance data.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;h1&gt;Responsibilities&lt;/h1&gt;\n&lt;p&gt;·&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Own the development of integrated global GTM strategies for major Marathon releases, seasons, and franchise moments, ensuring plans support franchise priorities, player needs, and business goals.&lt;/p&gt;\n&lt;p&gt;·&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Translate franchise strategy, product roadmaps, audience priorities, and business objectives into clear marketing strategies, launch architectures, milestones, and investment recommendations.&lt;/p&gt;\n&lt;p&gt;·&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Develop audience-led plans spanning acquisition, reactivation, retention, engagement, and long-term player value across paid, owned, earned, community, platform, and regional channels.&lt;/p&gt;\n&lt;p&gt;·&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Establish and lead the cross-functional GTM operating rhythm, including planning milestones, readiness reviews, decision points, dependency management, risk tracking, and post-launch learning.&lt;/p&gt;\n&lt;p&gt;·&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Align senior stakeholders and executional partners around priorities, roles, tradeoffs, and success measures, ensuring critical information and decisions are communicated clearly and consistently.&lt;/p&gt;",
+   "departments": [
+    {
+     "id": 4078476004,
+     "name": "Bungie",
+     "child_ids": [
+      4103606004
+     ],
+     "parent_id": 4078475004
+    }
+   ],
+   "offices": [
+    {
+     "id": 4023537004,
+     "name": "USA-WA-Telecommute",
+     "location": "Washington, United States",
+     "child_ids": [],
+     "parent_id": 4094639004
+    }
+   ],
+   "ai_disclaimer": "<p><strong>Use of AI in Recruiting&nbsp;</strong></p><p><br></p><p>We use artificial intelligence and other automated tools to assist with certain aspects of our recruiting process, including reviewing applications and supporting candidate evaluation. For example, we use Greenhouse's AI-powered Talent Matching tool to compare information in your application against job-related qualifications and criteria established by our recruiting team. More information about <a href=\"https://www.greenhouse.com/\" target=\"_blank\">Greenhouse</a>, including about its features and its Privacy Policy, may be found at its website. These tools assist our recruiting team and do not make hiring decisions.&nbsp;</p><p><br></p>",
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app4.greenhouse.io/ai_opt_out_request/job_post/6181868004/ai_opt_out"
+  },
+  {
+   "absolute_url": "https://job-boards.greenhouse.io/bungie/jobs/6223718004",
+   "data_compliance": [
+    {
+     "type": "gdpr",
+     "requires_consent": true,
+     "requires_processing_consent": false,
+     "requires_retention_consent": true,
+     "retention_period": 730,
+     "demographic_data_consent_applies": true
+    }
+   ],
+   "internal_job_id": 5228649004,
+   "location": {
+    "name": "United States, Remote"
+   },
+   "metadata": [
+    {
+     "id": 4367803004,
+     "name": "Cost Center",
+     "value": "GAMES6US27-USU1950653 Bungie Design Marathon",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167524004,
+     "name": "Career Page - Office Location",
+     "value": "United States, Bellevue, WA",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4167525004,
+     "name": "Career Page - Department",
+     "value": "Bungie",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9377282004,
+     "name": "Career Page - Sub Department",
+     "value": null,
+     "value_type": "single_select"
+    },
+    {
+     "id": 20089613004,
+     "name": "Career Page - Studio Project",
+     "value": null,
+     "value_type": "single_select"
+    },
+    {
+     "id": 4395289004,
+     "name": "Worker Type",
+     "value": "Employee",
+     "value_type": "single_select"
+    },
+    {
+     "id": 4404049004,
+     "name": "Country",
+     "value": "United States of America",
+     "value_type": "single_select"
+    },
+    {
+     "id": 9262269004,
+     "name": "Job Family",
+     "value": "Game Design (PD)",
+     "value_type": "short_text"
+    },
+    {
+     "id": 9262270004,
+     "name": "Job Family Group",
+     "value": "Product Development",
+     "value_type": "short_text"
+    },
+    {
+     "id": 21724118004,
+     "name": "Bungie Geo Pay",
+     "value": null,
+     "value_type": "single_select"
+    }
+   ],
+   "id": 6223718004,
+   "updated_at": "2026-10-30T10:13:37-04:00",
+   "requisition_id": "R-125764",
+   "title": "Senior Investment Designer (Rewards and Commerce)",
+   "pay_input_ranges": [
+    {
+     "min_cents": 12400000,
+     "max_cents": 14900000,
+     "currency_type": "USD",
+     "title": "The estimated base pay range for this role is listed below.",
+     "blurb": "<p><span style=\"font-weight: 400;\">At SIE, we consider several factors when setting each role’s base pay range, including the competitive benchmarking data for the market and geographic location.<br></span><span style=\"font-weight: 400;\"><br>Please note that the base pay range may vary in line with our hybrid working policy and individual base pay will be determined based on job-related factors which may include knowledge, skills, experience, and location.&nbsp;<br></span><span style=\"font-weight: 400;\"><br>In addition, this role </span><span style=\"font-weight: 400;\">is eligible</span><span style=\"font-weight: 400;\"> for SIE’s top-tier benefits package that includes medical, dental, vision, matching 401(k), paid time off, wellness program and coveted employee discounts for Sony products. </span><span style=\"font-weight: 400;\">This role also may be eligible for a bonus package.</span><span style=\"font-weight: 400;\"> Click&nbsp;</span><a href=\"https://careers.playstation.com/benefits\" target=\"_blank\"><strong>here</strong></a><span style=\"font-weight: 400;\"> to learn more.</span></p>\n<p>&nbsp;</p>"
+    }
+   ],
+   "company_name": "Bungie",
+   "first_published": "2026-10-19T19:12:02-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;p&gt;&lt;strong&gt;Senior Investment Designer&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Do you dream about creating worlds imbued with real value and consequence? Can you imagine reward chases that excite and delight players without feeling like chores? Can you devise ways for players to meaningfully express themselves?&lt;span style=&quot;color: #000000;&quot;&gt; If you answered yes to these questions, Bungie wants you on our team as our newest Senior Investment Designer.&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;RESPONSIBILITIES&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Collaborate with an interdisciplinary team to create a wide variety of pursuit and reward-based systems &amp;amp; content that complement Marathon’s activities&lt;/li&gt;\n&lt;li&gt;Perform advanced scripting and tool work&lt;/li&gt;\n&lt;li&gt;Design and create sustainable systems &amp;amp; content that excite and engage players&lt;/li&gt;\n&lt;li&gt;Design creative additions and improvements for existing Rewards and Commerce systems&lt;/li&gt;\n&lt;li&gt;Tune gameplay values to create compelling moments and a satisfying progression curve&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;REQUIRED SKILLS&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Professional experience as a designer&lt;/li&gt;\n&lt;li&gt;Experience working with game development software and tools&lt;/li&gt;\n&lt;li&gt;Experience building rewards, player customization, and MTX systems&lt;/li&gt;\n&lt;li&gt;Excellent written and verbal communication skills&lt;/li&gt;\n&lt;li&gt;Experience owning features or leading small teams&lt;/li&gt;\n&lt;li&gt;Desire to work as part of a large team and ability to take feedback and direction appropriately&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;NICE-TO-HAVE SKILLS&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Technical experience writing text-based scripts to manage game systems (scripting in a Lua, Python, or similar language)&lt;/li&gt;\n&lt;li&gt;Multiple shipped game systems within the console or pc space&lt;/li&gt;\n&lt;li&gt;Experience working on games as a service/live content&lt;/li&gt;\n&lt;/ul&gt;&lt;div class=&quot;content-pay-transparency&quot;&gt;&lt;div class=&quot;pay-input&quot;&gt;&lt;div class=&quot;description&quot;&gt;&lt;p&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;At SIE, we consider several factors when setting each role’s base pay range, including the competitive benchmarking data for the market and geographic location.&lt;br&gt;&lt;/span&gt;&lt;span style",
+   "departments": [
+    {
+     "id": 4078476004,
+     "name": "Bungie",
+     "child_ids": [
+      4103606004
+     ],
+     "parent_id": 4078475004
+    }
+   ],
+   "offices": [
+    {
+     "id": 4046556004,
+     "name": "USA-WA-Bellevue-106th Ave",
+     "location": "Bellevue, Washington, United States",
+     "child_ids": [
+      4076523004
+     ],
+     "parent_id": 4094639004
+    }
+   ],
+   "ai_disclaimer": "<p><strong>Use of AI in Recruiting&nbsp;</strong></p><p><br></p><p>We use artificial intelligence and other automated tools to assist with certain aspects of our recruiting process, including reviewing applications and supporting candidate evaluation. For example, we use Greenhouse's AI-powered Talent Matching tool to compare information in your application against job-related qualifications and criteria established by our recruiting team. More information about <a href=\"https://www.greenhouse.com/\" target=\"_blank\">Greenhouse</a>, including about its features and its Privacy Policy, may be found at its website. These tools assist our recruiting team and do not make hiring decisions.&nbsp;</p><p><br></p>",
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app4.greenhouse.io/ai_opt_out_request/job_post/6223718004/ai_opt_out"
+  }
+ ],
+ "meta": {
+  "total": 5
+ }
+}

@@ -1,0 +1,456 @@
+{
+ "offset": 0,
+ "limit": 4,
+ "totalFound": 429,
+ "content": [
+  {
+   "id": "744000159084032",
+   "name": "AVP APAC, CRM Solution Consulting",
+   "uuid": "e4320e17-26a4-4f65-93d8-5b2eea3fb0e1",
+   "jobAdId": "0435f72c-1994-42ae-b942-aa6f6511c7ce",
+   "defaultJobAd": true,
+   "refNumber": "JB0076620",
+   "company": {
+    "identifier": "ServiceNow",
+    "name": "ServiceNow"
+   },
+   "releasedDate": "2026-11-02T09:27:35.275Z",
+   "location": {
+    "city": "Singapore",
+    "country": "sg",
+    "address": "6 Temasek Boulevard Suite 40-01",
+    "postalCode": "038986",
+    "remote": false,
+    "hybrid": false,
+    "fullLocation": "Singapore, , Singapore"
+   },
+   "industry": {
+    "id": "it_and_services",
+    "label": "Information Technology And Services"
+   },
+   "department": {
+    "id": "2294208",
+    "label": "Sales"
+   },
+   "function": {
+    "id": "consulting",
+    "label": "Consulting"
+   },
+   "typeOfEmployment": {
+    "id": "permanent",
+    "label": "Full-time"
+   },
+   "experienceLevel": {
+    "id": "not_applicable",
+    "label": "Not Applicable"
+   },
+   "customField": [
+    {
+     "fieldId": "60345fa28b4ba8595bef1863",
+     "fieldLabel": "Recruiting Team",
+     "valueId": "executives",
+     "valueLabel": "Executives"
+    },
+    {
+     "fieldId": "60345d5c5165a31b17288279",
+     "fieldLabel": "Region",
+     "valueId": "858884996eea4a49baa6231279f39054",
+     "valueLabel": "APAC - Asia Pacific"
+    },
+    {
+     "fieldId": "6034601b43915a29a4b3389b",
+     "fieldLabel": "Job Location",
+     "valueId": "L_SIN003",
+     "valueLabel": "6 Temasek Boulevard, Singapore, 038986, Singapore(L_SIN003)"
+    },
+    {
+     "fieldId": "60345e1a0b24a127cbdfa148",
+     "fieldLabel": "Employee Type",
+     "valueId": "0082f6cbe6154da19322cbab1f6aa5af",
+     "valueLabel": "Regular"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2b",
+     "fieldLabel": "Department",
+     "valueId": "2294208",
+     "valueLabel": "Sales"
+    },
+    {
+     "fieldId": "COUNTRY",
+     "fieldLabel": "Country/Region",
+     "valueId": "sg",
+     "valueLabel": "Singapore"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2a",
+     "fieldLabel": "Brands",
+     "valueId": "default",
+     "valueLabel": "ServiceNow"
+    },
+    {
+     "fieldId": "603462175165a31b1728827d",
+     "fieldLabel": "Cost Center",
+     "valueId": "CC3382",
+     "valueLabel": "3382 CRM & Industry - Specialist SC MGRs"
+    },
+    {
+     "fieldId": "618ed92b8f5e5f110e5bfb95",
+     "fieldLabel": "Work Persona",
+     "valueId": "bf7551c6-9b06-4e7c-8217-3baf43edd060",
+     "valueLabel": "Flexible"
+    },
+    {
+     "fieldId": "690cc0e8c682c3dbadaa7d73",
+     "fieldLabel": "Job Posting Type",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    }
+   ],
+   "visibility": "PUBLIC",
+   "ref": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings/744000159084032",
+   "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+   }
+  },
+  {
+   "id": "744000159057430",
+   "name": "Staff Software Engineer",
+   "uuid": "ff2f4d48-6734-4dd1-b52b-4c3cb0684366",
+   "jobAdId": "8046d920-9237-4519-a34c-28cf27af3dbf",
+   "defaultJobAd": true,
+   "refNumber": "JB0076550",
+   "company": {
+    "identifier": "ServiceNow",
+    "name": "ServiceNow"
+   },
+   "releasedDate": "2026-11-02T06:39:50.372Z",
+   "location": {
+    "city": "Hyderabad",
+    "region": "Telangana",
+    "country": "in",
+    "address": "Salarpuria Sattva Knowledge City Knowledge City, Unit II, 17 to 10 Floor Survey No. 83/1, Serilingampally Mandal",
+    "postalCode": "500081",
+    "remote": false,
+    "hybrid": true,
+    "fullLocation": "Hyderabad, Telangana, India"
+   },
+   "industry": {
+    "id": "it_and_services",
+    "label": "Information Technology And Services"
+   },
+   "department": {
+    "id": "2294038",
+    "label": "Engineering, Infrastructure and Operations"
+   },
+   "function": {
+    "id": "engineering",
+    "label": "Engineering"
+   },
+   "typeOfEmployment": {
+    "id": "permanent",
+    "label": "Full-time"
+   },
+   "experienceLevel": {
+    "id": "not_applicable",
+    "label": "Not Applicable"
+   },
+   "customField": [
+    {
+     "fieldId": "60345fa28b4ba8595bef1863",
+     "fieldLabel": "Recruiting Team",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    },
+    {
+     "fieldId": "60345d5c5165a31b17288279",
+     "fieldLabel": "Region",
+     "valueId": "858884996eea4a49baa6231279f39054",
+     "valueLabel": "APAC - Asia Pacific"
+    },
+    {
+     "fieldId": "6034601b43915a29a4b3389b",
+     "fieldLabel": "Job Location",
+     "valueId": "L_HYD002",
+     "valueLabel": "Knowledge City, Unit II, 17 to 10 Floor, Survey No. 83/1, Serilingampally Mandal, Hyderabad- 500081, Telangana, India(L_HYD002)"
+    },
+    {
+     "fieldId": "60345e1a0b24a127cbdfa148",
+     "fieldLabel": "Employee Type",
+     "valueId": "0082f6cbe6154da19322cbab1f6aa5af",
+     "valueLabel": "Regular"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2b",
+     "fieldLabel": "Department",
+     "valueId": "2294038",
+     "valueLabel": "Engineering, Infrastructure and Operations"
+    },
+    {
+     "fieldId": "COUNTRY",
+     "fieldLabel": "Country/Region",
+     "valueId": "in",
+     "valueLabel": "India"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2a",
+     "fieldLabel": "Brands",
+     "valueId": "default",
+     "valueLabel": "ServiceNow"
+    },
+    {
+     "fieldId": "603462175165a31b1728827d",
+     "fieldLabel": "Cost Center",
+     "valueId": "CC6307",
+     "valueLabel": "6307 Platform Engineering Workflow Automation"
+    },
+    {
+     "fieldId": "618ed92b8f5e5f110e5bfb95",
+     "fieldLabel": "Work Persona",
+     "valueId": "bf7551c6-9b06-4e7c-8217-3baf43edd060",
+     "valueLabel": "Flexible"
+    },
+    {
+     "fieldId": "690cc0e8c682c3dbadaa7d73",
+     "fieldLabel": "Job Posting Type",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    }
+   ],
+   "visibility": "PUBLIC",
+   "ref": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings/744000159057430",
+   "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+   }
+  },
+  {
+   "id": "744000159054169",
+   "name": "Senior Content Designer",
+   "uuid": "be4651c3-03d1-4375-a638-5b2ab7e41703",
+   "jobAdId": "b7dfc698-2d44-441c-98d0-99462deee1b0",
+   "defaultJobAd": true,
+   "refNumber": "JB0076141",
+   "company": {
+    "identifier": "ServiceNow",
+    "name": "ServiceNow"
+   },
+   "releasedDate": "2026-11-02T06:04:04.606Z",
+   "location": {
+    "city": "Bangalore",
+    "region": "Karnataka",
+    "country": "in",
+    "address": "Pine Valley 1st Floor, Survey No. 2/4 & 4, Off Intermediate Ring Rd Embassy Golf Links Business Park, Domlur",
+    "postalCode": "560071",
+    "remote": false,
+    "hybrid": true,
+    "fullLocation": "Bangalore, Karnataka, India"
+   },
+   "industry": {
+    "id": "it_and_services",
+    "label": "Information Technology And Services"
+   },
+   "department": {
+    "id": "2907670",
+    "label": "User Experience Design"
+   },
+   "function": {
+    "id": "engineering",
+    "label": "Engineering"
+   },
+   "typeOfEmployment": {
+    "id": "permanent",
+    "label": "Full-time"
+   },
+   "experienceLevel": {
+    "id": "not_applicable",
+    "label": "Not Applicable"
+   },
+   "customField": [
+    {
+     "fieldId": "60345fa28b4ba8595bef1863",
+     "fieldLabel": "Recruiting Team",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    },
+    {
+     "fieldId": "60345d5c5165a31b17288279",
+     "fieldLabel": "Region",
+     "valueId": "858884996eea4a49baa6231279f39054",
+     "valueLabel": "APAC - Asia Pacific"
+    },
+    {
+     "fieldId": "6034601b43915a29a4b3389b",
+     "fieldLabel": "Job Location",
+     "valueId": "L_BLR006",
+     "valueLabel": "1st Floor, Survey No. 2/4 & 4, Off Intermediate Ring Rd, Bangalore, Karnataka, 560071, India(L_BLR006)"
+    },
+    {
+     "fieldId": "60345e1a0b24a127cbdfa148",
+     "fieldLabel": "Employee Type",
+     "valueId": "0082f6cbe6154da19322cbab1f6aa5af",
+     "valueLabel": "Regular"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2b",
+     "fieldLabel": "Department",
+     "valueId": "2907670",
+     "valueLabel": "User Experience Design"
+    },
+    {
+     "fieldId": "COUNTRY",
+     "fieldLabel": "Country/Region",
+     "valueId": "in",
+     "valueLabel": "India"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2a",
+     "fieldLabel": "Brands",
+     "valueId": "default",
+     "valueLabel": "ServiceNow"
+    },
+    {
+     "fieldId": "603462175165a31b1728827d",
+     "fieldLabel": "Cost Center",
+     "valueId": "CC6504",
+     "valueLabel": "6504 Specialty Design"
+    },
+    {
+     "fieldId": "618ed92b8f5e5f110e5bfb95",
+     "fieldLabel": "Work Persona",
+     "valueId": "bf7551c6-9b06-4e7c-8217-3baf43edd060",
+     "valueLabel": "Flexible"
+    },
+    {
+     "fieldId": "690cc0e8c682c3dbadaa7d73",
+     "fieldLabel": "Job Posting Type",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    }
+   ],
+   "visibility": "PUBLIC",
+   "ref": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings/744000159054169",
+   "creator": {
+    "name": "Suman Yarlapalli"
+   },
+   "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+   }
+  },
+  {
+   "id": "744000159052719",
+   "name": "Staff Software Engineer",
+   "uuid": "40ebfa2d-b6ff-4e1f-9f76-e5cd453f17da",
+   "jobAdId": "fd918659-b291-489f-b11d-580ddb48d4ac",
+   "defaultJobAd": true,
+   "refNumber": "JB0076358",
+   "company": {
+    "identifier": "ServiceNow",
+    "name": "ServiceNow"
+   },
+   "releasedDate": "2026-11-02T05:51:23.897Z",
+   "location": {
+    "city": "Hyderabad",
+    "country": "in",
+    "address": "Salarpuria Sattva Knowledge City Knowledge City, Unit II, 17 to 10 Floor Survey No. 83/1, Serilingampally Mandal",
+    "postalCode": "500081",
+    "remote": false,
+    "hybrid": true,
+    "fullLocation": "Hyderabad, , India"
+   },
+   "industry": {
+    "id": "it_and_services",
+    "label": "Information Technology And Services"
+   },
+   "department": {
+    "id": "2294038",
+    "label": "Engineering, Infrastructure and Operations"
+   },
+   "function": {
+    "id": "engineering",
+    "label": "Engineering"
+   },
+   "typeOfEmployment": {
+    "id": "permanent",
+    "label": "Full-time"
+   },
+   "experienceLevel": {
+    "id": "not_applicable",
+    "label": "Not Applicable"
+   },
+   "customField": [
+    {
+     "fieldId": "60345fa28b4ba8595bef1863",
+     "fieldLabel": "Recruiting Team",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    },
+    {
+     "fieldId": "60345d5c5165a31b17288279",
+     "fieldLabel": "Region",
+     "valueId": "858884996eea4a49baa6231279f39054",
+     "valueLabel": "APAC - Asia Pacific"
+    },
+    {
+     "fieldId": "6034601b43915a29a4b3389b",
+     "fieldLabel": "Job Location",
+     "valueId": "L_HYD002",
+     "valueLabel": "Knowledge City, Unit II, 17 to 10 Floor, Survey No. 83/1, Serilingampally Mandal, Hyderabad- 500081, Telangana, India(L_HYD002)"
+    },
+    {
+     "fieldId": "60345e1a0b24a127cbdfa148",
+     "fieldLabel": "Employee Type",
+     "valueId": "0082f6cbe6154da19322cbab1f6aa5af",
+     "valueLabel": "Regular"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2b",
+     "fieldLabel": "Department",
+     "valueId": "2294038",
+     "valueLabel": "Engineering, Infrastructure and Operations"
+    },
+    {
+     "fieldId": "COUNTRY",
+     "fieldLabel": "Country/Region",
+     "valueId": "in",
+     "valueLabel": "India"
+    },
+    {
+     "fieldId": "5f63a78f1dae5c5c4e54ba2a",
+     "fieldLabel": "Brands",
+     "valueId": "default",
+     "valueLabel": "ServiceNow"
+    },
+    {
+     "fieldId": "603462175165a31b1728827d",
+     "fieldLabel": "Cost Center",
+     "valueId": "CC6051",
+     "valueLabel": "6051 Sales CRM Engineering"
+    },
+    {
+     "fieldId": "618ed92b8f5e5f110e5bfb95",
+     "fieldLabel": "Work Persona",
+     "valueId": "bf7551c6-9b06-4e7c-8217-3baf43edd060",
+     "valueLabel": "Flexible"
+    },
+    {
+     "fieldId": "690cc0e8c682c3dbadaa7d73",
+     "fieldLabel": "Job Posting Type",
+     "valueId": "professional",
+     "valueLabel": "Professional"
+    }
+   ],
+   "visibility": "PUBLIC",
+   "ref": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings/744000159052719",
+   "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+   }
+  }
+ ]
+}

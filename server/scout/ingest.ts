@@ -9,7 +9,7 @@ import { loadProfile, type Profile } from '../services/profileStore.ts';
 import type { Category } from '../sources/types.ts';
 import { canonicalApplyUrl, detectAts, employerDomain } from './detect.ts';
 import { assessLegitimacy, priorityFor } from './legitimacy.ts';
-import { normalizeJob } from './normalize.ts';
+import { normalizeJob, relevantTitle } from './normalize.ts';
 import { companiesWithFreshSignals, upsertCompany } from './registry.ts';
 
 /**
@@ -125,7 +125,8 @@ const TITLE_SYNONYMS: [RegExp, string][] = [
 ];
 
 export function titleTokens(title: string): Set<string> {
-  let t = normalizeForFingerprint(title);
+  // Unlike the fingerprint, keep bracketed words: "(Payments)" tells two roles apart.
+  let t = normalizeForFingerprint(title.replace(/[()[\]]/g, ' '));
   for (const [re, rep] of TITLE_SYNONYMS) t = t.replace(re, rep);
   return new Set(t.split(' ').filter((w) => w.length > 1 && !['and', 'of', 'the', 'for', 'to', 'with', 'in', 'm', 'f', 'd', 'w', 'x'].includes(w)));
 }
@@ -176,7 +177,8 @@ function prepare(raw: RawJob[], opts: IngestOptions, stats: DedupeStats): Cand[]
       stats.stale++;
       continue;
     }
-    const category = categorize(job) ?? (opts.keepNonTech ? 'software' : null);
+    const classified = categorize(job);
+    const category = classified && relevantTitle(job.title, classified) ? classified : opts.keepNonTech ? 'software' : null;
     if (!category) {
       stats.irrelevant++;
       continue;

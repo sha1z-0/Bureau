@@ -1,0 +1,154 @@
+{
+ "data": [
+  {
+   "id": "446898",
+   "benefits": "<div><!--block-->Our flat organizational structure promotes teamwork across the Firm and offers easy access to senior staff. While we work exceptionally well as a team in the office, our bonds are further strengthened through company events, activities and giving back. Volleyball, soccer, hockey, 5K",
+   "benefits_header": "Why Join Us",
+   "compensation": null,
+   "compensation_minimum": null,
+   "compensation_maximum": null,
+   "compensation_currency": null,
+   "compensation_frequency": null,
+   "compensation_visible": false,
+   "deadline_at": null,
+   "description": "<div><!--block-->At Wolverine Trading we’re looking for a Low-Level C++ Software Engineer to work at the intersection of hardware and software. Your focus will be on improving the performance of our critical and ultra-low latency trading systems, working on all parts of the trading systems stack.</div>",
+   "employment_type": "full_time",
+   "employment_type_text": "Full Time",
+   "key_responsibilities": "<ul><li><!--block-->Develop and improve performance-critical C++ applications, ensuring ultra-low latency and high throughput</li><li><!--block-->Collaborate with FPGA engineers, hardware specialists, and systems teams to push performance boundaries</li><li><!--block-->Analyze and resolve real-time system issues, improving the reliability and stability of our trading platforms</li><li><!--block-->Build tools to monitor, profile, and analyze the performance of systems at every level</li></ul>",
+   "key_responsibilities_header": "What You’ll Do",
+   "reporting_to": "",
+   "skills_knowledge_expertise": "<ul><li><!--block-->Bachelor's degree in Computer Science, Computer Engineering, or equivalent</li><li><!--block-->A minimum of 2+ years of professional C++ experience with a focus on high-performance applications</li><li><!--block-->Strong grasp of data structures, algorithms, and modern C++ practices (C++17/20)&nbsp;</li><li><!--block-->Experience and aptitude in multi-threaded programming and performance tuning</li><li><!--block-->Ability to analyze experimental results and optimize system performance</li><li><!--block-->Effective communication skills, with the ability to effectively engage both technical and non-technical stakeholders</li><li><!--block-->Most importantly: a drive to make things better</li></ul>",
+   "skills_knowledge_expertise_header": "What We’re Looking For",
+   "title": "C++ Software Engineer",
+   "url": "https://careers.wolve.com/en/postings/856f5215-88c8-4c1b-bd47-5106b33ed37f",
+   "path": "/en/postings/856f5215-88c8-4c1b-bd47-5106b33ed37f",
+   "workplace_type": "onsite",
+   "workplace_type_text": "Onsite",
+   "job": {
+    "id": "455116",
+    "requisition_id": "RID-0032",
+    "department": {
+     "id": "67772",
+     "name": "Technology"
+    },
+    "division": {
+     "id": "11966",
+     "name": "Wolverine Trading"
+    },
+    "structure_custom_group_one": {
+     "id": "11101",
+     "name": "Engineering",
+     "title": "Sub-Department"
+    }
+   },
+   "location": {
+    "id": "66266",
+    "city": "Chicago",
+    "name": "Chicago, IL",
+    "postal_code": "60604",
+    "province": "Illinois",
+    "street_address": "175 W. Jackson Blvd. Suite 200"
+   }
+  },
+  {
+   "id": "450735",
+   "benefits": "<div><!--block-->Our flat organizational structure promotes teamwork across the Firm and offers easy access to senior staff. While we work exceptionally well as a team in the office, our bonds are further strengthened through company events, activities and giving back. Volleyball, soccer, hockey, 5K",
+   "benefits_header": "Why Join Us",
+   "compensation": "",
+   "compensation_minimum": null,
+   "compensation_maximum": null,
+   "compensation_currency": null,
+   "compensation_frequency": null,
+   "compensation_visible": true,
+   "deadline_at": null,
+   "description": "<div><!--block-->Wolverine has an opportunity for an experienced quantitative trader/researcher to join a growing options market-making desk within a well-established firm. The ideal candidate has a passion for defining exchange-facing market-making algorithms and/or identifying options pricing volatility signals. You have experience defining research priorities and deriving actionable insights from large datasets within the exchange-listed options space, leveraging your deep knowledge of market microstructure.</div>",
+   "employment_type": "full_time",
+   "employment_type_text": "Full Time",
+   "key_responsibilities": "<ul><li><!--block-->Grow firm profitability by influencing the development of trading algorithms and researching options pricing signals.</li><li><!--block-->Define microstructure research initiatives and shape research infrastructure.</li></ul>",
+   "key_responsibilities_header": "What You’ll Do",
+   "reporting_to": "",
+   "skills_knowledge_expertise": "<ul><li><!--block-->5+ years of experience conducting or guiding research on large sets of exchange market data and/or options pricing datasets.</li><li><!--block-->Proven track record of driving improvements on a systematic market-making desk or semi-systematic volatility trading desk—preferably at a top-tier market-making firm.</li><li><!--block-->Exposure to and a deep understanding of low-latency market-making technology, including how insights gleaned from research projects are integrated into a production trading system.</li><li><!--block-->Deep knowledge of exchange infrastructure and microstructure.</li><li><!--block-->Strong communication skills and experience collaborating with software and hardware engineers to see your research through to production.</li><li><!--block-->Strong background in statistics and/or linear algebra is a plus.</li><li><!--block-->Experience with C++ or a similar programming language is a plus.</li></ul>",
+   "skills_knowledge_expertise_header": "What We’re Looking For",
+   "title": "Systematic Options Trader",
+   "url": "https://careers.wolve.com/en/postings/649d44ec-fd43-42ef-8efb-1826f498cde2",
+   "path": "/en/postings/649d44ec-fd43-42ef-8efb-1826f498cde2",
+   "workplace_type": "onsite",
+   "workplace_type_text": "Onsite",
+   "job": {
+    "id": "458629",
+    "requisition_id": "RID-0039",
+    "department": {
+     "id": "67776",
+     "name": "Trading"
+    },
+    "division": {
+     "id": "11966",
+     "name": "Wolverine Trading"
+    },
+    "structure_custom_group_one": {
+     "id": "10493",
+     "name": "Alternate Strategies",
+     "title": "Sub-Department"
+    }
+   },
+   "location": {
+    "id": "66266",
+    "city": "Chicago",
+    "name": "Chicago, IL",
+    "postal_code": "60604",
+    "province": "Illinois",
+    "street_address": "175 W. Jackson Blvd. Suite 200"
+   }
+  },
+  {
+   "id": "450741",
+   "benefits": "<div><!--block-->Our flat organizational structure promotes teamwork across the Firm and offers easy access to senior staff. While we work exceptionally well as a team in the office, our bonds are further strengthened through company events, activities and giving back. Volleyball, soccer, hockey, 5K",
+   "benefits_header": "Why Join Us",
+   "compensation": null,
+   "compensation_minimum": null,
+   "compensation_maximum": null,
+   "compensation_currency": null,
+   "compensation_frequency": null,
+   "compensation_visible": false,
+   "deadline_at": null,
+   "description": "<div><!--block-->We are looking for highly skilled and experienced individuals to join a research effort focused on generating high frequency trading alphas in the futures markets. The ideal candidate has direct experience in the alpha research process and understands the workflow from idea generation to production implementation. This opportunity will provide the right candidate the chance to have a large impact on the direction and productivity of a newly formed effort within a successful proprietary trading firm.&nbsp;</div>",
+   "employment_type": "full_time",
+   "employment_type_text": "Full Time",
+   "key_responsibilities": "<ul><li><!--block-->Conduct financial data analysis on large datasets to generate profitable trading alphas.</li><li><!--block-->Define key metrics for model validation</li><li><!--block-->Back-testing and production performance monitoring</li><li><!--block-->Contribute to in-house data analysis packages and research framework development</li><li><!--block-->Acquisition of new data sets and cleaning/maintenance of new and existing data sets.</li><li><!--block-->Contribute to futures trading technology stack architecture</li></ul>",
+   "key_responsibilities_header": "What You’ll Do",
+   "reporting_to": "",
+   "skills_knowledge_expertise": "<ul><li><!--block--><strong>At least 2+ years of experience generating or implementing short term trading alphas into production trading strategies</strong></li><li><!--block--><strong>Knowledge of CME and related market microstructure required.</strong></li><li><!--block-->Advanced knowledge of modern statistical and machine learning techniques</li><li><!--block-->Proficiency in a scripting language such as Python, R, or MATLAB.</li><li><!--block-->Proficiency in at least one statistical package and one machine learning package in one of the above languages.</li><li><!--block-->Demonstrated experience working with tick data.</li><li><!--block-->Degree in a quantitative discipline such as Statistics, Computer Science, Mathematics, Engineering, etc.</li><li><!--block-->Experience developing software systems in an object-oriented language is a plus.</li></ul>",
+   "skills_knowledge_expertise_header": "What We’re Looking For",
+   "title": "Quantitative Trader - High Frequency Futures",
+   "url": "https://careers.wolve.com/en/postings/23967d53-ee55-4f60-81c6-9a7ab3f8eb16",
+   "path": "/en/postings/23967d53-ee55-4f60-81c6-9a7ab3f8eb16",
+   "workplace_type": "onsite",
+   "workplace_type_text": "Onsite",
+   "job": {
+    "id": "458634",
+    "requisition_id": "RID-0041",
+    "department": {
+     "id": "67776",
+     "name": "Trading"
+    },
+    "division": {
+     "id": "11966",
+     "name": "Wolverine Trading"
+    },
+    "structure_custom_group_one": {
+     "id": "10493",
+     "name": "Alternate Strategies",
+     "title": "Sub-Department"
+    }
+   },
+   "location": {
+    "id": "66266",
+    "city": "Chicago",
+    "name": "Chicago, IL",
+    "postal_code": "60604",
+    "province": "Illinois",
+    "street_address": "175 W. Jackson Blvd. Suite 200"
+   }
+  }
+ ]
+}

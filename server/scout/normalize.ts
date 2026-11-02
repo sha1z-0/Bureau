@@ -1,4 +1,5 @@
 import type { RawJob } from '../contracts/job.ts';
+import type { Category } from '../sources/types.ts';
 
 /**
  * Normalisation that runs on every posting, whatever the source: salary
@@ -8,6 +9,22 @@ import type { RawJob } from '../contracts/job.ts';
  * read: `mode:remote|hybrid|onsite`, `visa:sponsors|no-sponsorship`,
  * `level:intern|junior|mid|senior|lead`.
  */
+
+/**
+ * The v1 classifier files any "…Engineer" title under `software`. Civil,
+ * mechanical, process and similar engineering roles aren't reachable for a
+ * software candidate, so the scout drops them unless the title also names
+ * software work.
+ */
+const NON_SOFTWARE_ENG =
+  /\b(civil|mechanical|electrical|structural|chemical|process|manufacturing|industrial|quality|validation|planning|cost|hvac|construction|geotechnical|environmental|mining|petroleum|biomedical|field service|maintenance|facilities|project controls|commissioning|piping|estimating|surveying|wastewater|transportation|traffic|nuclear|packaging|plant|production|hardware|asic|fpga|analog|rf|pcb|optical|photonics|manufacturing|mep|design manager|sales engineer|solutions? engineer|pre-?sales)\b/i;
+const SOFTWARE_HINT =
+  /\b(software|firmware|embedded|data|cloud|platform|devops|security|cyber|machine learning|ml|ai|web|backend|back-end|frontend|front-end|full.?stack|application|automation|sre|site reliability|network|game|mobile|ios|android|developer|programmer)\b/i;
+
+export function relevantTitle(title: string, category: Category): boolean {
+  if (category !== 'software') return true;
+  return !(NON_SOFTWARE_ENG.test(title) && !SOFTWARE_HINT.test(title));
+}
 
 export type SalaryPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 export interface ParsedSalary {
