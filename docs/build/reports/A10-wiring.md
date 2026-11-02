@@ -49,7 +49,7 @@ No route returns a password, a vault secret name or a verification code. `site_a
   - both alert deep links, the Learning plan and gap report, and Add going through `/list/queue`;
   - the job timeline Form section and the Settings mailbox card;
   - that no screen shows "isn't in this build yet".
-- `npm run selfcheck`: see the last section. The `a10-ui` check gained 3 wiring checks (13 in total):
+- `npm run selfcheck`: **all 550 checks passed**. The `a10-ui` check gained 3 wiring checks (13 in total):
   - the done flag and badge semantics, and validation;
   - `jobId` on the inbox list, with no code;
   - shot URLs only for safe names, served and refused correctly.
