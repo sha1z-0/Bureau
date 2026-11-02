@@ -262,12 +262,17 @@ async function pipeline(id: string, startedAt: string, t0: number, opts: ScoutOp
     try {
       const raw = await withTimeout(c.run(ctx), c.timeoutMs ?? 10 * 60_000, c.label);
       out.found = raw.length;
+      // Share the run's resolver budget fairly: one fast aggregator mustn't spend all of it.
+      const share = { left: Math.max(0, Math.min(resolveBudget.left, settings.resolvePerSource)) };
+      const startShare = share.left;
+      resolveBudget.left -= startShare; // reserve now (connectors finish concurrently), refund the unused part below
       const r = await resolveApplyUrls(raw, {
-        budget: resolveBudget,
+        budget: share,
         deadline: resolveDeadline,
         isKnown: isKnownUrl,
         discover: (u, v) => pendingDiscovery.push({ urls: u, via: v }),
       });
+      resolveBudget.left += share.left;
       for (const k of Object.keys(resolveStats) as (keyof ResolveStats)[]) resolveStats[k] += r[k];
       const res = await ingestSerial(raw);
       stats = addStats(stats, res.stats);
