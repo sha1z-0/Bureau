@@ -8,6 +8,7 @@ import { all, get, logEvent, now as dbNow, run } from '../db.ts';
 import { AppError, redact } from '../errors.ts';
 import '../inbox/schema.ts';
 import { a09Ai, aiUnavailable } from '../inbox/ai.ts';
+import { learningProfile } from './profile.ts';
 import { learningSettings } from './settings.ts';
 import { skillDoc, skillsIn } from './skills.ts';
 
@@ -111,8 +112,7 @@ export async function planContext(applicationId: string, interviewDate: string |
     .slice(0, 8)
     .map((r) => ({ text: r.text.replace(/\s+/g, ' ').trim().slice(0, 200), importance: r.importance, match: r.match }));
 
-  const { loadMasterProfile } = await import('../profile/index.ts');
-  const profile = loadMasterProfile();
+  const profile = await learningProfile();
 
   // No matcher output: fall back to stack skills in the posting the candidate doesn't list.
   if (!gaps.length && job.description_text) {

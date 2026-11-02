@@ -1,0 +1,81 @@
+{
+  "task": "gap_report",
+  "hash": "8f392b0abfd454126bf17db0",
+  "model": "claude-sonnet-5-5",
+  "case": "a09: 2026-W40 gap report",
+  "usage": {
+    "input_tokens": 1700,
+    "output_tokens": 900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "skills": [
+      {
+        "skill": "Kafka",
+        "ids": [
+          "S2",
+          "L1"
+        ],
+        "typicalDepth": "production experience",
+        "suggestedProject": "Add a Kafka event stream to LedgerLite: publish \"entry posted\" events from Go and build an idempotent consumer that keeps a balances table in PostgreSQL."
+      },
+      {
+        "skill": "Kubernetes",
+        "ids": [
+          "S1"
+        ],
+        "typicalDepth": "working proficiency",
+        "suggestedProject": "Deploy LedgerLite and PostgreSQL to a local kind cluster with probes, a rolling update and a Helm chart, documented step by step."
+      },
+      {
+        "skill": "gRPC",
+        "ids": [
+          "S4"
+        ],
+        "typicalDepth": "advanced",
+        "suggestedProject": "Expose LedgerLite's API over gRPC with a streaming endpoint, deadlines and error codes, plus a small Go client."
+      },
+      {
+        "skill": "Terraform",
+        "ids": [
+          "S5"
+        ],
+        "typicalDepth": "working proficiency",
+        "suggestedProject": "Write Terraform that provisions a small VPS, firewall and managed PostgreSQL for LedgerLite, with remote state."
+      },
+      {
+        "skill": "AWS",
+        "ids": [
+          "S3"
+        ],
+        "typicalDepth": "working proficiency",
+        "suggestedProject": "Run LedgerLite on AWS free tier: one ECS service, RDS PostgreSQL and a Lambda that exports a nightly CSV to S3."
+      },
+      {
+        "skill": "Observability",
+        "ids": [
+          "S6"
+        ],
+        "typicalDepth": "familiarity",
+        "suggestedProject": "Instrument LedgerLite with Prometheus metrics and OpenTelemetry traces and write up the three alerts you would page on."
+      },
+      {
+        "skill": "Rust",
+        "ids": [
+          "S7"
+        ],
+        "typicalDepth": "familiarity",
+        "suggestedProject": "Port the LedgerLite balance calculator to a small Rust CLI and benchmark it against the Go version."
+      },
+      {
+        "skill": "Blockchain",
+        "ids": [
+          "S99"
+        ],
+        "typicalDepth": "expert",
+        "suggestedProject": "Build a token."
+      }
+    ]
+  }
+}

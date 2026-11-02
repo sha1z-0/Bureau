@@ -7,6 +7,7 @@ import { all, get, logEvent, now as dbNow, run } from '../db.ts';
 import { AppError, redact } from '../errors.ts';
 import '../inbox/schema.ts';
 import { a09Ai, aiUnavailable } from '../inbox/ai.ts';
+import { learningProfile } from './profile.ts';
 import { learningSettings } from './settings.ts';
 import { depthOf, mode, shortLabel, skillsIn } from './skills.ts';
 
@@ -22,7 +23,7 @@ const DAY = 86_400_000;
 const IMPORTANCE_W: Record<string, number> = { critical: 1.5, important: 1, nice: 0.5 };
 const MATCH_W: Record<string, number> = { missing: 1, partial: 0.5 };
 const NOT_LEARNABLE = new Set(['licence', 'clearance', 'citizenship', 'degree', 'years']);
-const SOFT = /\b(communicat|team ?player|collaborat|self[- ]starter|ownership|attention to detail|problem[- ]solving|fluent|english|written and verbal|work independently|fast[- ]paced|passion|degree|bachelor|master'?s|phd|years of (?:professional )?experience|authori[sz]ed to work|visa|relocat|on[- ]site|travel)\b/i;
+const SOFT = /\b(?:communicat\w*|team ?player|collaborat\w*|self[- ]starter|ownership|attention to detail|problem[- ]solving|fluen\w*|english|written and verbal|work independently|fast[- ]paced|passion\w*|degree|bachelor\w*|master'?s|phd|years of (?:professional )?experience|authori[sz]ed to work|visa|relocat\w*|on[- ]site|travel\w*|leadership|mentor\w*|stakeholder\w*)\b/i;
 
 export const GAP_REPORTER = `You turn a week of job-match gaps into a short learning agenda for one candidate.
 
@@ -137,8 +138,7 @@ export function gapSystem(): SystemBlocks {
 }
 
 export async function gapContent(items: GapItem[], jobs: number): Promise<string> {
-  const { loadMasterProfile } = await import('../profile/index.ts');
-  const p = loadMasterProfile();
+  const p = await learningProfile();
   const stack = p?.coreStack.length ? p.coreStack.join(', ') : '(unknown)';
   const learning = p?.learning.filter((l) => l.status !== 'done').map((l) => `${l.skill} (${l.status})`) ?? [];
   return [

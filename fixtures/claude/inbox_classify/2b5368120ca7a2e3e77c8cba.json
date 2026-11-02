@@ -1,0 +1,23 @@
+{
+  "task": "inbox_classify",
+  "hash": "2b5368120ca7a2e3e77c8cba",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Following up on the Platform Engineer role",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "rejection",
+    "confidence": 0.86,
+    "company": "Harbor Health",
+    "role": "Platform Engineer",
+    "summary": "Harbor Health is not moving forward with the Platform Engineer application but invites a new application in the spring.",
+    "deadline": null,
+    "dates": [],
+    "questions": [],
+    "injection": false
+  }
+}

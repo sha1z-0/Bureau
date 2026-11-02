@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { inboxDeps } from './deps.ts';
 import { atsFamilyOf, baseDomain, companyTokens, hostOf } from './domains.ts';
 
 /**
@@ -32,12 +33,8 @@ interface Waiter {
 
 const held: Held[] = [];
 const waiters: Waiter[] = [];
-let clock: () => number = () => Date.now();
-
-/** Tests drive expiry with a fake clock. */
-export function setCodeClock(fn: (() => number) | null) {
-  clock = fn ?? (() => Date.now());
-}
+/** The inbox clock (tests drive expiry through setInboxDeps({ now })). */
+const clock = () => inboxDeps().now();
 
 function prune() {
   const t = clock();
@@ -77,13 +74,13 @@ const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 export function codeMatches(domain: string, h: Pick<Held, 'hosts' | 'paths' | 'company'>): boolean {
   const { host, tenant } = parseTarget(domain);
   if (!host) return false;
-  if (h.hosts.includes(host)) return true;
   const fam = atsFamilyOf(host);
   if (!fam) {
-    // The employer's own site: same registrable domain.
+    // The employer's own site: the same host or registrable domain.
     const b = baseDomain(host);
-    return h.hosts.some((x) => !atsFamilyOf(x) && baseDomain(x) === b);
+    return h.hosts.includes(host) || h.hosts.some((x) => !atsFamilyOf(x) && baseDomain(x) === b);
   }
+  // A shared ATS host (jobs.ashbyhq.com) says nothing about the employer: match the family, then the tenant.
   if (!h.hosts.some((x) => atsFamilyOf(x) === fam)) return false;
   if (!tenant) return true;
   const t = squash(tenant);
