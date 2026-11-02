@@ -17,6 +17,9 @@ export const RequirementSchema = z.object({
   proof: z.string(),
   /** Only for legally or practically hard gates: licence, clearance, citizenship, mandated degree, years far out of reach. */
   blocker: z.boolean(),
+  /** How the candidate covers it; maps onto the writer's framing (none → omit). */
+  proofKind: z.enum(['direct', 'transferable', 'learning', 'none']).optional(),
+  blockerKind: z.enum(['none', 'licence', 'clearance', 'citizenship', 'degree', 'years', 'other']).optional(),
 });
 export type Requirement = z.infer<typeof RequirementSchema>;
 

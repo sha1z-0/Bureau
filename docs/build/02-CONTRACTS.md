@@ -68,7 +68,7 @@ Add columns `applications.campaign_id`, `applications.variant_id` and `jobs.appl
 // scout
 runScout(opts:{campaignId?:string, sources?:string[]}): Promise<{found:number, added:string[]}>
 // match
-matchJobs(jobIds:string[], cfg:CampaignConfig): Promise<MatchResult[]>
+matchJobs(jobIds:string[], cfg:CampaignConfig, opts?:{campaignId?:string}): Promise<MatchResult[]>   // pass campaignId so pipeline rows carry it
 // profile & research
 syncProfile(): Promise<{added:number}>;  loadMasterProfile(): MasterProfile
 researchCompany(company:string, domain?:string): Promise<ResearchBrief>
