@@ -1,0 +1,144 @@
+{
+  "task": "write_cv",
+  "hash": "68a1e63f82ea19b991bea81f",
+  "scenario": "e2e",
+  "label": "cv: Tulip & Tern",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3100,
+    "output_tokens": 2300,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "cv": {
+      "name": "Rania Haroon",
+      "headline": "Junior Web Developer: React, TypeScript and Node.js",
+      "contact": {
+        "email": "rania.haroon.jobs@example.com",
+        "phone": "+92 301 5550142",
+        "location": "Lahore, Pakistan",
+        "links": [
+          {
+            "label": "GitHub",
+            "url": "https://github.com/rania-haroon-example"
+          },
+          {
+            "label": "Portfolio",
+            "url": "https://rania-haroon.example.com"
+          },
+          {
+            "label": "LinkedIn",
+            "url": "https://www.linkedin.com/in/rania-haroon-example"
+          }
+        ]
+      },
+      "summary": "Junior software engineer with two years of production React and TypeScript, plus the Node.js and PostgreSQL behind it. Built Bus Tracker Lahore, a React and Leaflet map used by about 300 people a month.",
+      "skills": [
+        {
+          "group": "Front end",
+          "items": [
+            "React",
+            "TypeScript",
+            "Leaflet"
+          ]
+        },
+        {
+          "group": "Back end",
+          "items": [
+            "Node.js",
+            "PostgreSQL",
+            "SQL",
+            "Fastify"
+          ]
+        },
+        {
+          "group": "Tooling",
+          "items": [
+            "Docker Compose",
+            "Linux",
+            "pytest"
+          ]
+        },
+        {
+          "group": "Currently learning",
+          "items": [
+            "Go",
+            "Kubernetes"
+          ]
+        }
+      ],
+      "experience": [
+        {
+          "role": "Junior Software Engineer",
+          "company": "Tessellate Labs",
+          "location": "Lahore (hybrid)",
+          "start": "Jul 2023",
+          "end": "Present",
+          "bullets": [
+            "Built the React (TypeScript) admin screens for refunds and credit notes, including role-based access checks on the API side.",
+            "Built and maintain the invoicing service (Node.js, TypeScript, PostgreSQL) that issues about 9,000 invoices a month for the company’s logistics clients.",
+            "Review pull requests for the billing team and paired with two interns through their first month.",
+            "Moved four services from a hand-built VPS setup to Docker Compose with health checks; wrote the runbook the on-call rotation now uses."
+          ]
+        },
+        {
+          "role": "Software Engineering Intern",
+          "company": "Kestrel Analytics",
+          "location": "Lahore",
+          "start": "Jun 2022",
+          "end": "Sep 2022",
+          "bullets": [
+            "Added unit tests to the ingestion scripts (pytest), raising coverage of the loader module from 0 to 71%.",
+            "Wrote Python scripts that cleaned and loaded retail sales CSVs into PostgreSQL for the analytics team (about 2 million rows a week)."
+          ]
+        }
+      ],
+      "projects": [
+        {
+          "name": "Bus Tracker Lahore",
+          "link": "https://rania-haroon.example.com/bus-tracker",
+          "description": "A React + Leaflet map of Metro Bus stops with estimated arrival gaps from public timetables.",
+          "highlights": [
+            "About 300 monthly users"
+          ]
+        },
+        {
+          "name": "chai-check",
+          "link": "https://github.com/rania-haroon-example/chai-check",
+          "description": "A browser extension that flags insecure form actions (HTTP, mixed content), built while working through the PortSwigger Web Security Academy.",
+          "highlights": []
+        },
+        {
+          "name": "ledger-lite",
+          "link": "https://github.com/rania-haroon-example/ledger-lite",
+          "description": "A small double-entry bookkeeping API in TypeScript (Fastify, PostgreSQL) that enforces balanced journal entries with a database constraint.",
+          "highlights": [
+            "140 GitHub stars"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "Lahore Institute of Computing",
+          "degree": "Bachelor of Science, Computer Science",
+          "start": "2019",
+          "end": "2023",
+          "details": "CGPA 3.4 / 4.0. Final-year project: offline-first attendance app for rural schools (React Native, SQLite)."
+        }
+      ],
+      "certifications": []
+    },
+    "emphasis": [
+      "Led with React screens and Bus Tracker Lahore",
+      "Node.js and PostgreSQL second for the booking API",
+      "No accessibility claims beyond the truth"
+    ],
+    "keywordsUsed": [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "PostgreSQL"
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "task": "evidence",
+  "hash": "51bdda4715caa73790e6386b",
+  "scenario": "e2e",
+  "label": "evidence: Pebble Analytics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Reporting dashboards for gyms and studios (the posting itself says almost nothing; the company site fills it in)",
+      "Python/Django backend and a TypeScript front end",
+      "A PostgreSQL warehouse fed by nightly pipelines"
+    ],
+    "mustWins": [
+      "Hands-on PostgreSQL and data loading",
+      "TypeScript front-end work",
+      "Comfort learning the Django backend"
+    ],
+    "tone": "Small, plain-spoken team that publishes its salaries",
+    "seniority": "Junior",
+    "hooks": [
+      {
+        "text": "Python/Django backend, a TypeScript front end and a PostgreSQL warehouse fed by nightly pipelines.",
+        "sourceUrl": "https://pebbleanalytics.example.com/team"
+      },
+      {
+        "text": "Class-attendance forecasts so studios can plan instructors a week ahead (2026-09).",
+        "sourceUrl": "https://pebbleanalytics.example.com/blog/attendance-forecasts"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "Junior software development experience",
+        "importance": "important",
+        "factIds": [
+          "f-exp-tessellate"
+        ],
+        "evidence": "Junior Software Engineer at Tessellate Labs since Jul 2023",
+        "framing": "direct",
+        "phrasing": "two years as a junior engineer"
+      },
+      {
+        "requirement": "PostgreSQL warehouse and nightly pipelines",
+        "importance": "important",
+        "factIds": [
+          "f-kestrel-etl",
+          "f-tess-recon"
+        ],
+        "evidence": "Loaded about 2 million rows a week into PostgreSQL; nightly reconciliation job from 41 to 6 minutes",
+        "framing": "direct",
+        "phrasing": "nightly jobs and bulk loads into PostgreSQL"
+      },
+      {
+        "requirement": "Python backend",
+        "importance": "important",
+        "factIds": [
+          "f-kestrel-etl",
+          "f-skill-python",
+          "f-kestrel-tests"
+        ],
+        "evidence": "Python ingestion scripts with pytest tests",
+        "framing": "transferable",
+        "phrasing": "Python scripts with tests; Django would be new"
+      },
+      {
+        "requirement": "TypeScript front end",
+        "importance": "important",
+        "factIds": [
+          "f-tess-react",
+          "f-skill-ts"
+        ],
+        "evidence": "React (TypeScript) admin screens",
+        "framing": "direct",
+        "phrasing": "React and TypeScript in production"
+      },
+      {
+        "requirement": "Django",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "No Django experience",
+    "fastLearning": "vb-learned-fast"
+  }
+}

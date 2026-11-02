@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "9dc0f48d20e597842134fd11",
+  "scenario": "e2e",
+  "label": "short_answers: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Saffron Studio builds the apps a restaurant runs on during service, and your kitchen display that keeps working when the internet drops shows you design for the bad day. I care about that problem: my final-year project was an offline-first attendance app for rural schools. Working on real client projects from week one, with a buddy, is how I'd want to grow."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Full-Stack Developer, Early Career role is React and Node.js with PostgreSQL, the stack I've used for two years at Tessellate Labs. I built the React admin screens for refunds and credit notes and maintain the Node.js invoicing service. I haven't used Next.js, and that is where I'd start learning."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "At Tessellate Labs I built the React admin screens for refunds and credit notes, including the role-based access checks on the API side. The checks mattered more than the screens: a refund button that the wrong person can press is worse than no button."
+      }
+    ]
+  }
+}

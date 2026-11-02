@@ -1,0 +1,32 @@
+{
+  "task": "write_letter",
+  "hash": "2f25815a3e67ffb18fcf0834",
+  "scenario": "e2e",
+  "label": "revise: Quillstack",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-failure"
+        ],
+        "text": "Dear Quillstack team,\n\nQuillstack's Editor team works in the stack I use every day: I have two years of production TypeScript, React and Node.js at Tessellate Labs, where I built the React admin screens for refunds and credit notes and maintain the invoicing service behind them.\n\nThe invoicing service issues about 9,000 invoices a month, so I've learned to be careful with changes. In my first month I shipped a migration that renamed a column without a fallback, and the admin screen went blank. My lead asked me to write up what happened and add an expand-then-contract step to our migration checklist. Since then I write the rollback before the migration, every time.\n\nI also review pull requests for the billing team and paired with two interns through their first month. Docs that go through pull-request review are how I already like to work.\n\nI have no experience with ProseMirror or CRDTs. I moved four services to Docker Compose in a short time when nobody else at work knew how.\n\nCould we talk for half an hour about the Editor team?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-team-loved",
+          "vb-learned-fast"
+        ],
+        "text": "Dear Quillstack team,\n\nThe billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. It is the closest thing I know to the review workflow Quillstack sells. Anyone can add to it. On Fridays we go through it together, and half the items turn into tickets before they turn into incidents.\n\nThat habit of writing the scary thing down early is how I work on code too. I review pull requests for the team, and I wrote the runbook our on-call rotation uses.\n\nOn the engineering side I have two years of production TypeScript. I built React admin screens for refunds and credit notes and maintain the Node.js invoicing service. Markdown and MDX rendering would be new to me.\n\nI haven't worked on an editor or real-time collaboration. I'd be learning that from your mentor, the same way I learned Docker Compose when nobody else at work had.\n\nIf it helps, I could talk you through one of my write-ups on a short call.\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

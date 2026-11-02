@@ -1,0 +1,63 @@
+{
+  "task": "critic",
+  "hash": "c8a0389dd19e9afb8b7e4b52",
+  "scenario": "e2e",
+  "label": "critic: Copperline Payments",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 6.8,
+        "scores": {
+          "specificity": 7,
+          "evidence": 7.5,
+          "voice": 6,
+          "clarity": 8,
+          "ask": 6,
+          "aiTells": 6
+        },
+        "demands": [
+          "Cut \"it is a great example of the kind of engineering culture I want to join\"; it is flattery.",
+          "Replace \"I would love to bring this experience to the Payouts team\" with a concrete ask."
+        ]
+      },
+      {
+        "strategy": "proof",
+        "score": 8.7,
+        "scores": {
+          "specificity": 9,
+          "evidence": 9,
+          "voice": 8.5,
+          "clarity": 8.5,
+          "ask": 8,
+          "aiTells": 9
+        },
+        "demands": []
+      },
+      {
+        "strategy": "story",
+        "score": 7.7,
+        "scores": {
+          "specificity": 7,
+          "evidence": 8,
+          "voice": 9,
+          "clarity": 8,
+          "ask": 6.5,
+          "aiTells": 8
+        },
+        "demands": [
+          "The story takes half the letter; cut \"I still like that feeling best, and\" and get to the billing work sooner.",
+          "Replace \"I'd be glad to talk if the Payouts team is still hiring\" with a specific ask."
+        ]
+      }
+    ],
+    "bestSubject": 2
+  }
+}

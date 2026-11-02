@@ -1,0 +1,121 @@
+{
+  "task": "evidence",
+  "hash": "235ef7fa5df3fab0d80a2661",
+  "scenario": "e2e",
+  "label": "evidence: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Features across React / Next.js front ends and Node.js (TypeScript) APIs",
+      "Modelling menus, orders and loyalty points in PostgreSQL",
+      "Tests, code review and client demos from week one"
+    ],
+    "mustWins": [
+      "Professional JavaScript or TypeScript with React",
+      "REST APIs in Node.js",
+      "Basic SQL"
+    ],
+    "tone": "Friendly studio voice; growth plan and buddy for early-career developers",
+    "seniority": "Early career (up to 2 years)",
+    "hooks": [
+      {
+        "text": "Case study: a kitchen-display system that keeps taking orders when the restaurant's internet drops and syncs when it returns.",
+        "sourceUrl": "https://saffronstudio.example.com/work/offline-kitchen-display"
+      },
+      {
+        "text": "Early-career developers work on real client projects from week one, with a buddy and a growth plan.",
+        "sourceUrl": "https://saffronstudio.example.com/careers"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "Up to 2 years of professional experience with JavaScript or TypeScript",
+        "importance": "critical",
+        "factIds": [
+          "f-exp-tessellate",
+          "f-skill-ts"
+        ],
+        "evidence": "Two years of TypeScript at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "two years of production TypeScript"
+      },
+      {
+        "requirement": "Experience with React",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-react",
+          "f-skill-react"
+        ],
+        "evidence": "React (TypeScript) admin screens for refunds and credit notes",
+        "framing": "direct",
+        "phrasing": "React screens in production"
+      },
+      {
+        "requirement": "Building REST APIs in Node.js",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-proj-ledger"
+        ],
+        "evidence": "Node.js invoicing service; ledger-lite API on Fastify",
+        "framing": "direct",
+        "phrasing": "Node.js APIs in production"
+      },
+      {
+        "requirement": "Basic SQL",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-recon"
+        ],
+        "evidence": "Reconciliation job from 41 to 6 minutes with set-based SQL",
+        "framing": "direct",
+        "phrasing": "SQL well beyond the basics"
+      },
+      {
+        "requirement": "Model menus, orders and loyalty points in PostgreSQL",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-skill-pg"
+        ],
+        "evidence": "Invoices and credit notes modelled in PostgreSQL",
+        "framing": "transferable",
+        "phrasing": "billing data in PostgreSQL"
+      },
+      {
+        "requirement": "Next.js",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "Prisma or Stripe integrations",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "Experience with mobile (React Native)",
+        "importance": "nice",
+        "factIds": [
+          "f-edu-bs"
+        ],
+        "evidence": "Final-year project: offline-first attendance app (education record)",
+        "framing": "transferable",
+        "phrasing": "an offline-first app as a final-year project"
+      }
+    ],
+    "biggestGap": "No Next.js or Prisma",
+    "fastLearning": "vb-learned-fast"
+  }
+}

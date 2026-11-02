@@ -1,0 +1,29 @@
+{
+  "task": "write_letter",
+  "hash": "5b0dc20a583c06930cdf132b",
+  "scenario": "e2e",
+  "label": "revise: Harbor & Pine",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [],
+        "text": "Dear Harbor & Pine team,\n\nOpening your internal developer portal to every product team is the kind of shared tooling I like working on.\n\nI have two years of experience building TypeScript services at Tessellate Labs, including the Node.js invoicing service that issues about 9,000 invoices a month. I also moved four services to Docker Compose and wrote the runbook our on-call rotation uses, so I understand what it means to own reliability.\n\nI am currently learning Go and Kubernetes. I know the posting asks for five years and production Kubernetes. When nobody at work knew Docker Compose, I learned it and moved four services.\n\nCould we have a short call about the Platform team?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-learned-fast"
+        ],
+        "text": "Dear Harbor & Pine team,\n\nThe most relevant thing I've done for a Platform role is small but real: I moved four services from a hand-built VPS setup to Docker Compose with health checks and wrote the runbook our on-call rotation now uses. At Tessellate Labs I also built and maintain a Node.js and TypeScript invoicing service, about 9,000 invoices a month, and cut a nightly reconciliation job from 41 minutes to 6.\n\nI'm learning Go now and working through a Kubernetes course, though only on kind on my laptop.\n\nI don't have five years of experience, Kafka, or experience leading projects across teams. The runbook is the reliability work I know, and I would like to learn the rest on your Platform team.\n\nCould we have a short call?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "task": "critic",
+  "hash": "ab93e7fe9552a9f3498f702b",
+  "scenario": "e2e",
+  "label": "critic: Copperline Payments",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 7.4,
+        "scores": {
+          "specificity": 7.5,
+          "evidence": 7.5,
+          "voice": 6.5,
+          "clarity": 8,
+          "ask": 7.5,
+          "aiTells": 7
+        },
+        "demands": []
+      },
+      {
+        "strategy": "story",
+        "score": 7.9,
+        "scores": {
+          "specificity": 7.5,
+          "evidence": 8,
+          "voice": 9,
+          "clarity": 8,
+          "ask": 7.5,
+          "aiTells": 8
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 2
+  }
+}

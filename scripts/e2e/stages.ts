@@ -637,7 +637,8 @@ const TERMINAL = new Set(['submitted', 'rehearsed', 'needs_you', 'skipped', 'fai
 function workerPending(p: Proc, states: { last_error: string | null }[]): string | null {
   const ni = p.output.find((l) => l.includes('"notImplemented"'));
   if (ni) return `autopilot not built: ${ni.slice(4, 200)}`;
-  const miss = states.find((x) => /REPLAY_MISSING|NotImplemented|not implemented/i.test(x.last_error ?? ''));
+  // pipeline.last_error holds the message, not the code: a replay miss reads "No recorded Claude response…".
+  const miss = states.find((x) => /REPLAY_MISSING|No recorded Claude response|NotImplemented|not implemented/i.test(x.last_error ?? ''));
   return miss ? `a step inside the autopilot is pending: ${miss.last_error?.slice(0, 200)}` : null;
 }
 

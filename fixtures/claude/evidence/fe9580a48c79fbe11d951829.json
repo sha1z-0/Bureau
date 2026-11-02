@@ -1,0 +1,112 @@
+{
+  "task": "evidence",
+  "hash": "fe9580a48c79fbe11d951829",
+  "scenario": "e2e",
+  "label": "evidence: Tulip & Tern",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Accessible, responsive pages from Figma designs",
+      "React and TypeScript components connected to the Node.js booking API",
+      "Fast client sites, with tests and bug fixing"
+    ],
+    "mustWins": [
+      "1+ year building websites with TypeScript",
+      "React",
+      "Care for accessibility and performance"
+    ],
+    "tone": "Small, warm studio; plain and practical",
+    "seniority": "Junior (1+ year)",
+    "hooks": [
+      {
+        "text": "Published the accessibility checklist the studio runs on every client site before launch (2026-09).",
+        "sourceUrl": "https://tulipandtern.example.com/journal/accessibility-checklist"
+      },
+      {
+        "text": "Small React apps that let hotel owners manage rooms and bookings, backed by a Node.js booking API.",
+        "sourceUrl": "https://tulipandtern.example.com/"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1+ year of experience building websites with HTML, CSS and JavaScript or TypeScript",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-react",
+          "f-skill-ts"
+        ],
+        "evidence": "React (TypeScript) admin screens at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "two years of React and TypeScript in production"
+      },
+      {
+        "requirement": "Experience with React",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-react",
+          "f-proj-bus"
+        ],
+        "evidence": "React admin screens; Bus Tracker Lahore",
+        "framing": "direct",
+        "phrasing": "React in production and in a side project with about 300 monthly users"
+      },
+      {
+        "requirement": "You care about accessibility and performance",
+        "importance": "critical",
+        "factIds": [
+          "f-proj-bus"
+        ],
+        "evidence": "A public map used by about 300 people a month; no accessibility audit experience",
+        "framing": "transferable",
+        "phrasing": "builds for real users; has not run an accessibility audit"
+      },
+      {
+        "requirement": "Connect components to our Node.js booking API",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-skill-node"
+        ],
+        "evidence": "Maintains a Node.js invoicing service",
+        "framing": "direct",
+        "phrasing": "Node.js on PostgreSQL in production"
+      },
+      {
+        "requirement": "Fix bugs, write tests",
+        "importance": "important",
+        "factIds": [
+          "f-kestrel-tests"
+        ],
+        "evidence": "Loader coverage 0 to 71% with pytest",
+        "framing": "transferable",
+        "phrasing": "writes tests"
+      },
+      {
+        "requirement": "Node.js, PostgreSQL, or a headless CMS",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Node.js and PostgreSQL invoicing service",
+        "framing": "direct",
+        "phrasing": "Node.js and PostgreSQL"
+      },
+      {
+        "requirement": "Dutch",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "No formal accessibility work",
+    "fastLearning": "vb-learned-fast"
+  }
+}

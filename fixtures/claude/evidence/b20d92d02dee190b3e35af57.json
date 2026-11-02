@@ -1,0 +1,145 @@
+{
+  "task": "evidence",
+  "hash": "b20d92d02dee190b3e35af57",
+  "scenario": "e2e",
+  "label": "evidence: Copperline Payments",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Correct, idempotent money movement in Node.js and PostgreSQL",
+      "Comfort with database transactions and the failure cases around them",
+      "Operations tooling in React for returned payouts",
+      "Calm, blameless habits around incidents"
+    ],
+    "mustWins": [
+      "Node.js and TypeScript services in production",
+      "Solid SQL with an understanding of transactions",
+      "Experience with money or ledger data"
+    ],
+    "tone": "Precise and grown-up; correctness over speed",
+    "seniority": "Junior (Software Engineer I, 1-2 years)",
+    "hooks": [
+      {
+        "text": "Engineering post on idempotency keys: every payout request carries a key so a retry can never pay a seller twice.",
+        "sourceUrl": "https://copperline.example.com/engineering/idempotency-keys"
+      },
+      {
+        "text": "Returned-payouts dashboard for operations teams (2026-08).",
+        "sourceUrl": "https://copperline.example.com/product/returns"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1-2 years of professional software engineering experience",
+        "importance": "critical",
+        "factIds": [
+          "f-exp-tessellate"
+        ],
+        "evidence": "Junior Software Engineer at Tessellate Labs since Jul 2023",
+        "framing": "direct",
+        "phrasing": "two years as a software engineer on a billing team"
+      },
+      {
+        "requirement": "Node.js and TypeScript",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-skill-node",
+          "f-skill-ts"
+        ],
+        "evidence": "Built and maintains the Node.js/TypeScript invoicing service (about 9,000 invoices a month)",
+        "framing": "direct",
+        "phrasing": "builds and maintains Node.js and TypeScript services"
+      },
+      {
+        "requirement": "Solid SQL and an understanding of database transactions",
+        "importance": "critical",
+        "factIds": [
+          "f-proj-ledger",
+          "f-tess-recon"
+        ],
+        "evidence": "ledger-lite enforces balanced entries with a database constraint; reconciliation job cut from 41 to 6 minutes",
+        "framing": "direct",
+        "phrasing": "balance rules enforced inside the database transaction; set-based SQL"
+      },
+      {
+        "requirement": "Idempotent, well-tested code for money movement",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-proj-ledger"
+        ],
+        "evidence": "Invoicing and double-entry bookkeeping; not payouts",
+        "framing": "transferable",
+        "phrasing": "billing and ledger code where every number has to add up"
+      },
+      {
+        "requirement": "Internal React tools for operations and support",
+        "importance": "important",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "React admin screens for refunds and credit notes with role-based access checks",
+        "framing": "direct",
+        "phrasing": "React tools for refunds and credit notes"
+      },
+      {
+        "requirement": "Code review and blameless incident reviews",
+        "importance": "important",
+        "factIds": [
+          "f-tess-review"
+        ],
+        "evidence": "Reviews pull requests for the billing team",
+        "framing": "direct",
+        "phrasing": "reviews pull requests for the billing team"
+      },
+      {
+        "requirement": "Experience with payments, ledgers or financial data",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-proj-ledger"
+        ],
+        "evidence": "Invoicing service and ledger-lite",
+        "framing": "direct",
+        "phrasing": "billing and ledger systems"
+      },
+      {
+        "requirement": "Go",
+        "importance": "nice",
+        "factIds": [
+          "ll-go"
+        ],
+        "evidence": "Porting ledger-lite's trial-balance endpoint to Go",
+        "framing": "learning",
+        "phrasing": "learning Go now by porting ledger-lite's trial-balance endpoint"
+      },
+      {
+        "requirement": "Docker",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Moved four services to Docker Compose",
+        "framing": "direct",
+        "phrasing": "moved four services to Docker Compose"
+      },
+      {
+        "requirement": "AWS",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "Has not built payouts or handled bank returns",
+    "fastLearning": "f-tess-docker"
+  }
+}
