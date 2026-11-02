@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Lever hosted application page (jobs.lever.co/<company>/<posting uuid>/apply).
+  Structure follows the server-rendered Lever page: .main-header, .posting-header
+  with .posting-categories, then form#application-form (multipart POST) made of
+  .section.application-form blocks of li.application-question with
+  .application-label / .application-field: the resume picker
+  (a.visible-resume-upload "ATTACH RESUME/CV" over input#resume-upload-input
+  name=resume, with the "Analyzing resume..." / "Success!" states and filename),
+  single "Full name" field (name), email, phone, the structured "Current location"
+  typeahead (input#location-input name=location + hidden selectedLocation, with
+  .dropdown-container results), org, the Links section (urls[LinkedIn],
+  urls[GitHub], urls[Portfolio], urls[Other]), a posting card with
+  cards[<uuid>][baseTemplate] JSON and cards[<uuid>][fieldN] questions (radio
+  multiple-choice, dropdown, textarea), "Additional information" (comments), the
+  U.S. EEO survey (eeo[gender], eeo[race], eeo[veteran]), consent checkboxes
+  with hidden "0" companions, the hidden Lever inputs (accountId, timezone,
+  resumeStorageId, h-captcha-response ...), the invisible hCaptcha element
+  (data-size=invisible: present, executed on submit, never a visible
+  challenge) and button#btn-submit "Submit application" that triggers the
+  hidden submit button. Fictional employer (Northwind Labs). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northwind Labs - Backend Engineer (Junior)</title>
+  <meta property="og:title" content="Northwind Labs - Backend Engineer (Junior)">
+  <link rel="canonical" href="https://jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38/apply">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #515357; background: #fff; font-size: 16px; }
+    a { color: #579eee; }
+    .page-centered { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+    .main-header { border-bottom: 1px solid #e2e2e2; padding: 18px 0; }
+    .main-header-logo { font-size: 22px; font-weight: 700; color: #1d2b3a; text-decoration: none; letter-spacing: .02em; }
+    .accent-section { background: #f9f9f9; border-bottom: 1px solid #e2e2e2; }
+    .posting-header { padding: 32px 20px; }
+    .posting-headline h2 { font-size: 34px; color: #2d2f33; margin: 0 0 8px; font-weight: 400; }
+    .posting-categories { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; text-transform: uppercase; color: #808080; letter-spacing: .04em; }
+    .posting-description { line-height: 1.6; padding: 24px 20px 8px; }
+    .posting-description h3 { font-size: 15px; text-transform: uppercase; color: #2d2f33; letter-spacing: .04em; margin-top: 28px; }
+    .application-form { padding: 16px 20px; }
+    .application-form h4 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: #2d2f33; margin: 18px 0; }
+    .application-form ul { list-style: none; padding: 0; margin: 0; }
+    .application-question { display: flex; flex-wrap: wrap; margin-bottom: 18px; }
+    .application-question > label, .application-question > div { display: flex; width: 100%; flex-wrap: wrap; }
+    .application-label { width: 30%; padding: 8px 12px 0 0; font-size: 14px; color: #2d2f33; }
+    .application-label.full-width, .application-field.full-width { width: 100%; }
+    .application-field { width: 70%; }
+    .required { color: #ff794f; font-size: 9px; vertical-align: super; padding-left: 3px; }
+    .application-field input[type=text], .application-field input[type=email], .application-field select, .application-additional textarea, .card-field-input {
+      width: 100%; font: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid #e2e2e2; border-radius: 3px; background: #fff; color: #2d2f33; }
+    textarea.card-field-input, .application-additional textarea { min-height: 120px; resize: vertical; }
+    .application-field input:focus, .application-field select:focus, textarea:focus { outline: none; border-color: #579eee; box-shadow: 0 0 0 1px #579eee; }
+    .application-question.has-error input, .application-question.has-error select, .application-question.has-error textarea { border-color: #ff4f4f; }
+    .application-question .error-message, .application-error { color: #ff4f4f; font-size: 13px; width: 100%; margin: 6px 0 0; }
+    .application-dropdown { position: relative; }
+    .application-answer-alternative { padding-left: 6px; font-size: 14px; }
+    ul[data-qa=multiple-choice] li, ul[data-qa=checkboxes] li { margin: 6px 0; }
+    .postings-btn { display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: .1em; font-size: 13px; font-weight: 700; border-radius: 3px; padding: 11px 20px; cursor: pointer; text-decoration: none; border: 1px solid #579eee; color: #579eee; background: #fff; position: relative; overflow: hidden; }
+    .template-btn-submit { background: #579eee; color: #fff; border-color: #579eee; padding: 14px 40px; }
+    .template-btn-submit:disabled { opacity: .6; cursor: progress; }
+    .application-file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .invisible-resume-upload { display: block; }
+    .resume .filename { text-transform: none; letter-spacing: 0; font-weight: 400; color: #2d2f33; }
+    .resume .filename:empty { display: none; }
+    .resume-upload-failure, .resume-upload-working, .resume-upload-success, .resume-upload-oversize { display: none; align-items: center; gap: 8px; margin-left: 12px; font-size: 13px; }
+    .resume.resume-working .resume-upload-working, .resume.resume-success .resume-upload-success, .resume.resume-failure .resume-upload-failure { display: inline-flex; }
+    .resume.resume-oversize .resume-upload-oversize { display: block; }
+    .loading-indicator { width: 16px; height: 16px; border: 2px solid #e2e2e2; border-top-color: #579eee; border-radius: 50%; animation: spin .8s linear infinite; }
+    .loading-indicator.completed { animation: none; border-color: #4caf50; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .dropdown-container { display: none; position: absolute; z-index: 20; width: 100%; background: #2d2f33; color: #e6e6e6; border-radius: 3px; margin-top: 2px; max-height: 240px; overflow-y: auto; font-size: 14px; }
+    .location-question.dropdown-open .dropdown-container { display: block; }
+    .dropdown-results .dropdown-location { padding: 8px 12px; cursor: pointer; }
+    .dropdown-results .dropdown-location.highlighted { background: #579eee; color: #fff; }
+    .dropdown-no-results, .dropdown-loading-results { display: none; padding: 8px 12px; }
+    .dropdown-container.no-results .dropdown-no-results, .dropdown-container.loading .dropdown-loading-results { display: block; }
+    .location-field { position: relative; }
+    .eeo-voluntary { text-transform: none; letter-spacing: 0; font-weight: 400; color: #808080; font-size: 13px; }
+    .eeo-section p { font-size: 13px; line-height: 1.5; }
+    .last-section-apply { padding-bottom: 60px; }
+    #application-form > .error-banner { margin: 16px auto; max-width: 720px; border: 1px solid #ff4f4f; color: #ff4f4f; padding: 10px 14px; border-radius: 3px; display: none; }
+    .h-captcha { height: 0; overflow: hidden; }
+    .hidden { display: none !important; }
+    .main-footer { border-top: 1px solid #e2e2e2; padding: 24px; text-align: center; font-size: 13px; color: #808080; }
+  </style>
+</head>
+<body class="application">
+<div class="page application">
+  <div class="main-header page-full-width section-wrapper">
+    <div class="main-header-content page-centered narrow-section page-full-width">
+      <a class="main-header-logo" href="/jobs.lever.co/northwind-labs">Northwind Labs</a>
+    </div>
+  </div>
+
+  <div class="section-wrapper accent-section page-full-width">
+    <div class="section page-centered posting-header">
+      <div class="posting-headline">
+        <h2>Backend Engineer (Junior)</h2>
+        <div class="posting-categories">
+          <div class="sort-by-time posting-category medium-category-label width-full capitalize-labels location">Lahore, Pakistan</div>
+          <div class="sort-by-team posting-category medium-category-label capitalize-labels department">Engineering – Payments /</div>
+          <div class="sort-by-commitment posting-category medium-category-label capitalize-labels commitment">Full-time /</div>
+          <div class="posting-category medium-category-label capitalize-labels workplaceTypes">Hybrid</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-wrapper page-full-width">
+    <div class="section page-centered posting-description" data-qa="job-description">
+      <div>Northwind Labs builds payment orchestration for marketplaces in South Asia and the Gulf: one API that routes card, wallet and bank-transfer payments to the cheapest working rail and reconciles them overnight.</div>
+      <h3>What you'll be doing</h3>
+      <ul>
+        <li>Building and maintaining Node.js and TypeScript services in our settlement pipeline</li>
+        <li>Writing PostgreSQL migrations and queries that stay correct under concurrent writes</li>
+        <li>Adding observability (metrics, traces, alerts) to the services you own</li>
+        <li>Reviewing code and pairing with the two senior engineers on the team</li>
+      </ul>
+      <h3>What we're looking for</h3>
+      <ul>
+        <li>1–3 years of professional backend experience</li>
+        <li>Solid TypeScript or JavaScript; some SQL</li>
+        <li>Care for correctness: idempotency, retries and reconciliation should interest you</li>
+      </ul>
+      <h3>Nice to have</h3>
+      <ul><li>Docker, message queues, any payments or accounting experience</li></ul>
+      <div>Hybrid: two days a week in our Gulberg, Lahore office.</div>
+    </div>
+  </div>
+
+  <div class="section-wrapper page-full-width">
+    <form id="application-form" action="/__submit/{{FORM_ID}}" enctype="multipart/form-data" method="POST">
+      <div class="error-banner" role="alert"></div>
+      <div class="section page-centered application-form">
+        <h4>Submit your application</h4>
+        <ul>
+          <li class="application-question resume">
+            <label>
+              <div class="application-label">Resume/CV <span class="required">✱</span></div>
+              <div class="application-field">
+                <a href="#" class="postings-btn template-btn-utility visible-resume-upload">
+                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5Z"/></svg>
+                  <span class="filename"></span><span class="default-label">ATTACH RESUME/CV</span>
+                  <input class="application-file-input invisible-resume-upload" data-qa="input-resume" id="resume-upload-input" name="resume" tabindex="-1" type="file">
+                </a>
+                <span class="resume-upload-failure"><div class="resume-upload-label">Couldn't auto-read resume.</div></span>
+                <span class="resume-upload-working"><div class="loading-indicator"></div><div class="resume-upload-label">Analyzing resume...</div></span>
+                <span class="resume-upload-success"><div class="loading-indicator completed"></div><div class="resume-upload-label">Success!</div></span>
+              </div>
+            </label>
+            <span class="resume-upload-oversize"><p class="error-message">File exceeds the maximum upload size of <b>100MB</b>. Please try a smaller size.</p></span>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Full name<span class="required">✱</span></div>
+              <div class="application-field"><input type="text" data-qa="name-input" name="name" required></div>
+            </label>
+          </li>
+          <li class="application-question">
+            <div class="application-label multiple-select">Pronouns</div>
+            <div class="application-field">
+              <ul data-qa="candidatePronounsCheckboxes" id="candidatePronounsCheckboxes">
+                <li><label><input type="checkbox" name="pronouns" value="He/him" class="standardPronounsOption"><span class="application-answer-alternative">He/him</span></label></li>
+                <li><label><input type="checkbox" name="pronouns" value="She/her" class="standardPronounsOption"><span class="application-answer-alternative">She/her</span></label></li>
+                <li><label><input type="checkbox" name="pronouns" value="They/them" class="standardPronounsOption"><span class="application-answer-alternative">They/them</span></label></li>
+                <li><label><input type="checkbox" name="pronouns" value="Use name only" id="useNameOnlyPronounsOption"><span class="application-answer-alternative">Use name only</span></label></li>
+                <li><label><input type="checkbox" value="Custom" id="customPronounsOption"><span class="application-answer-alternative">Custom</span></label><input class="card-field-input" style="display:none;" id="customPronounsTextField" type="text" maxlength="40" placeholder="Write here..." name="pronouns"></li>
+                <p class="description">Let the employer know what pronouns you use so that they can address you correctly.</p>
+              </ul>
+            </div>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Email<span class="required">✱</span></div>
+              <div class="application-field"><input name="email" data-qa="email-input" type="email" required></div>
+            </label>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Phone <span class="required">✱</span></div>
+              <div class="application-field"><input type="text" data-qa="phone-input" name="phone" required></div>
+            </label>
+          </li>
+          <li class="application-question location-question" data-qa="structured-contact-location-question">
+            <label>
+              <div class="application-label">Current location <span class="required" data-qa="SCL-question-required-asterisk">✱</span></div>
+              <div class="application-field location-field">
+                <input class="location-input" data-qa="location-input" id="location-input" type="text" maxlength="100" name="location" required autocomplete="off">
+                <input id="selected-location" type="hidden" name="selectedLocation">
+                <div class="momentum-body flex flex-column items-start width-full height-auto bg-gray-800 text-gray-200 rounded dropdown-container">
+                  <div class="dropdown-results width-full cursor-pointer"></div>
+                  <div class="dropdown-no-results width-full break-word py1 px2 pointer-events-none">No location found. Try entering a different location</div>
+                  <div class="dropdown-loading-results width-full break-word height-full py1 px2 pointer-events-none"><div class="theme-inverse items-center"><span>Loading</span></div></div>
+                </div>
+              </div>
+            </label>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Current company <span class="required">✱</span></div>
+              <div class="application-field"><input type="text" data-qa="org-input" name="org" required></div>
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section page-centered application-form">
+        <h4>Links</h4>
+        <ul>
+          <li class="application-question"><label><div class="application-label">LinkedIn URL</div><div class="application-field"><input type="text" name="urls[LinkedIn]"></div></label></li>
+          <li class="application-question"><label><div class="application-label">GitHub URL</div><div class="application-field"><input type="text" name="urls[GitHub]"></div></label></li>
+          <li class="application-question"><label><div class="application-label">Portfolio URL</div><div class="application-field"><input type="text" name="urls[Portfolio]"></div></label></li>
+          <li class="application-question"><label><div class="application-label">Other website</div><div class="application-field"><input type="text" name="urls[Other]"></div></label></li>
+        </ul>
+      </div>
+
+      <div class="section page-centered application-form" data-qa="additional-cards">
+        <h4 data-qa="card-name">Northwind Labs Application Questions</h4>
+        <input type="hidden" value="{&quot;createdAt&quot;:1761900000000,&quot;text&quot;:&quot;Northwind Labs Application Questions&quot;,&quot;instructions&quot;:&quot;&quot;,&quot;type&quot;:&quot;posting&quot;,&quot;accountId&quot;:&quot;5e0d7c42-91aa-4c3f-8f2b-6a1d0e9c7b31&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;Are you legally authorized to work in Pakistan?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;2b6f9d1e-4c3a-4e8b-9f7d-1a2c3e4f5a6b&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Yes&quot;,&quot;optionId&quot;:&quot;a1b2c3d4-0001-4e5f-8a9b-0c1d2e3f4a5b&quot;},{&quot;text&quot;:&quot;No&quot;,&quot;optionId&quot;:&quot;a1b2c3d4-0002-4e5f-8a9b-0c1d2e3f4a5b&quot;}]},{&quot;type&quot;:&quot;dropdown&quot;,&quot;text&quot;:&quot;How many years of professional backend experience do you have?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Less than 1 year&quot;},{&quot;text&quot;:&quot;1-2 years&quot;},{&quot;text&quot;:&quot;3-5 years&quot;},{&quot;text&quot;:&quot;More than 5 years&quot;}]},{&quot;type&quot;:&quot;textarea&quot;,&quot;text&quot;:&quot;Tell us about a backend system you built or maintained. What broke, and how did you fix it?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;0e1f2a3b-4c5d-4e6f-9a7b-8c9d0e1f2a3b&quot;}],&quot;id&quot;:&quot;d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43&quot;}" name="cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][baseTemplate]">
+        <ul>
+          <li class="application-question custom-question">
+            <div>
+              <div class="application-label full-width multiple-choice"><div class="text">Are you legally authorized to work in Pakistan?<span class="required">✱</span></div></div>
+              <div class="application-field full-width required-field">
+                <ul data-qa="multiple-choice">
+                  <li><label><input type="radio" name="cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field0]" value="Yes" required="required"><span class="application-answer-alternative">Yes</span></label></li>
+                  <li><label><input type="radio" name="cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field0]" value="No" required="required"><span class="application-answer-alternative">No</span></label></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="application-question custom-question">
+            <div>
+              <div class="application-label full-width dropdown"><div class="text">How many years of professional backend experience do you have?<span class="required">✱</span></div></div>
+              <div class="application-field full-width required-field">
+                <div class="application-dropdown">
+                  <select name="cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field1]" required>
+                    <option value="">Select...</option>
+                    <option value="Less than 1 year">Less than 1 year</option>
+                    <option value="1-2 years">1-2 years</option>
+                    <option value="3-5 years">3-5 years</option>
+                    <option value="More than 5 years">More than 5 years</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="application-question custom-question">
+            <div>
+              <div class="application-label full-width textarea"><div class="text">Tell us about a backend system you built or maintained. What broke, and how did you fix it?<span class="required">✱</span></div></div>
+              <div class="application-field full-width required-field"><textarea class="card-field-input" name="cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field2]" required></textarea></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section page-centered application-form">
+        <label for="additional-information"><h4>Additional information</h4></label>
+        <div class="application-additional"><textarea placeholder="Add a cover letter or anything else you want to share." name="comments" id="additional-information"></textarea></div>
+      </div>
+
+      <div class="section page-centered application-form eeo-section" data-qa="eeo-section">
+        <hr>
+        <h4>U.S. Equal Employment Opportunity information &nbsp;&nbsp;<span class="eeo-voluntary">(Completion is voluntary and will not subject you to adverse treatment)</span></h4>
+        <p>Our company values diversity. To ensure that we comply with reporting requirements and to learn more about how we can increase diversity in our candidate pool, we invite you to voluntarily provide demographic information in a confidential survey at the end of this application. Providing this information is optional. It will not be accessible or used in the hiring process, and has no effect on your opportunity for employment.</p>
+        <ul>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Gender</div>
+              <div class="application-field"><div class="application-dropdown">
+                <select name="eeo[gender]">
+                  <option value="">Select ...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Decline to self-identify">Decline to self-identify</option>
+                </select>
+              </div></div>
+            </label>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Race</div>
+              <div class="application-field"><div class="application-dropdown">
+                <select name="eeo[race]">
+                  <option value="">Select ...</option>
+                  <option value="Hispanic or Latino">Hispanic or Latino</option>
+                  <option value="White (Not Hispanic or Latino)">White (Not Hispanic or Latino)</option>
+                  <option value="Black or African American (Not Hispanic or Latino)">Black or African American (Not Hispanic or Latino)</option>
+                  <option value="Native Hawaiian or Other Pacific Islander (Not Hispanic or Latino)">Native Hawaiian or Other Pacific Islander (Not Hispanic or Latino)</option>
+                  <option value="Asian (Not Hispanic or Latino)">Asian (Not Hispanic or Latino)</option>
+                  <option value="American Indian or Alaska Native (Not Hispanic or Latino)">American Indian or Alaska Native (Not Hispanic or Latino)</option>
+                  <option value="Two or More Races (Not Hispanic or Latino)">Two or More Races (Not Hispanic or Latino)</option>
+                  <option value="Decline to self-identify">Decline to self-identify</option>
+                </select>
+              </div></div>
+            </label>
+          </li>
+          <li class="application-question">
+            <label>
+              <div class="application-label">Veteran status</div>
+              <div class="application-field"><div class="application-dropdown">
+                <select name="eeo[veteran]">
+                  <option value="">Select ...</option>
+                  <option value="I am a veteran">I am a veteran</option>
+                  <option value="I am not a veteran">I am not a veteran</option>
+                  <option value="Decline to self-identify">Decline to self-identify</option>
+                </select>
+              </div></div>
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <input type="hidden" name="accountId" value="5e0d7c42-91aa-4c3f-8f2b-6a1d0e9c7b31">
+      <input type="hidden" name="linkedInData">
+      <input type="hidden" name="origin">
+      <input type="hidden" name="referer">
+      <input type="hidden" name="timezone" id="applicant-timezone" value="">
+      <input type="hidden" name="socialReferralKey">
+      <input type="hidden" name="socialSource">
+      <input type="hidden" name="resumeStorageId" value="">
+      <input id="hcaptchaResponseInput" type="hidden" name="h-captcha-response" value="">
+      <button id="hcaptchaSubmitBtn" type="submit" class="hidden"></button>
+      <script>(function () { var tzInput = document.getElementById('applicant-timezone'); if (tzInput && typeof Intl !== 'undefined') { try { tzInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {} } })();</script>
+      <input type="hidden" name="source">
+
+      <div class="section page-centered application-form" data-qa="consent-section">
+        <hr>
+        <ul>
+          <li class="application-question">
+            <div class="application-field full-width">
+              <p data-qa="legitimate-interest-copy">By applying for this position, your data will be processed as per Northwind Labs's <a rel="noopener" href="#privacy" class="text-gray-700" target="_blank">Privacy Policy</a>.</p>
+              <ul>
+                <li><label><input type="hidden" name="consent[store]" value="0"><input type="checkbox" name="consent[store]" value="1" required> <span class="">I agree to Northwind Labs storing my application data for up to 24 months so it can consider me for this and similar roles.<span class="required">✱</span></span></label></li>
+                <li><label><input type="hidden" name="consent[marketing]" value="0"><input type="checkbox" name="consent[marketing]" value="1"> <span class="">Northwind Labs has my consent to contact me about future job opportunities.</span></label></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div id="h-captcha" class="h-captcha" data-sitekey="4c1e2a9b-77d3-4f0e-9a55-2b8c6d1f0e33" data-size="invisible"></div>
+
+      <div class="section page-centered application-form last-section-apply">
+        <button id="btn-submit" type="button" class="postings-btn template-btn-submit hex-color" data-qa="btn-submit">Submit application</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="main-footer page-full-width">
+    <div class="main-footer-text page-centered"><p><a href="/jobs.lever.co/northwind-labs">Northwind Labs Home Page</a></p><p>Jobs powered by Lever</p></div>
+  </div>
+</div>
+
+<script src="/ats/lever/hcaptcha-stub.js"></script>
+<script src="/ats/lever/apply.js"></script>
+</body>
+</html>

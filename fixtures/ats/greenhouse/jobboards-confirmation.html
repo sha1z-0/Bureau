@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Greenhouse job-boards confirmation page
+  (job-boards.greenhouse.io/<board>/jobs/<id>/confirmation): main > .confirmation >
+  .confirmation__content with the board's confirmation_message ("Thank you for
+  applying.") and .confirmation__links. Served at /__confirm/{{FORM_ID}}; the URL is
+  rewritten to the real confirmation path, which is also routed to this file.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Thank you for applying to Harbor &amp; Pine</title>
+  <link rel="stylesheet" href="/ats/greenhouse/jobboards.css">
+</head>
+<body style="--custom-link-color:#2f6b4f;--custom-button-color:#2f6b4f;--custom-button-hover-color:#24533d;--custom-button-text-color:#FFFFFF">
+<div id="react-portal-mount-point"></div>
+<main class="main font-secondary">
+  <div class="confirmation">
+    <div class="image-container"><a href="https://job-boards.greenhouse.io/harborpine" target="_blank" rel="noreferrer" class="logo"><span class="logo-mark" aria-hidden="true">H</span><span class="logo-text">Harbor &amp; Pine</span></a></div>
+    <div class="confirmation__content">
+      <div>
+        <div class="body">
+          <span>
+            <h1>Thank you for applying.</h1>
+            <p>Your application has been received. We will review your application and contact you if there's a fit.</p>
+          </span>
+        </div>
+        <div class="confirmation__links">
+          <a href="https://job-boards.greenhouse.io/harborpine" target="_top" class="btn btn--pill">View more jobs at Harbor &amp; Pine</a>
+          <a class="link" target="_top" href="/job-boards.greenhouse.io/harborpine/jobs/7034511">Back to job post</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="footer" dir="ltr"><div class="footer-row"><p class="body">Powered by</p><a class="footer-logo-link" target="_blank" href="https://www.greenhouse.com" rel="noreferrer"><strong>greenhouse</strong></a></div></footer>
+<script>
+  if (location.pathname.indexOf('/__confirm/') === 0) history.replaceState(null, '', '/job-boards.greenhouse.io/harborpine/jobs/7034511/confirmation');
+</script>
+</body>
+</html>

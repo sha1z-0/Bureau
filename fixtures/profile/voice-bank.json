@@ -1,0 +1,50 @@
+[
+  {
+    "id": "vb-why-build",
+    "prompt": "Why do you build software?",
+    "tags": ["motivation", "origin"],
+    "text": "My father ran a small hardware shop in Ichhra and kept his accounts in a green register with a rubber band around it. Every Ramzan the register stopped balancing and he'd sit up past sehri hunting for forty rupees. I wrote him a little spreadsheet when I was fifteen. It didn't fix the forty rupees, but it showed him which day they went missing, and that was enough. I still like that feeling best. Not the clever part. The part where someone stops staying up late."
+  },
+  {
+    "id": "vb-proudest-project",
+    "prompt": "Your proudest project, told as a story",
+    "tags": ["project", "story", "ledger-lite"],
+    "text": "ledger-lite started because I didn't trust my own code. I'd built a journal-entry endpoint at work and the only thing stopping an unbalanced entry was a check in the service layer, which meant one careless script could skip it. So at home I rebuilt the idea from scratch and pushed the rule down into Postgres: a deferred constraint trigger that refuses to commit a transaction whose debits and credits don't match. It took me three weekends and one very confusing evening with deferrable constraints. Then a stranger on GitHub opened an issue saying it had caught a bug in their importer on day one. I read that issue maybe ten times."
+  },
+  {
+    "id": "vb-hard-bug",
+    "prompt": "A hard bug you cracked",
+    "tags": ["debugging", "sql", "performance"],
+    "text": "The reconciliation job at Tessellate took 41 minutes and nobody touched it because it worked. Then it started overlapping with the morning invoice run and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop, and each update fired an index lookup on a column with no useful index. I rewrote it as two set-based UPDATE ... FROM statements and added a partial index on unpaid invoices only. Six minutes. I was a bit embarrassed it was that simple, honestly."
+  },
+  {
+    "id": "vb-learned-fast",
+    "prompt": "Something you learned fast",
+    "tags": ["learning", "docker"],
+    "text": "Nobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus, broke my laptop's networking twice, and learned more about health checks than I'd planned to. We moved four services in nine days. The runbook I wrote is still pinned in our channel, typos included."
+  },
+  {
+    "id": "vb-team-loved",
+    "prompt": "A team you loved working in",
+    "tags": ["team", "collaboration"],
+    "text": "The billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. Anyone can add to it, and on Fridays we go through it together. Half the items are nothing. The other half turn into tickets before they turn into incidents. I like teams that say the scary thing out loud early, even when it's awkward, and I try to be the person who writes it down first."
+  },
+  {
+    "id": "vb-learning-now",
+    "prompt": "What are you learning right now?",
+    "tags": ["learning", "go", "kubernetes"],
+    "text": "Right now it's Go. I'm porting the trial-balance endpoint from ledger-lite to see how it feels without a framework doing half the work, and so far the answer is: more typing, fewer surprises. I'm also working through a Kubernetes course in the evenings, though I'll admit I've only run it on kind on my own laptop. Nothing in production yet. I'd rather say that plainly than pretend otherwise."
+  },
+  {
+    "id": "vb-why-field",
+    "prompt": "Why this field?",
+    "tags": ["motivation", "fintech", "backend"],
+    "text": "Backend work suits the way my head works. I like problems where you can't see the result, only whether the numbers add up at the end of the day. Money systems are the extreme version of that. If a page renders a bit wrong, someone squints. If a ledger is off by one rupee, someone stays up all night, and I've watched that happen at a kitchen table."
+  },
+  {
+    "id": "vb-failure",
+    "prompt": "A failure and what changed",
+    "tags": ["failure", "growth", "testing"],
+    "text": "In my first month I shipped a migration that renamed a column without a fallback, and the admin screen went blank for about twenty minutes. My lead didn't shout. She asked me to write up what happened and to add the expand-then-contract step to our migration checklist. I did both. Since then I write the rollback before the migration, every time, even when it feels silly for a two-line change."
+  }
+]

@@ -1,0 +1,62 @@
+/* Fixture stylesheet approximating the Ashby hosted jobs page (CSS-module style class names). */
+:root { --color-primary-600: #5b4bd5; --color-primary-900: #2e2480; --gray-200: #e4e4e7; --gray-500: #71717a; --gray-900: #18181b; --red-600: #dc2626; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--gray-900); background: #fafafa; font-size: 15px; line-height: 1.5; }
+._container_4bb1z_1 { max-width: 1120px; margin: 0 auto; padding: 24px; }
+.ashby-job-posting-brand-header { display: flex; align-items: center; padding: 8px 0 24px; }
+._navLogo_1hd3o_5 { font-weight: 800; font-size: 22px; color: var(--color-primary-900); text-decoration: none; letter-spacing: -.01em; }
+.ashby-job-posting-heading { font-size: 30px; margin: 0 0 20px; line-height: 1.2; }
+._content_ud4nd_71 { display: grid; grid-template-columns: 260px 1fr; gap: 40px; }
+.ashby-job-posting-left-pane ._section_101oc_37 { margin-bottom: 20px; }
+.ashby-job-posting-left-pane h2 { font-size: 13px; font-weight: 600; color: var(--gray-500); margin: 0 0 2px; }
+.ashby-job-posting-left-pane p { margin: 0; }
+._tabs_ud4nd_9 { display: flex; gap: 4px; border-bottom: 1px solid var(--gray-200); margin-bottom: 24px; }
+._tab_ud4nd_9 { padding: 10px 16px; color: var(--gray-500); text-decoration: none; font-weight: 600; border-bottom: 2px solid transparent; }
+._tab_ud4nd_9[aria-selected=true] { color: var(--color-primary-600); border-color: var(--color-primary-600); }
+._descriptionText_oj0x8_198 h2 { font-size: 18px; margin-top: 24px; }
+.ashby-application-form-container { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px; }
+._skeleton_1x2b3_1 { height: 18px; background: linear-gradient(90deg, #eee, #f6f6f6, #eee); border-radius: 6px; margin: 14px 0; }
+.ashby-application-form-autofill-pane { border: 1px dashed var(--color-primary-600); background: #f5f3ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px; }
+.ashby-application-form-autofill-pane ._title_ { font-weight: 700; margin: 0; }
+.ashby-application-form-autofill-pane ._description_ { margin: 2px 0 10px; color: var(--gray-500); font-size: 14px; }
+.ashby-application-form-section-container { display: flex; flex-direction: column; gap: 22px; padding-bottom: 22px; }
+.ashby-application-form-section-container + .ashby-application-form-section-container { border-top: 1px solid var(--gray-200); padding-top: 22px; }
+.ashby-application-form-question-title { display: block; font-weight: 600; margin-bottom: 6px; }
+._required_101oc_92::after { content: "*"; color: var(--red-600); margin-left: 3px; }
+._description_1x9rf_1 { color: var(--gray-500); font-size: 13px; margin: -2px 0 8px; }
+._description_1x9rf_1 p { margin: 0; }
+._input_1wkz4_28, ._textarea_1wkz4_29 { width: 100%; font: inherit; padding: 9px 12px; border: 1px solid #d4d4d8; border-radius: 8px; background: #fff; color: inherit; }
+._textarea_1wkz4_29 { min-height: 120px; resize: vertical; }
+._input_1wkz4_28:focus, ._textarea_1wkz4_29:focus { outline: 2px solid var(--color-primary-600); outline-offset: -1px; border-color: var(--color-primary-600); }
+[aria-invalid=true] { border-color: var(--red-600) !important; }
+._fieldError_1x9rf_9 { color: var(--red-600); font-size: 13px; margin: 6px 0 0; }
+._button_8wvgw_29 { font: inherit; font-weight: 600; border-radius: 8px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--color-primary-600); }
+._primary_8wvgw_96 { background: var(--color-primary-600); color: #fff; }
+._primary_8wvgw_96:disabled { opacity: .6; cursor: progress; }
+._secondary_8wvgw_112 { background: #fff; color: var(--color-primary-600); }
+._yesno_1e44y_1 { display: flex; gap: 8px; }
+._option_y2cw4_33 { font: inherit; min-width: 88px; padding: 8px 16px; border-radius: 8px; border: 1px solid #d4d4d8; background: #fff; cursor: pointer; }
+._option_y2cw4_33._active_y2cw4_58 { background: var(--color-primary-600); border-color: var(--color-primary-600); color: #fff; }
+._checkboxGroup_1f2j3_1, ._radioGroup_1f2j3_2 { display: flex; flex-direction: column; gap: 6px; }
+._option_1f2j3_10 { display: flex; align-items: center; gap: 8px; }
+._dropzone_1y4ge_1 { border: 1px dashed #c4c4cc; border-radius: 10px; padding: 18px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--gray-500); background: #fcfcfd; }
+._dropzone_1y4ge_1._isDragging_1y4ge_12 { border-color: var(--color-primary-600); background: #f5f3ff; }
+._fileName_1y4ge_20 { display: flex; align-items: center; gap: 10px; color: var(--gray-900); font-weight: 600; }
+._fileName_1y4ge_20 button { font: inherit; background: none; border: 0; color: var(--color-primary-600); cursor: pointer; padding: 0; }
+._select_k8a3d_1 { position: relative; }
+._select_k8a3d_1 ._caret_k8a3d_9 { position: absolute; right: 12px; top: 10px; pointer-events: none; color: var(--gray-500); }
+._listbox_k8a3d_15 { position: absolute; left: 0; right: 0; z-index: 30; margin: 4px 0 0; padding: 4px; list-style: none; background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.08); max-height: 260px; overflow-y: auto; }
+._listbox_k8a3d_15 [role=option] { padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+._listbox_k8a3d_15 [role=option]._focused_k8a3d_31 { background: #f4f4f5; }
+._listbox_k8a3d_15 [role=option][aria-selected=true] { color: var(--color-primary-600); font-weight: 600; }
+._listbox_k8a3d_15 ._empty_k8a3d_40 { padding: 8px 10px; color: var(--gray-500); }
+.ashby-survey-form-container { border-top: 1px solid var(--gray-200); margin-top: 8px; padding-top: 22px; }
+.ashby-survey-form-container h3 { margin: 0 0 6px; }
+.ashby-survey-form-container ._surveyDescription_ { color: var(--gray-500); font-size: 13px; }
+._errors_1x2b3_9 { border: 1px solid var(--red-600); background: #fef2f2; color: var(--red-600); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+._errors_1x2b3_9 ul { margin: 6px 0 0; padding-left: 18px; }
+.ashby-application-form-submit-button { width: 100%; padding: 12px; font-size: 16px; margin-top: 16px; }
+.ashby-application-form-success-container { text-align: center; padding: 48px 16px; }
+.ashby-application-form-success-container h2 { font-size: 26px; margin: 12px 0 6px; }
+.ashby-application-form-success-container p { color: var(--gray-500); }
+._footer_ud4nd_200 { text-align: center; color: var(--gray-500); font-size: 13px; padding: 32px 0; }

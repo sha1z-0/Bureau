@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Greenhouse "classic" hosted job board (boards.greenhouse.io/<board>/jobs/<id>).
+  Structure follows the legacy Rails board: #app_body > #header/#content/#application,
+  form#application_form posting multipart job_application[...] keys, the
+  "Attach / Dropbox / Google Drive / Enter manually" resume chooser over a hidden
+  file input, custom questions as job_application[answers_attributes][N][...],
+  jQuery Select2-styled dropdowns over hidden native <select>s, a Google Places
+  location field with hidden lat/long, and the U.S. EEOC voluntary section.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Job Application for Junior Backend Engineer at Lumen Ledger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://boards.greenhouse.io/lumenledger/jobs/4012345">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; background: #fff; }
+    #app_body { max-width: 780px; margin: 0 auto; padding: 24px; }
+    #header .company-name { color: #6d6d6d; font-size: 16px; }
+    .app-title { font-size: 26px; color: #1a1a1a; margin: 0 0 4px; font-weight: normal; }
+    #header .location { color: #6d6d6d; margin-top: 6px; }
+    #content { margin: 24px 0; line-height: 1.5; }
+    #application { border-top: 1px solid #e0e0e0; padding-top: 16px; }
+    #application h2 { font-size: 20px; font-weight: normal; }
+    .field { margin: 0 0 18px; position: relative; }
+    .field label, .field legend { display: block; font-size: 13px; margin-bottom: 6px; font-weight: bold; }
+    .asterisk { color: #b94a48; padding-left: 2px; }
+    .field input[type=text], .field textarea { width: 100%; max-width: 480px; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; box-sizing: border-box; }
+    .field-error input[type=text], .field-error .select2-choice, .field-error .attach-or-paste { border-color: #b94a48 !important; }
+    .field-error-msg { color: #b94a48; font-size: 12px; margin-top: 4px; }
+    fieldset { border: 0; padding: 0; margin: 0; }
+    .attach-or-paste { border: 1px dashed #ccc; padding: 10px; max-width: 460px; }
+    .attach-or-paste .link-container a, .attach-or-paste button { color: #3574d4; background: none; border: 0; padding: 0 8px 0 0; cursor: pointer; font-size: 13px; text-decoration: underline; }
+    .chosen { margin-top: 6px; font-size: 13px; }
+    .chosen .filename { font-weight: bold; }
+    .chosen .unselect { color: #b94a48; margin-left: 8px; cursor: pointer; }
+    .file-types { color: #999; font-size: 11px; }
+    #eeoc_fields { background: #f6f6f6; padding: 14px; margin: 24px 0; }
+    #eeoc_fields .eeoc-intro { font-size: 12px; color: #555; }
+    #submit_buttons input { background: #3574d4; color: #fff; border: 0; padding: 10px 22px; font-size: 15px; border-radius: 3px; cursor: pointer; }
+    #error_message { display: none; color: #b94a48; margin: 10px 0; font-weight: bold; }
+    .select2-offscreen { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+    .select2-container { position: relative; display: inline-block; width: 100%; max-width: 480px; }
+    .select2-choice { display: block; height: 30px; line-height: 30px; padding: 0 0 0 8px; border: 1px solid #aaa; border-radius: 4px; background: #fff; color: #444; text-decoration: none; cursor: pointer; }
+    .select2-choice .select2-arrow { position: absolute; right: 6px; top: 0; }
+    .select2-default { color: #999 !important; }
+    .select2-drop { position: absolute; z-index: 9999; background: #fff; border: 1px solid #aaa; border-top: 0; width: 100%; box-sizing: border-box; }
+    .select2-search input { width: 95%; margin: 4px; }
+    .select2-results { list-style: none; margin: 0; padding: 0 0 4px; max-height: 200px; overflow-y: auto; }
+    .select2-results li { padding: 3px 7px; cursor: pointer; }
+    .select2-results .select2-highlighted { background: #3875d7; color: #fff; }
+    .locate-me { font-size: 12px; margin-left: 6px; }
+  </style>
+</head>
+<body>
+<div id="app_body">
+  <div id="header">
+    <h1 class="app-title">Junior Backend Engineer</h1>
+    <span class="company-name">at Lumen Ledger</span>
+    <div class="location">Remote (EMEA / South Asia)</div>
+  </div>
+
+  <div id="content">
+    <p><strong>About Lumen Ledger</strong></p>
+    <p>Lumen Ledger builds double-entry accounting infrastructure for small online businesses: an API that turns payment events into a clean general ledger.</p>
+    <p><strong>What you'll do</strong></p>
+    <ul>
+      <li>Build and maintain Node.js and TypeScript services behind our ledger API</li>
+      <li>Write PostgreSQL migrations and queries that stay correct under concurrency</li>
+      <li>Own small features end to end, from design note to production</li>
+    </ul>
+    <p><strong>What we're looking for</strong></p>
+    <ul>
+      <li>1+ years building backend services in TypeScript or Python</li>
+      <li>Comfort with SQL and relational modelling</li>
+      <li>Nice to have: Docker, AWS, an interest in accounting systems</li>
+    </ul>
+  </div>
+
+  <div id="application">
+    <h2 class="heading">Apply for this Job</h2>
+    <p class="required-fields"><span class="asterisk">*</span> Required</p>
+    <div id="error_message" role="alert">Please complete all required fields.</div>
+
+    <form id="application_form" action="/__submit/{{FORM_ID}}" method="post" enctype="multipart/form-data" accept-charset="UTF-8" novalidate>
+      <input name="utf8" type="hidden" value="&#x2713;">
+      <input type="hidden" name="authenticity_token" value="fx-AbC123dEf456gHi789">
+      <input type="hidden" name="job_application[job_id]" value="4012345">
+      <input type="hidden" name="fingerprint" id="fingerprint" value="">
+
+      <div id="main_fields">
+        <div class="field">
+          <label for="first_name">First Name<span class="asterisk">*</span></label>
+          <input type="text" id="first_name" name="job_application[first_name]" maxlength="255" aria-required="true" autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label for="last_name">Last Name<span class="asterisk">*</span></label>
+          <input type="text" id="last_name" name="job_application[last_name]" maxlength="255" aria-required="true" autocomplete="family-name">
+        </div>
+        <div class="field">
+          <label for="email">Email<span class="asterisk">*</span></label>
+          <input type="text" id="email" name="job_application[email]" maxlength="255" aria-required="true" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="phone">Phone<span class="asterisk">*</span></label>
+          <input type="text" id="phone" name="job_application[phone]" maxlength="255" aria-required="true" autocomplete="tel">
+        </div>
+        <div class="field" id="location_field">
+          <label for="job_application_location">Location (City)<span class="asterisk">*</span></label>
+          <input type="text" id="job_application_location" name="job_application[location]" aria-required="true" placeholder="">
+          <a href="#" class="locate-me" id="locate_me">Locate me</a>
+          <input type="hidden" id="job_application_latitude" name="job_application[latitude]" value="">
+          <input type="hidden" id="job_application_longitude" name="job_application[longitude]" value="">
+        </div>
+
+        <div class="field" id="resume_fieldset_container">
+          <fieldset id="resume_fieldset">
+            <legend id="resume_label">Resume/CV<span class="asterisk">*</span></legend>
+            <div class="attach-or-paste" data-field="resume" data-file-types="pdf,doc,docx,txt,rtf" aria-required="true">
+              <div class="link-container">
+                <button type="button" class="visible-resume-upload" data-source="attach">Attach</button>
+                <a href="#" data-source="dropbox" class="unavailable-provider">Dropbox</a>
+                <a href="#" data-source="google-drive" class="unavailable-provider">Google Drive</a>
+                <a href="#" data-source="paste">Enter manually</a>
+              </div>
+              <input type="file" id="resume" name="job_application[resume]" accept=".pdf,.doc,.docx,.txt,.rtf" style="display:none" aria-labelledby="resume_label">
+              <textarea name="job_application[resume_text]" id="resume_text" style="display:none" rows="8" aria-label="Paste resume"></textarea>
+              <div class="chosen" style="display:none"><span class="filename"></span><a class="unselect" role="button" aria-label="Remove file">×</a></div>
+              <p class="file-types">(File types: pdf, doc, docx, txt, rtf)</p>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="field" id="cover_letter_fieldset_container">
+          <fieldset id="cover_letter_fieldset">
+            <legend id="cover_letter_label">Cover Letter</legend>
+            <div class="attach-or-paste" data-field="cover_letter" data-file-types="pdf,doc,docx,txt,rtf">
+              <div class="link-container">
+                <button type="button" class="visible-resume-upload" data-source="attach">Attach</button>
+                <a href="#" data-source="dropbox" class="unavailable-provider">Dropbox</a>
+                <a href="#" data-source="google-drive" class="unavailable-provider">Google Drive</a>
+                <a href="#" data-source="paste">Enter manually</a>
+              </div>
+              <input type="file" id="cover_letter" name="job_application[cover_letter]" accept=".pdf,.doc,.docx,.txt,.rtf" style="display:none" aria-labelledby="cover_letter_label">
+              <textarea name="job_application[cover_letter_text]" id="cover_letter_text" style="display:none" rows="8" aria-label="Paste cover letter"></textarea>
+              <div class="chosen" style="display:none"><span class="filename"></span><a class="unselect" role="button" aria-label="Remove file">×</a></div>
+              <p class="file-types">(File types: pdf, doc, docx, txt, rtf)</p>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div id="custom_fields">
+        <div class="field">
+          <label for="job_application_answers_attributes_0_text_value">LinkedIn Profile</label>
+          <input type="hidden" name="job_application[answers_attributes][0][question_id]" value="6512001">
+          <input type="text" id="job_application_answers_attributes_0_text_value" name="job_application[answers_attributes][0][text_value]" maxlength="255">
+        </div>
+        <div class="field">
+          <label for="job_application_answers_attributes_1_text_value">Website</label>
+          <input type="hidden" name="job_application[answers_attributes][1][question_id]" value="6512002">
+          <input type="text" id="job_application_answers_attributes_1_text_value" name="job_application[answers_attributes][1][text_value]" maxlength="255">
+        </div>
+        <div class="field">
+          <label for="job_application_answers_attributes_2_answer_selected_options_attributes_2_question_option_id">How did you hear about this job?<span class="asterisk">*</span></label>
+          <input type="hidden" name="job_application[answers_attributes][2][question_id]" value="6512003">
+          <select id="job_application_answers_attributes_2_answer_selected_options_attributes_2_question_option_id" name="job_application[answers_attributes][2][answer_selected_options_attributes][2][question_option_id]" class="s2" aria-required="true">
+            <option value="">Please select</option>
+            <option value="31870101">LinkedIn</option>
+            <option value="31870102">Company website</option>
+            <option value="31870103">Job Board</option>
+            <option value="31870104">Referral from a Lumen Ledger employee</option>
+            <option value="31870105">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_answers_attributes_3_boolean_value">Will you now or in the future require sponsorship for employment visa status?<span class="asterisk">*</span></label>
+          <input type="hidden" name="job_application[answers_attributes][3][question_id]" value="6512004">
+          <select id="job_application_answers_attributes_3_boolean_value" name="job_application[answers_attributes][3][boolean_value]" class="s2" aria-required="true">
+            <option value="">--</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_answers_attributes_4_text_value">Why do you want to work at Lumen Ledger?<span class="asterisk">*</span></label>
+          <input type="hidden" name="job_application[answers_attributes][4][question_id]" value="6512005">
+          <textarea id="job_application_answers_attributes_4_text_value" name="job_application[answers_attributes][4][text_value]" rows="5" aria-required="true"></textarea>
+        </div>
+        <div class="field">
+          <label for="job_application_answers_attributes_5_text_value">What is your expected annual salary (USD)?</label>
+          <input type="hidden" name="job_application[answers_attributes][5][question_id]" value="6512006">
+          <input type="text" id="job_application_answers_attributes_5_text_value" name="job_application[answers_attributes][5][text_value]" maxlength="255">
+        </div>
+      </div>
+
+      <div id="eeoc_fields">
+        <h3>U.S. Equal Employment Opportunity Information (Completion is voluntary and will not subject you to adverse treatment)</h3>
+        <p class="eeoc-intro">Our company values diversity. To ensure that we comply with reporting requirements and to learn more about how we can increase diversity in our candidate pool, we invite you to voluntarily provide demographic information in a confidential survey at the end of this application. Providing this information is optional.</p>
+        <div class="field">
+          <label for="job_application_gender">Gender</label>
+          <select id="job_application_gender" name="job_application[gender]" class="s2">
+            <option value="">Please select</option>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+            <option value="3">Decline To Self Identify</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_hispanic_ethnicity">Are you Hispanic/Latino?</label>
+          <select id="job_application_hispanic_ethnicity" name="job_application[hispanic_ethnicity]" class="s2">
+            <option value="">Please select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+            <option value="Decline To Self Identify">Decline To Self Identify</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_veteran_status">Veteran Status</label>
+          <select id="job_application_veteran_status" name="job_application[veteran_status]" class="s2">
+            <option value="">Please select</option>
+            <option value="1">I am not a protected veteran</option>
+            <option value="2">I identify as one or more of the classifications of protected veteran</option>
+            <option value="3">I don't wish to answer</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_disability_status">Disability Status</label>
+          <select id="job_application_disability_status" name="job_application[disability_status]" class="s2">
+            <option value="">Please select</option>
+            <option value="1">Yes, I have a disability, or have had one in the past</option>
+            <option value="2">No, I do not have a disability and have not had one in the past</option>
+            <option value="3">I do not want to answer</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="submit_buttons">
+        <input type="button" id="submit_app" value="Submit Application">
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/_shared/places.js"></script>
+<script>
+(function () {
+  'use strict';
+  var form = document.getElementById('application_form');
+
+  // --- Select2 (v3.5) look-alike over every select.s2 -------------------------
+  document.querySelectorAll('select.s2').forEach(function (sel, n) {
+    sel.classList.add('select2-offscreen');
+    sel.tabIndex = -1;
+    var c = document.createElement('div');
+    c.className = 'select2-container';
+    c.id = 's2id_' + sel.id;
+    c.innerHTML = '<a href="javascript:void(0)" class="select2-choice select2-default" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">' +
+      '<span class="select2-chosen" id="select2-chosen-' + (n + 1) + '"></span><span class="select2-arrow" role="presentation">▾</span></a>' +
+      '<label for="s2id_autogen' + (n + 1) + '" class="select2-offscreen"></label>' +
+      '<div class="select2-drop" style="display:none"><div class="select2-search"><input type="text" autocomplete="off" class="select2-input" id="s2id_autogen' + (n + 1) + '_search" role="combobox" aria-autocomplete="list"></div>' +
+      '<ul class="select2-results" role="listbox" id="select2-results-' + (n + 1) + '"></ul></div>';
+    sel.parentNode.insertBefore(c, sel);
+    var choice = c.querySelector('.select2-choice');
+    var chosen = c.querySelector('.select2-chosen');
+    var drop = c.querySelector('.select2-drop');
+    var search = c.querySelector('.select2-input');
+    var results = c.querySelector('.select2-results');
+    c.querySelector('label').textContent = (document.querySelector('label[for="' + sel.id + '"]') || {}).textContent || '';
+    var hi = 0;
+    function sync() {
+      var o = sel.options[sel.selectedIndex];
+      chosen.textContent = o ? o.text : '';
+      choice.classList.toggle('select2-default', !sel.value);
+    }
+    function opts() {
+      var q = search.value.trim().toLowerCase();
+      return Array.prototype.filter.call(sel.options, function (o) { return o.value !== '' && o.text.toLowerCase().indexOf(q) !== -1; });
+    }
+    function draw() {
+      results.innerHTML = '';
+      var list = opts();
+      if (!list.length) { results.innerHTML = '<li class="select2-no-results">No matches found</li>'; return; }
+      list.forEach(function (o, i) {
+        var li = document.createElement('li');
+        li.className = 'select2-results-dept-0 select2-result select2-result-selectable' + (i === hi ? ' select2-highlighted' : '');
+        li.setAttribute('role', 'option');
+        li.innerHTML = '<div class="select2-result-label"></div>';
+        li.firstChild.textContent = o.text;
+        li.addEventListener('mouseup', function () { choose(o); });
+        li.addEventListener('mouseenter', function () { hi = i; draw(); });
+        results.appendChild(li);
+      });
+    }
+    function open() {
+      document.querySelectorAll('.select2-drop').forEach(function (d) { if (d !== drop) d.style.display = 'none'; });
+      drop.style.display = 'block';
+      choice.setAttribute('aria-expanded', 'true');
+      c.classList.add('select2-dropdown-open');
+      search.value = '';
+      hi = 0;
+      draw();
+      search.focus();
+    }
+    function close() {
+      drop.style.display = 'none';
+      choice.setAttribute('aria-expanded', 'false');
+      c.classList.remove('select2-dropdown-open');
+    }
+    function choose(o) {
+      sel.value = o.value;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      sync();
+      close();
+      choice.focus();
+    }
+    choice.addEventListener('mousedown', function (e) { e.preventDefault(); drop.style.display === 'block' ? close() : open(); });
+    choice.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); open(); } });
+    search.addEventListener('input', function () { hi = 0; draw(); });
+    search.addEventListener('keydown', function (e) {
+      var list = opts();
+      if (e.key === 'ArrowDown') { e.preventDefault(); hi = Math.min(list.length - 1, hi + 1); draw(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); hi = Math.max(0, hi - 1); draw(); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (list[hi]) choose(list[hi]); }
+      else if (e.key === 'Escape') { close(); }
+    });
+    search.addEventListener('blur', function () { setTimeout(close, 150); });
+    sel.addEventListener('change', sync);
+    sync();
+  });
+
+  // --- Attach / Enter manually ------------------------------------------------
+  document.querySelectorAll('.attach-or-paste').forEach(function (box) {
+    var input = box.querySelector('input[type=file]');
+    var paste = box.querySelector('textarea');
+    var chosenBox = box.querySelector('.chosen');
+    box.querySelector('[data-source=attach]').addEventListener('click', function () { input.click(); });
+    box.querySelector('[data-source=paste]').addEventListener('click', function (e) { e.preventDefault(); paste.style.display = 'block'; paste.focus(); });
+    box.querySelectorAll('.unavailable-provider').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); alert('This provider is unavailable in this environment.'); }); });
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      var ext = (f.name.split('.').pop() || '').toLowerCase();
+      if (box.dataset.fileTypes.split(',').indexOf(ext) === -1) {
+        input.value = '';
+        alert('Invalid file type. Please upload one of: ' + box.dataset.fileTypes);
+        return;
+      }
+      chosenBox.querySelector('.filename').textContent = f.name;
+      chosenBox.style.display = 'block';
+      box.querySelector('.link-container').style.display = 'none';
+      box.closest('.field').classList.remove('field-error');
+    });
+    chosenBox.querySelector('.unselect').addEventListener('click', function () {
+      input.value = '';
+      chosenBox.style.display = 'none';
+      box.querySelector('.link-container').style.display = 'block';
+    });
+  });
+
+  // --- Location: Places autocomplete fills hidden lat/long ---------------------
+  var loc = document.getElementById('job_application_location');
+  FXPlaces.attach(loc, {
+    onPick: function (p) {
+      document.getElementById('job_application_latitude').value = p.lat;
+      document.getElementById('job_application_longitude').value = p.lng;
+    },
+    onClear: function () {
+      document.getElementById('job_application_latitude').value = '';
+      document.getElementById('job_application_longitude').value = '';
+    }
+  });
+  document.getElementById('locate_me').addEventListener('click', function (e) { e.preventDefault(); alert('Location services are unavailable.'); });
+
+  // --- Client-side validation, then a real multipart POST ----------------------
+  function setError(field, on) {
+    field.classList.toggle('field-error', on);
+    var msg = field.querySelector('.field-error-msg');
+    if (on && !msg) {
+      msg = document.createElement('div');
+      msg.className = 'field-error-msg';
+      msg.textContent = 'This field is required.';
+      field.appendChild(msg);
+    } else if (!on && msg) msg.remove();
+    field.querySelectorAll('input:not([type=hidden]),select,textarea').forEach(function (el) { el.setAttribute('aria-invalid', on ? 'true' : 'false'); });
+  }
+  document.getElementById('submit_app').addEventListener('click', function () {
+    var bad = 0;
+    form.querySelectorAll('[aria-required=true]').forEach(function (el) {
+      var field = el.closest('.field');
+      var empty;
+      if (el.classList.contains('attach-or-paste')) {
+        var fi = el.querySelector('input[type=file]');
+        var tx = el.querySelector('textarea');
+        empty = (!fi.files || !fi.files.length) && !tx.value.trim();
+      } else empty = FX.isBlank(el);
+      if (el.id === 'email' && !empty && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) empty = true;
+      setError(field, empty);
+      if (empty) bad++;
+    });
+    document.getElementById('error_message').style.display = bad ? 'block' : 'none';
+    if (bad) { window.scrollTo(0, 0); return; }
+    document.getElementById('fingerprint').value = 'fx-' + navigator.userAgent.length;
+    document.getElementById('submit_app').disabled = true;
+    form.submit();
+  });
+  form.querySelectorAll('input,select,textarea').forEach(function (el) {
+    el.addEventListener('change', function () { var f = el.closest('.field'); if (f && f.classList.contains('field-error') && !FX.isBlank(el)) setError(f, false); });
+  });
+})();
+</script>
+</body>
+</html>

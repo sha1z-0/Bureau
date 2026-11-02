@@ -1,0 +1,102 @@
+[
+    {
+        "source": "Simplify",
+        "category": "Hardware",
+        "company_name": "Texas Instruments",
+        "id": "e6f8750d-5270-4edb-b249-c9af97aed4f9",
+        "title": "Product Engineer",
+        "active": true,
+        "date_updated": 1793227698,
+        "date_posted": 1793227503,
+        "url": "https://edbz.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/job/25015861",
+        "locations": [
+            "Dallas, TX"
+        ],
+        "company_url": "https://simplify.jobs/c/Texas-Instruments",
+        "is_visible": true,
+        "sponsorship": "Other",
+        "degrees": [
+            "Master's"
+        ]
+    },
+    {
+        "source": "Simplify",
+        "category": "Software",
+        "company_name": "Amazon",
+        "id": "4b410012-08f3-48f8-8a2a-d71ca89a4191",
+        "title": "Software Developer Engineer - Product Knowledge Store",
+        "active": true,
+        "date_updated": 1793226456,
+        "date_posted": 1793226272,
+        "url": "https://amazon.jobs/en/jobs/10590471/software-dev-engineer-product-knowledge-store",
+        "locations": [
+            "Seattle, WA",
+            "United States"
+        ],
+        "company_url": "https://simplify.jobs/c/Amazon",
+        "is_visible": true,
+        "sponsorship": "Other",
+        "degrees": [
+            "Bachelor's"
+        ]
+    },
+    {
+        "source": "Simplify",
+        "category": "Software",
+        "company_name": "Rubrik",
+        "id": "4c3c63fd-9eab-4478-bc80-4ee58d81be85",
+        "title": "Software Engineer - Entra ID",
+        "active": true,
+        "date_updated": 1793225882,
+        "date_posted": 1793222239,
+        "url": "https://www.rubrik.com/company/careers/departments/job.8267709?gh_jid=8267709",
+        "locations": [
+            "Palo Alto, CA"
+        ],
+        "company_url": "https://simplify.jobs/c/Rubrik",
+        "is_visible": true,
+        "sponsorship": "Other",
+        "degrees": [
+            "Bachelor's"
+        ]
+    },
+    {
+        "source": "Simplify",
+        "category": "Software",
+        "company_name": "Oxbridge Health",
+        "id": "4517ade3-c19e-483b-8589-1506dbcf03c8",
+        "title": "AI Engineer",
+        "active": true,
+        "date_updated": 1793196820,
+        "date_posted": 1793196673,
+        "url": "https://ats.rippling.com/oxbridge-health/jobs/196c59b6-8360-4766-a205-f873a3d2c2f4",
+        "locations": [
+            "Norwalk, CT"
+        ],
+        "company_url": "https://simplify.jobs/c/Oxbridge-Health",
+        "is_visible": true,
+        "sponsorship": "Other",
+        "degrees": [
+            "Bachelor's",
+            "Master's"
+        ]
+    },
+    {
+        "source": "Simplify",
+        "category": "Quant",
+        "company_name": "Sainsbury's",
+        "id": "6be0cbab-0819-4d12-9317-d153d1de3524",
+        "title": "Trading Assistant",
+        "active": false,
+        "date_updated": 1773093246,
+        "date_posted": 1773093246,
+        "url": "https://hdhe.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/job/400052618",
+        "locations": [
+            "Harrogate, UK"
+        ],
+        "company_url": "https://simplify.jobs/c/Sainsburys",
+        "is_visible": true,
+        "sponsorship": "Other",
+        "degrees": []
+    }
+]

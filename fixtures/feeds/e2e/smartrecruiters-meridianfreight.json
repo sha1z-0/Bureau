@@ -1,0 +1,59 @@
+{
+  "offset": 0,
+  "limit": 100,
+  "totalFound": 1,
+  "content": [
+    {
+      "id": "744000160123456",
+      "name": "Graduate Software Engineer",
+      "uuid": "3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937",
+      "jobAdId": "a8e2f4c6-1b3d-4f5a-8c7e-2d4f6a8b0c1e",
+      "defaultJobAd": true,
+      "refNumber": "MF-GRAD-2026-04",
+      "company": {
+        "identifier": "MeridianFreight",
+        "name": "Meridian Freight"
+      },
+      "releasedDate": "2026-11-01T11:30:00.000Z",
+      "location": {
+        "city": "Lahore",
+        "region": "Punjab",
+        "country": "pk",
+        "remote": true,
+        "hybrid": false,
+        "fullLocation": "Lahore, Punjab, Pakistan"
+      },
+      "industry": {
+        "id": "logistics_and_supply_chain",
+        "label": "Logistics and Supply Chain"
+      },
+      "department": {
+        "id": "2114307",
+        "label": "Engineering"
+      },
+      "function": {
+        "id": "engineering",
+        "label": "Engineering"
+      },
+      "typeOfEmployment": {
+        "id": "permanent",
+        "label": "Full-time"
+      },
+      "experienceLevel": {
+        "id": "entry_level",
+        "label": "Entry Level"
+      },
+      "customField": [],
+      "visibility": "PUBLIC",
+      "ref": "https://api.smartrecruiters.com/v1/companies/MeridianFreight/postings/744000160123456",
+      "creator": {
+        "name": "Talent Team (fictional)"
+      },
+      "language": {
+        "code": "en",
+        "label": "English",
+        "labelNative": "English (US)"
+      }
+    }
+  ]
+}

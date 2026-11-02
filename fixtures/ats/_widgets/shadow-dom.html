@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: web components (route /widgets/shadow-dom, form widget-shadow-dom).
+
+  A career site built from a custom-element design system. Every field lives in
+  a shadow root, so naive `document.querySelectorAll('input')` sees almost nothing.
+  What is reproduced:
+   - <fx-text-field> (first/last name): OPEN shadow root with its own <label for>
+     and <input>. Not form-associated: it mirrors its value into a light-DOM
+     <input type=hidden name=...> child on every input event (the common
+     "hidden mirror" pattern). The hidden mirror is what gets submitted.
+   - <fx-contact-card>: NESTED shadow roots. The card's open shadow root contains
+     two <fx-text-field>s (email, phone) which each have their own shadow root.
+     Inputs inside a shadow root are never associated with the light-DOM form, so
+     the card is form-associated and submits both values with
+     ElementInternals.setFormValue(FormData).
+   - <fx-preferred-name>: form-associated custom element (static formAssociated,
+     attachInternals, setFormValue, setValidity) for "Preferred name".
+   - <fx-labeled-input>: SLOT-PROJECTED label. The visible label text is light-DOM
+     content (<span slot="label">) projected into the shadow <label>; the input is
+     in the shadow root. Mirrors into a light-DOM hidden input (linkedin).
+   - <fx-secure-field>: CLOSED shadow root (mode: 'closed', delegatesFocus: true)
+     for "Years of professional experience". Locators and element.shadowRoot can't
+     reach the input. Clicking the host delegates focus to the inner input, so
+     click + keyboard works. The value is exposed ONLY through form association
+     (setFormValue): read it back with `new FormData(form).get('years_experience')`.
+     The host has no `value` property.
+   - <fx-checkbox>: custom checkbox (role=checkbox, aria-checked, tabindex=0,
+     Space/click toggles), form-associated, submits "on" when checked, nothing
+     otherwise. Used for the privacy consent.
+  Client-side validation reads every value back through FormData. Submits FormData
+  (multipart) to /__submit/{{FORM_ID}}.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Product Designer (Design Systems) - Quillfeather Studio Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --qf-ink: #1d1b2f; --qf-accent: #5b3fd1; --qf-muted: #6b6880; --qf-error: #c2273b; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--qf-ink); background: #f7f6fb; }
+    header.site { background: var(--qf-ink); color: #fff; padding: 14px 32px; font-weight: 600; letter-spacing: .02em; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 24px 60px; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    .meta { color: var(--qf-muted); margin-bottom: 18px; }
+    .card { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-top: 20px; }
+    .card h2 { margin-top: 0; font-size: 20px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    fx-text-field, fx-preferred-name, fx-labeled-input, fx-secure-field, fx-contact-card, fx-checkbox { display: block; margin-bottom: 16px; }
+    .plain label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .plain .req { color: var(--qf-error); }
+    .plain input[type=file] { font-size: 14px; }
+    .plain .err { color: var(--qf-error); font-size: 13px; margin-top: 4px; display: none; }
+    .plain.invalid .err { display: block; }
+    #form-error { display: none; background: #fdecee; color: var(--qf-error); border: 1px solid #f3b6bf; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; }
+    button.primary { background: var(--qf-accent); color: #fff; border: 0; border-radius: 6px; padding: 12px 26px; font-size: 16px; cursor: pointer; }
+    button.primary[disabled] { opacity: .6; }
+  </style>
+</head>
+<body>
+<header class="site">Quillfeather Studio</header>
+<main>
+  <h1>Product Designer, Design Systems</h1>
+  <div class="meta">Remote, UTC+3 to UTC+6 &middot; Full-time</div>
+  <p>Quillfeather builds an accessible component library used by publishing teams. You'll design and document components, pair with engineers on our web-component implementation, and run audits with screen-reader users.</p>
+
+  <form id="apply" class="card" novalidate>
+    <h2>Apply for this role</h2>
+    <div id="form-error" role="alert">Please fix the highlighted fields.</div>
+
+    <div class="row">
+      <fx-text-field name="first_name" label="First name" required autocomplete="given-name"></fx-text-field>
+      <fx-text-field name="last_name" label="Last name" required autocomplete="family-name"></fx-text-field>
+    </div>
+
+    <fx-contact-card></fx-contact-card>
+
+    <fx-preferred-name name="preferred_name" required></fx-preferred-name>
+
+    <fx-labeled-input name="linkedin" type="url">
+      <span slot="label">LinkedIn profile</span>
+      <span slot="hint">Full URL, e.g. https://www.linkedin.com/in/your-name</span>
+    </fx-labeled-input>
+
+    <fx-secure-field name="years_experience" label="Years of professional experience" required></fx-secure-field>
+
+    <div class="plain" id="resume_field">
+      <label for="resume">Resume / CV <span class="req">*</span></label>
+      <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+      <div class="err">Please attach your resume.</div>
+    </div>
+
+    <fx-checkbox name="privacy_consent" required>I have read the <a href="#privacy">Quillfeather candidate privacy notice</a> and consent to my data being processed for this application.</fx-checkbox>
+
+    <button type="submit" class="primary" id="submit">Submit application</button>
+  </form>
+</main>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var uid = 0;
+
+  var FIELD_CSS =
+    ':host{display:block;font-family:inherit}' +
+    'label{display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#1d1b2f}' +
+    '.req{color:#c2273b;margin-left:2px}' +
+    'input{width:100%;box-sizing:border-box;padding:9px 11px;font-size:15px;border:1px solid #c9c6d8;border-radius:6px;background:#fff}' +
+    'input:focus{outline:2px solid #5b3fd1;outline-offset:1px;border-color:#5b3fd1}' +
+    ':host([invalid]) input{border-color:#c2273b}' +
+    '.err{display:none;color:#c2273b;font-size:13px;margin-top:4px}' +
+    ':host([invalid]) .err{display:block}' +
+    '.hint{color:#6b6880;font-size:12px;margin-top:4px}';
+
+  // ---------------------------------------------------------------------------
+  // <fx-text-field>: open shadow root, mirrors into a light-DOM hidden input.
+  class FxTextField extends HTMLElement {
+    constructor() {
+      super();
+      var id = 'fxtf-' + (++uid);
+      var root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = '<style>' + FIELD_CSS + '</style>' +
+        '<label for="' + id + '" part="label"></label>' +
+        '<input id="' + id + '" part="input">' +
+        '<div class="err" role="alert"></div>';
+      this._input = root.querySelector('input');
+      this._label = root.querySelector('label');
+    }
+    connectedCallback() {
+      var label = this.getAttribute('label') || '';
+      this._label.textContent = label;
+      if (this.hasAttribute('required')) {
+        var s = document.createElement('span'); s.className = 'req'; s.textContent = '*'; s.setAttribute('aria-hidden', 'true');
+        this._label.appendChild(s);
+        this._input.setAttribute('aria-required', 'true');
+      }
+      this._input.type = this.getAttribute('type') || 'text';
+      if (this.getAttribute('autocomplete')) this._input.setAttribute('autocomplete', this.getAttribute('autocomplete'));
+      this.shadowRoot.querySelector('.err').textContent = 'Please enter your ' + label.toLowerCase() + '.';
+      // Light-DOM mirror, only when this field sits directly in the document (not inside another shadow root).
+      if (!this._mirror && this.getRootNode() === document && this.getAttribute('name')) {
+        this._mirror = document.createElement('input');
+        this._mirror.type = 'hidden';
+        this._mirror.name = this.getAttribute('name');
+        this.appendChild(this._mirror);
+      }
+      var self = this;
+      if (!this._wired) {
+        this._wired = true;
+        this._input.addEventListener('input', function () {
+          if (self._mirror) self._mirror.value = self._input.value;
+          self.removeAttribute('invalid');
+          self.dispatchEvent(new CustomEvent('fx-change', { bubbles: true, composed: true, detail: { name: self.getAttribute('name'), value: self._input.value } }));
+        });
+      }
+    }
+    get value() { return this._input.value; }
+    get name() { return this.getAttribute('name'); }
+  }
+  customElements.define('fx-text-field', FxTextField);
+
+  // ---------------------------------------------------------------------------
+  // <fx-contact-card>: nested components, form-associated, submits FormData.
+  class FxContactCard extends HTMLElement {
+    static get formAssociated() { return true; }
+    constructor() {
+      super();
+      this._internals = this.attachInternals();
+      var root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = '<style>:host{display:block;border:1px solid #e3e1ee;border-radius:8px;padding:14px 16px 2px;background:#fbfaff}' +
+        'h3{margin:0 0 12px;font-size:15px}fx-text-field{display:block;margin-bottom:14px}</style>' +
+        '<h3>How can we reach you?</h3>' +
+        '<fx-text-field name="email" label="Email" type="email" required autocomplete="email"></fx-text-field>' +
+        '<fx-text-field name="phone" label="Phone" type="tel" autocomplete="tel"></fx-text-field>';
+      var self = this;
+      root.addEventListener('fx-change', function () { self._sync(); });
+      this._sync();
+    }
+    _sync() {
+      var fd = new FormData();
+      this.shadowRoot.querySelectorAll('fx-text-field').forEach(function (f) { fd.append(f.getAttribute('name'), f.value || ''); });
+      this._internals.setFormValue(fd);
+    }
+    field(name) { return this.shadowRoot.querySelector('fx-text-field[name="' + name + '"]'); }
+  }
+  customElements.define('fx-contact-card', FxContactCard);
+
+  // ---------------------------------------------------------------------------
+  // <fx-preferred-name>: form-associated custom element.
+  class FxPreferredName extends HTMLElement {
+    static get formAssociated() { return true; }
+    constructor() {
+      super();
+      this._internals = this.attachInternals();
+      var root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = '<style>' + FIELD_CSS + '</style>' +
+        '<label for="pn">Preferred name<span class="req" aria-hidden="true">*</span></label>' +
+        '<input id="pn" autocomplete="nickname" aria-required="true" aria-describedby="pnh">' +
+        '<div class="hint" id="pnh">What should we call you during the process?</div>' +
+        '<div class="err" role="alert">Please tell us what to call you.</div>';
+      this._input = root.querySelector('input');
+      var self = this;
+      this._input.addEventListener('input', function () { self._update(); self.removeAttribute('invalid'); });
+      this._update();
+    }
+    _update() {
+      var v = this._input.value;
+      this._internals.setFormValue(v);
+      if (this.hasAttribute('required') && !v.trim()) this._internals.setValidity({ valueMissing: true }, 'Please tell us what to call you.', this._input);
+      else this._internals.setValidity({});
+    }
+    connectedCallback() { this._update(); }
+    get value() { return this._input.value; }
+    get validity() { return this._internals.validity; }
+    checkValidity() { return this._internals.checkValidity(); }
+  }
+  customElements.define('fx-preferred-name', FxPreferredName);
+
+  // ---------------------------------------------------------------------------
+  // <fx-labeled-input>: label text is slotted from the light DOM.
+  class FxLabeledInput extends HTMLElement {
+    constructor() {
+      super();
+      var root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = '<style>' + FIELD_CSS + '</style>' +
+        '<label for="li"><slot name="label"></slot></label>' +
+        '<input id="li" aria-describedby="lih">' +
+        '<div class="hint" id="lih"><slot name="hint"></slot></div>';
+      this._input = root.querySelector('input');
+    }
+    connectedCallback() {
+      this._input.type = this.getAttribute('type') || 'text';
+      if (!this._mirror) {
+        this._mirror = document.createElement('input');
+        this._mirror.type = 'hidden';
+        this._mirror.name = this.getAttribute('name');
+        this.appendChild(this._mirror);
+        var self = this;
+        this._input.addEventListener('input', function () { self._mirror.value = self._input.value; });
+      }
+    }
+    get value() { return this._input.value; }
+  }
+  customElements.define('fx-labeled-input', FxLabeledInput);
+
+  // ---------------------------------------------------------------------------
+  // <fx-secure-field>: CLOSED shadow root. The shadow root reference is kept in a
+  // closure only; the value leaves the component solely via setFormValue.
+  (function () {
+    var roots = new WeakMap();
+    class FxSecureField extends HTMLElement {
+      static get formAssociated() { return true; }
+      constructor() {
+        super();
+        var internals = this.attachInternals();
+        var root = this.attachShadow({ mode: 'closed', delegatesFocus: true });
+        root.innerHTML = '<style>' + FIELD_CSS + ':host{cursor:text}</style>' +
+          '<label for="sf"></label>' +
+          '<input id="sf" inputmode="numeric" aria-required="true">' +
+          '<div class="err" role="alert">Please enter a number of years.</div>';
+        var input = root.querySelector('input');
+        var host = this;
+        input.addEventListener('input', function () {
+          internals.setFormValue(input.value);
+          host.removeAttribute('invalid');
+          if (!input.value.trim()) internals.setValidity({ valueMissing: true }, 'Required', input);
+          else if (!/^\d{1,2}(\.\d)?$/.test(input.value.trim())) internals.setValidity({ patternMismatch: true }, 'Enter a number', input);
+          else internals.setValidity({});
+        });
+        internals.setFormValue('');
+        internals.setValidity({ valueMissing: true }, 'Required', input);
+        roots.set(this, { root: root, input: input, internals: internals });
+      }
+      connectedCallback() {
+        var r = roots.get(this);
+        var label = r.root.querySelector('label');
+        label.textContent = this.getAttribute('label') || '';
+        var s = document.createElement('span'); s.className = 'req'; s.textContent = '*'; s.setAttribute('aria-hidden', 'true');
+        label.appendChild(s);
+      }
+      checkValidity() { return roots.get(this).internals.checkValidity(); }
+    }
+    customElements.define('fx-secure-field', FxSecureField);
+  })();
+
+  // ---------------------------------------------------------------------------
+  // <fx-checkbox>: custom checkbox, form-associated.
+  class FxCheckbox extends HTMLElement {
+    static get formAssociated() { return true; }
+    constructor() {
+      super();
+      this._internals = this.attachInternals();
+      var root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = '<style>:host{display:flex!important;gap:10px;align-items:flex-start;cursor:pointer;font-size:14px;line-height:1.4}' +
+        '.box{flex:0 0 18px;height:18px;border:2px solid #8a86a3;border-radius:4px;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;box-sizing:border-box}' +
+        ':host([aria-checked=true]) .box{background:#5b3fd1;border-color:#5b3fd1}' +
+        ':host(:focus-visible){outline:2px solid #5b3fd1;outline-offset:3px}' +
+        ':host([invalid]) .box{border-color:#c2273b}.err{display:none;color:#c2273b;font-size:13px}:host([invalid]) .err{display:block}' +
+        '.req{color:#c2273b}</style>' +
+        '<span class="box" part="box"></span><span><slot></slot><span class="req" aria-hidden="true"> *</span><div class="err">You must accept to continue.</div></span>';
+      this._box = root.querySelector('.box');
+    }
+    connectedCallback() {
+      this.setAttribute('role', 'checkbox');
+      if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
+      if (this.hasAttribute('required')) this.setAttribute('aria-required', 'true');
+      this._set(this.getAttribute('aria-checked') === 'true');
+      if (!this._wired) {
+        this._wired = true;
+        var self = this;
+        this.addEventListener('click', function (e) {
+          if (e.target && e.target.closest && e.target.closest('a')) return;
+          self._set(!self.checked);
+        });
+        this.addEventListener('keydown', function (e) {
+          if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); self._set(!self.checked); }
+        });
+      }
+    }
+    _set(on) {
+      this.setAttribute('aria-checked', on ? 'true' : 'false');
+      this._box.textContent = on ? '✓' : '';
+      this._internals.setFormValue(on ? 'on' : null);
+      if (on) this.removeAttribute('invalid');
+      this.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    get checked() { return this.getAttribute('aria-checked') === 'true'; }
+  }
+  customElements.define('fx-checkbox', FxCheckbox);
+
+  // ---------------------------------------------------------------------------
+  // Validation reads everything back through FormData, then multipart POST.
+  var form = document.getElementById('apply');
+  var resume = document.getElementById('resume');
+  resume.addEventListener('change', function () { document.getElementById('resume_field').classList.toggle('invalid', !resume.files.length); });
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var fd = new FormData(form);
+    var bad = 0;
+    function need(key, el) {
+      var v = fd.get(key);
+      var empty = v == null || (typeof v === 'string' ? !v.trim() : !v.size);
+      if (key === 'email' && !empty && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v))) empty = true;
+      if (key === 'years_experience' && !empty && !/^\d{1,2}(\.\d)?$/.test(String(v).trim())) empty = true;
+      if (el) el.toggleAttribute('invalid', empty);
+      if (empty) bad++;
+    }
+    var card = document.querySelector('fx-contact-card');
+    need('first_name', document.querySelector('fx-text-field[name=first_name]'));
+    need('last_name', document.querySelector('fx-text-field[name=last_name]'));
+    need('email', card.field('email'));
+    need('preferred_name', document.querySelector('fx-preferred-name'));
+    need('years_experience', document.querySelector('fx-secure-field'));
+    need('privacy_consent', document.querySelector('fx-checkbox'));
+    var noCv = !resume.files.length;
+    document.getElementById('resume_field').classList.toggle('invalid', noCv);
+    if (noCv) bad++;
+    document.getElementById('form-error').style.display = bad ? 'block' : 'none';
+    if (bad) { window.scrollTo(0, 0); return; }
+    var btn = document.getElementById('submit');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    var res = await FX.postForm(FORM_ID, fd);
+    if (!FX.finish(res)) {
+      btn.disabled = false; btn.textContent = 'Submit application';
+      var box = document.getElementById('form-error');
+      box.textContent = 'We could not submit your application: ' + ((res && res.errors) || []).join('; ');
+      box.style.display = 'block';
+    }
+  });
+})();
+</script>
+</body>
+</html>

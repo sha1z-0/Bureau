@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Recruitee careers-site application form (<company>.recruitee.com/o/<offer-slug>/c/new),
+  current React/styled-components site. Reproduces form#offer-application-form with
+  react-hook-form style DOTTED input names (candidate.name, candidate.openQuestionAnswers.<id>.content,
+  candidate.agreements.0.consent) and radix ids containing dots and colons
+  (id="input-candidate.name-radix-:R197l9r6l:"), the phone field pre-filled with "+1"
+  behind a downshift country-code listbox, file inputs stretched invisibly (opacity 0) over
+  "Upload a file or drag and drop here" drop areas, the cover letter "Write it here instead" /
+  "Clear and upload a cover letter instead" toggle, open questions of every kind
+  (boolean radios, single-choice radios whose value is the option text, multi-choice checkboxes,
+  single-line, multi-line, date), GDPR agreement checkbox + an optional "keep my data" legal question,
+  per-field div[role=alert] errors with aria-invalid, a "Send" button.
+  Submission is what the site really sends: fetch() of multipart FormData built by
+  object-to-formdata ({indices:true}) -> bracket keys: candidate[name], candidate[cv],
+  candidate[openQuestionAnswers][<id>][content], candidate[agreements][0][consent] ...
+  On success the form tab panel is swapped for the in-page "All done!" panel (URL unchanged).
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Web Developer - Tulip &amp; Tern</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "Helvetica Neue", Arial, sans-serif; color: #1c2b39; background: #fff; }
+    .sc-header { background: #24453a; color: #fff; padding: 32px 16px; }
+    .sc-header-inner, .sc-main { max-width: 720px; margin: 0 auto; }
+    .sc-header h1 { margin: 0 0 8px; font-size: 30px; }
+    .sc-header .meta { opacity: .85; font-size: 15px; }
+    .sc-main { padding: 24px 16px 64px; }
+    [role=tablist] { display: flex; gap: 24px; border-bottom: 1px solid #d9dee3; margin-bottom: 24px; }
+    [role=tab] { background: none; border: 0; padding: 12px 0; font-size: 16px; cursor: pointer; color: #536475; border-bottom: 3px solid transparent; }
+    [role=tab][aria-selected=true] { color: #1c2b39; border-bottom-color: #24453a; font-weight: 600; }
+    .intro { line-height: 1.55; font-size: 15px; margin-bottom: 24px; }
+    section { margin-bottom: 32px; }
+    fieldset { border: 0; margin: 0; padding: 0; }
+    legend { font-size: 20px; font-weight: 600; padding: 0; margin-bottom: 4px; }
+    fieldset fieldset legend { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+    .hint { color: #536475; margin: 0 0 16px; font-size: 14px; }
+    .field { margin-bottom: 20px; }
+    label.lbl, .lbl { display: block; font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .req { color: red; margin-left: 2px; }
+    input[type=text], input[type=email], input[type=tel], input[type=date], textarea { box-sizing: border-box; width: 100%; max-width: 440px; padding: 10px 12px; border: 1px solid #b5c0cb; border-radius: 4px; font: inherit; }
+    textarea { max-width: 100%; }
+    input[aria-invalid=true], textarea[aria-invalid=true] { border-color: #d6293e; }
+    [role=alert] { color: #d6293e; font-size: 13px; min-height: 0; margin-top: 4px; }
+    .phone { display: flex; gap: 8px; max-width: 440px; position: relative; }
+    .phone > button { min-width: 240px; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid #b5c0cb; border-radius: 4px; background: #fff; font: inherit; cursor: pointer; }
+    .phone input { flex: 1; }
+    .cc-menu { position: absolute; left: 0; top: 46px; min-width: 240px; z-index: 1002; background: #fff; border: 1px solid #b5c0cb; border-radius: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.12); max-height: 260px; overflow: auto; }
+    .cc-menu[aria-expanded=false] { display: none; }
+    .cc-menu [role=option] { padding: 10px 12px; cursor: pointer; }
+    .cc-menu [role=option][data-highlighted=true] { background: #eef3f7; }
+    .drop { position: relative; border: 1px dashed #8a99a8; border-radius: 6px; padding: 22px; text-align: center; max-width: 440px; color: #536475; }
+    .drop strong, .drop span.u { color: #24453a; font-weight: 600; }
+    .drop.dragging { background: #eef3f7; }
+    .file-chip { display: flex; justify-content: space-between; align-items: center; max-width: 440px; border: 1px solid #b5c0cb; border-radius: 6px; padding: 10px 12px; margin-top: 8px; }
+    .file-chip button { background: none; border: 0; color: #d6293e; cursor: pointer; font: inherit; }
+    .switch { background: none; border: 0; padding: 0; margin: 8px 0 0; color: #24453a; text-decoration: underline; cursor: pointer; font: inherit; }
+    .choice { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .choice input { width: 18px; height: 18px; margin: 0; }
+    .agreement { display: flex; gap: 10px; align-items: flex-start; position: relative; }
+    .agreement input { margin-top: 3px; width: 18px; height: 18px; }
+    .agreement p { margin: 0; line-height: 1.45; }
+    .all-required { color: #536475; padding: 24px 0; }
+    button[type=submit] { background: #24453a; color: #fff; border: 0; border-radius: 4px; padding: 12px 32px; font-size: 16px; cursor: pointer; }
+    button[type=submit][aria-busy=true] { opacity: .6; }
+    .success { text-align: center; padding: 48px 16px; }
+    .success h3 { font-size: 26px; margin: 0 0 8px; }
+    .sr-only { position: absolute; border: 0; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .job-body { line-height: 1.55; }
+    footer { text-align: center; color: #8a99a8; font-size: 13px; padding: 24px; }
+  </style>
+</head>
+<body>
+<div id="root">
+  <header class="sc-header">
+    <div class="sc-header-inner">
+      <h1>Junior Web Developer</h1>
+      <div class="meta">Tulip &amp; Tern · Utrecht, Netherlands · Remote within EMEA · Full-time</div>
+    </div>
+  </header>
+
+  <main class="sc-main">
+    <p class="intro">Tulip &amp; Tern is a 30-person studio building booking and storefront software for independent florists in the Netherlands and Belgium. You'll join a team of four web developers working on our customer storefronts (Next.js) and the Elixir/Phoenix API behind them.</p>
+
+    <div dir="ltr" data-orientation="horizontal">
+      <div role="tablist" aria-orientation="horizontal" aria-label="Offer navigation">
+        <button type="button" role="tab" id="radix-:Rl9r6l:-trigger-offer-description" aria-controls="radix-:Rl9r6l:-content-offer-description" aria-selected="false" data-state="inactive" tabindex="-1">Job description</button>
+        <button type="button" role="tab" id="radix-:Rl9r6l:-trigger-offer-application-form" aria-controls="radix-:Rl9r6l:-content-offer-application-form" aria-selected="true" data-state="active" tabindex="0">Application</button>
+      </div>
+
+      <div data-state="inactive" role="tabpanel" aria-labelledby="radix-:Rl9r6l:-trigger-offer-description" id="radix-:Rl9r6l:-content-offer-description" hidden tabindex="0">
+        <div class="job-body">
+          <h2>About the role</h2>
+          <p>You'll build features for florists' storefronts and the dashboard they use to manage bouquets, delivery slots and orders.</p>
+          <h3>What you'll do</h3>
+          <ul><li>Build React components and pages in our Next.js storefront</li><li>Write and review small API changes in Elixir with a senior developer</li><li>Fix bugs reported by florists, and talk to them when it helps</li></ul>
+          <h3>What we're looking for</h3>
+          <ul><li>1-2 years of professional web development (internships count)</li><li>Good JavaScript/TypeScript and React</li><li>Curiosity about the backend; no Elixir experience needed</li></ul>
+          <h3>What we offer</h3>
+          <ul><li>Fully remote within UTC-1 to UTC+5</li><li>EUR 1,500 yearly learning budget</li><li>A team that writes things down</li></ul>
+        </div>
+      </div>
+
+      <div data-state="active" role="tabpanel" aria-labelledby="radix-:Rl9r6l:-trigger-offer-application-form" id="radix-:Rl9r6l:-content-offer-application-form" tabindex="0">
+        <form id="offer-application-form" autocomplete="on" novalidate>
+          <section>
+            <fieldset>
+              <legend>My information</legend>
+              <p class="hint">Fill out the information below</p>
+              <div class="field">
+                <label class="lbl" for="input-candidate.name-radix-:R197l9r6l:">Full name<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+                <input type="text" id="input-candidate.name-radix-:R197l9r6l:" aria-invalid="false" required maxlength="255" aria-describedby="input-candidate.name-radix-:R197l9r6l:-error" placeholder="Full name" autocomplete="name" name="candidate.name">
+                <div role="alert" id="input-candidate.name-radix-:R197l9r6l:-error"></div>
+              </div>
+              <div class="field">
+                <label class="lbl" for="input-candidate.email-radix-:R1h7l9r6l:">Email address<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+                <input type="email" id="input-candidate.email-radix-:R1h7l9r6l:" aria-invalid="false" required maxlength="255" aria-describedby="input-candidate.email-radix-:R1h7l9r6l:-error" placeholder="Your email address" autocomplete="email" name="candidate.email">
+                <div role="alert" id="input-candidate.email-radix-:R1h7l9r6l:-error"></div>
+              </div>
+              <div class="field">
+                <label class="lbl" for="input-candidate.phone-radix-:R1p7l9r6l:">Phone number<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+                <div class="phone">
+                  <button aria-live="polite" type="button" id="country-select-input-candidate.phone-radix-:R1p7l9r6l:" aria-haspopup="listbox" aria-expanded="false" style="min-width:240px" aria-label="Select country calling code: United States"><span class="cc-label">United States</span><span aria-hidden="true">›</span></button>
+                  <div aria-multiselectable="false" aria-expanded="false" id="downshift-0-menu" role="listbox" aria-labelledby="country-select-input-candidate.phone-radix-:R1p7l9r6l:" tabindex="-1" class="cc-menu"></div>
+                  <input aria-invalid="false" aria-describedby="input-candidate.phone-radix-:R1p7l9r6l:-error" type="tel" autocomplete="tel" required name="candidate.phone" placeholder="Your phone number" id="input-candidate.phone-radix-:R1p7l9r6l:" value="+1">
+                </div>
+                <div role="alert" id="input-candidate.phone-radix-:R1p7l9r6l:-error"></div>
+              </div>
+            </fieldset>
+          </section>
+
+          <section>
+            <label class="lbl" for="input-candidate.cv-radix-:R1nl9r6l:">CV or resume<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+            <p class="hint" id="input-cv-description-radix-:R1nl9r6lH1:">Upload your CV or resume file</p>
+            <div class="upload" data-for="cv">
+              <div class="drop" tabindex="-1" role="presentation">
+                <input type="file" autocomplete="off" tabindex="0" accept="application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, application/vnd.oasis.opendocument.text, application/rtf, text/plain, image/png, image/jpeg" required name="candidate.cv" id="input-candidate.cv-radix-:R1nl9r6l:" aria-describedby="input-candidate.cv-radix-:R1nl9r6l:-error input-candidate.cv-radix-:R1pnl9r6lH1: input-cv-description-radix-:R1nl9r6lH1:" aria-labelledby="input-candidate.cv-radix-:R1pnl9r6lH2:" aria-invalid="false" data-cy="fileInputField" style="width:100%;overflow:hidden;position:absolute;top:0px;left:0px;opacity:0;height:100%;cursor:pointer">
+                <div aria-hidden="true" id="input-candidate.cv-radix-:R1pnl9r6lH2:"><span class="u">Upload a file</span> or drag and drop here</div>
+                <div id="input-candidate.cv-radix-:R1pnl9r6lH1:"><span class="sr-only">Upload a file or drag and drop here</span>Accepted files: PDF, DOC, DOCX, JPEG and PNG up to 50MB.</div>
+              </div>
+              <div class="file-chip" hidden><span class="file-name"></span><button type="button" aria-label="Remove file">Remove</button></div>
+              <div role="alert" id="input-candidate.cv-radix-:R1nl9r6l:-error"></div>
+            </div>
+          </section>
+
+          <section id="cover-letter-section">
+            <label class="lbl" for="input-candidate.coverLetterFile-radix-:R27l9r6lH1:" data-mode-label="file">Cover letter</label>
+            <p class="hint" id="input-cover-letter-description-radix-:R27l9r6l:">Upload your cover letter</p>
+            <div class="upload" data-for="coverLetterFile">
+              <div class="drop" tabindex="-1" role="presentation">
+                <input type="file" autocomplete="off" tabindex="0" accept="application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, application/vnd.oasis.opendocument.text, application/rtf, text/plain, image/png, image/jpeg" name="candidate.coverLetterFile" id="input-candidate.coverLetterFile-radix-:R27l9r6lH1:" aria-describedby="input-candidate.coverLetterFile-radix-:R27l9r6lH1:-error input-candidate.coverLetterFile-radix-:R5q7l9r6lH1: input-cover-letter-description-radix-:R27l9r6l:" aria-labelledby="input-candidate.coverLetterFile-radix-:R5q7l9r6lH2:" aria-invalid="false" data-cy="candidate.coverLetterFile" style="width:100%;overflow:hidden;position:absolute;top:0px;left:0px;opacity:0;height:100%;cursor:pointer">
+                <div aria-hidden="true" id="input-candidate.coverLetterFile-radix-:R5q7l9r6lH2:"><span class="u">Upload a file</span> or drag and drop here</div>
+                <div id="input-candidate.coverLetterFile-radix-:R5q7l9r6lH1:"><span class="sr-only">Upload a file or drag and drop here</span>Accepted files: PDF, DOC, DOCX, JPEG and PNG up to 50MB.</div>
+              </div>
+              <div class="file-chip" hidden><span class="file-name"></span><button type="button" aria-label="Remove file">Remove</button></div>
+              <div role="alert" id="input-candidate.coverLetterFile-radix-:R27l9r6lH1:-error"></div>
+            </div>
+            <button type="button" class="switch" data-cy="cover-letter-switch-button">Write it here instead</button>
+          </section>
+
+          <section data-testid="segment-open-questions">
+            <fieldset>
+              <legend>Questions</legend>
+              <p class="hint">Please fill in additional questions</p>
+
+              <div class="field" data-question="7731401">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731401.openQuestionId" value="7731401">
+                <fieldset>
+                  <legend>Will you now or in the future need visa sponsorship to work for us in the Netherlands?<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></legend>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-0" aria-describedby="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-error undefined" name="candidate.openQuestionAnswers.7731401.flag" value="true"><label for="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-0"><span></span><span>Yes</span></label></div>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-1" aria-describedby="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-error undefined" name="candidate.openQuestionAnswers.7731401.flag" value="false"><label for="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-1"><span></span><span>No</span></label></div>
+                </fieldset>
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731401.flag-radix-:R12qnl9r6l:-error"></div>
+              </div>
+
+              <div class="field" data-question="7731402">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731402.openQuestionId" value="7731402">
+                <fieldset>
+                  <legend>How many years of professional web development experience do you have?<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></legend>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-0" name="candidate.openQuestionAnswers.7731402.content" value="Less than 1 year"><label for="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-0"><span></span><span>Less than 1 year</span></label></div>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-1" name="candidate.openQuestionAnswers.7731402.content" value="1-2 years"><label for="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-1"><span></span><span>1-2 years</span></label></div>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-2" name="candidate.openQuestionAnswers.7731402.content" value="3-5 years"><label for="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-2"><span></span><span>3-5 years</span></label></div>
+                  <div class="choice"><input required type="radio" aria-invalid="false" id="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-3" name="candidate.openQuestionAnswers.7731402.content" value="More than 5 years"><label for="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-3"><span></span><span>More than 5 years</span></label></div>
+                </fieldset>
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731402.content-radix-:R14qnl9r6l:-error"></div>
+              </div>
+
+              <div class="field" data-question="7731403" data-kind="checkbox">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731403.openQuestionId" value="7731403">
+                <fieldset>
+                  <legend>Which of these have you used in a professional project?</legend>
+                  <div class="choice"><input type="checkbox" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-0" name="candidate.openQuestionAnswers.7731403.multiContent" value="React"><label for="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-0">React</label></div>
+                  <div class="choice"><input type="checkbox" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-1" name="candidate.openQuestionAnswers.7731403.multiContent" value="Vue"><label for="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-1">Vue</label></div>
+                  <div class="choice"><input type="checkbox" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-2" name="candidate.openQuestionAnswers.7731403.multiContent" value="TypeScript"><label for="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-2">TypeScript</label></div>
+                  <div class="choice"><input type="checkbox" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-3" name="candidate.openQuestionAnswers.7731403.multiContent" value="Elixir"><label for="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-3">Elixir</label></div>
+                  <div class="choice"><input type="checkbox" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-4" name="candidate.openQuestionAnswers.7731403.multiContent" value="PHP"><label for="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-4">PHP</label></div>
+                </fieldset>
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731403.multiContent-radix-:R16qnl9r6l:-error"></div>
+              </div>
+
+              <div class="field" data-question="7731404">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731404.openQuestionId" value="7731404">
+                <label class="lbl" for="input-candidate.openQuestionAnswers.7731404.content-radix-:R18qnl9r6l:">What are your salary expectations (gross per year, USD)?<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+                <input type="text" id="input-candidate.openQuestionAnswers.7731404.content-radix-:R18qnl9r6l:" aria-invalid="false" required maxlength="255" aria-describedby="input-candidate.openQuestionAnswers.7731404.content-radix-:R18qnl9r6l:-error" autocomplete="on" name="candidate.openQuestionAnswers.7731404.content">
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731404.content-radix-:R18qnl9r6l:-error"></div>
+              </div>
+
+              <div class="field" data-question="7731405">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731405.openQuestionId" value="7731405">
+                <label class="lbl" for="input-candidate.openQuestionAnswers.7731405.content-radix-:R1aqnl9r6l:">When could you start?</label>
+                <input type="date" id="input-candidate.openQuestionAnswers.7731405.content-radix-:R1aqnl9r6l:" aria-invalid="false" aria-describedby="input-candidate.openQuestionAnswers.7731405.content-radix-:R1aqnl9r6l:-error" name="candidate.openQuestionAnswers.7731405.content">
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731405.content-radix-:R1aqnl9r6l:-error"></div>
+              </div>
+
+              <div class="field" data-question="7731406">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731406.openQuestionId" value="7731406">
+                <label class="lbl" for="input-candidate.openQuestionAnswers.7731406.content-radix-:R1cqnl9r6l:">Tell us about a web project you are proud of. What was your part in it?<span aria-hidden="true"><span class="req" title="This field is required and can not be left empty.">*</span></span></label>
+                <textarea data-cy="textAreaInputField" required id="input-candidate.openQuestionAnswers.7731406.content-radix-:R1cqnl9r6l:" rows="6" aria-invalid="false" aria-describedby="input-candidate.openQuestionAnswers.7731406.content-radix-:R1cqnl9r6l:-error " autocomplete="on" name="candidate.openQuestionAnswers.7731406.content"></textarea>
+                <div role="alert" id="input-candidate.openQuestionAnswers.7731406.content-radix-:R1cqnl9r6l:-error"></div>
+              </div>
+            </fieldset>
+          </section>
+
+          <section>
+            <fieldset>
+              <legend>Privacy</legend>
+              <div class="field" data-agreement="0">
+                <div class="agreement">
+                  <input type="hidden" value="38811" name="candidate.agreements.0.agreementId">
+                  <input required type="checkbox" aria-invalid="false" value="false" name="candidate.agreements.0.consent" aria-labelledby="input-candidate.agreements.0.consent-radix-:R2el9r6l:-0" id="input-candidate.agreements.0.consent-radix-:R2el9r6l:">
+                  <div id="input-candidate.agreements.0.consent-radix-:R2el9r6l:-0"><p>I have read the <a href="#privacy" target="_blank">privacy policy</a> and agree that Tulip &amp; Tern processes my personal data to evaluate my application.<span class="req" aria-hidden="true">*</span></p></div>
+                </div>
+                <div role="alert" style="min-height:24px" id="input-candidate.agreements.0.consent-radix-:R2el9r6l:-error"></div>
+              </div>
+              <div class="field" data-question="7731407" data-kind="legal">
+                <input type="hidden" name="candidate.openQuestionAnswers.7731407.openQuestionId" value="7731407">
+                <div class="agreement">
+                  <input type="checkbox" aria-invalid="false" name="candidate.openQuestionAnswers.7731407.flag" value="true" id="input-candidate.openQuestionAnswers.7731407.flag-radix-:R2gl9r6l:" aria-labelledby="input-candidate.openQuestionAnswers.7731407.flag-radix-:R2gl9r6l:-label">
+                  <div id="input-candidate.openQuestionAnswers.7731407.flag-radix-:R2gl9r6l:-label"><p>Yes, Tulip &amp; Tern may keep my data for 12 months to consider me for future job opportunities.</p></div>
+                </div>
+              </div>
+            </fieldset>
+          </section>
+
+          <div id="input-captchaToken-radix-:R47l9r6l:"></div>
+          <div role="alert" id="input-captchaToken-radix-:R47l9r6l:-error"></div>
+          <div aria-hidden="true" class="all-required"><p>All fields marked with <span class="req">*</span> are required.</p></div>
+          <div><button aria-live="polite" aria-busy="false" type="submit" data-testid="submit-application-form-button">Send</button></div>
+          <div role="alert" id="form-submit-error"></div>
+        </form>
+      </div>
+
+      <div data-state="inactive" data-orientation="horizontal" role="tabpanel" aria-labelledby="radix-:Rl9r6l:-trigger-offer-application-success" hidden id="radix-:Rl9r6l:-content-offer-application-success" tabindex="0">
+        <div class="success"><div aria-live="assertive"><h3>All done!</h3><p>Your application has been successfully submitted!</p></div><div><a aria-live="off" href="#" target="_self">Other jobs</a></div></div>
+      </div>
+    </div>
+  </main>
+  <footer>Powered by Recruitee</footer>
+</div>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var form = document.getElementById('offer-application-form');
+  var byName = function (n) { return form.querySelector('[name="' + n + '"]'); };
+  var errBox = function (el) { return document.getElementById((el.getAttribute('aria-describedby') || el.id + '-error').split(' ')[0]) || document.getElementById(el.id + '-error'); };
+
+  // ---- tabs (radix) --------------------------------------------------------------
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role=tab]'));
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.setAttribute('aria-selected', String(on));
+        x.setAttribute('data-state', on ? 'active' : 'inactive');
+        x.tabIndex = on ? 0 : -1;
+        var p = document.getElementById(x.getAttribute('aria-controls'));
+        p.hidden = !on;
+        p.setAttribute('data-state', on ? 'active' : 'inactive');
+      });
+    });
+  });
+
+  // ---- phone: downshift country-code listbox, value starts as "+1" ---------------
+  var COUNTRIES = [['International', ''], ['Belgium', '32'], ['Germany', '49'], ['India', '91'], ['Netherlands', '31'], ['Nigeria', '234'], ['Pakistan', '92'], ['Poland', '48'], ['United Arab Emirates', '971'], ['United Kingdom', '44'], ['United States', '1']];
+  var ccBtn = document.getElementById('country-select-input-candidate.phone-radix-:R1p7l9r6l:');
+  var ccMenu = document.getElementById('downshift-0-menu');
+  var phone = byName('candidate.phone');
+  var cc = 'United States';
+  var hi = -1;
+  function drawMenu() {
+    ccMenu.innerHTML = '';
+    COUNTRIES.forEach(function (c, i) {
+      var o = document.createElement('div');
+      o.setAttribute('role', 'option');
+      o.id = 'downshift-0-item-' + i;
+      o.setAttribute('aria-selected', String(c[0] === cc));
+      o.setAttribute('aria-label', c[0]);
+      o.setAttribute('data-highlighted', String(i === hi));
+      o.textContent = c[0] + (c[1] ? ' (+' + c[1] + ')' : '');
+      o.addEventListener('click', function () { pick(i); });
+      o.addEventListener('mousemove', function () { if (hi !== i) { hi = i; drawMenu(); } });
+      ccMenu.appendChild(o);
+    });
+  }
+  function setOpen(on) {
+    ccBtn.setAttribute('aria-expanded', String(on));
+    ccMenu.setAttribute('aria-expanded', String(on));
+    if (on) { hi = COUNTRIES.findIndex(function (c) { return c[0] === cc; }); drawMenu(); }
+  }
+  function pick(i) {
+    var c = COUNTRIES[i];
+    var oldCode = (COUNTRIES.find(function (x) { return x[0] === cc; }) || [])[1];
+    cc = c[0];
+    ccBtn.querySelector('.cc-label').textContent = c[0];
+    ccBtn.setAttribute('aria-label', 'Select country calling code: ' + c[0]);
+    var national = phone.value.replace(/\s/g, '');
+    if (oldCode && national.indexOf('+' + oldCode) === 0) national = national.slice(oldCode.length + 1);
+    else if (national.charAt(0) === '+') national = national.replace(/^\+\d*/, '');
+    phone.value = (c[1] ? '+' + c[1] : '') + (national ? ' ' + national : '');
+    setOpen(false);
+    phone.focus();
+  }
+  ccBtn.addEventListener('click', function () { setOpen(ccBtn.getAttribute('aria-expanded') !== 'true'); });
+  ccBtn.addEventListener('keydown', function (e) {
+    var open = ccBtn.getAttribute('aria-expanded') === 'true';
+    if (!open && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOpen(true); return; }
+    if (!open) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); hi = Math.min(COUNTRIES.length - 1, hi + 1); drawMenu(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); hi = Math.max(0, hi - 1); drawMenu(); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (hi >= 0) pick(hi); }
+    else if (e.key === 'Escape') setOpen(false);
+    else if (e.key.length === 1) { var k = e.key.toLowerCase(); var j = COUNTRIES.findIndex(function (c) { return c[0].toLowerCase().indexOf(k) === 0; }); if (j >= 0) { hi = j; drawMenu(); } }
+  });
+  document.addEventListener('mousedown', function (e) { if (!ccMenu.contains(e.target) && e.target !== ccBtn && !ccBtn.contains(e.target)) setOpen(false); });
+  phone.addEventListener('input', function () {
+    var m = /^\+(\d{1,3})/.exec(phone.value.replace(/\s/g, ''));
+    if (!m) return;
+    var hit = COUNTRIES.slice().sort(function (a, b) { return b[1].length - a[1].length; }).find(function (c) { return c[1] && m[1].indexOf(c[1]) === 0; });
+    if (hit && hit[0] !== cc) { cc = hit[0]; ccBtn.querySelector('.cc-label').textContent = hit[0]; ccBtn.setAttribute('aria-label', 'Select country calling code: ' + hit[0]); }
+  });
+
+  // ---- file drop areas (react-dropzone) -------------------------------------------
+  var files = { cv: null, coverLetterFile: null };
+  Array.prototype.forEach.call(document.querySelectorAll('.upload'), function (box) {
+    var key = box.getAttribute('data-for');
+    var input = box.querySelector('input[type=file]');
+    var drop = box.querySelector('.drop');
+    var chip = box.querySelector('.file-chip');
+    function set(f) {
+      files[key] = f || null;
+      chip.hidden = !f;
+      drop.hidden = !!f;
+      chip.querySelector('.file-name').textContent = f ? f.name : '';
+      if (f) clearErr(input);
+    }
+    input.addEventListener('change', function () { set(input.files && input.files[0]); });
+    ['dragenter', 'dragover'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('dragging'); }); });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('dragging'); });
+    drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('dragging'); set(e.dataTransfer.files[0]); });
+    chip.querySelector('button').addEventListener('click', function () { input.value = ''; set(null); });
+  });
+
+  // ---- cover letter: file <-> text ------------------------------------------------
+  var clSection = document.getElementById('cover-letter-section');
+  var clSwitch = clSection.querySelector('.switch');
+  var clMode = 'file';
+  clSwitch.addEventListener('click', function () {
+    var upload = clSection.querySelector('.upload');
+    var hint = clSection.querySelector('.hint');
+    var lbl = clSection.querySelector('label.lbl');
+    if (clMode === 'file') {
+      clMode = 'text';
+      upload.hidden = true;
+      files.coverLetterFile = null;
+      var ta = document.createElement('textarea');
+      ta.id = 'input-candidate.coverLetter-radix-:R27l9r6lH2:';
+      ta.name = 'candidate.coverLetter';
+      ta.rows = 8;
+      ta.setAttribute('aria-invalid', 'false');
+      ta.setAttribute('aria-describedby', 'input-candidate.coverLetter-radix-:R27l9r6lH2:-error input-cover-letter-description-radix-:R27l9r6l:');
+      ta.setAttribute('data-cy', 'textAreaInputField');
+      var al = document.createElement('div');
+      al.setAttribute('role', 'alert');
+      al.id = 'input-candidate.coverLetter-radix-:R27l9r6lH2:-error';
+      upload.after(ta, al);
+      lbl.setAttribute('for', ta.id);
+      hint.textContent = 'Write your cover letter here';
+      clSwitch.textContent = 'Clear and upload a cover letter instead';
+    } else {
+      clMode = 'file';
+      var t = byName('candidate.coverLetter');
+      if (t) { t.nextElementSibling.remove(); t.remove(); }
+      upload.hidden = false;
+      lbl.setAttribute('for', 'input-candidate.coverLetterFile-radix-:R27l9r6lH1:');
+      hint.textContent = 'Upload your cover letter';
+      clSwitch.textContent = 'Write it here instead';
+    }
+  });
+
+  // ---- agreement checkbox keeps value="true|false" like the controlled input --------
+  var consent = byName('candidate.agreements.0.consent');
+  consent.addEventListener('change', function () { consent.value = String(consent.checked); if (consent.checked) clearErr(consent); });
+
+  // ---- validation (react-hook-form, shouldFocusError: false + manual scroll) --------
+  function setErr(el, msg) {
+    var box = errBox(el);
+    var group = el.type === 'radio' || el.type === 'checkbox' ? form.querySelectorAll('[name="' + el.name + '"]') : [el];
+    Array.prototype.forEach.call(group, function (x) { x.setAttribute('aria-invalid', 'true'); });
+    if (box) box.textContent = msg;
+  }
+  function clearErr(el) {
+    var group = el.type === 'radio' || el.type === 'checkbox' ? form.querySelectorAll('[name="' + el.name + '"]') : [el];
+    Array.prototype.forEach.call(group, function (x) { x.setAttribute('aria-invalid', 'false'); });
+    var box = errBox(el);
+    if (box) box.textContent = '';
+  }
+  form.addEventListener('input', function (e) { if (e.target.getAttribute('aria-invalid') === 'true' && !FX.isBlank(e.target)) clearErr(e.target); });
+  form.addEventListener('change', function (e) { if (e.target.type === 'radio') clearErr(e.target); });
+
+  function validate() {
+    var bad = [];
+    var req = function (el, ok, msg) { if (!ok) { setErr(el, msg || 'This field is required.'); bad.push(el); } else clearErr(el); };
+    var name = byName('candidate.name');
+    req(name, name.value.trim().length > 0);
+    var email = byName('candidate.email');
+    req(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()), email.value.trim() ? 'Email address is invalid' : 'This field is required.');
+    var digits = phone.value.replace(/\D/g, '');
+    req(phone, digits.length >= 8 && digits.length <= 15, digits.length <= 3 ? 'This field is required.' : 'Phone number is invalid');
+    req(byName('candidate.cv'), !!files.cv);
+    Array.prototype.forEach.call(form.querySelectorAll('[data-question]'), function (q) {
+      var ctl = q.querySelector('input:not([type=hidden]), textarea');
+      if (!ctl || !ctl.required) return;
+      req(ctl, !FX.isBlank(ctl));
+    });
+    req(consent, consent.checked, 'You need to agree to continue');
+    return bad;
+  }
+
+  // ---- submit: object-to-formdata({candidate:{...}}, {indices:true}) -------------------
+  function serialize() {
+    var fd = new FormData();
+    fd.append('candidate[name]', byName('candidate.name').value.trim());
+    fd.append('candidate[email]', byName('candidate.email').value.trim());
+    fd.append('candidate[phone]', phone.value.trim());
+    fd.append('candidate[cv]', files.cv, files.cv.name);
+    if (clMode === 'file' && files.coverLetterFile) fd.append('candidate[coverLetterFile]', files.coverLetterFile, files.coverLetterFile.name);
+    if (clMode === 'text') fd.append('candidate[coverLetter]', byName('candidate.coverLetter').value);
+    Array.prototype.forEach.call(form.querySelectorAll('[data-question]'), function (q) {
+      var id = q.getAttribute('data-question');
+      var base = 'candidate[openQuestionAnswers][' + id + ']';
+      fd.append(base + '[openQuestionId]', id);
+      var kind = q.getAttribute('data-kind');
+      if (kind === 'checkbox') {
+        Array.prototype.filter.call(q.querySelectorAll('input[type=checkbox]'), function (c) { return c.checked; })
+          .forEach(function (c, i) { fd.append(base + '[multiContent][' + i + ']', c.value); });
+        return;
+      }
+      if (kind === 'legal') { fd.append(base + '[flag]', String(q.querySelector('input[type=checkbox]').checked)); return; }
+      var radios = q.querySelectorAll('input[type=radio]');
+      if (radios.length) {
+        var sel = Array.prototype.find.call(radios, function (r) { return r.checked; });
+        var field = radios[0].name.split('.').pop();
+        fd.append(base + '[' + field + ']', sel ? sel.value : '');
+        return;
+      }
+      var ctl = q.querySelector('input:not([type=hidden]), textarea');
+      fd.append(base + '[content]', ctl.value);
+    });
+    fd.append('candidate[agreements][0][agreementId]', byName('candidate.agreements.0.agreementId').value);
+    fd.append('candidate[agreements][0][consent]', String(consent.checked));
+    fd.append('candidate[careersApplicationFormUuid]', '6c1f2a90-5e3b-4b8e-9a77-2f0d4c8e1b35');
+    fd.append('offerId', '1873402');
+    return fd;
+  }
+
+  var submitBtn = form.querySelector('[data-testid=submit-application-form-button]');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (submitBtn.getAttribute('aria-busy') === 'true') return;
+    var bad = validate();
+    if (bad.length) {
+      setTimeout(function () { var t = form.querySelector('[aria-invalid="true"]'); if (t) { t.scrollIntoView({ block: 'center' }); t.focus(); } }, 0);
+      return;
+    }
+    submitBtn.setAttribute('aria-busy', 'true');
+    FX.postForm(FORM_ID, serialize()).then(function (res) {
+      submitBtn.setAttribute('aria-busy', 'false');
+      if (res && res.ok) {
+        var formPanel = document.getElementById('radix-:Rl9r6l:-content-offer-application-form');
+        var ok = document.getElementById('radix-:Rl9r6l:-content-offer-application-success');
+        formPanel.hidden = true;
+        formPanel.setAttribute('data-state', 'inactive');
+        ok.hidden = false;
+        ok.setAttribute('data-state', 'active');
+        ok.scrollIntoView({ block: 'start' });
+        form.reset();
+      } else {
+        document.getElementById('form-submit-error').textContent = 'Something went wrong. Please try again.';
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

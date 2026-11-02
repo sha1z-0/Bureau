@@ -1,0 +1,41 @@
+{
+  "forms": [
+    {
+      "id": "personio-job",
+      "ats": "personio",
+      "title": "Personio job page -> /apply DynamicForm (pre-uploaded documents, JSON attributes, in-place thank-you)",
+      "route": "/kranich.jobs.personio.de/job/1458822",
+      "file": "personio/job.html",
+      "extraRoutes": [{ "route": "/kranich.jobs.personio.de/job/1458822/apply", "file": "personio/apply.html" }],
+      "confirmationFile": "personio/confirmation.html",
+      "confirmationText": "Thank you for your application",
+      "required": ["first_name", "last_name", "email", "recruiting_channel_id", "custom_attribute_2771002", "custom_attribute_2771004", "documents.cv"],
+      "expect": {
+        "first_name": "profile:firstName",
+        "last_name": "profile:lastName",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "custom_attribute_2771001": "profile:linkedin",
+        "salary_expectations": "oneOf:30000|30,000|USD 30,000|USD 30000|USD 30,000 per year|$30,000|30000 USD|30,000 USD",
+        "available_from": "oneOf:2026-12-01|01.12.2026|12/01/2026|01/12/2026|1 December 2026|December 1, 2026|1.12.2026",
+        "recruiting_channel_id": "=1032850",
+        "custom_attribute_2771002": "=custom_option_44101",
+        "custom_attribute_2771003": "contains:opt_typescript",
+        "custom_attribute_2771004": "nonempty",
+        "documents.cv": "file:cv",
+        "documents.cover_letter": "file:letter"
+      },
+      "quirks": [
+        "entry is the job page; the form is behind 'Apply for this job' on /job/<id>/apply",
+        "Name group: one visible 'Name' label with sr-only First/Last labels and placeholders",
+        "available_from is a free text input (placeholder 'Available from'), not a date input",
+        "recruiting_channel_id select with numeric ids; custom_attribute_<id> select with custom_option_<id> values; multi-select as checkboxes joined with ','",
+        "Documents: one 'Add file' button per category over a hidden multiple file input; each file uploads immediately (POST /api/v1/documents -> uuid)",
+        "Submit Application stays disabled until required fields, CV upload, privacy checkbox and the (invisible) Turnstile token are all present",
+        "JSON submit with Idempotency-Key header; attributes as [{id,value}]; files referenced by uuid + category",
+        "success replaces the form with the company's thank-you HTML in place (no navigation)"
+      ],
+      "reference": "Live <company>.jobs.personio.de/job/<id>/apply SSR markup and the personio-jobs apply page chunk (uploadDocuments /api/v1/documents, submitApplication /api/v1/jobs/<id>/application), studied read-only"
+    }
+  ]
+}

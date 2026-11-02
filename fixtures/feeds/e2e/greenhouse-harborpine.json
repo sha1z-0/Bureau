@@ -1,0 +1,76 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "{{ORIGIN_A}}/job-boards.greenhouse.io/harborpine/jobs/7034511",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 7001290,
+      "location": {
+        "name": "Remote"
+      },
+      "metadata": [
+        {
+          "id": 7934512,
+          "name": "Employment Type",
+          "value": "Full-time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 7934513,
+          "name": "Location Type",
+          "value": "Remote",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 7034511,
+      "updated_at": "2026-10-31T11:05:01-07:00",
+      "requisition_id": "PLAT-0419",
+      "title": "Software Engineer I, Platform",
+      "pay_input_ranges": [
+        {
+          "min_cents": 9500000,
+          "max_cents": 11500000,
+          "currency_type": "USD",
+          "title": "Annual base salary",
+          "blurb": ""
+        }
+      ],
+      "company_name": "Harbor & Pine",
+      "first_published": "2026-10-31T11:02:40-07:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;p&gt;Harbor &amp;amp; Pine runs the booking and payments platform behind 1,200 independent outdoor-gear rental shops across North America. Our Platform team owns the shared services every product team builds on: authentication, billing, event streaming and our internal developer portal.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;This is an entry level position&lt;/strong&gt; on the Platform team, reporting to the Platform Engineering Manager.&lt;/p&gt;\n&lt;h3&gt;Responsibilities&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Design, build and operate highly available Go and TypeScript services on Kubernetes.&lt;/li&gt;&lt;li&gt;Own reliability for the services you build, including a 24/7 on-call rotation from your first month.&lt;/li&gt;&lt;li&gt;Lead cross-team technical initiatives and mentor other engineers.&lt;/li&gt;&lt;li&gt;Drive architecture decisions for our Kafka-based event-streaming platform.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Requirements&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;5+ years of professional software engineering experience required.&lt;/li&gt;&lt;li&gt;3+ years operating Kubernetes in production.&lt;/li&gt;&lt;li&gt;Deep experience with Kafka or a comparable streaming system.&lt;/li&gt;&lt;li&gt;A track record of leading projects across multiple teams.&lt;/li&gt;&lt;li&gt;BS in Computer Science or equivalent.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Nice to have&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Terraform, AWS and Datadog.&lt;/li&gt;&lt;li&gt;Experience in payments or marketplaces.&lt;/li&gt;&lt;/ul&gt;\n&lt;p&gt;Location: Remote (worldwide), with at least four hours of overlap with US Pacific time. Salary range for this Software Engineer I role: USD 95,000-115,000. Harbor &amp;amp; Pine is an equal opportunity employer.&lt;/p&gt;",
+      "departments": [
+        {
+          "id": 7834512,
+          "name": "Platform Engineering",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "offices": [
+        {
+          "id": 7734512,
+          "name": "Remote",
+          "location": "Remote",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

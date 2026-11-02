@@ -1,0 +1,26 @@
+{
+  "task": "critic",
+  "hash": "ae9b87d9df34b39d1470b86c",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 412,
+    "output_tokens": 96,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "score": 8.4,
+    "scores": {
+      "specificity": 9,
+      "evidence": 8.5,
+      "voice": 8,
+      "clarity": 9,
+      "ask": 7.5,
+      "aiTells": 8.5
+    },
+    "demands": [
+      "Name the reconciliation result in the first paragraph, not the third.",
+      "Cut \"I would be glad to talk\" to a concrete ask."
+    ]
+  }
+}

@@ -3,9 +3,13 @@
  * byte-stable and Anthropic's prompt cache does the heavy lifting across a scan.
  */
 
-/** Neutralise anything in third-party text that could close or forge our data tags. */
+/**
+ * Neutralise anything in third-party text that could close or forge a data tag.
+ * Every tag-like sequence is defused, not just the names in use today, so a new
+ * wrapper (<email>, <page_text>, <trace>, …) can never be closed from inside.
+ */
 export function fence(text: string): string {
-  return text.replace(/<\s*\/?\s*(job_posting|web_page|scout_report|source|tailored|cv)\b/gi, (m) => m.replace('<', '‹'));
+  return text.replace(/<(?=\s*\/?\s*[a-z_!?][\w:.-]*)/gi, '‹');
 }
 
 /** An address is only trusted if the posting itself contains it, so one post can't redirect another's application. */

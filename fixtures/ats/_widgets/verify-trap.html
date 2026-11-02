@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: fields that fight back. A filler that writes and moves on (no read-back)
+  believes it succeeded but submits wrong or missing values; a careful filler that reads
+  every field back after it settles, and corrects, can submit a fully valid application.
+  Expected outcome: submitted (see verify-trap-impossible.html for the verify_blocked case).
+
+  Traps (data-trap="..."):
+   phone-reformat   BENIGN. On blur the phone is reformatted to "(301) 555-0142" (last 10 digits).
+                    Digits are preserved, so a correct engine must treat this as equivalent,
+                    not as a mismatch (expect profile:phone accepts the national number).
+   salary-truncate  "Expected annual salary (USD)" has maxlength=10 and a script that silently
+                    slices anything longer. The free-text answer "USD 30,000 per year" becomes
+                    "USD 30,000" (wrong per expect answer:salaryNumber); the number "30000" fits.
+   inline-commit    LinkedIn is an inline-edit field: "Press Enter to save". Enter or Tab commits.
+                    If it loses focus any other way (click elsewhere, element.focus() on the next
+                    field, as Playwright fill does) while unsaved, it reverts to the last saved
+                    value (empty) 300 ms later.
+   reset-dependent  City comes BEFORE Country in the DOM, and changing Country clears City.
+                    Filling in DOM order loses the city.
+   picker-only      "Available from" ignores typed, pasted and programmatic text (keydown and
+                    beforeinput are blocked, input events are reverted). Only its calendar popup
+                    commits a date; the hidden ISO value carries it.
+   fake-checkbox    The consent checkbox box toggles its look (aria-checked) but NOT the hidden
+                    value; only clicking the label text sets privacy_consent=yes. Client-side
+                    validation only looks at aria-checked, so the server is what rejects it.
+  Every required field is enforced server-side (manifest required); server errors are shown
+  in the page's error summary.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Engineer - Meridian Freightworks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "Source Sans Pro", "Segoe UI", Arial, sans-serif; margin: 0; background: #eef2f7; color: #1c2b39; }
+    .hero { background: #0b3d63; color: #fff; padding: 26px 40px; }
+    .hero h1 { margin: 0; font-size: 26px; }
+    .hero p { margin: 6px 0 0; opacity: .85; }
+    .card { max-width: 700px; margin: 24px auto; background: #fff; border-radius: 6px; padding: 26px 34px; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+    .field { margin: 16px 0; position: relative; }
+    .field > label, .label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+    .req { color: #c0392b; }
+    input[type=text], input[type=email], input[type=tel], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b8c4d0; border-radius: 4px; font-size: 15px; font-family: inherit; }
+    .hint { font-size: 12px; color: #6b7c8c; margin-top: 4px; }
+    .badge { font-size: 12px; margin-left: 8px; }
+    .badge.saved { color: #1e8449; } .badge.unsaved { color: #b9770e; } .badge.discarded { color: #c0392b; }
+    .row { display: flex; gap: 14px; } .row .field { flex: 1; }
+    .dp-popup { position: absolute; z-index: 50; top: 68px; left: 0; background: #fff; border: 1px solid #b8c4d0; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15); padding: 10px; width: 270px; }
+    .dp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .dp-head button { border: 0; background: #eef2f7; border-radius: 4px; width: 30px; height: 28px; cursor: pointer; }
+    .dp-title { font-weight: 600; }
+    .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 13px; }
+    .dp-grid .dow { color: #6b7c8c; font-size: 11px; }
+    .dp-grid button { border: 0; background: none; padding: 6px 0; border-radius: 4px; cursor: pointer; }
+    .dp-grid button:hover, .dp-grid button.sel { background: #0b3d63; color: #fff; }
+    #available_from_display { background: #fff; cursor: pointer; }
+    .consent { display: flex; align-items: flex-start; gap: 10px; }
+    .cb-box { flex: none; width: 20px; height: 20px; border: 2px solid #0b3d63; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .cb-box[aria-checked=true] { background: #0b3d63; }
+    .cb-box[aria-checked=true]::after { content: "\2713"; color: #fff; font-size: 14px; }
+    .cb-label { cursor: pointer; font-size: 14px; }
+    .summary { display: none; border: 1px solid #c0392b; background: #fdecea; color: #922b21; padding: 10px 12px; border-radius: 4px; margin: 14px 0; }
+    .err { color: #c0392b; font-size: 13px; margin-top: 4px; }
+    button.submit { background: #0b3d63; color: #fff; border: 0; padding: 12px 26px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="hero"><h1>Data Engineer</h1><p>Meridian Freightworks &middot; Remote, Asia/Europe time zones</p></div>
+<div class="card">
+  <p>Meridian moves containers for 400 regional shippers. You'll own the pipelines that turn port events into ETAs customers can trust (Python, TypeScript, PostgreSQL).</p>
+  <form id="application" novalidate>
+    <div class="row">
+      <div class="field"><label for="first_name">First name <span class="req">*</span></label><input type="text" id="first_name" name="first_name" required></div>
+      <div class="field"><label for="last_name">Last name <span class="req">*</span></label><input type="text" id="last_name" name="last_name" required></div>
+    </div>
+    <div class="field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" required></div>
+    <div class="field" data-trap="phone-reformat"><label for="phone">Mobile phone <span class="req">*</span></label><input type="tel" id="phone" name="phone" required><div class="hint">We'll text you about interview scheduling.</div></div>
+    <div class="field" data-trap="salary-truncate"><label for="salary">Expected annual salary (USD) <span class="req">*</span></label><input type="text" id="salary" name="salary" maxlength="10" required></div>
+    <div class="field" data-trap="inline-commit">
+      <label for="linkedin">LinkedIn profile URL <span class="req">*</span><span class="badge" id="linkedin_badge" aria-live="polite"></span></label>
+      <input type="text" id="linkedin" name="linkedin" required autocomplete="off">
+      <div class="hint">Press Enter to save.</div>
+    </div>
+    <div class="row" data-trap="reset-dependent">
+      <div class="field"><label for="city">City <span class="req">*</span></label><input type="text" id="city" name="city" required placeholder="City"></div>
+      <div class="field"><label for="country">Country of residence <span class="req">*</span></label>
+        <select id="country" name="country" required>
+          <option value="">Select a country</option>
+          <option value="DE">Germany</option>
+          <option value="IN">India</option>
+          <option value="NL">Netherlands</option>
+          <option value="PK">Pakistan</option>
+          <option value="AE">United Arab Emirates</option>
+          <option value="GB">United Kingdom</option>
+          <option value="US">United States</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" data-trap="picker-only">
+      <label for="available_from_display">Available from <span class="req">*</span></label>
+      <input type="text" id="available_from_display" placeholder="Select a date" autocomplete="off" aria-haspopup="dialog" required>
+      <input type="hidden" id="available_from" name="available_from">
+      <div class="hint">Use the calendar to choose a date.</div>
+    </div>
+    <div class="field consent" data-trap="fake-checkbox">
+      <span class="cb-box" id="consent_box" role="checkbox" aria-checked="false" tabindex="0" aria-labelledby="consent_label" aria-required="true"></span>
+      <span class="cb-label" id="consent_label">I agree to Meridian processing my application data as described in the candidate privacy notice. <span class="req">*</span></span>
+      <input type="hidden" id="privacy_consent" name="privacy_consent" value="">
+    </div>
+    <div class="summary" id="summary" role="alert"></div>
+    <button type="submit" class="submit" id="submit_app">Submit application</button>
+  </form>
+</div>
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var form = document.getElementById('application');
+  var $ = function (id) { return document.getElementById(id); };
+
+  // phone-reformat (benign): keep the last 10 digits as (xxx) xxx-xxxx on blur.
+  $('phone').addEventListener('blur', function () {
+    var d = this.value.replace(/\D/g, '');
+    if (d.length >= 10) {
+      d = d.slice(-10);
+      this.value = '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+    }
+  });
+
+  // salary-truncate: maxlength plus a silent slice (programmatic values bypass maxlength).
+  $('salary').addEventListener('input', function () {
+    if (this.value.length > 10) this.value = this.value.slice(0, 10);
+  });
+
+  // inline-commit: Enter/Tab saves; any other blur while unsaved reverts 300 ms later.
+  var li = $('linkedin');
+  var badge = $('linkedin_badge');
+  var saved = '';
+  var dirty = false;
+  function setBadge(cls, text) { badge.className = 'badge ' + cls; badge.textContent = text; }
+  li.addEventListener('input', function () { dirty = li.value !== saved; setBadge(dirty ? 'unsaved' : 'saved', dirty ? 'Unsaved' : (saved ? 'Saved' : '')); });
+  li.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      if (e.key === 'Enter') e.preventDefault(); // no implicit form submit
+      saved = li.value.trim();
+      li.value = saved;
+      dirty = false;
+      setBadge('saved', saved ? 'Saved' : '');
+    }
+  });
+  li.addEventListener('blur', function () {
+    if (!dirty) return;
+    setTimeout(function () {
+      if (!dirty || document.activeElement === li) return;
+      li.value = saved;
+      dirty = false;
+      setBadge('discarded', 'Changes discarded');
+    }, 300);
+  });
+
+  // reset-dependent: changing country clears the city.
+  $('country').addEventListener('change', function () {
+    $('city').value = '';
+    var opt = this.options[this.selectedIndex];
+    $('city').placeholder = this.value ? 'City in ' + opt.text : 'City';
+  });
+
+  // picker-only date.
+  var disp = $('available_from_display');
+  var hidden = $('available_from');
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var committed = '';
+  var view = new Date();
+  view = new Date(view.getFullYear(), view.getMonth(), 1);
+  var popup = null;
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  disp.addEventListener('keydown', function (e) { if (e.key !== 'Tab' && e.key !== 'Escape') e.preventDefault(); if (e.key === 'Escape') closePicker(); });
+  disp.addEventListener('beforeinput', function (e) { e.preventDefault(); });
+  disp.addEventListener('paste', function (e) { e.preventDefault(); });
+  disp.addEventListener('input', function () { disp.value = committed; });
+  disp.addEventListener('click', openPicker);
+  function closePicker() { if (popup) { popup.remove(); popup = null; disp.setAttribute('aria-expanded', 'false'); } }
+  function openPicker() {
+    if (popup) return;
+    popup = document.createElement('div');
+    popup.className = 'dp-popup';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-label', 'Choose date');
+    disp.parentNode.appendChild(popup);
+    disp.setAttribute('aria-expanded', 'true');
+    renderPicker();
+  }
+  function renderPicker() {
+    var y = view.getFullYear(), m = view.getMonth();
+    var html = '<div class="dp-head"><button type="button" class="dp-prev" aria-label="Previous month">&lsaquo;</button><span class="dp-title" aria-live="polite">' + MONTHS[m] + ' ' + y + '</span><button type="button" class="dp-next" aria-label="Next month">&rsaquo;</button></div><div class="dp-grid" role="grid">';
+    ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(function (d) { html += '<span class="dow">' + d + '</span>'; });
+    var first = new Date(y, m, 1).getDay();
+    for (var i = 0; i < first; i++) html += '<span></span>';
+    var days = new Date(y, m + 1, 0).getDate();
+    for (var d = 1; d <= days; d++) {
+      var iso = y + '-' + pad(m + 1) + '-' + pad(d);
+      html += '<button type="button" role="gridcell" data-date="' + iso + '" aria-label="' + MONTHS[m] + ' ' + d + ', ' + y + '"' + (iso === hidden.value ? ' class="sel" aria-selected="true"' : '') + '>' + d + '</button>';
+    }
+    popup.innerHTML = html + '</div>';
+    popup.querySelector('.dp-prev').addEventListener('click', function () { view = new Date(y, m - 1, 1); renderPicker(); });
+    popup.querySelector('.dp-next').addEventListener('click', function () { view = new Date(y, m + 1, 1); renderPicker(); });
+    popup.querySelectorAll('[data-date]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = b.getAttribute('data-date').split('-');
+        hidden.value = b.getAttribute('data-date');
+        committed = MONTHS[+p[1] - 1].slice(0, 3) + ' ' + +p[2] + ', ' + p[0];
+        disp.value = committed;
+        closePicker();
+      });
+    });
+  }
+  document.addEventListener('mousedown', function (e) {
+    if (popup && !popup.contains(e.target) && e.target !== disp) closePicker();
+  });
+
+  // fake-checkbox: the box only changes its look; the label text also sets the value.
+  var box = $('consent_box');
+  var consent = $('privacy_consent');
+  function toggleLook() { var on = box.getAttribute('aria-checked') !== 'true'; box.setAttribute('aria-checked', String(on)); return on; }
+  box.addEventListener('click', function (e) { e.stopPropagation(); toggleLook(); });
+  box.addEventListener('keydown', function (e) { if (e.key === ' ') { e.preventDefault(); toggleLook(); } });
+  $('consent_label').addEventListener('click', function () { consent.value = toggleLook() ? 'yes' : ''; });
+
+  // Validation (checks what the user sees, like the buggy original) + server round-trip.
+  function mark(el, msg) {
+    var f = el.closest('.field');
+    var e = f.querySelector(':scope > .err');
+    if (msg && !e) { e = document.createElement('div'); e.className = 'err'; f.appendChild(e); }
+    if (e) { if (msg) e.textContent = msg; else e.remove(); }
+    if (msg) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+  }
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var bad = 0;
+    form.querySelectorAll('input[required], select[required]').forEach(function (el) {
+      var msg = FX.isBlank(el) ? 'This field is required.' : '';
+      if (!msg && el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) msg = 'Enter a valid email address.';
+      mark(el, msg);
+      if (msg) bad++;
+    });
+    var consentOk = box.getAttribute('aria-checked') === 'true';
+    mark(box, consentOk ? '' : 'Please accept the privacy notice.');
+    if (!consentOk) bad++;
+    var summary = $('summary');
+    if (bad) { summary.textContent = 'Please correct the highlighted fields.'; summary.style.display = 'block'; return; }
+    $('submit_app').disabled = true;
+    var res = await FX.postForm('{{FORM_ID}}', new FormData(form));
+    if (FX.finish(res)) return;
+    $('submit_app').disabled = false;
+    summary.textContent = 'We could not submit your application: ' + (res.errors || ['unknown error']).join('; ');
+    summary.style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>

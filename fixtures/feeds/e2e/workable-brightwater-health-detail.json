@@ -1,0 +1,36 @@
+{
+  "id": 5280117,
+  "shortcode": "3F9A2C71B4",
+  "title": "Junior Node.js Developer",
+  "remote": true,
+  "location": {
+    "city": "",
+    "country": "United Kingdom",
+    "countryCode": "GB",
+    "region": null
+  },
+  "locations": [
+    {
+      "city": "",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "hidden": true,
+      "region": null
+    }
+  ],
+  "state": "published",
+  "isInternal": false,
+  "code": "BWH-ENG-07",
+  "published": "2026-10-31T00:00:00.000Z",
+  "type": "full",
+  "language": "en",
+  "department": [
+    "Engineering"
+  ],
+  "accountUid": "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+  "approvalStatus": "approved",
+  "workplace": "remote",
+  "description": "<p>Brightwater Health makes appointment and prescription-reminder software used by 300 community pharmacies in the UK and Ireland. Our engineering team of nine builds everything from the pharmacist dashboard to the SMS reminder pipeline.</p><p>We are hiring a Junior Node.js Developer to work on the services that send reminders, handle patient replies and sync with pharmacy systems.</p><p><strong>What you'll do</strong></p><ul><li>Build and maintain Node.js (TypeScript) services and REST APIs.</li><li>Work with PostgreSQL and Redis-backed job queues.</li><li>Integrate with SMS and email providers and handle delivery webhooks.</li><li>Write tests and help us keep patient data safe.</li></ul>",
+  "requirements": "<ul><li>1+ year of commercial experience with Node.js.</li><li>Good knowledge of JavaScript or TypeScript, and of SQL.</li><li>An understanding of REST API design and basic web security (authentication, input validation).</li><li>Excellent written English.</li></ul><p><strong>Nice to have</strong></p><ul><li>Experience in healthcare or another regulated industry (GDPR, NHS DSPT).</li><li>Docker and AWS.</li></ul>",
+  "benefits": "<ul><li>GBP 26,000-32,000 per year (contractor rate available outside the UK).</li><li>Fully remote with UK-hours overlap (10:00-15:00 GMT).</li><li>28 days of holiday and a GBP 500 learning budget.</li></ul>"
+}

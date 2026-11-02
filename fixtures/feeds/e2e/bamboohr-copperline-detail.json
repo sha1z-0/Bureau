@@ -1,0 +1,127 @@
+{
+  "meta": {},
+  "result": {
+    "jobOpening": {
+      "jobOpeningShareUrl": "{{ORIGIN_A}}/copperline.bamboohr.com/careers/88",
+      "jobOpeningName": "Software Engineer I",
+      "jobOpeningStatus": "Open",
+      "jobCategoryId": null,
+      "departmentId": "20417",
+      "departmentLabel": "Engineering",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": null,
+        "state": null,
+        "postalCode": null,
+        "addressCountry": null
+      },
+      "atsLocation": {
+        "country": null,
+        "countryId": null,
+        "state": null,
+        "city": null
+      },
+      "description": "<p>Copperline Payments builds the payout and reconciliation API that online marketplaces use to pay their sellers in 40 countries. We move about USD 2 billion a year for 150 marketplaces, and our engineering team is 30 people across four continents.</p><h3>The role</h3><p>As a Software Engineer I on the Payouts team you will build the services that schedule, batch and track payouts, and the tools our operations team uses when a bank returns one.</p><h3>Responsibilities</h3><ul><li>Build and maintain Node.js (TypeScript) services and their PostgreSQL schemas.</li><li>Write idempotent, well-tested code for money movement.</li><li>Improve our internal React tools for operations and support.</li><li>Take part in code review and blameless incident reviews.</li></ul><h3>Required</h3><ul><li>1-2 years of professional software engineering experience.</li><li>Node.js and TypeScript.</li><li>Solid SQL and an understanding of database transactions.</li></ul><h3>Preferred</h3><ul><li>Experience with payments, ledgers or financial data.</li><li>Go, Docker, or AWS.</li></ul><p>Fully remote (UTC-1 to UTC+6). USD 34,000-42,000 per year, plus a home-office budget and 24 days of leave.</p>",
+      "compensation": "USD 34,000 - 42,000 per year",
+      "datePosted": "2026-11-01",
+      "minimumExperience": "Entry-level",
+      "locationType": "1",
+      "seekPromoted": false,
+      "aiProcessingDisclosureEnabled": false
+    },
+    "formFields": {
+      "firstName": {
+        "isRequired": true,
+        "value": "",
+        "label": "First Name"
+      },
+      "lastName": {
+        "isRequired": true,
+        "value": "",
+        "label": "Last Name"
+      },
+      "email": {
+        "isRequired": true,
+        "value": "",
+        "label": "Email"
+      },
+      "phone": {
+        "isRequired": true,
+        "value": "",
+        "label": "Phone"
+      },
+      "resumeFileId": {
+        "isRequired": true,
+        "value": "",
+        "label": "Resume"
+      },
+      "coverLetterFileId": {
+        "isRequired": false,
+        "value": "",
+        "label": "Cover Letter"
+      },
+      "streetAddress": {
+        "isRequired": false,
+        "value": "",
+        "label": "Address"
+      },
+      "city": {
+        "isRequired": true,
+        "value": "",
+        "label": "City"
+      },
+      "countryId": {
+        "isRequired": true,
+        "value": "",
+        "label": "Country",
+        "options": [
+          {
+            "id": "1",
+            "text": "United States"
+          },
+          {
+            "id": "167",
+            "text": "Pakistan"
+          }
+        ]
+      },
+      "linkedinUrl": {
+        "isRequired": false,
+        "value": "",
+        "label": "LinkedIn URL"
+      },
+      "dateAvailable": {
+        "isRequired": false,
+        "value": "",
+        "label": "Date Available"
+      },
+      "desiredPay": {
+        "isRequired": false,
+        "value": "",
+        "label": "Desired Pay"
+      },
+      "websiteUrl": {
+        "isRequired": false,
+        "value": "",
+        "label": "Website, Blog or Portfolio"
+      },
+      "customQuestions": [
+        {
+          "id": "611",
+          "isRequired": true,
+          "question": "How many years of professional experience do you have with TypeScript?",
+          "type": "short",
+          "value": "",
+          "isValueOther": false,
+          "hasOther": "no",
+          "options": []
+        }
+      ],
+      "genderId": [],
+      "ethnicityId": [],
+      "veteranStatusId": [],
+      "disabilityId": []
+    }
+  }
+}

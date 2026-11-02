@@ -1,0 +1,371 @@
+[
+  {
+    "id": "687f31c86ba8",
+    "friendly_id": "687f31c86ba8-accounts-executive",
+    "name": "Accounts Executive",
+    "url": "https://nucleusteq.breezy.hr/p/687f31c86ba8-accounts-executive",
+    "published_date": "2026-10-26T10:43:52.046Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Indore, Raipur",
+      "primary": true,
+      "is_remote": false,
+      "name": "Indore, Raipur, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Indore, Raipur",
+        "primary": true,
+        "is_remote": false,
+        "name": "Indore, Raipur, IN",
+        "id": "bd8cb5ef06a2"
+      }
+    ],
+    "description": "<p>Experience : 2 to 4 years</p>\n\n<p>Department: Finance &amp; Accounting</p>\n<p>Job Summary:</p>\n<p>We are seeking an accurate, organized, and detail-oriented Account Executive (AP &amp; AR) to oversee our daily financial transactions and ledger operations.</p>\n<p>Key Responsibilities</p>\n<p><strong>1. Accounts Payable (Bills Payable) </strong></p>\n<p>• Invoice Processing: Verify, code, and enter vendor invoices, bills, and expense reports into the accounting system with accuracy..</p>\n<p>• Three-Way Matching: Match purchase orders (POs), receiving documents, and vendor invoices to resolve price or quantity discrepancies..</p>\n<p>• Payment Execution: Prepare and execute timely weekly/monthly payment runs via checks, ACH, wire transfers, or credit cards, ensuring available early-payment discounts are utilized..</p>\n<p><strong>2. Accounts Receivable (Bills Receivable)</strong></p>\n<p>• Invoicing: Generate and issue accurate, timely invoices and credit memos to clients based on sales orders, contracts, or billing schedules..</p>\n<p>• Payment Application: Receive, verify, and post incoming customer payments (checks, electronic transfers, credit cards) against corresponding invoices..</p>\n<p>• Dispute Resolution: Investigate and resolve billing discrepancies or customer payment issues efficiently..</p>\n<p><strong>3. Reconciliation &amp; General Ledger</strong></p>\n<p>• Bank Reconciliation: Perform regular bank and credit card reconciliations to ensure ledger balances align with bank statements..</p>\n<p>• Ledger Maintenance: Maintain accurate sub-ledgers for AP and AR and assist with general ledger postings and month-end journal entries..</p>\n<p><strong>Qualifications &amp; Skills</strong></p>\n<p>Education &amp; Experience:</p>\n<p>• Education: Bachelor’s degree in Accounting, Finance, Commerce, or a related discipline..</p>\n<p>• Experience: 2–4 years of hands-on experience handling Accounts Payable, Accounts Receivable, and bank reconciliations.</p>"
+  },
+  {
+    "id": "2214541087a9",
+    "friendly_id": "2214541087a9-data-engineer-gcp",
+    "name": "Data Engineer-GCP",
+    "url": "https://nucleusteq.breezy.hr/p/2214541087a9-data-engineer-gcp",
+    "published_date": "2026-10-26T07:13:53.606Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Indore/Gurgram",
+      "primary": true,
+      "is_remote": false,
+      "name": "Indore/Gurgram, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Indore/Gurgram",
+        "primary": true,
+        "is_remote": false,
+        "name": "Indore/Gurgram, IN",
+        "id": "fdb45dc0d7e2"
+      }
+    ],
+    "description": "<p><strong>Position: Data Engineer – GCP</strong><br><strong>Required Skills: Python, PySpark, SQL, Airflow, GCP, Bigdata</strong><br><strong>Years of experience: 5+ Years</strong><br><strong>Locations: Gurgaon    </strong><br>We are seeking skilled Data Engineers with experience in modern data engineering practices and data modeling. You will leverage your knowledge and experience in programming languages and data engineering tools to create data processing and modeling applications<br><strong>Key Responsibilities:</strong><br></p>\n<ul><li>The scope of the project is to migrate the dashboards/ reports from Hadoop to GCP that will require the Hive and Pig jobs to be migrated to Big Query/ Spark.</li><li>&nbsp;Ensuring data consistency and accuracy through data validation and cleansing techniques</li><li>&nbsp;Working together with cross-functional teams to identify and address data-related issues</li><li>&nbsp;GCP &amp; Airflow experience is required.</li><li>&nbsp;Security &amp; Governance: Role-based access control (RBAC), Data lineage tools</li><li>&nbsp;Knowledge of database management systems, (e.g., MySQL)</li><li>&nbsp;Strong problem-solving and analytical skills</li></ul>\n<p><strong>Skills and Qualifications:</strong><br></p>\n<ul><li>Bachelor’s degree in Engineering - Computer science or related field.</li><li>5+ years experience as a Data Engineer, specifically with GCP and Airflow</li><li>Proficiency in Python and Pyspark</li><li>Experience of SQL and NoSQL databases.</li><li>Ability to work independently and collaboratively in a fast-paced environment.</li><li>Problem-solving skills and attention to detail.</li><li>Keen interest to learn and adapt</li></ul>\n<p><strong>What We Offer:</strong><br><strong>NucleusTeq culture</strong>&nbsp;- Our positive and supportive culture encourages our associates to do their best work every day. We celebrate individuals by recognizing their uniqueness and offering them the flexibility to make daily choices that can help them to be healthy, centered, confident, and aware. We offer well-being programs and are continuously looking for new ways to maintain a culture where our people excel and lead healthy, happy lives.<br>We bring to the table:<br></p>\n<ul><li>Competitive salary and benefits package.</li><li>Hybrid work Model.</li><li>Opportunity to work with cutting-edge technologies.</li><li>Collaborative and inclusive work environment.</li><li>Professional development and growth opportunities</li></ul>"
+  },
+  {
+    "id": "29c49b62652d",
+    "friendly_id": "29c49b62652d-gcp-data-engineer",
+    "name": "GCP Data Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/29c49b62652d-gcp-data-engineer",
+    "published_date": "2026-08-07T18:33:02.104Z",
+    "type": {
+      "id": "contract",
+      "name": "Contract"
+    },
+    "location": {
+      "country": {
+        "name": "United States",
+        "id": "US"
+      },
+      "state": {
+        "id": "AZ",
+        "name": "Arizona"
+      },
+      "city": "Phoenix",
+      "primary": true,
+      "streetAddress": {
+        "location": "4550 E Bell Rd, Phoenix, AZ 85032, USA",
+        "components": [
+          {
+            "long_name": "4550",
+            "short_name": "4550",
+            "types": [
+              "street_number"
+            ]
+          },
+          {
+            "long_name": "East Bell Road",
+            "short_name": "E Bell Rd",
+            "types": [
+              "route"
+            ]
+          },
+          {
+            "long_name": "Paradise Valley Village",
+            "short_name": "Paradise Valley Village",
+            "types": [
+              "neighborhood",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Phoenix",
+            "short_name": "Phoenix",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Maricopa County",
+            "short_name": "Maricopa County",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Arizona",
+            "short_name": "AZ",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          {
+            "long_name": "United States",
+            "short_name": "US",
+            "types": [
+              "country",
+              "political"
+            ]
+          },
+          {
+            "long_name": "85032",
+            "short_name": "85032",
+            "types": [
+              "postal_code"
+            ]
+          },
+          {
+            "long_name": "9342",
+            "short_name": "9342",
+            "types": [
+              "postal_code_suffix"
+            ]
+          }
+        ]
+      },
+      "is_remote": false,
+      "name": "Phoenix, AZ"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "United States",
+          "id": "US"
+        },
+        "state": {
+          "id": "AZ",
+          "name": "Arizona"
+        },
+        "city": "Phoenix",
+        "primary": true,
+        "streetAddress": {
+          "location": "4550 E Bell Rd, Phoenix, AZ 85032, USA",
+          "components": [
+            {
+              "long_name": "4550",
+              "short_name": "4550",
+              "types": [
+                "street_number"
+              ]
+            },
+            {
+              "long_name": "East Bell Road",
+              "short_name": "E Bell Rd",
+              "types": [
+                "route"
+              ]
+            },
+            {
+              "long_name": "Paradise Valley Village",
+              "short_name": "Paradise Valley Village",
+              "types": [
+                "neighborhood",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Phoenix",
+              "short_name": "Phoenix",
+              "types": [
+                "locality",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Maricopa County",
+              "short_name": "Maricopa County",
+              "types": [
+                "administrative_area_level_2",
+                "political"
+              ]
+            },
+            {
+              "long_name": "Arizona",
+              "short_name": "AZ",
+              "types": [
+                "administrative_area_level_1",
+                "political"
+              ]
+            },
+            {
+              "long_name": "United States",
+              "short_name": "US",
+              "types": [
+                "country",
+                "political"
+              ]
+            },
+            {
+              "long_name": "85032",
+              "short_name": "85032",
+              "types": [
+                "postal_code"
+              ]
+            },
+            {
+              "long_name": "9342",
+              "short_name": "9342",
+              "types": [
+                "postal_code_suffix"
+              ]
+            }
+          ]
+        },
+        "is_remote": false,
+        "name": "Phoenix, AZ",
+        "id": "c7b9710dc9f3"
+      }
+    ],
+    "description": "<p><strong>Role – GCP Data Engineer</strong></p>\n<p><strong>Location – Phoenix, AZ</strong></p>\n<p><strong>Duration: 12+ Months &nbsp;</strong></p>\n<p><strong>Skills:</strong></p>\n<ul><li>Years of experience :&nbsp; 5-7 years</li><li>GCP Cloud : GCS, DataProc, BigQuery, Composer/Airflow</li><li>Big Data: PySpark</li><li>Spark, Python, GCP is must have</li><li>Strong experience with Spark , Data Frames</li><li>Big Query background with data processing for large volumes &nbsp;</li><li>Another NO Sql DB is big plus - Spanner DB &amp; Graph DB</li></ul>\n<p><strong>Qualifications:</strong></p>\n<ul><li>Degree in Computer Science, Applied Mathematics, Engineering, or any other technology related field (or equivalent work experience)</li><li>6+ years of experience working as a big data engineer (Required) must be able to articulate use cases supported and outcomes driven.</li><li>knowledge of the following (expectation is to demonstrate these skills live during the interview): PySpark, Spark, Python, Scala, Hive, Pig, and MapReduce.</li><li>Experience in GCP. &nbsp;</li><li>Experience in SQL.</li><li>Large scale data engineering and business intelligence delivery experience</li><li>Design of large-scale enterprise level big data platforms</li><li>Experience working with and performing analysis using large data sets</li><li>Proven and Demonstrated experience working with or on a mature, self-organized agile team</li></ul>\n<p></p>"
+  },
+  {
+    "id": "9545a0453040",
+    "friendly_id": "9545a0453040-gke-engineer",
+    "name": "GKE Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/9545a0453040-gke-engineer",
+    "published_date": "2026-09-03T07:20:42.053Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Gurugram, Bangalore, Indore, Raipur, Chennai",
+      "primary": true,
+      "is_remote": false,
+      "name": "Gurugram, Bangalore, Indore, Raipur, Chennai, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Gurugram, Bangalore, Indore, Raipur, Chennai",
+        "primary": true,
+        "is_remote": false,
+        "name": "Gurugram, Bangalore, Indore, Raipur, Chennai, IN",
+        "id": "7f890ea8b9f3"
+      }
+    ],
+    "description": "<p><strong>Core Responsibilities:</strong>  </p>\n<p></p><li><strong>Enterprise Cluster Orchestration:</strong> Lead the deployment and lifecycle management of production <strong>GKE clusters</strong>. You will manage node pool configurations, version upgrades, and multi-zonal availability.</li><li><strong>Advanced CI/CD Automation:</strong> Architect and maintain sophisticated deployment pipelines for microservices using <strong>ArgoCD</strong> (GitOps) and <strong>GitHub Actions</strong>, ensuring a 'push-to-deploy' developer experience.</li><li><strong>Infrastructure as Code (IaC):</strong> Drive a 100% automation mandate by provisioning and managing all GCP resources using <strong>Terraform</strong>.</li><li><strong>Optimization &amp; Observability:</strong> Implement proactive monitoring and fine-tune cluster performance. You will be responsible for cost-optimization through strategic <strong>autoscaling</strong> (HPA/VPA) and right-sizing.</li><li><strong>Security Governance:</strong> Establish a Zero Trust framework within the cluster by configuring granular <strong>IAM roles</strong>, service account least-privilege access, and <strong>FQDN-based network policies</strong>.</li><li><strong>Kubernetes Tooling &amp; Extensibility:</strong> Act as the subject matter expert for <strong>Helm</strong>, managing complex manifest updates, Custom Resource Definitions (CRDs), and Kubernetes Operators.</li> <p></p>\n<p></p>\n<h3><strong>Technical Requirements:</strong></h3>\n<ul><li><strong>Experience:</strong> <strong>5+ years</strong> of professional experience in DevOps, Cloud Engineering, or Site Reliability Engineering (SRE), with a heavy focus on Kubernetes.</li><li><strong>Platform Expertise:</strong> Deep architectural knowledge of <strong>Google Cloud Platform (GCP)</strong> and <strong>GKE</strong>.</li><li><strong>Deployment Tools:</strong> Proven track record of implementing GitOps workflows using <strong>ArgoCD</strong> and automating workflows with <strong>GitHub Actions</strong>.</li><li><strong>IaC Mastery:</strong> Expert-level proficiency in <strong>Terraform</strong> for managing complex cloud environments.</li><li><strong>Packaging &amp; CLI:</strong> Advanced experience modifying <strong>Helm charts</strong>, managing CRDs, and using the Kubernetes CLI (<code>kubectl</code>) for deep-dive troubleshooting.</li><li><strong>Networking &amp; Security:</strong> Solid understanding of Kubernetes networking, including Ingress controllers, Load Balancers, and FQDN network policies.</li></ul>\n<p><strong>Why Join Us?</strong><br></p>\n<ul><li>Work in an innovative environment with the business that is shaping the future of data migration.</li><li>Be part of a&nbsp;<strong>dynamic, high-growth environment</strong>&nbsp;at&nbsp;<strong>NucleusTeq</strong>.</li><li>Competitive salary and&nbsp;<strong>comprehensive benefits package</strong>.</li></ul>"
+  },
+  {
+    "id": "6805f0625953",
+    "friendly_id": "6805f0625953-gen-ai-engineer",
+    "name": "Gen AI Engineer",
+    "url": "https://nucleusteq.breezy.hr/p/6805f0625953-gen-ai-engineer",
+    "published_date": "2026-08-04T13:51:40.843Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "India",
+        "id": "IN"
+      },
+      "city": "Bangalore",
+      "primary": true,
+      "is_remote": false,
+      "name": "Bangalore, IN"
+    },
+    "department": null,
+    "salary": "",
+    "company": {
+      "name": "NucleusTeq",
+      "logo_url": null,
+      "friendly_id": "nucleusteq",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "India",
+          "id": "IN"
+        },
+        "city": "Bangalore",
+        "primary": true,
+        "is_remote": false,
+        "name": "Bangalore, IN",
+        "id": "980a718e6cae"
+      }
+    ],
+    "description": "<p><strong>Gen AI Engineers</strong><br><br>Experience: 3-6 Years<br><br>Key Responsibilities<br><br>• Design and develop GenAI solutions using advanced prompt engineering techniques<br>• Build and manage agentic workflows, including self-healing and autonomous agents<br>• Develop and optimize RAG pipelines for knowledge retrieval and contextual responses<br>• Work with to orchestrate LLM-based applications<br>• Manage and maintain knowledge bases for accurate and scalable information retrieval<br>• Implement conversational AI systems with strong reasoning capabilities<br>• Integrate MCP servers and ensure smooth system communication<br>• Collaborate with cross-functional teams to deliver production-ready AI solutions<br><br>Mandatory Skills<br><br>Prompt Engineering, Agentic Workflows, Retrieval-Augmented Generation (RAG),<br><br>LangChain, LlamaIndex, MCP Servers, Conversational AI, Knowledge Base Management,<br><br>Python, API Integration<br><br>Min Qualification: Engineering Degree<br><br>Location : Bangalore</p>"
+  }
+]
