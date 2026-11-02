@@ -114,10 +114,16 @@ const DEFAULT_EFFORT: Record<Task, Effort> = {
  * Replay mode (BUREAU_REPLAY=1) serves recorded responses from
  * fixtures/claude/<task>/<hash>.json so tests make no API calls; a missing
  * recording fails loudly with its task and hash. BUREAU_RECORD=1 records live
- * responses there. The hash covers the task, system prompt and user content.
+ * responses there (ignored while replaying). The hash covers the task, system
+ * prompt and user content, so prompts must not embed timestamps or random ids.
+ *
+ * BUREAU_REPLAY_DUMP=<dir> additionally writes every missed request to
+ * <dir>/<task>/<hash>.request.json (system, content, output schema), so a
+ * recording can be written by hand or recorded later. Misses are also kept in
+ * `replayMisses()` for test reports.
  */
 export const REPLAY = process.env.BUREAU_REPLAY === '1';
-const RECORD = process.env.BUREAU_RECORD === '1';
+const RECORD = process.env.BUREAU_RECORD === '1' && !REPLAY;
 export const FIXTURES_DIR = path.resolve(process.env.BUREAU_FIXTURES_DIR ?? path.join(ROOT, 'fixtures'));
 
 interface Recording {
@@ -135,16 +141,75 @@ export function replayHash(task: string, system: SystemBlocks, content: UserCont
   return crypto.createHash('sha256').update(body).digest('hex').slice(0, 24);
 }
 
-function recordingPath(task: string, hash: string) {
+export function recordingPath(task: string, hash: string) {
   return path.join(FIXTURES_DIR, 'claude', task, `${hash}.json`);
 }
 
-function loadRecording(task: string, hash: string): Recording {
+export interface ReplayMiss {
+  task: string;
+  hash: string;
+  file: string;
+  at: string;
+}
+const misses: ReplayMiss[] = [];
+
+/** Every recording replay mode asked for and did not find, in order (for e2e/selfcheck reports). */
+export function replayMisses(): ReplayMiss[] {
+  return [...misses];
+}
+
+/** Images and documents are replaced by a size note so dumps stay readable. */
+function dumpable(content: UserContent): unknown {
+  if (typeof content === 'string') return content;
+  return content.map((b) => {
+    const src = (b as { source?: { type?: string; data?: string } }).source;
+    return src?.type === 'base64' && typeof src.data === 'string' ? { ...b, source: { ...src, data: `<${src.data.length} base64 chars>` } } : b;
+  });
+}
+
+function dumpMiss(task: string, hash: string, system: SystemBlocks, content: UserContent, schema?: z.ZodType) {
+  const dir = process.env.BUREAU_REPLAY_DUMP;
+  if (!dir) return;
+  try {
+    let jsonSchema: unknown = null;
+    if (schema) {
+      try {
+        jsonSchema = betaZodOutputFormat(schema);
+      } catch {
+        jsonSchema = null;
+      }
+    }
+    const file = path.join(path.resolve(dir), task, `${hash}.request.json`);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(
+      file,
+      JSON.stringify({ task, hash, model: modelFor(task as Task), system: system.map((b) => b.text), content: dumpable(content), outputFormat: jsonSchema, recordTo: path.relative(ROOT, recordingPath(task, hash)) }, null, 2),
+    );
+  } catch {
+    /* a dump is a convenience; never let it mask the real error */
+  }
+}
+
+function loadRecording(task: string, hash: string, req: { system: SystemBlocks; content: UserContent; schema?: z.ZodType }): Recording {
   const file = recordingPath(task, hash);
   if (!fs.existsSync(file)) {
+    misses.push({ task, hash, file: path.relative(ROOT, file), at: new Date().toISOString() });
+    dumpMiss(task, hash, req.system, req.content, req.schema);
     throw new AppError(500, 'REPLAY_MISSING', `No recorded Claude response for task "${task}" (hash ${hash}). Record it with BUREAU_RECORD=1 or add ${path.relative(ROOT, file)}.`);
   }
-  return JSON.parse(fs.readFileSync(file, 'utf8')) as Recording;
+  let rec: Recording;
+  try {
+    rec = JSON.parse(fs.readFileSync(file, 'utf8')) as Recording;
+  } catch {
+    throw new AppError(500, 'REPLAY_INVALID', `Recording ${path.relative(ROOT, file)} is not valid JSON.`);
+  }
+  if (rec.task !== task || rec.hash !== hash) {
+    throw new AppError(500, 'REPLAY_INVALID', `Recording ${path.relative(ROOT, file)} says task "${rec.task}" / hash ${rec.hash}; expected "${task}" / ${hash}.`);
+  }
+  if (!rec.usage || typeof rec.usage.input_tokens !== 'number' || typeof rec.usage.output_tokens !== 'number') {
+    throw new AppError(500, 'REPLAY_INVALID', `Recording ${path.relative(ROOT, file)} needs usage.input_tokens and usage.output_tokens.`);
+  }
+  return rec;
 }
 
 function saveRecording(rec: Recording) {
@@ -262,9 +327,13 @@ export async function structured<S extends z.ZodType>(opts: {
   const model = modelFor(opts.task);
   const hash = REPLAY || RECORD ? replayHash(opts.task, opts.system, opts.content) : '';
   if (REPLAY) {
-    const rec = loadRecording(opts.task, hash);
+    const rec = loadRecording(opts.task, hash, { system: opts.system, content: opts.content, schema: opts.schema });
     meter(opts.task, rec.model, rec.usage);
-    return opts.schema.parse(rec.output) as z.infer<S>;
+    const parsed = opts.schema.safeParse(rec.output);
+    if (!parsed.success) {
+      throw new AppError(500, 'REPLAY_INVALID', `Recording ${path.relative(ROOT, recordingPath(opts.task, hash))} does not match the ${opts.task} output schema: ${parsed.error.message.slice(0, 300)}`);
+    }
+    return parsed.data as z.infer<S>;
   }
   try {
     const res = await client().beta.messages.parse({
@@ -304,7 +373,7 @@ export async function research(opts: {
   let text = '';
   const hash = REPLAY || RECORD ? replayHash(opts.task, opts.system, opts.prompt) : '';
   if (REPLAY) {
-    const rec = loadRecording(opts.task, hash);
+    const rec = loadRecording(opts.task, hash, { system: opts.system, content: opts.prompt });
     meter(opts.task, rec.model, rec.usage);
     return { text: rec.text ?? '', sources: rec.sources ?? [] };
   }

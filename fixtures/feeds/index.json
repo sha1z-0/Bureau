@@ -421,7 +421,7 @@
       "file": "e2e/smartrecruiters-meridianfreight.json",
       "contentType": "application/json; charset=utf-8",
       "recordedAt": "2026-11-02T00:00:00.000Z",
-      "notes": "Meridian Freight, Graduate Software Engineer, posting id 744000160123456, uuid d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71. Regex allows ?limit/&offset."
+      "notes": "Meridian Freight, Graduate Software Engineer, posting id 744000160123456, uuid 3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937. Regex allows ?limit/&offset."
     },
     {
       "connector": "smartrecruiters",

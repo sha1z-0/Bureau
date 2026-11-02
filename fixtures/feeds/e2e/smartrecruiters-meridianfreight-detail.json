@@ -1,7 +1,7 @@
 {
   "id": "744000160123456",
   "name": "Graduate Software Engineer",
-  "uuid": "d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71",
+  "uuid": "3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937",
   "jobId": "f0e1d2c3-b4a5-4968-8776-655443322110",
   "jobAdId": "a8e2f4c6-1b3d-4f5a-8c7e-2d4f6a8b0c1e",
   "defaultJobAd": true,
@@ -25,8 +25,8 @@
     "avatarUrl": ""
   },
   "postingUrl": "{{ORIGIN_A}}/jobs.smartrecruiters.com/MeridianFreight/744000160123456-graduate-software-engineer",
-  "applyUrl": "{{ORIGIN_A}}/jobs.smartrecruiters.com/oneclick-ui/company/MeridianFreight/publication/d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71",
-  "referralUrl": "https://jobs.smartrecruiters.com/external-referrals/company/MeridianFreight/publication/d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71?dcr_ci=MeridianFreight",
+  "applyUrl": "{{ORIGIN_A}}/jobs.smartrecruiters.com/oneclick-ui/company/MeridianFreight/publication/3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937",
+  "referralUrl": "https://jobs.smartrecruiters.com/external-referrals/company/MeridianFreight/publication/3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937?dcr_ci=MeridianFreight",
   "jobAd": {
     "sections": {
       "companyDescription": {

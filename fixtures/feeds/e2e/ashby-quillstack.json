@@ -2,7 +2,7 @@
   "apiVersion": "1",
   "jobs": [
     {
-      "id": "9b2e4c1d-5a6f-4e3b-8c7d-1a2b3c4d5e6f",
+      "id": "6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68",
       "title": "Associate Software Engineer",
       "department": "Engineering",
       "team": "Editor",
@@ -19,8 +19,8 @@
           "addressCountry": "Remote"
         }
       },
-      "jobUrl": "{{ORIGIN_A}}/jobs.ashbyhq.com/quillstack/9b2e4c1d-5a6f-4e3b-8c7d-1a2b3c4d5e6f",
-      "applyUrl": "{{ORIGIN_A}}/jobs.ashbyhq.com/quillstack/9b2e4c1d-5a6f-4e3b-8c7d-1a2b3c4d5e6f/application",
+      "jobUrl": "{{ORIGIN_A}}/jobs.ashbyhq.com/quillstack/6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68",
+      "applyUrl": "{{ORIGIN_A}}/jobs.ashbyhq.com/quillstack/6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68/application",
       "descriptionHtml": "<p>Quillstack is a writing platform for technical documentation teams: docs-as-code, live previews, and review workflows that feel like pull requests. Around 2,000 companies publish their developer docs with us.</p>\n<h2>About the role</h2>\n<p>As an Associate Software Engineer on the Editor team you will work across our TypeScript stack, from the React editor to the Node.js services that render and publish docs. You will be paired with a mentor for your first six months.</p>\n<h2>You will</h2>\n<ul><li>Ship features in the React editor and its collaboration layer.</li><li>Build and maintain Node.js services that render Markdown and MDX at scale.</li><li>Write tests and take part in code review.</li><li>Join the occasional customer call to see how teams use what you build.</li></ul>\n<h2>Requirements</h2>\n<ul><li>Up to 2 years of professional experience with TypeScript and React.</li><li>Some backend experience with Node.js.</li><li>Comfortable with Git and pull-request workflows.</li></ul>\n<h2>Nice to have</h2>\n<ul><li>Experience with ProseMirror, CRDTs or real-time collaboration.</li><li>An interest in technical writing.</li></ul>\n<h2>Compensation</h2>\n<p>USD 32,000-40,000 per year for remote employees outside the US and EU, plus equity. Fully remote; we ask for four hours of overlap with 08:00-16:00 UTC.</p>",
       "descriptionPlain": "Quillstack is a writing platform for technical documentation teams: docs-as-code, live previews, and review workflows that feel like pull requests. Around 2,000 companies publish their developer docs with us.\n\nAbout the role\n\nAs an Associate Software Engineer on the Editor team you will work across our TypeScript stack, from the React editor to the Node.js services that render and publish docs. You will be paired with a mentor for your first six months.\n\nYou will\n\n- Ship features in the React editor and its collaboration layer.\n- Build and maintain Node.js services that render Markdown and MDX at scale.\n- Write tests and take part in code review.\n- Join the occasional customer call to see how teams use what you build.\n\nRequirements\n\n- Up to 2 years of professional experience with TypeScript and React.\n- Some backend experience with Node.js.\n- Comfortable with Git and pull-request workflows.\n\nNice to have\n\n- Experience with ProseMirror, CRDTs or real-time collaboration.\n- An interest in technical writing.\n\nCompensation\n\nUSD 32,000-40,000 per year for remote employees outside the US and EU, plus equity. Fully remote; we ask for four hours of overlap with 08:00-16:00 UTC.",
       "compensation": {
