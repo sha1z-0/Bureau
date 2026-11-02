@@ -1,0 +1,60 @@
+{
+  "task": "profile_sync",
+  "hash": "ca23c1e4983499b9785244d6",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 4200,
+    "output_tokens": 650,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "facts": [
+      {
+        "kind": "experience",
+        "text": "I build reliable backends for small businesses. I'm a backend developer based in Lahore.",
+        "sourceRef": "https://ayesha.example.com/"
+      },
+      {
+        "kind": "metric",
+        "text": "Pixel Pantry is a recipe sharing PWA that works offline; 300 home cooks used it during the beta.",
+        "sourceRef": "https://ayesha.example.com/projects"
+      },
+      {
+        "kind": "achievement",
+        "text": "Won first place at the FAST NUCES Lahore hackathon 2025 with a bus-tracking app built in 24 hours.",
+        "sourceRef": "https://ayesha.example.com/projects"
+      },
+      {
+        "kind": "metric",
+        "text": "LedgerLite replaced a paper ledger at a hardware store with two branches. It posts about 400 entries a day.",
+        "sourceRef": "https://ayesha.example.com/projects/ledgerlite"
+      },
+      {
+        "kind": "skill",
+        "text": "The API is written in Go, stores everything in PostgreSQL, and is deployed with Docker on a single VPS.",
+        "sourceRef": "https://ayesha.example.com/projects/ledgerlite"
+      },
+      {
+        "kind": "education",
+        "text": "I studied Computer Science at FAST NUCES Lahore and graduate in June 2027.",
+        "sourceRef": "https://ayesha.example.com/about"
+      },
+      {
+        "kind": "experience",
+        "text": "I mentor first-year students in the university's programming club every week.",
+        "sourceRef": "https://ayesha.example.com/about"
+      },
+      {
+        "kind": "metric",
+        "text": "Span memory dropped from 1.2 GB to 140 MB over a day of traffic.",
+        "sourceRef": "https://ayesha.example.com/blog/span-leak"
+      },
+      {
+        "kind": "achievement",
+        "text": "Speaker at GopherCon 2026",
+        "sourceRef": "https://ayesha.example.com/talks"
+      }
+    ]
+  }
+}

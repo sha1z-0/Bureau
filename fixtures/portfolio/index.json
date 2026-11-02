@@ -1,0 +1,9 @@
+{
+  "https://ayesha.example.com/robots.txt": { "file": "robots.txt", "contentType": "text/plain" },
+  "https://ayesha.example.com/": { "file": "home.html" },
+  "https://ayesha.example.com/projects": { "file": "projects.html" },
+  "https://ayesha.example.com/projects/ledgerlite": { "file": "ledgerlite.html" },
+  "https://ayesha.example.com/about": { "file": "about.html" },
+  "https://ayesha.example.com/blog/span-leak": { "file": "span-leak.html" },
+  "https://ayesha.example.com/drafts/next-post": { "body": "<html><body>secret draft</body></html>" }
+}

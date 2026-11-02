@@ -106,7 +106,15 @@ export function loadProfile(): Profile | null {
   return parsed.success ? parsed.data : null;
 }
 
+let savedVersion = 0;
+
+/** Bumped on every save, so caches built from the profile (the v2 master profile) know when to rebuild. */
+export function profileVersion(): number {
+  return savedVersion;
+}
+
 export function saveProfile(profile: Profile) {
+  savedVersion++;
   run(
     `INSERT INTO profile (id, data, updated_at) VALUES (1, ?, ?)
      ON CONFLICT(id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,

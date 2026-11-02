@@ -1,0 +1,6 @@
+{
+  "https://lumenpay.example.net/": { "file": "home.html" },
+  "https://lumenpay.example.net/about": { "file": "about.html" },
+  "https://lumenpay.example.net/engineering": { "file": "engineering.html" },
+  "https://lumenpay.example.net/careers": { "file": "careers.html" }
+}

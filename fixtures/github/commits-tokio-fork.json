@@ -1,0 +1,6 @@
+[
+  { "sha": "f01", "commit": { "message": "fix(subscriber): drop span guard before await", "author": { "name": "Ayesha Khan", "date": "2026-09-01T18:30:00Z" } } },
+  { "sha": "f02", "commit": { "message": "test: reproduce span leak across await points", "author": { "name": "Ayesha Khan", "date": "2026-08-30T12:10:00Z" } } },
+  { "sha": "f03", "commit": { "message": "bench: measure span memory before and after", "author": { "name": "Ayesha Khan", "date": "2026-08-29T21:44:00Z" } } },
+  { "sha": "f04", "commit": { "message": "docs: explain the leak and the fix", "author": { "name": "Ayesha Khan", "date": "2026-08-29T20:01:00Z" } } }
+]

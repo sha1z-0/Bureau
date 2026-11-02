@@ -1,0 +1,13 @@
+{
+  "https://api.github.com/users/ayesha-dev/repos?per_page=100&type=owner&sort=pushed": { "file": "repos.json" },
+  "https://api.github.com/repos/ayesha-dev/react/commits?author=ayesha-dev&per_page=10": { "file": "commits-react.json" },
+  "https://api.github.com/repos/ayesha-dev/tokio-tracing-fix/commits?author=ayesha-dev&per_page=10": { "file": "commits-tokio-fork.json" },
+  "https://api.github.com/repos/ayesha-dev/ledgerlite/languages": { "file": "languages-ledgerlite.json" },
+  "https://api.github.com/repos/ayesha-dev/ledgerlite/commits?author=ayesha-dev&since=2026-08-03T00:00:00Z&per_page=100": { "file": "commits-ledgerlite-recent.json" },
+  "https://api.github.com/repos/ayesha-dev/ledgerlite/readme": { "file": "readme-ledgerlite.md" },
+  "https://api.github.com/repos/ayesha-dev/pixel-pantry/languages": { "file": "languages-pixel-pantry.json" },
+  "https://api.github.com/repos/ayesha-dev/pixel-pantry/commits?author=ayesha-dev&since=2026-08-03T00:00:00Z&per_page=100": { "file": "commits-empty.json" },
+  "https://api.github.com/repos/ayesha-dev/tokio-tracing-fix/languages": { "file": "languages-tokio-tracing-fix.json" },
+  "https://api.github.com/repos/ayesha-dev/tokio-tracing-fix/commits?author=ayesha-dev&since=2026-08-03T00:00:00Z&per_page=100": { "file": "commits-tokio-fork.json" },
+  "https://api.github.com/repos/ayesha-dev/tokio-tracing-fix/readme": { "file": "readme-tokio-tracing-fix.md" }
+}

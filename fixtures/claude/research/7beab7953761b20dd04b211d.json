@@ -1,0 +1,26 @@
+{
+  "task": "research",
+  "hash": "7beab7953761b20dd04b211d",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 4200,
+    "output_tokens": 650,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Lumen Pay builds checkout and ledger tools for independent shops in Pakistan and the Gulf. Its own site describes two products: Lumen Pay Checkout for card and wallet payments online and in store, and the Lumen Ledger API for developers. In September 2026 it announced a Series A, and its engineering blog describes moving the ledger to PostgreSQL logical replication. The careers page names Sara Malik as the Engineering Manager for Payments.\n\n```json\n{\n  \"whatTheyBuild\": \"Checkout and a double-entry ledger API for independent retailers in Pakistan and the Gulf, online and in store.\",\n  \"products\": [\n    { \"text\": \"Lumen Pay Checkout: card and wallet payments for independent retailers, online and in store\", \"sourceUrl\": \"https://lumenpay.example.net/\" },\n    { \"text\": \"Lumen Ledger API: a double-entry ledger for every payout\", \"sourceUrl\": \"https://lumenpay.example.net/\" },\n    { \"text\": \"Lumen Payroll for gig workers\", \"sourceUrl\": \"https://unknown-blog.example.org/lumen-payroll\" }\n  ],\n  \"recent\": [\n    { \"text\": \"Raised a $12M Series A led by Sequoia-backed Surge alumni fund to expand into Saudi Arabia\", \"sourceUrl\": \"https://techcrunch.example.com/2026/09/15/lumen-pay-series-a\", \"date\": \"2026-09-15\" },\n    { \"text\": \"Moved the ledger to PostgreSQL logical replication to cut payout reconciliation time\", \"sourceUrl\": \"https://lumenpay.example.net/engineering\", \"date\": \"2026-09\" },\n    { \"text\": \"Launched in the UAE\", \"sourceUrl\": \"https://news.example.com/2025/01/lumen-uae\", \"date\": \"2025-01-10\" }\n  ],\n  \"techSignals\": [\n    { \"text\": \"Backend written in Go on PostgreSQL\", \"sourceUrl\": \"https://lumenpay.example.net/engineering\" },\n    { \"text\": \"Payments team uses Go, PostgreSQL and Kafka\", \"sourceUrl\": \"https://lumenpay.example.net/careers\" }\n  ],\n  \"values\": [\n    { \"text\": \"Mission: money should move as fast as messages\", \"sourceUrl\": \"https://lumenpay.example.net/about\" }\n  ],\n  \"stage\": \"Series A (2026)\",\n  \"teamSize\": \"about 40 people in Lahore and Dubai\",\n  \"hiringContact\": { \"name\": \"Sara Malik\", \"role\": \"Engineering Manager, Payments\", \"sourceUrl\": \"https://lumenpay.example.net/careers\" }\n}\n```",
+  "sources": [
+    {
+      "url": "https://techcrunch.example.com/2026/09/15/lumen-pay-series-a",
+      "title": "Lumen Pay raises $12M Series A"
+    },
+    {
+      "url": "https://lumenpay.example.net/engineering",
+      "title": "Engineering at Lumen Pay"
+    },
+    {
+      "url": "https://news.example.com/2025/01/lumen-uae",
+      "title": "Lumen Pay launches in UAE"
+    }
+  ]
+}

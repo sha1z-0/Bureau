@@ -1,0 +1,40 @@
+{
+  "task": "profile_sync",
+  "hash": "04b53480ff5db13b35077476",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 4200,
+    "output_tokens": 650,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "facts": [
+      {
+        "kind": "experience",
+        "text": "I'm a backend developer in Lahore who builds bookkeeping and payments software for small shops.",
+        "sourceRef": "linkedin-paste"
+      },
+      {
+        "kind": "experience",
+        "text": "Built the store's bookkeeping API in Go and PostgreSQL.",
+        "sourceRef": "linkedin-paste"
+      },
+      {
+        "kind": "metric",
+        "text": "Cut month-end closing from 3 days to 2 hours.",
+        "sourceRef": "linkedin-paste"
+      },
+      {
+        "kind": "experience",
+        "text": "I run weekly problem-solving sessions for first-year students.",
+        "sourceRef": "linkedin-paste"
+      },
+      {
+        "kind": "metric",
+        "text": "Cut month-end closing from 3 days to 4 hours for 5 stores.",
+        "sourceRef": "linkedin-paste"
+      }
+    ]
+  }
+}

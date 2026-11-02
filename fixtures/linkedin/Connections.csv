@@ -1,0 +1,5 @@
+Notes:
+"Connections are private data about other people; Bureau must never read this file."
+
+First Name,Last Name,URL,Email Address,Company,Position,Connected On
+Private,Person,https://www.linkedin.com/in/private-person,private@example.com,Somewhere,Someone,01 Jan 2026
