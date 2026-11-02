@@ -19,11 +19,14 @@ import { currentScan, runScan, scanSettings } from '../services/scanner.ts';
 import { loadProfile } from '../services/profileStore.ts';
 import { sourceHealth } from '../scout/index.ts';
 import { body, json } from './util.ts';
+import { uiRoutes } from './ui.ts';
 
 const token = z.string().regex(/^[a-z0-9][a-z0-9-_.]{0,80}$/i, 'Board tokens are letters, digits, dashes');
 
 export async function systemRoutes(app: FastifyInstance) {
   app.get('/api/health', async () => ({ ok: true }));
+  // A10's UI read models and onboarding state live beside the v1 routes.
+  await uiRoutes(app);
 
   // ── Overview ──────────────────────────────────────────────────────────
   app.get('/api/overview', async () => {
@@ -242,10 +245,12 @@ export async function systemRoutes(app: FastifyInstance) {
   app.get('/api/applications/:id/shot.png', async (req, reply) => {
     const { id } = req.params as { id: string };
     const row = get<{ shot: string | null }>('SELECT shot FROM applications WHERE id = ?', id);
-    if (!row?.shot || !/^[0-9a-f-]{36}\.png$/.test(row.shot)) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
+    // PNG from the form engine; PNG or JPEG proofs from external agents (A07 strips their metadata).
+    const m = row?.shot ? /^[0-9a-f-]{36}\.(png|jpg)$/.exec(row.shot) : null;
+    if (!row?.shot || !m) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
     const file = path.join(SHOT_DIR, row.shot);
     if (!fs.existsSync(file)) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
-    reply.header('content-type', 'image/png').header('cache-control', 'no-store');
+    reply.header('content-type', m[1] === 'jpg' ? 'image/jpeg' : 'image/png').header('cache-control', 'no-store');
     return reply.send(fs.readFileSync(file));
   });
 

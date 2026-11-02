@@ -23,3 +23,12 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+// Installable on a phone: a small service worker caches the app shell (never /api).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {
+      /* not served over HTTPS or localhost: the app still works, it just won't install */
+    });
+  });
+}

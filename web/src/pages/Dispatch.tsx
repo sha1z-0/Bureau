@@ -19,7 +19,7 @@ export default function Dispatch() {
       <header className="page-head">
         <div>
           <h1>Dispatch</h1>
-          <p>Every application the hunt sent, and the few it handed back to you. Those wait in “Needs you” with the form already filled; finish them in one click.</p>
+          <p>Every application that went out, and the few handed back to you. Those wait in “Needs you” with the form already filled; finish them in one click.</p>
         </div>
       </header>
 
@@ -54,7 +54,7 @@ export default function Dispatch() {
           <div className="card-head">
             <h2>Rehearsals</h2>
             <span className="muted" style={{ fontSize: '0.8125rem' }}>
-              Filled in but not submitted. Switch the hunt to Live in Settings when you're happy.
+              Filled in and checked but not sent. A campaign goes live by itself when its rehearsal days are over.
             </span>
           </div>
           <table className="table">
@@ -114,7 +114,7 @@ export default function Dispatch() {
                   <td>
                     <span className="muted">{a.channel === 'ats' ? 'Company form' : a.channel === 'email' ? `Email to ${a.toEmail}` : 'Direct message'}</span>
                   </td>
-                  <td>{a.auto ? <span className="row muted" style={{ gap: 6 }}><Bot size={14} /> The hunt</span> : <span className="muted">You</span>}</td>
+                  <td>{a.auto ? <span className="row muted" style={{ gap: 6 }}><Bot size={14} /> A campaign</span> : <span className="muted">You</span>}</td>
                   <td className="muted">{ago(a.sentAt)}</td>
                   <td style={{ textAlign: 'right' }}>
                     {a.hasShot ? (
@@ -128,7 +128,7 @@ export default function Dispatch() {
             </tbody>
           </table>
         ) : (
-          <Empty title="Nothing sent yet">Switch the hunt on from the Overview and applications will appear here as they go out.</Empty>
+          <Empty title="Nothing sent yet">Start a campaign and applications appear here as they go out.</Empty>
         )}
       </section>
 

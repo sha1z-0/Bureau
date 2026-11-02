@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Globe, Save, Upload } from 'lucide-react';
-import { api, post, put, upload, CATEGORY_LABEL, type Category, type Profile } from '../api';
-import { Btn, Field, ListInput, Switch, useToast } from '../ui';
+import { Globe, RefreshCw, Save, Upload } from 'lucide-react';
+import { api, patch, post, put, upload, CATEGORY_LABEL, type Category, type Profile, type ProfileFact } from '../api';
+import { go, setParam, useRoute } from '../App';
+import { Btn, Field, ListInput, Switch, ago, useToast } from '../ui';
+import { PageHead, Tabs, plain } from '../kit';
+import { AnswerBankEditor, GithubPreview, LearningListEditor, LinksEditor, VoiceBankEditor } from '../editors';
 
 const CATS = Object.keys(CATEGORY_LABEL) as Category[];
 
-export default function ProfilePage() {
+function ProfileBasics() {
   const toast = useToast();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ['profile'], queryFn: () => api<{ profile: Profile | null; documents: { id: string; filename: string; created_at: string }[] }>('/api/profile') });
@@ -43,19 +46,14 @@ export default function ProfilePage() {
 
   return (
     <>
-      <header className="page-head">
-        <div>
-          <h1>Profile</h1>
-          <p>What Bureau knows about you. Your CV is the source of truth: Claude may rephrase and reorder it, never add to it.</p>
+      {dirty ? (
+        <div className="livebar" role="status">
+          <span className="text">You have unsaved changes to your profile.</span>
+          <Btn size="sm" variant="primary" busy={save.isPending} onClick={() => save.mutate()}>
+            <Save /> Save changes
+          </Btn>
         </div>
-        <div className="page-actions">
-          {dirty ? (
-            <Btn variant="primary" busy={save.isPending} onClick={() => save.mutate()}>
-              <Save /> Save changes
-            </Btn>
-          ) : null}
-        </div>
-      </header>
+      ) : null}
 
       <div className="split">
         <div className="grid">
@@ -225,7 +223,7 @@ export default function ProfilePage() {
   );
 }
 
-function CvUpload({ hasProfile, lastFile }: { hasProfile: boolean; lastFile?: string }) {
+export function CvUpload({ hasProfile, lastFile, bare }: { hasProfile?: boolean; lastFile?: string; bare?: boolean }) {
   const toast = useToast();
   const qc = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
@@ -239,19 +237,26 @@ function CvUpload({ hasProfile, lastFile }: { hasProfile: boolean; lastFile?: st
       return upload('/api/profile/upload', form);
     },
     onSuccess: () => {
-      toast.success('Claude has read your CV. Review the profile below.');
+      toast.success('Claude has read your CV. Your profile is built from it.');
       qc.invalidateQueries({ queryKey: ['profile'] });
       qc.invalidateQueries({ queryKey: ['overview'] });
+      qc.invalidateQueries({ queryKey: ['onboarding'] });
+      qc.invalidateQueries({ queryKey: ['master'] });
     },
     onError: toast.error,
   });
   const pick = (f?: File | null) => f && m.mutate(f);
+  const current = useQuery({ queryKey: ['profile'], queryFn: () => api<{ profile: Profile | null; documents: { filename: string }[] }>('/api/profile'), enabled: !!bare });
+  const file = lastFile ?? current.data?.documents[0]?.filename;
+  const Wrap = bare ? 'div' : 'section';
 
   return (
-    <section className="card card-pad">
-      <h2 className="section-title" style={{ marginBottom: 'var(--s-4)' }}>
-        {hasProfile ? 'Replace your CV' : 'Start with your CV'}
-      </h2>
+    <Wrap className={bare ? '' : 'card card-pad'}>
+      {bare ? null : (
+        <h2 className="section-title" style={{ marginBottom: 'var(--s-4)' }}>
+          {hasProfile ? 'Replace your CV' : 'Start with your CV'}
+        </h2>
+      )}
       <div
         className={`dropzone ${over ? 'over' : ''}`}
         role="button"
@@ -272,7 +277,7 @@ function CvUpload({ hasProfile, lastFile }: { hasProfile: boolean; lastFile?: st
         {m.isPending ? <span className="spinner" style={{ width: 22, height: 22, color: 'var(--accent)' }} /> : <Upload size={22} color="var(--accent)" />}
         <strong style={{ fontSize: 'var(--t-lg)', fontWeight: 600 }}>{m.isPending ? 'Claude is reading your CV…' : 'Drop your CV here, or click to choose it'}</strong>
         <span className="muted" style={{ fontSize: '0.8125rem' }}>
-          {lastFile ? `Current file: ${lastFile}` : 'PDF, DOCX, TXT or Markdown. It stays on this computer; Claude reads it once to build your profile.'}
+          {file ? `Current file: ${file}` : 'PDF, DOCX, TXT or Markdown. It stays on this computer; Claude reads it once to build your profile.'}
         </span>
         <input ref={input} type="file" accept=".pdf,.docx,.md,.txt" hidden onChange={(e) => pick(e.target.files?.[0])} />
       </div>
@@ -281,7 +286,7 @@ function CvUpload({ hasProfile, lastFile }: { hasProfile: boolean; lastFile?: st
           <textarea className="textarea" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
       </div>
-    </section>
+    </Wrap>
   );
 }
 
@@ -319,5 +324,214 @@ function PortfolioCard({ profile }: { profile: Profile }) {
         </>
       ) : null}
     </section>
+  );
+}
+
+// ── v2: tabs over the master profile ────────────────────────────────
+
+type ProfileTab = 'basics' | 'facts' | 'voice' | 'answers' | 'links' | 'learning';
+
+const SOURCE_LABEL: Record<ProfileFact['source'], string> = { cv: 'Your CV', github: 'GitHub', portfolio: 'Portfolio', manual: 'Added by you', linkedin: 'LinkedIn export' };
+
+interface SyncLast {
+  startedAt: string;
+  finishedAt: string;
+  added: number;
+  reactivated: number;
+  deactivated: number;
+  parts: Record<string, { ok?: boolean; added?: number; error?: string | null }>;
+}
+
+function FactsPanel() {
+  const toast = useToast();
+  const qc = useQueryClient();
+  const facts = useQuery({ queryKey: ['master', 'facts'], queryFn: () => api<{ facts: ProfileFact[]; kinds: string[] }>('/api/master/facts') });
+  const sync = useQuery({ queryKey: ['master', 'sync'], queryFn: () => api<{ last: SyncLast | null; running: boolean }>('/api/master/sync') });
+  const [kind, setKind] = useState('skill');
+  const [text, setText] = useState('');
+  const refresh = () => qc.invalidateQueries({ queryKey: ['master'] });
+  const run = useMutation({
+    mutationFn: () => post<{ report: SyncLast }>('/api/master/sync', {}),
+    onSuccess: (r) => {
+      toast.success(`Profile refreshed: ${r.report.added} new facts.`);
+      refresh();
+    },
+    onError: toast.error,
+  });
+  const toggle = useMutation({ mutationFn: (f: ProfileFact) => patch(`/api/master/facts/${f.id}`, { active: !f.active }), onSuccess: refresh, onError: toast.error });
+  const add = useMutation({
+    mutationFn: () => post('/api/master/facts', { kind, text: text.trim() }),
+    onSuccess: () => {
+      setText('');
+      refresh();
+    },
+    onError: toast.error,
+  });
+  const groups = new Map<string, ProfileFact[]>();
+  for (const f of facts.data?.facts ?? []) groups.set(f.source, [...(groups.get(f.source) ?? []), f]);
+  const last = sync.data?.last;
+  return (
+    <div className="split">
+      <div className="grid">
+        {facts.data && !facts.data.facts.length ? (
+          <section className="card">
+            <div className="empty">
+              <h3>No facts yet</h3>
+              <p>Upload your CV and read your GitHub. Every fact Bureau records keeps its source, and nothing reaches a letter without one.</p>
+            </div>
+          </section>
+        ) : null}
+        {[...groups].map(([src, list]) => (
+          <section className="card" key={src}>
+            <div className="card-head">
+              <h2>{SOURCE_LABEL[src as ProfileFact['source']] ?? src}</h2>
+              <span className="muted num">{list.filter((f) => f.active).length} in use</span>
+            </div>
+            {list.map((f) => (
+              <div key={f.id} className="list-row static" style={f.active ? undefined : { color: 'var(--text-3)' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 'var(--t-sm)' }}>{f.text}</div>
+                  <div className="meta" style={{ fontSize: 'var(--t-xs)' }}>
+                    <span>{plain(f.kind)}</span>
+                    {f.sourceRef ? (
+                      /^https?:/.test(f.sourceRef) ? (
+                        <a href={f.sourceRef} target="_blank" rel="noopener noreferrer">
+                          {f.sourceRef.replace(/^https?:\/\//, '').slice(0, 60)}
+                        </a>
+                      ) : (
+                        <span>{f.sourceRef}</span>
+                      )
+                    ) : null}
+                    <span>{ago(f.addedAt)}</span>
+                  </div>
+                </div>
+                <Btn size="sm" variant="ghost" onClick={() => toggle.mutate(f)}>
+                  {f.active ? 'Hide' : 'Use again'}
+                </Btn>
+              </div>
+            ))}
+          </section>
+        ))}
+      </div>
+      <div className="grid">
+        <section className="card card-pad">
+          <h2 className="section-title" style={{ marginBottom: 'var(--s-2)' }}>
+            Daily refresh
+          </h2>
+          <p className="muted" style={{ fontSize: 'var(--t-sm)', marginBottom: 'var(--s-3)' }}>
+            Every morning Bureau re-reads a new CV upload, your GitHub and your portfolio. Facts that disappear from a source stop being used.
+          </p>
+          {last ? (
+            <p style={{ fontSize: 'var(--t-sm)', marginBottom: 'var(--s-3)' }}>
+              Last run {ago(last.finishedAt)}: {last.added} added, {last.deactivated} retired.{' '}
+              {Object.entries(last.parts ?? {})
+                .filter(([, p]) => p?.error)
+                .map(([k, p]) => `${plain(k)} failed: ${p.error}`)
+                .join(' ')}
+            </p>
+          ) : null}
+          <Btn busy={run.isPending || sync.data?.running} onClick={() => run.mutate()}>
+            <RefreshCw /> Refresh now
+          </Btn>
+        </section>
+        <section className="card card-pad">
+          <h2 className="section-title" style={{ marginBottom: 'var(--s-3)' }}>
+            Add a fact
+          </h2>
+          <p className="muted" style={{ fontSize: 'var(--t-sm)', marginBottom: 'var(--s-3)' }}>
+            Something true that no source shows yet. Keep it plain; the writer may rephrase it, never inflate it.
+          </p>
+          <div className="stack">
+            <select className="select" value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Kind">
+              {(facts.data?.kinds ?? ['skill']).map((k) => (
+                <option key={k} value={k}>
+                  {plain(k)}
+                </option>
+              ))}
+            </select>
+            <textarea className="textarea" rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Ran the payments on-call rota for a team of six for four months" aria-label="Fact" />
+            <div>
+              <Btn disabled={text.trim().length < 3} busy={add.isPending} onClick={() => add.mutate()}>
+                Add the fact
+              </Btn>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export default function ProfilePage() {
+  const [, params] = useRoute();
+  const tab = (params.get('tab') as ProfileTab) || 'basics';
+  const qc = useQueryClient();
+  const reopen = useMutation({
+    mutationFn: () => put('/api/onboarding', { current: 'cv', done: false }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['onboarding'] });
+      go('welcome');
+    },
+  });
+  return (
+    <>
+      <PageHead
+        title="Profile"
+        lede="What Bureau knows about you, and where each fact came from. Your CV is the source of truth: letters may rephrase and reorder it, never add to it."
+        actions={
+          <Btn variant="ghost" busy={reopen.isPending} onClick={() => reopen.mutate()}>
+            Open the setup guide
+          </Btn>
+        }
+      />
+      <div style={{ marginBottom: 'var(--s-4)', overflowX: 'auto' }}>
+        <Tabs<ProfileTab>
+          label="Profile sections"
+          value={tab}
+          onChange={(t) => setParam('tab', t === 'basics' ? null : t)}
+          items={[
+            { id: 'basics', label: 'Basics' },
+            { id: 'facts', label: 'Facts and sources' },
+            { id: 'voice', label: 'Voice bank' },
+            { id: 'answers', label: 'Answer bank' },
+            { id: 'links', label: 'Links and GitHub' },
+            { id: 'learning', label: 'Learning list' },
+          ]}
+        />
+      </div>
+      {tab === 'basics' ? <ProfileBasics /> : null}
+      {tab === 'facts' ? <FactsPanel /> : null}
+      {tab === 'voice' ? (
+        <section className="card card-pad" style={{ maxWidth: 860 }}>
+          <VoiceBankEditor />
+        </section>
+      ) : null}
+      {tab === 'answers' ? (
+        <section className="card card-pad" style={{ maxWidth: 960 }}>
+          <AnswerBankEditor withTest />
+        </section>
+      ) : null}
+      {tab === 'links' ? (
+        <div className="split">
+          <section className="card card-pad">
+            <h2 className="section-title" style={{ marginBottom: 'var(--s-4)' }}>
+              Links
+            </h2>
+            <LinksEditor />
+          </section>
+          <section className="card card-pad">
+            <h2 className="section-title" style={{ marginBottom: 'var(--s-4)' }}>
+              GitHub
+            </h2>
+            <GithubPreview />
+          </section>
+        </div>
+      ) : null}
+      {tab === 'learning' ? (
+        <section className="card card-pad" style={{ maxWidth: 860 }}>
+          <LearningListEditor />
+        </section>
+      ) : null}
+    </>
   );
 }

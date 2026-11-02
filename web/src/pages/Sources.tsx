@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, ExternalLink, Radar, Save, Sparkles } from 'lucide-react';
-import { api, post, put, useLive, type LiveEvent } from '../api';
+import { api, post, put, useLive, type LiveEvent, type SourceHealth } from '../api';
+import { CompaniesPanel, HEALTH_LABEL, HEALTH_TONE, HealthPanel } from './SourceHealth';
+import { setParam, useRoute } from '../App';
+import { PageHead, Tabs } from '../kit';
 import { Btn, Field, ListInput, Switch, ago, useToast } from '../ui';
 
 interface SourcesData {
   connectors: { id: string; label: string; kind: string; homepage: string; description: string; enabled: boolean; jobs: number }[];
+  health?: Record<string, SourceHealth>;
   boards: { greenhouse: string[]; lever: string[]; ashby: string[] };
   defaultBoards: { greenhouse: string[]; lever: string[]; ashby: string[] };
   extraKeywords: string[];
@@ -56,7 +60,7 @@ export function ScanConsole({ scanId }: { scanId: string }) {
   );
 }
 
-export default function Sources() {
+export function SourcesSettings() {
   const toast = useToast();
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ['sources'], queryFn: () => api<SourcesData>('/api/sources') });
@@ -102,20 +106,14 @@ export default function Sources() {
 
   return (
     <>
-      <header className="page-head">
-        <div>
-          <h1>Sources</h1>
-          <p>Where Bureau looks: company career boards, remote-job sites and hiring threads. Public feeds only; Bureau never signs in to LinkedIn or Indeed, so your accounts stay safe.</p>
-        </div>
-        <div className="page-actions">
-          <Btn busy={save.isPending} onClick={() => save.mutate()}>
-            <Save /> Save
-          </Btn>
-          <Btn variant="primary" busy={!!running} onClick={() => scan.mutate({ kind: 'sources' })}>
-            <Radar /> {running ? 'Scanning…' : 'Scan sources now'}
-          </Btn>
-        </div>
-      </header>
+      <div className="row wrap" style={{ marginBottom: 'var(--s-4)', justifyContent: 'flex-end' }}>
+        <Btn busy={save.isPending} onClick={() => save.mutate()}>
+          <Save /> Save
+        </Btn>
+        <Btn busy={!!running} onClick={() => scan.mutate({ kind: 'sources' })}>
+          <Radar /> {running ? 'Scanning…' : 'Scan sources now'}
+        </Btn>
+      </div>
 
       {running ? (
         <div className="card card-pad" style={{ marginBottom: 'var(--s-5)' }}>
@@ -139,6 +137,7 @@ export default function Sources() {
                     <span className="faint" style={{ fontSize: 'var(--t-xs)' }}>
                       {c.jobs} roles
                     </span>
+                    {form.health?.[c.id] && c.enabled ? <span className={`tag ${HEALTH_TONE[form.health[c.id].status] ?? ''}`}>{HEALTH_LABEL[form.health[c.id].status] ?? form.health[c.id].status}</span> : null}
                     <a href={c.homepage} target="_blank" rel="noopener noreferrer" className="faint" aria-label={`${c.label} website`}>
                       <ExternalLink size={13} />
                     </a>
@@ -146,6 +145,9 @@ export default function Sources() {
                   <div className="muted" style={{ fontSize: '0.8125rem' }}>
                     {c.description}
                   </div>
+                  {c.enabled && form.health?.[c.id]?.lastError ? (
+                    <div style={{ fontSize: 'var(--t-xs)', color: 'var(--bad)' }}>{form.health[c.id].lastError}</div>
+                  ) : null}
                 </div>
                 <Switch
                   label={c.label}
@@ -187,7 +189,7 @@ export default function Sources() {
         </div>
 
         <div className="grid">
-          <section className="card card-pad" style={{ background: 'linear-gradient(160deg, var(--accent-soft), var(--surface) 60%)' }}>
+          <section className="card card-pad">
             <h2 className="section-title" style={{ marginBottom: 'var(--s-2)' }}>
               Search the web with Claude
             </h2>
@@ -283,5 +285,32 @@ function ScanLog({ id }: { id: string }) {
     <div style={{ padding: 'var(--s-4)' }}>
       <div className="console">{data ? data.log.join('\n') || data.error || 'No log.' : 'Loading…'}</div>
     </div>
+  );
+}
+
+type SourcesTab = 'sources' | 'health' | 'companies';
+
+export default function Sources() {
+  const [, params] = useRoute();
+  const tab = (params.get('tab') as SourcesTab) || 'sources';
+  return (
+    <>
+      <PageHead title="Sources" lede="Where Bureau looks: company career boards, aggregators through the JobSpy sidecar, remote boards, hiring threads and local boards. Public pages only; Bureau never signs in to LinkedIn or Indeed." />
+      <div style={{ marginBottom: 'var(--s-4)', overflowX: 'auto' }}>
+        <Tabs<SourcesTab>
+          label="Sources sections"
+          value={tab}
+          onChange={(t) => setParam('tab', t === 'sources' ? null : t)}
+          items={[
+            { id: 'sources', label: 'Sources' },
+            { id: 'health', label: 'Health' },
+            { id: 'companies', label: 'Companies' },
+          ]}
+        />
+      </div>
+      {tab === 'sources' ? <SourcesSettings /> : null}
+      {tab === 'health' ? <HealthPanel /> : null}
+      {tab === 'companies' ? <CompaniesPanel /> : null}
+    </>
   );
 }

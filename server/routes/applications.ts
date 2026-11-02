@@ -38,7 +38,7 @@ const JOINED = `SELECT a.*, j.title, j.company, j.url, j.ai_score, j.ai_grade FR
 
 export async function applicationRoutes(app: FastifyInstance) {
   app.get('/api/applications', async (req) => {
-    const { status } = body(z.object({ status: z.enum(['draft', 'approved', 'sent', 'needs_you', 'rehearsed', 'failed']).optional() }), req.query);
+    const { status } = body(z.object({ status: z.enum(['draft', 'approved', 'sent', 'needs_you', 'rehearsed', 'failed', 'skipped']).optional() }), req.query);
     const rows = status
       ? all<ApplicationRow>(`${JOINED} WHERE a.status = ? ORDER BY a.updated_at DESC`, status)
       : all<ApplicationRow>(`${JOINED} ORDER BY a.updated_at DESC LIMIT 300`);
