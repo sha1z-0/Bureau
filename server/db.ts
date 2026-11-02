@@ -4,10 +4,13 @@ import { DATA_DIR } from './config.ts';
 
 export const db = new DatabaseSync(path.join(DATA_DIR, 'bureau.db'));
 
+// busy_timeout first: switching to WAL (even when the file already is WAL) takes a lock, and without
+// a busy handler it fails at once with "database is locked" when another process (the e2e's worker
+// poller, a second Bureau process) is opening or checkpointing the same file at that moment.
+db.exec('PRAGMA busy_timeout = 5000');
 db.exec(`
   PRAGMA journal_mode = WAL;
   PRAGMA foreign_keys = ON;
-  PRAGMA busy_timeout = 5000;
 
   CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
