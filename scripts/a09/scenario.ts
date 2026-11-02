@@ -10,12 +10,15 @@ import { fileURLToPath } from 'node:url';
 import type { MasterProfile } from '../../server/contracts/profile.ts';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+/** A11's shared corpus (indexed in index.json). */
 export const MAIL_DIR = path.resolve(HERE, '..', '..', 'fixtures', 'mail');
+/** A09's own fixtures, in a subfolder so A11's "every .eml is indexed" check stays true. */
+export const A09_MAIL_DIR = path.join(MAIL_DIR, 'a09');
 
-export const mailFile = (name: string) => path.join(MAIL_DIR, name);
+export const mailFile = (name: string) => path.join(name.startsWith('a09-') ? A09_MAIL_DIR : MAIL_DIR, name);
 export const mailFiles = () =>
   fs
-    .readdirSync(MAIL_DIR)
+    .readdirSync(A09_MAIL_DIR)
     .filter((f) => f.startsWith('a09-') && f.endsWith('.eml'))
     .sort();
 
@@ -49,6 +52,29 @@ export const EXPECTED: Record<string, string> = {
 
 /** Fixtures the code pre-rules cannot settle: they go to Haiku (recorded responses). */
 export const MODEL_CASES = ['a09-07-reject-kind.eml', 'a09-12-recruiter-relocation.eml', 'a09-13-recruiter-notice.eml', 'a09-17-injection.eml', 'a09-24-recruiter-agency-salary.eml'];
+
+/** A11's shared corpus: labels come from fixtures/mail/index.json. */
+export interface A11Mail {
+  file: string;
+  class: string;
+  company: string | null;
+  applicationHint: string | null;
+  code: string | null;
+}
+export const a11Mail = (): A11Mail[] => (JSON.parse(fs.readFileSync(path.join(MAIL_DIR, 'index.json'), 'utf8')) as { messages: A11Mail[] }).messages;
+
+/** A11 fixtures the code rules leave to the model (recorded responses). */
+export const A11_MODEL_CASES = [
+  'reject-personio-absage-kranich.eml',
+  'reject-prompt-injection-pebble-analytics.eml',
+  'interview-northwind-labs-reschedule-thursday.eml',
+  'recruiter-notice-salary-brightwater-health.eml',
+  'recruiter-relocate-berlin-lindenhof.eml',
+  'recruiter-sourcer-cold-outreach-cobalt.eml',
+  'offer-quillstack-verbal-followup.eml',
+  'other-profile-views.eml',
+  'other-phishing-lookalike-workday.eml',
+];
 
 /** Which application each fixture must link to (null: none). Verification mail is never linked. */
 export const EXPECTED_LINK: Record<string, string | null> = {

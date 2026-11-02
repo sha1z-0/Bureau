@@ -1,8 +1,8 @@
 {
   "task": "inbox_classify",
-  "hash": "a5140296285f314b6fe5b624",
+  "hash": "86cb18be2dcc0d5d94489e05",
   "model": "claude-haiku-5-5",
-  "case": "a09: Your application for ML Engineer at Mosaic Robotics",
+  "case": "a09: Backend role in Berlin – open to relocating?",
   "usage": {
     "input_tokens": 1450,
     "output_tokens": 160,
@@ -11,14 +11,13 @@
   },
   "output": {
     "class": "recruiter_question",
-    "confidence": 0.91,
-    "company": "Mosaic Robotics",
-    "role": "ML Engineer",
-    "summary": "The Mosaic Robotics recruiter asks for your notice period and whether you would relocate to Berlin.",
+    "confidence": 0.88,
+    "company": "Lindenhof Systems GmbH",
+    "role": "Junior Backend Engineer",
+    "summary": "Lindenhof Systems asks whether you would relocate to Berlin for a Junior Backend Engineer role with visa and relocation support.",
     "deadline": null,
     "dates": [],
     "questions": [
-      "What is your notice period?",
       "Are you open to relocating to Berlin?"
     ],
     "injection": false

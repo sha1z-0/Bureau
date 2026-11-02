@@ -1,6 +1,6 @@
 {
   "task": "inbox_classify",
-  "hash": "30af5ad84353a46ecafadca8",
+  "hash": "7e930913163468e3aea28934",
   "model": "claude-haiku-5-5",
   "case": "a09: Go developer roles - a couple of questions",
   "usage": {

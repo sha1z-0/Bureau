@@ -58,6 +58,8 @@ export interface PlanContext {
   stack: string[];
   posting: string;
   candidate: string;
+  /** Real, sourced lines from the profile (fallback talking points). Not sent to the model. */
+  evidence: string[];
 }
 
 const DAY = 86_400_000;
@@ -71,6 +73,19 @@ export function planDays(startAt: string, interviewDate: string | null, fallback
   const end = Date.parse(`${interviewDate.slice(0, 10)}T00:00:00Z`);
   if (!Number.isFinite(start) || !Number.isFinite(end)) return fallback;
   return Math.min(14, Math.max(1, Math.round((end - start) / DAY)));
+}
+
+/** The candidate's strongest real lines: metrics and achievements first, then experience bullets and projects. */
+function evidenceLines(p: MasterProfile | null): string[] {
+  if (!p) return [];
+  const facts = p.facts.filter((f) => f.active);
+  const ranked = [
+    ...facts.filter((f) => f.kind === 'metric' || f.kind === 'achievement').map((f) => f.text),
+    ...p.experience.flatMap((e) => e.bullets.slice(0, 2).map((b) => `${b} (${e.role}, ${e.company})`)),
+    ...p.projects.map((pr) => `${pr.name}: ${pr.description}`),
+    ...facts.filter((f) => f.kind === 'project' || f.kind === 'experience').map((f) => f.text),
+  ];
+  return [...new Set(ranked.map((t) => t.replace(/s+/g, ' ').trim()).filter(Boolean))].slice(0, 6);
 }
 
 function renderCandidate(p: MasterProfile | null): string {
@@ -142,6 +157,7 @@ export async function planContext(applicationId: string, interviewDate: string |
     stack,
     posting: (job.description_text ?? '').replace(/\s+\n/g, '\n').trim().slice(0, 3_500),
     candidate: renderCandidate(profile),
+    evidence: evidenceLines(profile),
   };
 }
 
@@ -257,7 +273,10 @@ export function fallbackPlan(ctx: PlanContext): LearningPlan {
       ...skills.slice(0, 4).map((s) => `How would you get productive with ${s} in your first month?`),
       'Describe a time you learned something new quickly under a deadline.',
     ],
-    talkingPoints: [],
+    talkingPoints: [
+      ...ctx.evidence.slice(0, 4).map((e) => `${e.replace(/.$/, '')}: relevant to the ${ctx.role} role at ${ctx.company}.`),
+      ...(skills[0] ? [`${skills[0]} is new to you: say plainly what you built this week to learn it.`] : []),
+    ],
   });
 }
 

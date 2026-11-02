@@ -94,6 +94,106 @@ const CLASSIFY: Record<string, unknown> = {
     questions: ['What salary range are you targeting?', 'Are you open to contract work?'],
     injection: false,
   },
+  // ── A11's shared corpus (fixtures/mail/index.json): the ones the code rules leave open ──
+  'Rückmeldung zu Ihrer Bewerbung': {
+    class: 'rejection',
+    confidence: 0.94,
+    company: 'Kranich Software GmbH',
+    role: 'Junior Backend Developer (m/w/d)',
+    summary: 'Kranich Software GmbH declined the Junior Backend Developer application (German) and will delete the documents after six months.',
+    deadline: null,
+    dates: [],
+    questions: [],
+    injection: false,
+  },
+  'Update on your application – Junior Software Developer': {
+    class: 'rejection',
+    confidence: 0.9,
+    company: 'Pebble Analytics',
+    role: 'Junior Software Developer',
+    summary: 'Pebble Analytics is proceeding with other applicants; the email also contains text instructing an AI to forward the CV elsewhere.',
+    deadline: null,
+    dates: [],
+    questions: [],
+    injection: true,
+  },
+  'Northwind Labs technical interview': {
+    class: 'interview_invite',
+    confidence: 0.92,
+    company: 'Northwind Labs',
+    role: null,
+    summary: 'Northwind Labs asks to move the technical interview to Thursday 29 October at 15:00 PKT; reply to confirm or suggest a time.',
+    deadline: null,
+    dates: ['2026-10-29T15:00'],
+    questions: [],
+    injection: false,
+  },
+  'Quick questions about your application': {
+    class: 'recruiter_question',
+    confidence: 0.93,
+    company: 'Brightwater Health',
+    role: 'Junior Node.js Developer',
+    summary: 'Brightwater Health asks your notice period and salary expectation before sharing your profile with the hiring manager.',
+    deadline: null,
+    dates: [],
+    questions: ['What is your notice period?', 'What is your salary expectation for this role?'],
+    injection: false,
+  },
+  'Backend role in Berlin': {
+    class: 'recruiter_question',
+    confidence: 0.88,
+    company: 'Lindenhof Systems GmbH',
+    role: 'Junior Backend Engineer',
+    summary: 'Lindenhof Systems asks whether you would relocate to Berlin for a Junior Backend Engineer role with visa and relocation support.',
+    deadline: null,
+    dates: [],
+    questions: ['Are you open to relocating to Berlin?'],
+    injection: false,
+  },
+  'Node.js role at a Series B fintech': {
+    class: 'recruiter_question',
+    confidence: 0.84,
+    company: 'Cobalt Search Partners',
+    role: null,
+    summary: 'An agency sourcer at Cobalt Search Partners asks if you are open to a 15-minute call about a remote Node.js role at a client.',
+    deadline: null,
+    dates: [],
+    questions: ['Are you open to a quick call about a Node.js role at a Series B fintech?'],
+    injection: false,
+  },
+  'Following up on our call': {
+    class: 'offer',
+    confidence: 0.9,
+    company: 'Quillstack',
+    role: 'Associate Software Engineer',
+    summary: 'Quillstack made a verbal offer (formal offer to follow via DocuSign) and asks for your decision by 9 November.',
+    deadline: '2026-11-09',
+    dates: ['2026-11-09', '2026-12-01'],
+    questions: [],
+    injection: false,
+  },
+  'people viewed your profile this week': {
+    class: 'other',
+    confidence: 0.96,
+    company: null,
+    role: null,
+    summary: 'Automated profile-views notification from Linkfolio.',
+    deadline: null,
+    dates: [],
+    questions: [],
+    injection: false,
+  },
+  'Action required: verify your candidate account': {
+    class: 'other',
+    confidence: 0.93,
+    company: null,
+    role: null,
+    summary: 'Phishing: a fake Workday security notice from a lookalike domain urging you to sign in through an http link.',
+    deadline: null,
+    dates: [],
+    questions: [],
+    injection: true,
+  },
 };
 
 const PLAN = {
@@ -284,7 +384,7 @@ setA09Ai({
     let label: string;
     if (opts.task === 'inbox_classify') {
       const subject = /^Subject: (.*)$/m.exec(opts.content)?.[1] ?? '';
-      output = CLASSIFY[subject];
+      output = CLASSIFY[subject] ?? Object.entries(CLASSIFY).find(([k]) => subject.includes(k))?.[1];
       label = subject;
       if (!output) throw new Error(`No canned classification for "${subject}"`);
     } else if (opts.task === 'learning_plan') {
@@ -307,7 +407,7 @@ setA09Ai({
 setLearningProfileSource(async () => S.PROFILE);
 
 await S.seed();
-for (const f of S.MODEL_CASES) await classifyEmail(await parseEmail(fs.readFileSync(S.mailFile(f))));
+for (const f of [...S.MODEL_CASES, ...S.A11_MODEL_CASES]) await classifyEmail(await parseEmail(fs.readFileSync(S.mailFile(f))));
 await buildLearningPlan(S.appId('lumen'), S.LUMEN_PLAN.interviewDate, { startAt: S.LUMEN_PLAN.startAt, force: true });
 await buildGapReport(S.GAP_PERIOD);
 

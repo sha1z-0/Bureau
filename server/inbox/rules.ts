@@ -1,5 +1,5 @@
 import type { InboxClass } from '../contracts/inbox.ts';
-import { atsFamilyOf, baseDomain, isAssessmentLink, isEmployerHost, isFreeMail, isSchedulingLink } from './domains.ts';
+import { atsFamilyOf, baseDomain, hostOf, isAssessmentLink, isEmployerHost, isFreeMail, isSchedulingLink } from './domains.ts';
 import type { ParsedEmail } from './parse.ts';
 
 /**
@@ -39,8 +39,35 @@ export function extractCode(text: string): string | null {
 const VERIFY_PATH = /verif|confirm|activat|validat|magic|one[-_]?time|otp|passwordless|login[-_]?link|token=|[?&]code=/i;
 const NOT_VERIFY = /privacy|unsubscribe|terms|help|support|preferences|cookie/i;
 
+/** Links that verify an address or sign in: https only, judged on the path and query (never the host, which a lookalike controls). */
 export function verificationLinks(links: string[]): string[] {
-  return links.filter((l) => VERIFY_PATH.test(l) && !NOT_VERIFY.test(l));
+  return links.filter((l) => {
+    try {
+      const u = new URL(l);
+      const pq = `${u.pathname}${u.search}`;
+      return u.protocol === 'https:' && VERIFY_PATH.test(pq) && !NOT_VERIFY.test(pq);
+    } catch {
+      return false;
+    }
+  });
+}
+
+const ATS_BRANDS = ['workday', 'myworkday', 'greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable', 'icims', 'taleo', 'jobvite', 'bamboohr', 'teamtailor', 'recruitee', 'personio', 'successfactors', 'linkedin', 'indeed'];
+
+/**
+ * Phishing tells: a sender or link host that wears an ATS brand without being
+ * that ATS (myworkday.verify-candidate.example, myworkday.com.account-verify.example),
+ * or a display name claiming to be an ATS's security team from another domain.
+ */
+export function looksLikeSpoof(email: ParsedEmail): boolean {
+  const hosts = [email.from.domain, ...email.links.map((l) => hostOf(l) ?? '')].filter(Boolean);
+  for (const h of hosts) {
+    if (atsFamilyOf(h)) continue;
+    if (h.toLowerCase().split('.').some((label) => ATS_BRANDS.includes(label))) return true;
+  }
+  const name = email.from.name.toLowerCase();
+  const claims = ATS_BRANDS.some((b) => name.split(/[^a-z]+/).includes(b));
+  return claims && /security|account|support|verification/.test(name) && !atsFamilyOf(email.from.domain);
 }
 
 // ── Prompt-injection detection ───────────────────────────────────────────────
@@ -179,10 +206,14 @@ const VERIFY_WORDS = /\b(?:verification|security|confirmation|one[- ]?time|acces
 const CONFIRM =
   /\bwe(?:'ve| have) received your application\b|\bapplication (?:has been |was )?(?:successfully )?(?:received|submitted)\b|\bconfirms? (?:that )?we(?:'ve| have)? received\b|\bthank(?:s| you) for (?:applying|your application|submitting your application)\b[\s\S]{0,240}\b(?:received|review(?:ing)?|in touch)\b/i;
 const REJECT =
-  /\bunfortunately\b[\s\S]{0,220}\b(?:not (?:to )?(?:move|moving|proceed|proceeding|progress|progressing)|other candidates|another candidate|unable to (?:offer|move|progress))|\b(?:will not|won't|not) be (?:moving|progressing|proceeding) (?:forward|further)\b|\bdecided (?:not to (?:move|proceed|progress)|to (?:move|proceed|go) (?:forward|ahead) with (?:other|another))\b|\bpursue other candidates\b|\bposition has (?:now )?been filled\b|\bno longer (?:being )?considered\b|\bhave not been selected\b|\bwere not selected\b|\bregret to inform\b|\bnot to move forward\b/i;
+  /\bunfortunately\b[\s\S]{0,220}\b(?:not (?:to )?(?:move|moving|proceed|proceeding|progress|progressing)|other candidates|another candidate|unable to (?:offer|move|progress))|\b(?:will not|won't|not) be (?:moving|progressing|proceeding) (?:forward|further)\b|\bdecided (?:not to (?:move|proceed|progress)|to (?:move|proceed|go) (?:forward|ahead) with (?:other|another))\b|\bpursue other candidates\b|\bposition has (?:now )?been filled\b|\bno longer (?:being )?considered\b|\bhave not been selected\b|\bwere not selected\b|\bregret to inform\b|\bnot to move forward\b|\bnot (?:be )?(?:moving|progressing|taking|inviting) (?:you|your application)\b|\b(?:role|position|vacancy|opening|requisition) has been (?:closed|withdrawn|cancelled|canceled|put on hold)\b|\bno longer (?:hiring|recruiting) for\b/i;
 const INTERVIEW =
   /\b(?:would|'d) (?:like|love) to (?:invite you to|schedule|set up|arrange|book)\b|\binvit(?:e|ation|ing) you (?:to|for) (?:an?|the|your)? ?(?:first |second |final |technical |onsite |on-site |video |phone )?(?:interview|call|chat|conversation|meeting)\b|\binterview invitation\b|\bschedule (?:an?|your) (?:technical |first |phone |video )?(?:interview|call|chat)\b|\b(?:your|an) availability for (?:an?|the) (?:interview|call|chat)\b/i;
 const ASSESSMENT = /\b(?:coding|online|technical|skills?|take[- ]home|programming) (?:assessment|challenge|test|exercise|task)\b|\btake[- ]home\b|\bcase study (?:exercise|assignment)\b/i;
+/** An assessment named in passing ("our process includes an assessment centre") is not an invitation to take one. */
+const ASSESSMENT_ACTION = /\b(?:complete|completing|start|begin|attempt|submit|send us|finish|take (?:the|this|our|a|it)\b|due\b|deadline)/i;
+/** Agencies and sourcers: their booking link is a question for the owner, not an employer's interview. */
+const SOURCER = /\b(?:sourcer|headhunter|search partners|recruit(?:ment|ing)? (?:agency|partners?|firm)|on behalf of (?:a|my|our) client|(?:my|our) client|a client of (?:ours|mine))\b/i;
 const OFFER = /\b(?:pleased|delighted|happy|excited|thrilled) to (?:extend|offer)\b[\s\S]{0,60}\b(?:offer|position|role|you)\b|\boffer of employment\b|\b(?:your|the|attached) offer letter\b|\bextend (?:you )?(?:a|an) (?:formal |written |job )?offer\b|\bformal (?:job )?offer\b/i;
 
 export interface Extraction {
@@ -208,7 +239,7 @@ export function extract(email: ParsedEmail): Extraction {
     dates: [...new Set(found.map((d) => d.iso))],
     deadline: extractDeadline(email.text, found, ref),
     company: senderCompany(email),
-    suspicious: looksLikeInjection(all),
+    suspicious: looksLikeInjection(all) || looksLikeSpoof(email),
   };
 }
 
@@ -234,7 +265,7 @@ export function signals(email: ParsedEmail, x: Extraction): Signals {
     confirm: CONFIRM.test(all),
     reject: REJECT.test(all),
     interview: x.schedulingLinks.length > 0 || INTERVIEW.test(all),
-    assessment: x.assessmentLinks.length > 0 || ASSESSMENT.test(all),
+    assessment: x.assessmentLinks.length > 0 || (ASSESSMENT.test(all) && ASSESSMENT_ACTION.test(all)),
     offer: OFFER.test(all) && !email.bulk,
   };
 }
@@ -248,6 +279,8 @@ export function preClassify(email: ParsedEmail, x: Extraction): RuleVerdict | nu
   const strong = [s.offer, s.reject, s.interview, s.assessment].filter(Boolean).length;
   if (s.offer && strong === 1) return { class: 'offer', confidence: 0.9, reason: 'offer wording' };
   if (s.reject && strong === 1) return { class: 'rejection', confidence: 0.9, reason: 'rejection wording' };
+  // A sourcer's booking link is a question for the owner: the model decides.
+  if (s.interview && !s.reject && !s.offer && !s.assessment && SOURCER.test(`${email.from.name}\n${email.text}`)) return null;
   if (!s.reject && !s.offer && (s.assessment || s.interview)) {
     if (s.assessment && s.interview) {
       if (x.assessmentLinks.length && !x.schedulingLinks.length) return { class: 'assessment', confidence: 0.85, reason: 'assessment platform link' };

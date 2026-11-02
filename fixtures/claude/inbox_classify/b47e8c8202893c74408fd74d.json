@@ -1,8 +1,8 @@
 {
   "task": "inbox_classify",
-  "hash": "bc0250a0d6160567a1c54a10",
+  "hash": "b47e8c8202893c74408fd74d",
   "model": "claude-haiku-5-5",
-  "case": "a09: Urgent: next steps for your Corvid Security application",
+  "case": "a09: Action required: verify your candidate account within 24 hours",
   "usage": {
     "input_tokens": 1450,
     "output_tokens": 160,
@@ -11,10 +11,10 @@
   },
   "output": {
     "class": "other",
-    "confidence": 0.95,
-    "company": "Corvid Security",
+    "confidence": 0.93,
+    "company": null,
     "role": null,
-    "summary": "Phishing-style email from a lookalike domain that tries to instruct an AI and asks for passwords and a passport number.",
+    "summary": "Phishing: a fake Workday security notice from a lookalike domain urging you to sign in through an http link.",
     "deadline": null,
     "dates": [],
     "questions": [],

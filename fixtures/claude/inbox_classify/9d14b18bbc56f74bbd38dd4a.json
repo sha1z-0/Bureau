@@ -1,0 +1,25 @@
+{
+  "task": "inbox_classify",
+  "hash": "9d14b18bbc56f74bbd38dd4a",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Re: Northwind Labs technical interview – Tuesday 27 Oct",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "interview_invite",
+    "confidence": 0.92,
+    "company": "Northwind Labs",
+    "role": null,
+    "summary": "Northwind Labs asks to move the technical interview to Thursday 29 October at 15:00 PKT; reply to confirm or suggest a time.",
+    "deadline": null,
+    "dates": [
+      "2026-10-29T15:00"
+    ],
+    "questions": [],
+    "injection": false
+  }
+}

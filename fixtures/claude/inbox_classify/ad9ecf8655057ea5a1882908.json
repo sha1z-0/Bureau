@@ -1,0 +1,23 @@
+{
+  "task": "inbox_classify",
+  "hash": "ad9ecf8655057ea5a1882908",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Rania, 7 people viewed your profile this week",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "other",
+    "confidence": 0.96,
+    "company": null,
+    "role": null,
+    "summary": "Automated profile-views notification from Linkfolio.",
+    "deadline": null,
+    "dates": [],
+    "questions": [],
+    "injection": false
+  }
+}

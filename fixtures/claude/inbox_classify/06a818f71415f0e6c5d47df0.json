@@ -1,0 +1,23 @@
+{
+  "task": "inbox_classify",
+  "hash": "06a818f71415f0e6c5d47df0",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Rückmeldung zu Ihrer Bewerbung – Junior Backend Developer (m/w/d)",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "rejection",
+    "confidence": 0.94,
+    "company": "Kranich Software GmbH",
+    "role": "Junior Backend Developer (m/w/d)",
+    "summary": "Kranich Software GmbH declined the Junior Backend Developer application (German) and will delete the documents after six months.",
+    "deadline": null,
+    "dates": [],
+    "questions": [],
+    "injection": false
+  }
+}

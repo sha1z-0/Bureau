@@ -134,6 +134,7 @@ function threadMatch(email: ParsedEmail): string | null {
   return prior?.application_id ?? null;
 }
 
+const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const STOP = new Set(['and', 'the', 'for', 'with', 'of', 'in', 'at', 'to', 'a', 'an', 'senior', 'junior', 'mid', 'level', 'remote', 'i', 'ii', 'iii']);
 const words = (s: string) => s.toLowerCase().split(/[^a-z0-9+#.]+/).filter((w) => w.length > 1 && !STOP.has(w));
 
@@ -175,10 +176,17 @@ export function scoreCandidate(email: ParsedEmail, c: AppCandidate): { score: nu
   if (domains.includes(senderBase)) {
     score += 60;
     reasons.push('sender domain is the company');
-  } else if (!atsFamilyOf(sender) && tokens.some((t) => !t.includes(' ') && senderBase.replace(/[^a-z0-9]/g, '').includes(t.replace(/[^a-z0-9]/g, '')))) {
-    lookalike = true;
-    score -= 60;
-    reasons.push(`lookalike domain ${senderBase}`);
+  } else if (!atsFamilyOf(sender) && !isFreeMail(sender) && tokens.some((t) => squash(t).length >= 4 && squash(senderBase).includes(squash(t)))) {
+    if (domains.length) {
+      // We know the company's real domains and this is not one of them: corvid-careers.example.biz.
+      lookalike = true;
+      score -= 60;
+      reasons.push(`lookalike domain ${senderBase}`);
+    } else {
+      // No known domain yet: a sender domain carrying the company's name is decent evidence.
+      score += 40;
+      reasons.push('sender domain carries the company name');
+    }
   }
 
   const fam = atsFamilyOf(sender);

@@ -260,7 +260,7 @@ export async function act(m: StoredMessage, email: ParsedEmail | null, opts: { p
 }
 
 /** Process one raw message. Returns the stored record, or null when it was already handled. */
-export async function processRaw(raw: Buffer, opts: { internalDate?: Date | null; planWaitMs?: number } = {}): Promise<StoredMessage | null> {
+export async function processRaw(raw: Buffer | string, opts: { internalDate?: Date | null; planWaitMs?: number } = {}): Promise<StoredMessage | null> {
   const deps = inboxDeps();
   const email = await parseEmail(raw, opts.internalDate ?? null);
   const existing = getByMessageId(email.messageId);
@@ -274,7 +274,8 @@ export async function processRaw(raw: Buffer, opts: { internalDate?: Date | null
   if (c.class === 'verification_code') {
     const fresh = deps.now() - Date.parse(email.receivedAt) < CODE_TTL_MS;
     const value = c.x.code ?? c.x.verificationLinks[0] ?? null;
-    if (value && fresh) holdCode({ value, kind: c.x.code ? 'code' : 'link', senderHost: email.from.domain, links: email.links, company: c.company });
+    // A suspicious "verification" (lookalike sender, injection) never reaches the form engine.
+    if (value && fresh && !c.suspicious) holdCode({ value, kind: c.x.code ? 'code' : 'link', senderHost: email.from.domain, links: email.links, company: c.company });
     logEvent('inbox', `Verification ${c.x.code ? 'code' : 'link'} from ${email.from.domain}${fresh ? ' held for the form engine' : ' (too old, ignored)'}`);
   }
 

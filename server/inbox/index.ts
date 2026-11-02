@@ -7,7 +7,7 @@ import { runFollowUps } from './followup.ts';
 import { ImapSource, imapError, mailSource } from './imap.ts';
 import { unhandled } from './messages.ts';
 import { act, processRaw } from './pipeline.ts';
-import { imapPassword, inboxSettings, mailCursor, saveMailCursor } from './settings.ts';
+import { imapPassword, inboxSettings, mailCursor, saveMailCursor, type InboxSettings } from './settings.ts';
 import { recordSilence } from './stage.ts';
 
 /** A09 — the job-search mailbox. */
@@ -100,6 +100,22 @@ async function housekeeping() {
   }
 }
 
+/**
+ * Classify, link and act on one raw RFC 822 message: the same path pollInbox()
+ * runs per fetched message. Idempotent by Message-ID. A verification code in it
+ * resolves any matching waitForCode() waiter. Returns 1 if new, 0 if already seen.
+ * Used by the e2e (fixture mail, the fixture server's Workday codes) and any
+ * other mail bridge.
+ */
+export async function ingestRaw(raw: Buffer | string): Promise<number> {
+  return (await processRaw(raw)) ? 1 : 0;
+}
+
+/** The mailbox settings without the password (which stays in the vault; `passwordSet` says whether one is stored). */
+export function imapSettings(): InboxSettings & { passwordSet: boolean } {
+  return { ...inboxSettings(), passwordSet: !!imapPassword() };
+}
+
 let codePollMs = Number(process.env.BUREAU_CODE_POLL_MS ?? 15_000);
 
 /** Tests shorten the fast-poll interval used while a code is awaited. */
@@ -120,11 +136,15 @@ export async function waitForCode(domain: string, timeoutMs: number): Promise<st
   const { promise, cancel } = addWaiter(domain, since);
   const timer = setTimeout(cancel, Math.max(0, timeoutMs));
   void promise.finally(() => clearTimeout(timer));
-  void watch();
+  // A new waiter means "look now": wake a watcher that is sleeping between polls.
+  if (watching) kick?.();
+  else void watch();
   return promise;
 }
 
 let watching = false;
+/** Ends the watcher's current sleep early. */
+let kick: (() => void) | null = null;
 
 /** One watcher for all waiters; it stops when the last waiter resolves or times out. */
 async function watch() {
@@ -146,7 +166,15 @@ async function watch() {
           idle = null;
         }
       } else {
-        await new Promise((r) => setTimeout(r, codePollMs));
+        await new Promise<void>((r) => {
+          const t = setTimeout(done, codePollMs);
+          function done() {
+            clearTimeout(t);
+            kick = null;
+            r();
+          }
+          kick = done;
+        });
       }
     }
   } finally {

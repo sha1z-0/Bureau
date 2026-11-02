@@ -77,7 +77,10 @@ export function isFreeMail(domain: string): boolean {
 /** True when a host can stand for the employer itself (not an ATS, board or free-mail host). */
 export function isEmployerHost(host: string | null | undefined): boolean {
   if (!host) return false;
-  const b = baseDomain(host);
+  const h = host.toLowerCase().replace(/^\[|\]$/g, '');
+  // IP addresses, localhost and single-label hosts say nothing about an employer.
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.includes(':') || !h.includes('.') || h === 'localhost' || h.endsWith('.localhost')) return false;
+  const b = baseDomain(h);
   return !atsFamilyOf(host) && !BOARD_DOMAINS.has(b) && !FREE_MAIL.has(b);
 }
 

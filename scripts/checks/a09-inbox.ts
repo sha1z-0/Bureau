@@ -243,6 +243,81 @@ export default async function a09Inbox({ check, section }: Harness) {
     });
 
     // ════════════════════════════════════════════════════════════════════════
+    section("A09 inbox: A11's shared corpus (fixtures/mail/index.json)");
+
+    const a11 = S.a11Mail();
+    const a11Parsed = new Map<string, Awaited<ReturnType<typeof parseEmail>>>();
+    for (const m of a11) a11Parsed.set(m.file, await parseEmail(read(m.file)));
+
+    await check(`all ${a11.length} labelled emails get their label; the model only sees the ${S.A11_MODEL_CASES.length} the rules leave open`, async () => {
+      const wrong: string[] = [];
+      for (const m of a11) {
+        const c = await classifyEmail(a11Parsed.get(m.file)!);
+        if (c.class !== m.class) wrong.push(`${m.file}: ${c.class} (want ${m.class})`);
+        assert.equal(c.via, S.A11_MODEL_CASES.includes(m.file) ? 'ai' : 'rules', `${m.file} via ${c.via}`);
+      }
+      assert.deepEqual(wrong, []);
+    });
+
+    await check('codes match the labels; the lookalike Workday phish is suspicious and yields nothing for the form engine', () => {
+      for (const m of a11.filter((x) => x.class === 'verification_code')) {
+        const x = R.extract(a11Parsed.get(m.file)!);
+        assert.equal(x.code, m.code, m.file);
+      }
+      const phish = R.extract(a11Parsed.get('other-phishing-lookalike-workday.eml')!);
+      assert.ok(phish.suspicious, 'lookalike sender and link');
+      assert.deepEqual(phish.verificationLinks, [], 'http link on a lookalike host is not a verification link');
+      assert.ok(R.extract(a11Parsed.get('reject-prompt-injection-pebble-analytics.eml')!).suspicious);
+      assert.ok(!R.extract(a11Parsed.get('confirm-greenhouse-lumen-ledger.eml')!).suspicious);
+    });
+
+    await check('linking on the shared corpus: every hinted email finds its application, unhinted ones stay unlinked', () => {
+      const hints = [...new Set(a11.map((m) => m.applicationHint).filter((h): h is string => !!h))];
+      const cands = hints.map((h, i) => {
+        const [company, rest] = h.split(' — ');
+        const title = rest.replace(/\s*\([^)]*\)\s*$/, '');
+        return {
+          id: `a11-app-${i}`,
+          jobId: `a11-job-${i}`,
+          stage: 'applied',
+          status: 'sent',
+          sentAt: '2026-10-10T00:00:00.000Z',
+          createdAt: '2026-10-10T00:00:00.000Z',
+          title,
+          company,
+          jobUrl: `https://${company.toLowerCase().replace(/[^a-z0-9]/g, "")}.example.com/careers/${i}`,
+          applyUrl: null,
+          ats: null,
+          applyEmail: null,
+          toEmail: null,
+          companyDomain: null,
+          campaignId: null,
+          hint: h,
+        };
+      });
+      const misses: string[] = [];
+      for (const m of a11.filter((x) => x.class !== 'verification_code')) {
+        const res = linkEmail(a11Parsed.get(m.file)!, m.class as never, cands);
+        const want = m.applicationHint ? cands.find((c) => c.hint === m.applicationHint)!.id : null;
+        if (res.applicationId !== want) misses.push(`${m.file}: ${res.applicationId} (${res.reasons.join('; ')})`);
+      }
+      assert.deepEqual(misses, []);
+    });
+
+    await check('ingestRaw: 1 for new mail, 0 when seen; it feeds a waiting waitForCode; imapSettings() never shows the password', async () => {
+      nowMs = Date.parse('2026-10-30T11:43:00Z');
+      const wd = Buffer.from(read('verify-atlas-mutual-workday.eml').toString('utf8').replace(/^Message-ID: <([^>]+)>/im, 'Message-ID: <$1-ingest>'));
+      const waiting = waitForCode('atlasmutual.wd1.myworkdayjobs.com', 2_000);
+      assert.equal(await inbox.ingestRaw(wd), 1);
+      assert.equal(await inbox.ingestRaw(wd), 0);
+      assert.equal(await waiting, '482913', 'the waiter got the code from ingestRaw');
+      const s = JSON.stringify(inbox.imapSettings());
+      assert.ok(!/"pass(word)?":\s*"[^"]+"/i.test(s));
+      assert.equal(typeof inbox.imapSettings().passwordSet, 'boolean');
+      codes.clearCodes();
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
     section('A09 inbox: verification codes for the form engine');
 
     let codeSrc = new EmlSource([], 'codes-1');
@@ -299,7 +374,7 @@ export default async function a09Inbox({ check, section }: Harness) {
     // ════════════════════════════════════════════════════════════════════════
     section('A09 inbox: the pipeline (24 emails through pollInbox)');
 
-    const bulk = EmlSource.fromDir(S.MAIL_DIR, (f) => f.startsWith('a09-'));
+    const bulk = EmlSource.fromDir(S.A09_MAIL_DIR, (f) => f.startsWith('a09-'));
     bulk.uidValidity = 'bulk-1';
     setMailSourceFactory(async () => bulk);
     nowMs = Date.parse('2026-11-02T09:41:00Z');
