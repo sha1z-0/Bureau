@@ -393,6 +393,19 @@ export default async function a04({ check, section }: Harness) {
     assert.ok(prompts.TAILOR_RULES.includes('TRUTH LOCK') && prompts.FACT_AUDITOR.length > 100);
   });
 
+  await check('a letter edited after writing must pass the gates again before the packet is handed out', () => {
+    const set = (t: string) => run('UPDATE applications SET cover_letter = ? WHERE id = ?', t, appId);
+    set(R.LETTER_STORY.replace('which is the part of this work I like most', "which I'm passionate about"));
+    assert.equal(W.loadPacket(appId), null);
+    set(R.LETTER_STORY.replace('He still prints it out, though.', 'He still prints it out, mind you.'));
+    const p = W.loadPacket(appId);
+    assert.ok(p && p.quality.lint.pass && p.quality.truth.pass);
+    set(R.LETTER_STORY.replace('It posts about 400 entries a day', 'It posts about 4,000 entries a day'));
+    assert.equal(W.loadPacket(appId), null);
+    set(R.LETTER_STORY);
+    assert.ok(W.loadPacket(appId));
+  });
+
   section('A04 writer: answers and follow-up');
   await check('pre-written answers serve "why us", "why this role" and "tell us about a project" without a Claude call', async () => {
     assert.equal(prewrittenKey('Why do you want to work at Daftar Pay?', F.COMPANY), 'why us');

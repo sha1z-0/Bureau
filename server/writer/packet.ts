@@ -5,7 +5,10 @@ import { DATA_DIR } from '../config.ts';
 import { ApplicationPacketSchema, type ApplicationPacket, type CriticResult, type EvidenceMap, type LetterStrategy, type LintResult, type TruthResult } from '../contracts/writer.ts';
 import { all, get, now, run, tx } from '../db.ts';
 import { cvFilename, letterFilename, renderCvPdfWithPages, renderLetterPdf } from '../services/cvPdf.ts';
+import { fingerprintOf, loadMasterProfile } from '../profile/index.ts';
 import type { TailoredCv } from './cvSchema.ts';
+import { lintLetter } from './lint.ts';
+import { codeTruth, truthResult } from './truth.ts';
 
 /**
  * Step 13: persistence. The packet lives in `applications` (v1 columns kept
@@ -214,12 +217,51 @@ export function loadVariants(applicationId: string): VariantRecord[] {
   }));
 }
 
-/** The packet for a written application, or null if it was skipped or predates the v2 writer. */
+/**
+ * The owner may edit a written letter or subject in the studio. Edited words
+ * must pass the gates again before they go anywhere: the full lint on the
+ * letter and the code truth lock on letter and subject. (The critic score is
+ * the gated draft's; the edit is the candidate's own writing.)
+ */
+export function regate(row: Pick<AppRow, 'job_id' | 'subject' | 'cover_letter' | 'variant_id'>, writer: WriterNotes): { lint: LintResult; truth: TruthResult } | null {
+  const master = loadMasterProfile();
+  const job = get<{ title: string; company: string; description_text: string | null }>('SELECT title, company, description_text FROM jobs WHERE id = ?', row.job_id);
+  if (!master || !job) return null;
+  const chosen = get<{ passages_used: string }>('SELECT passages_used FROM letter_variants WHERE id = ?', row.variant_id ?? '');
+  const lint = lintLetter(row.cover_letter, {
+    fingerprint: master.style ?? fingerprintOf(master.voiceBank.map((v) => v.text)),
+    voice: master.voiceBank.map((v) => ({ id: v.id, text: v.text })),
+    passagesUsed: chosen ? (JSON.parse(chosen.passages_used) as string[]) : [],
+    company: job.company,
+    role: job.title,
+    specifics: [...(writer.evidence?.hooks.map((h) => h.text) ?? []), ...(writer.evidence?.mustWins ?? [])],
+  });
+  const truth = truthResult(
+    codeTruth(
+      { texts: [{ label: 'Letter', text: row.cover_letter }, { label: 'Subject', text: row.subject }] },
+      { profile: master, facts: master.facts, learning: master.learning, targetCompany: job.company, employerText: `${job.title}\n${job.company}\n${job.description_text ?? ''}` },
+    ),
+  );
+  return { lint, truth };
+}
+
+/**
+ * The packet for a written application, or null if it was skipped, predates
+ * the v2 writer, or was edited after writing into something that fails the gates.
+ */
 export function loadPacket(applicationId: string): ApplicationPacket | null {
   const row = get<AppRow>('SELECT * FROM applications WHERE id = ?', applicationId);
   if (!row) return null;
   const { writer } = readNotes(row.notes);
   if (!writer || writer.status !== 'written' || !writer.quality) return null;
+  let quality = writer.quality;
+  const gated = get<{ text: string }>('SELECT text FROM letter_variants WHERE id = ?', row.variant_id ?? '')?.text;
+  const gatedSubject = writer.subjects[writer.subjectIndex];
+  if (gated !== row.cover_letter || (gatedSubject !== undefined && gatedSubject !== row.subject)) {
+    const again = regate(row, writer);
+    if (!again || !again.lint.pass || !again.truth.pass) return null;
+    quality = { critic: writer.quality.critic, lint: again.lint, truth: again.truth };
+  }
   return ApplicationPacketSchema.parse({
     applicationId: row.id,
     jobId: row.job_id,
@@ -230,7 +272,7 @@ export function loadPacket(applicationId: string): ApplicationPacket | null {
     shortAnswers: writer.shortAnswers,
     outreach: row.message,
     followUp: writer.followUp,
-    quality: writer.quality,
+    quality,
   });
 }
 
