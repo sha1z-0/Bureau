@@ -484,8 +484,9 @@ export class Engine {
           this.say(message, 'error');
           await this.alert(`Campaign paused: ${c.name}`, message, c.id);
         },
+        // Not awaited: kill() waits for this very worker to finish.
         budget: async (message) => {
-          await this.kill(message, 'budget');
+          void this.kill(message, 'budget');
         },
         setStep: (step) => {
           if (this.current) this.current.step = step;
@@ -677,10 +678,14 @@ export class Engine {
     }
     this.deps.keepAwake.release();
     const worker = this.worker;
+    let timer: NodeJS.Timeout | undefined;
     const settled = await Promise.race([
       Promise.all([worker ?? Promise.resolve(), this.deps.closeBrowsers(reason).catch(() => undefined)]).then(() => true),
-      new Promise<boolean>((r) => setTimeout(() => r(false), 4500).unref?.()),
+      new Promise<boolean>((r) => {
+        timer = setTimeout(() => r(false), 4500);
+      }),
     ]);
+    clearTimeout(timer);
     this.abortCtl = new AbortController();
     this.nextApplyAt = 0;
     this.say(`Kill switch (${source}): ${reason}. Everything is stopped.`, 'error');

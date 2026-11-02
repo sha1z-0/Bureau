@@ -36,7 +36,8 @@ export interface KeepAwake {
 }
 
 export function createKeepAwake(opts: { platform?: NodeJS.Platform; spawner?: Spawner } = {}): KeepAwake {
-  const platform = opts.platform ?? process.platform;
+  // Offline / selfcheck runs never spawn a real helper unless a test injects one.
+  const platform = opts.platform ?? (process.env.BUREAU_REPLAY === '1' ? 'linux' : process.platform);
   const spawner: Spawner =
     opts.spawner ??
     ((cmd, args) => spawn(cmd, args, { stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true, detached: false }));

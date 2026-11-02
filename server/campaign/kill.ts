@@ -54,5 +54,7 @@ export async function runKillHooks(reason: string, deadlineMs: number): Promise<
       /* a failing hook must not stop the others */
     }
   });
-  await Promise.race([Promise.all(list), new Promise((r) => setTimeout(r, deadlineMs).unref?.())]);
+  let timer: NodeJS.Timeout | undefined;
+  await Promise.race([Promise.all(list), new Promise((r) => (timer = setTimeout(r, deadlineMs)))]);
+  clearTimeout(timer);
 }

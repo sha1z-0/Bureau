@@ -114,7 +114,9 @@ export function uniquenessProblem(jobId: string, c: Campaign, nowMs: number): st
   }
   const days = c.config.companyCooldownDays;
   if (days > 0) {
-    const index = byCompany(recentSubmissions(days, new Date(nowMs).toISOString()));
+    // Pipeline timestamps are wall-clock, so the window is too (as in the matcher's selection).
+    void nowMs;
+    const index = byCompany(recentSubmissions(days, new Date().toISOString()));
     const hit = activityFor(index, { companyId: (get<{ company_id: string | null }>('SELECT company_id FROM jobs WHERE id = ?', jobId)?.company_id ?? null), company: j.company, jobId });
     if (hit.length) return `Applied to ${hit[0].company} on ${hit[0].at.slice(0, 10)} (cooldown ${days} days).`;
   }
