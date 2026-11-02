@@ -33,5 +33,6 @@
   { "id": "ab-address", "questionRaw": "What is your street address?", "questionNorm": "what is your street address", "answer": "House 14, Street 7, Model Town", "scope": {}, "source": "owner" },
   { "id": "ab-postal", "questionRaw": "What is your postal code?", "questionNorm": "what is your postal code", "answer": "54700", "scope": {}, "source": "owner" },
   { "id": "ab-region", "questionRaw": "What is your state or province?", "questionNorm": "what is your state or province", "answer": "Punjab", "scope": {}, "source": "owner" },
-  { "id": "ab-work-auth-us", "questionRaw": "Are you legally authorized to work in the United States?", "questionNorm": "work authorization :: united states", "answer": "No", "scope": { "countries": ["US"] }, "source": "owner" }
+  { "id": "ab-work-auth-us", "questionRaw": "Are you legally authorized to work in the United States?", "questionNorm": "work authorization :: united states", "answer": "No", "scope": { "countries": ["US"] }, "source": "owner" },
+  { "id": "ab-work-permit-de", "questionRaw": "Do you need a work permit to work for a German employer?", "questionNorm": "need work permit german employer", "answer": "Yes", "scope": { "countries": ["DE"] }, "source": "owner" }
 ]

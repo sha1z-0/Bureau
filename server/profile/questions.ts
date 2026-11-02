@@ -63,11 +63,14 @@ interface IntentDef {
 const SKILL_TAIL = '(.+?)';
 
 const DEFS: IntentDef[] = [
-  { key: 'sponsorship', canonical: 'visa sponsorship', slot: 'country', re: [/sponsor/, /\b(require|need)\b.*\bvisa\b/, /\bh-?1-?b\b/, /\bvisa (support|assistance)\b/] },
+  // "Do you need a work permit?" is the sponsorship question (yes = the candidate needs one): the opposite polarity of
+  // "do you have a work permit / are you authorised" (yes = already allowed). The form engine's synonyms read it the same way.
+  { key: 'sponsorship', canonical: 'visa sponsorship', slot: 'country', re: [/sponsor/, /\b(require|need)\b.*\bvisa\b/, /\bh-?1-?b\b/, /\bvisa (support|assistance)\b/, /\b(require|need)s?\b.*\bwork permit\b/] },
   {
     key: 'work_authorization',
     canonical: 'work authorization',
     slot: 'country',
+    not: /\b(require|need)s?\b.*\bwork permit\b/,
     re: [/\b(authori[sz]ed|eligible|entitled|permitted|allowed|legally able|legal right)\b.*\bwork\b/, /\bright to work\b/, /\bwork (permit|authori[sz]ation|eligibility|visa)\b/, /\b(work legally|legally work)\b/],
   },
   {
