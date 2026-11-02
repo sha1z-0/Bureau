@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -208,6 +209,12 @@ interface Usage {
   server_tool_use?: { web_search_requests?: number | null } | null;
 }
 
+/** Tags AI spend with the campaign whose work caused it (A08 wraps each job). */
+const aiScope = new AsyncLocalStorage<{ campaignId: string | null }>();
+export function withCampaign<T>(campaignId: string | null, fn: () => T): T {
+  return aiScope.run({ campaignId }, fn);
+}
+
 function meter(task: Task, model: string, usage: Usage) {
   const price = MODEL_CHOICES.find((m) => m.id === model) ?? MODEL_CHOICES[0];
   const cacheRead = usage.cache_read_input_tokens ?? 0;
@@ -221,8 +228,8 @@ function meter(task: Task, model: string, usage: Usage) {
       1_000_000 +
     searches * 0.01;
   run(
-    `INSERT INTO ai_usage (ts, task, model, input_tokens, output_tokens, cache_read, cache_write, web_searches, cost_usd)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO ai_usage (ts, task, model, input_tokens, output_tokens, cache_read, cache_write, web_searches, cost_usd, campaign_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     now(),
     task,
     model,
@@ -232,6 +239,7 @@ function meter(task: Task, model: string, usage: Usage) {
     cacheWrite,
     searches,
     cost,
+    aiScope.getStore()?.campaignId ?? null,
   );
 }
 

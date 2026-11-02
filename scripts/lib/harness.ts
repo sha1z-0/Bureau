@@ -32,7 +32,9 @@ export async function check(name: string, fn: () => unknown) {
     }
   } catch (err) {
     state.failures++;
-    console.log(`  ✗ ${name}\n    ${(err as Error).message.split('\n')[0]}`);
+    // SELFCHECK_VERBOSE=1 shows the whole assertion diff and where it failed.
+    const detail = process.env.SELFCHECK_VERBOSE ? `${(err as Error).message}\n${(err as Error).stack?.split('\n').find((l) => l.includes('scripts')) ?? ''}` : (err as Error).message.split('\n')[0];
+    console.log(`  ✗ ${name}\n    ${detail.split('\n').join('\n    ')}`);
   }
 }
 

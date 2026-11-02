@@ -149,6 +149,7 @@ addColumn('jobs', 'legitimacy', 'TEXT');
 addColumn('jobs', 'sources', "TEXT NOT NULL DEFAULT '[]'");
 addColumn('jobs', 'priority', 'INTEGER NOT NULL DEFAULT 0');
 addColumn('jobs', 'match', 'TEXT');
+addColumn('ai_usage', 'campaign_id', 'TEXT');
 
 db.exec(`
   CREATE INDEX IF NOT EXISTS jobs_canonical ON jobs(apply_url_canonical);

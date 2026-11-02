@@ -996,7 +996,7 @@ export default async function a08Campaign({ check, section }: Harness) {
       savePacket(j, c.id, packetFor(j, `app-${j}`), Date.now());
       const q1 = `q${uid('x').replace(/[^a-z0-9]/g, '')}`;
       const q2 = `r${uid('y').replace(/[^a-z0-9]/g, '')}`;
-      for (const [id, text] of [[q1, 'Notice period?'], [q2, 'Earliest start date?']]) {
+      for (const [id, text] of [[q1, 'Notice period?'], [q2, 'Do you hold a full driving licence?']]) {
         run("INSERT INTO unknown_questions (id, question_raw, question_norm, job_id, field_kind, status, created_at) VALUES (?, ?, ?, ?, 'text', 'open', ?)", id, text, text.toLowerCase(), j, dbNow());
       }
       assert.equal(await pushQuestions(10) >= 2, true);
@@ -1007,13 +1007,16 @@ export default async function a08Campaign({ check, section }: Harness) {
       const r = await handleUpdate(msg(OWNER, `/answer ${short1} Two weeks`), telegramHandlers(engine));
       assert.match(r.reply ?? '', /Saved/);
       assert.equal(get<{ status: string }>('SELECT status FROM unknown_questions WHERE id = ?', q1)?.status, 'answered');
-      assert.equal(get<{ answer: string }>("SELECT answer FROM answer_bank WHERE question_norm = 'notice period?'")?.answer, 'Two weeks');
-      assert.equal(pipelineState(j)?.state, 'written');
+      assert.ok(get("SELECT 1 FROM answer_bank WHERE answer = 'Two weeks'"));
+      // Nothing re-queues while the job still has another open question.
+      assert.equal(pipelineState(j)?.state, 'needs_you');
 
       const mid = get<{ message_id: number }>('SELECT message_id FROM campaign_question_notices WHERE question_id = ?', q2)!.message_id;
-      const r2 = await handleUpdate(msg(OWNER, 'Monday 4 January', { reply_to_message: { message_id: mid } }), telegramHandlers(engine));
+      const r2 = await handleUpdate(msg(OWNER, 'Yes, a full UK licence', { reply_to_message: { message_id: mid } }), telegramHandlers(engine));
       assert.equal(r2.handled, true);
-      assert.equal(get<{ answer: string }>("SELECT answer FROM answer_bank WHERE question_norm = 'earliest start date?'")?.answer, 'Monday 4 January');
+      assert.ok(get("SELECT 1 FROM answer_bank WHERE answer = 'Yes, a full UK licence'"));
+      // The packet is already written, so the job goes straight back to filling.
+      assert.equal(pipelineState(j)?.state, 'written');
     } finally {
       engine.stop();
       restore();

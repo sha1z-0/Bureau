@@ -46,7 +46,8 @@ export interface EngineDeps {
   /** This month's AI spend and the owner's monthly cap (0 = no cap). */
   monthBudget(): { spentUsd: number; budgetUsd: number };
   /** AI spend since an instant. */
-  spendSince(iso: string): number;
+  /** AI spend since `iso`; with a campaign id, that campaign's tagged spend plus untagged shared spend (scouting, matching). */
+  spendSince(iso: string, campaignId?: string): number;
   keepAwake: KeepAwake;
   /** Close anything holding a browser (kill switch). */
   closeBrowsers(reason: string): Promise<void>;
@@ -105,7 +106,15 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
     },
     sourceHealth: () => sourceHealthNow(),
     monthBudget: () => ({ spentUsd: monthSpend(), budgetUsd: aiSettings().monthlyBudgetUsd }),
-    spendSince: (iso) => Number(get<{ t: number }>('SELECT COALESCE(SUM(cost_usd), 0) AS t FROM ai_usage WHERE ts >= ?', iso)?.t ?? 0),
+    spendSince: (iso, campaignId) =>
+      Number(
+        get<{ t: number }>(
+          'SELECT COALESCE(SUM(cost_usd), 0) AS t FROM ai_usage WHERE ts >= ? AND (? IS NULL OR campaign_id = ? OR campaign_id IS NULL)',
+          iso,
+          campaignId ?? null,
+          campaignId ?? null,
+        )?.t ?? 0,
+      ),
     keepAwake: createKeepAwake(),
     closeBrowsers: async (reason) => {
       const { runKillHooks } = await import('./kill.ts');

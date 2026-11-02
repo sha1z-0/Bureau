@@ -23,6 +23,7 @@ import { killState, setKillState, stopFilePresent, type KillSource, type KillSta
 import { pipelineState, transition } from './pipeline.ts';
 import { autopilotSettings, type AutopilotSettings } from './settings.ts';
 import { hhmm, inEmployerHours, employerTimeZone, inWindow, isoWeek, localParts, localTimeOnDay, nextWindowStart, startOfLocalDay } from './time.ts';
+import { withCampaign } from '../ai/claude.ts';
 import { applyOne, HOLDER, recoverJob, type JobResult, type QueueItem } from './worker.ts';
 
 /**
@@ -211,7 +212,7 @@ export class Engine {
       }
       if (now < Date.parse(c.startsAt)) continue;
       if (c.config.budgetUsd > 0) {
-        const spent = this.deps.spendSince(new Date(campaignDay0(c)).toISOString());
+        const spent = this.deps.spendSince(new Date(campaignDay0(c)).toISOString(), c.id);
         if (spent >= c.config.budgetUsd) {
           setStatus(c.id, 'paused', `Campaign budget of $${c.config.budgetUsd} reached`, now);
           this.say(`Paused "${c.name}": its $${c.config.budgetUsd} budget is used up`, 'warn');
@@ -467,7 +468,7 @@ export class Engine {
     this.current = { jobId: item.jobId, campaignId: item.campaign.id, step: 'Starting', startedAt: new Date(now).toISOString() };
     emit({ type: 'hunt', status: 'running', step: 'Applying' });
     const signal = this.abortCtl.signal;
-    this.worker = applyOne(
+    this.worker = withCampaign(item.campaign.id, () => applyOne(
       {
         deps: this.deps,
         live,
@@ -494,7 +495,7 @@ export class Engine {
         },
       },
       item,
-    )
+    ))
       .catch((err): JobResult => {
         this.say(`Unexpected error on a job: ${redact((err as Error).message)}`, 'error', item.jobId);
         void this.alert('Campaign error', `Something went wrong applying to a job: ${redact((err as Error).message)}`, item.campaign.id);
@@ -646,6 +647,8 @@ export class Engine {
   requeueAnswered(jobId: string, questionId?: string) {
     const row = pipelineState(jobId);
     if (!row) return;
+    // Wait until every question this job raised is answered; re-filling earlier would only stop at the next one.
+    if (get("SELECT 1 FROM unknown_questions WHERE job_id = ? AND status = 'open'", jobId)) return;
     try {
       let to: 'written' | 'selected' | null = null;
       if (row.state === 'needs_you') to = loadPacket(jobId) ? 'written' : 'selected';
@@ -740,7 +743,7 @@ export class Engine {
         liveSince: meta.liveSince,
         rehearseOnly: meta.rehearseOnly,
       },
-      spend: { campaignUsd: Math.round(this.deps.spendSince(new Date(campaignDay0(c)).toISOString()) * 100) / 100, budgetUsd: c.config.budgetUsd },
+      spend: { campaignUsd: Math.round(this.deps.spendSince(new Date(campaignDay0(c)).toISOString(), c.id) * 100) / 100, budgetUsd: c.config.budgetUsd },
       activeHours: { open, nextOpenAt: open ? null : new Date(nextWindowStart(now, c.config.activeHours)).toISOString() },
       nextScoutAt: c.status === 'active' ? (lastScout ? new Date(Date.parse(lastScout) + c.config.scoutEveryHours * HOUR * 0.8).toISOString() : 'soon') : null,
       nextApplyAt: c.status === 'active' && this.nextApplyAt ? new Date(Math.max(this.nextApplyAt, now)).toISOString() : null,

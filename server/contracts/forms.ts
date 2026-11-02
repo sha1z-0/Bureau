@@ -128,6 +128,8 @@ export interface FillOptions {
   campaignId?: string;
   /** What to do with a required question nobody can answer truthfully. */
   onUnknown?: 'skip' | 'needs_you';
+  /** False: never hand the form to the browser agent (A06); unknown forms go to needs_you. Default true. */
+  allowAgent?: boolean;
   signal?: AbortSignal;
 }
 

@@ -15,7 +15,7 @@ import { isNotImplemented } from './deps.ts';
  * job.
  */
 
-type AnswerFn = (questionId: string, answer: string) => unknown;
+type AnswerFn = (questionId: string, input: { answer: string }) => unknown;
 
 let override: AnswerFn | null = null;
 
@@ -34,14 +34,14 @@ export async function answerQuestion(ref: string, text: string): Promise<{ quest
   if (q.status !== 'open') throw new AppError(409, 'ANSWERED', 'That question is already answered.');
 
   if (override) {
-    await override(id, answer);
+    await override(id, { answer });
     return { questionId: id, jobId: q.job_id, question: q.question_raw };
   }
   const mod = (await import('../profile/index.ts')) as Record<string, unknown>;
   const fn = mod.answerUnknown;
   if (typeof fn === 'function') {
     try {
-      await (fn as AnswerFn)(id, answer);
+      await (fn as AnswerFn)(id, { answer });
       return { questionId: id, jobId: q.job_id, question: q.question_raw };
     } catch (err) {
       if (!isNotImplemented(err)) throw err;
