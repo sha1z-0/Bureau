@@ -105,6 +105,10 @@ export default function Welcome() {
   useEffect(() => {
     if (data && !step) setStep(asked && STEPS.some((s) => s.id === asked) ? asked : data.current);
   }, [data, step, asked]);
+  // A link to a particular step (e.g. #/welcome?step=voice) moves there even when the wizard is open.
+  useEffect(() => {
+    if (asked && STEPS.some((s) => s.id === asked)) setStep(asked);
+  }, [asked]);
   const save = useMutation({
     mutationFn: (patch: { current?: OnboardingStep; complete?: OnboardingStep; skip?: OnboardingStep; done?: boolean }) => put<Onboarding>('/api/onboarding', patch),
     onSuccess: (o) => {

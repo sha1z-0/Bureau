@@ -162,7 +162,7 @@ function VariantCard({ v }: { v: LetterVariant }) {
   );
 }
 
-export function WriterQuality({ w, appId }: { w: WriterDetail; appId: string }) {
+export function WriterQuality({ w, appId, inStudio }: { w: WriterDetail; appId: string; inStudio?: boolean }) {
   const [tab, setTab] = useState<'letter' | 'variants' | 'checks' | 'evidence'>('letter');
   const q = w.writer.quality;
   if (w.writer.status === 'skipped') return <div className="callout">Held back: {w.writer.skipped}</div>;
@@ -197,9 +197,11 @@ export function WriterQuality({ w, appId }: { w: WriterDetail; appId: string }) 
         <a className="btn sm" href={`/api/writer/applications/${appId}/letter.pdf`} target="_blank" rel="noopener noreferrer">
           <FileText /> Letter PDF
         </a>
-        <a className="btn sm ghost" href={`#/studio?tab=written&app=${appId}`}>
-          Open in Studio
-        </a>
+        {inStudio ? null : (
+          <a className="btn sm ghost" href={`#/studio?tab=written&app=${appId}`}>
+            Open in Studio
+          </a>
+        )}
       </div>
       <Tabs
         label="Writer detail"

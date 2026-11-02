@@ -2030,7 +2030,7 @@ a.stat:hover strong {
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px 24px;
   margin: 0;
 }
@@ -2734,4 +2734,17 @@ a.stat:hover strong {
 .grid > *,
 .split > * {
   min-width: 0;
+}
+
+.tabs {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.tabs button {
+  white-space: nowrap;
+}
+
+.form-grid {
+  align-items: start;
 }

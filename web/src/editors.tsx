@@ -244,17 +244,13 @@ export function VoiceBankEditor() {
       <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>
         {data.guidance} Letters built by editing your own writing read as human; letters written from nothing don't.
       </p>
-      <div className="row muted" style={{ fontSize: 'var(--t-sm)' }}>
+      <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>
         <strong className="num" style={{ color: 'var(--text)' }}>
-          {filled} of 8
-        </strong>
-        <span>written. Six or more gives the writer enough to work with.</span>
-        {data.style ? (
-          <span className="hide-phone">
-            Your sentences average {data.style.sentenceLenMean.toFixed(0)} words across {data.style.words.toLocaleString()} words in total.
-          </span>
-        ) : null}
-      </div>
+          {filled} written.
+        </strong>{' '}
+        Six or more gives the writer enough to work with.
+        {data.style ? ` Your sentences average ${data.style.sentenceLenMean.toFixed(0)} words, across ${data.style.words.toLocaleString()} words in all.` : ''}
+      </p>
       {data.prompts.map((p, i) => (
         <VoicePrompt key={p.key} index={i} prompt={p.prompt} passage={byPrompt.get(p.prompt)} />
       ))}

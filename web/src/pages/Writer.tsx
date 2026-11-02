@@ -29,7 +29,7 @@ function WrittenDetail({ id }: { id: string }) {
         ) : null}
       </div>
       <div className="detail-body">
-        <WriterQuality w={data} appId={id} />
+        <WriterQuality w={data} appId={id} inStudio />
         {data.writer.status === 'written' ? (
           <div className="stack" style={{ marginTop: 'var(--s-5)' }}>
             <Tabs
