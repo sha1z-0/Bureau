@@ -87,3 +87,40 @@ when content-type is set to 'application/json'". Send the header only when
 there is a body (or send `{}`). Once fixed, the packet call runs the writer
 for the stage's extra Lumen Ledger job ("Junior Backend Engineer (external
 agent run)") inside the server child process, which needs its own recordings.
+
+## §7 A11 / A08: worker scenarios need their own recordings once A05 lands
+
+`crash-resume` and `kill-switch` seed their own jobs in a separate data dir
+("Worker Co greenhouse-classic", "Worker scenario …", the generic posting, no
+match result). The autopilot writes those before it fills, so they need a
+full writer chain each (research → evidence → CV → letters → critic → …).
+Until `fillApplication` exists the scenario can't get past the writer anyway;
+I made `workerPending()` recognise a replay miss in `pipeline.last_error`
+("No recorded Claude response…", the message rather than the code), so the
+stage now reports pending with the reason instead of "never started
+filling". When A05 merges, record these with
+`npx tsx scripts/e2e/recordings/record.ts --stages crash-resume,kill-switch`
+after adding answers for the "Worker Co" companies under
+`scripts/e2e/recordings/authored/` (the worker process's misses are dumped to
+its own data dir's `BUREAU_REPLAY_DUMP`, i.e. the sandbox's `replay-misses`).
+
+## Already fixed in the harness (lead, please confirm)
+
+- **The e2e went online.** `startCampaign()` scouts in the background
+  (`void this.tick()`), and the campaign stage ran before the scout stage
+  installed the fetch replay, so every full `npm run e2e` fetched the live
+  WeWorkRemotely, RemoteOK, Remotive… feeds (the baseline run's match batches
+  held Toptal, Vercel, Databricks jobs from today's boards). `scripts/e2e.ts`
+  now installs a refuse-all replay before the first stage, and the campaign
+  stage awaits `getEngine().settle()` so the background tick can't race the
+  scout stage. Both runs I made before finding this (the baseline and one
+  verification run) did make those public GET requests.
+- **Replay could never match in the e2e.** Prompts carried random job UUIDs
+  (match, writer), the fixture server's random port, today's date and the
+  bandit's `Math.random`. Fixed with a pinned e2e clock (`scripts/e2e/clock.ts`,
+  `BUREAU_E2E_NOW`), loopback ports dropped from `replayHash`, batch-position
+  keys in the match prompt with a content tie-break, no job id in the writer's
+  job block, and a fixed bandit seed in replay mode. A02's and A04's own
+  fixtures were re-recorded with their scripts; A04's recorder now deletes
+  only its own recordings (it used to wipe whole task folders, including
+  A11's critic recordings).
