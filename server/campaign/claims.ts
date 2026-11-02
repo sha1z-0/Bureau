@@ -1,4 +1,4 @@
-import { get, now, run, tx } from '../db.ts';
+import { all, get, now, run, tx } from '../db.ts';
 
 /**
  * Short leases that stop Bureau's own autopilot and an external agent from
@@ -36,4 +36,15 @@ export function claimJob(jobId: string, holder: string, ttlMinutes = 20): Claim 
 
 export function releaseClaim(jobId: string, holder: string) {
   run('DELETE FROM claims WHERE job_id = ? AND holder = ?', jobId, holder);
+}
+
+/** Drop every claim one holder has (the autopilot at start-up: a dead process's leases are void). */
+export function releaseAllClaims(holder: string): number {
+  return Number(run('DELETE FROM claims WHERE holder = ?', holder).changes);
+}
+
+/** Job ids another holder is working on right now. */
+export function claimedByOthers(holder: string): Set<string> {
+  const rows = all<{ job_id: string }>('SELECT job_id FROM claims WHERE holder != ? AND expires_at > ?', holder, now());
+  return new Set(rows.map((r) => r.job_id));
 }
