@@ -719,15 +719,23 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     r.recipe = findRecipe({ ats: r.ats, company: job.company, url: page.url() });
     r.via = r.recipe ? 'recipe' : r.adapter !== GENERIC ? 'adapter' : 'generic';
 
+    let finalNav: Nav = null;
+    let stopReason = '';
+    let agentDone = false;
     if (!stepPresent(ex0) && !(await r.adapter.isFinal?.(page, ex0))) {
-      // Nothing recognisable: the browser agent's job.
-      return await agentOrNeedsYou(r, ex0.fields, 'Could not find an application form on the page.');
+      // Nothing recognisable: the browser agent's job (A06). Its fills are re-verified here before anything is submitted.
+      const out = await agentOrNeedsYou(r, ex0.fields, 'Could not find an application form on the page.');
+      if (out) return out;
+      agentDone = true;
+      const rec = await agentStep(r, 0, new Set());
+      if (rec) r.steps.push(rec);
+      const nav = await pickNav(r, await extract(r, rec?.step ?? 0));
+      finalNav = nav?.kind === 'submit' ? nav : null;
+      if (!finalNav) stopReason = 'no_submit';
     }
 
     // ── The wizard.
-    let finalNav: Nav = null;
-    let stopReason = '';
-    for (let step = 0; step < MAX_STEPS; step++) {
+    for (let step = 0; step < MAX_STEPS && !agentDone; step++) {
       aborted(opts);
       if (r.adapter.account && (await r.adapter.account.needed(page))) {
         const out = await login(r);
@@ -775,17 +783,27 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     // Generic forms that would not verify: the agent gets a go (when allowed).
     const problems = r.steps.flatMap((s) => s.problems);
     let verified = r.steps.length > 0 && r.steps.every((s) => s.verified) && !r.unknown.size && !!finalNav;
-    if (!verified && r.via === 'generic' && !r.unknown.size && stopReason !== 'stuck' && opts.allowAgent !== false) {
+    // Generic forms, and recipes that no longer get through, too (A06 compiles the agent's repaired run into a new version).
+    if (!verified && (r.via === 'generic' || r.via === 'recipe') && !r.unknown.size && stopReason !== 'stuck' && opts.allowAgent !== false) {
       const res = await tryAgent(r, r.steps.at(-1)?.fields ?? []);
       if (res?.status === 'done') {
-        const last = r.steps.at(-1)!;
-        const v = await verifyFields(page, last.fields, last.values, { ignoreErrors: r.adapter.ignoreErrors });
-        last.verified = v.verified;
-        last.log = v.fieldLog;
-        last.problems = v.problems;
+        const last = r.steps.at(-1);
+        if (last) {
+          const v = await verifyFields(page, last.fields, last.values, { ignoreErrors: r.adapter.ignoreErrors });
+          last.verified = v.verified;
+          last.log = v.fieldLog;
+          last.problems = v.problems;
+        }
+        if (r.via === 'recipe' && r.recipe?.id) recordRecipeRun(r.recipe.id, false, 'did not verify; the browser agent completed the form');
         r.via = 'agent';
-        finalNav = finalNav ?? (await pickNav(r, await extract(r, last.step)));
-        verified = r.steps.every((s) => s.verified) && !r.unknown.size && !!finalNav;
+        // The agent's own fills (on the page it finished on) are verified here as well.
+        const extra = await agentStep(r, (last?.step ?? -1) + 1, new Set(last?.fields.map((f) => f.id) ?? []));
+        if (extra) r.steps.push(extra);
+        if (finalNav?.kind !== 'submit') {
+          const nav = await pickNav(r, await extract(r, r.steps.at(-1)?.step ?? 0));
+          finalNav = nav?.kind === 'submit' ? nav : null;
+        }
+        verified = r.steps.length > 0 && r.steps.every((s) => s.verified) && !r.unknown.size && !!finalNav;
       }
     }
 
@@ -815,6 +833,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     }
 
     recordRecipe(r, true);
+    await shadowHook(r);
     if (!opts.submit) {
       keepOpen = !!opts.headful;
       return finish(r, { status: opts.headful ? 'needs_you' : 'rehearsed', reason: opts.headful ? 'Filled in and verified. Review it and press submit in the browser window.' : 'Rehearsal: filled and verified, not submitted.', shotPath: await proofShot(page, packet.applicationId), verified: true });
@@ -880,13 +899,14 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     return null;
   }
 
-  async function agentOrNeedsYou(r: Run, fields: FormField[], why: string): Promise<FillOutcome> {
+  async function agentOrNeedsYou(r: Run, fields: FormField[], why: string): Promise<FillOutcome | null> {
     if (opts.allowAgent === false) return finish(r, { status: 'needs_you', reason: `${why} The browser agent is switched off for this campaign.`, shotPath: await proofShot(r.page, packet.applicationId) });
     const res = await tryAgent(r, fields);
     if (!res) return finish(r, { status: 'needs_you', reason: `${why} No browser agent is available yet.`, shotPath: await proofShot(r.page, packet.applicationId) });
     if (res.status !== 'done') return finish(r, { status: 'needs_you', reason: `${why} The browser agent stopped: ${res.reason}`, shotPath: await proofShot(r.page, packet.applicationId) });
     r.via = 'agent';
-    return finish(r, { status: 'needs_you', reason: 'The browser agent filled the form; Bureau re-checks it on the next run before any submit.', shotPath: await proofShot(r.page, packet.applicationId) });
+    // The agent filled it: the run carries on to verification here, and only a verified form is ever submitted.
+    return null;
   }
 
   async function tryAgent(r: Run, fields: FormField[]): Promise<AgentRunResult | null> {
@@ -896,6 +916,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     try {
       return await agent({ page: r.page, fields, packet, jobId: packet.jobId, signal: opts.signal });
     } catch (err) {
+      if ((err as Error).name === 'AbortError' || opts.signal?.aborted) throw err;
       if ((err as Error).name === 'NotImplemented') {
         r.notes.push('browser agent not available (A06)');
         return null;
@@ -922,6 +943,8 @@ async function loadCandidate(): Promise<Candidate | null> {
 
 /** Record how the recipe (if any) did, heal it into a new version, or learn one from a verified run. */
 function recordRecipe(r: Run, verified: boolean, detail = '') {
+  // The browser agent (A06) records its own recipe runs and learns from its own traces.
+  if (r.via === 'agent') return;
   try {
     if (r.recipe?.id) {
       if (verified && (r.healed || r.recipeMissing)) {
@@ -939,7 +962,7 @@ function recordRecipe(r: Run, verified: boolean, detail = '') {
       recordRecipeRun(r.recipe.id, verified, detail || (verified ? 'verified' : 'not verified'));
       return;
     }
-    if (!verified || r.via === 'agent') return;
+    if (!verified) return;
     // First verified run of an adapter / generic form: emit a recipe.
     const ats = (r.ats ?? 'other') as AtsFamily;
     const scope: Recipe['scope'] = companyKey(r.job.company) ? 'company' : 'url';
@@ -961,4 +984,44 @@ function learned(r: Run, scope: Recipe['scope'], scopeKey: string, urlPattern?: 
   const filled = r.trace.filter((t) => t.field.selectors.length);
   if (!filled.length) return null;
   return buildRecipe({ ats: (r.ats ?? 'other') as AtsFamily, scope, scopeKey, urlPattern, filled, nexts: r.nexts.filter((n) => n.selectors.length), submit: r.submitSelectors.length ? r.submitSelectors : (r.adapter.submit ?? []) });
+}
+
+/**
+ * The browser agent's fills on the page it finished on (A06 `agentIntended`),
+ * plus every required field there, re-verified by the engine. Null when the
+ * page has nothing to check.
+ */
+async function agentStep(r: Run, step: number, skip: Set<string>): Promise<StepRecord | null> {
+  let got: { fields: ExtractedField[]; values: MappedValue[] } | null = null;
+  try {
+    got = (await import('../agent/index.ts')).agentIntended(r.page);
+  } catch {
+    got = null;
+  }
+  const fields: ExtractedField[] = (got?.fields ?? []).filter((f) => !skip.has(f.id));
+  const ex = await extract(r, step);
+  for (const f of ex.fields) if (f.required && !skip.has(f.id) && !fields.some((x) => x.id === f.id || x.signature === f.signature)) fields.push(f);
+  if (!fields.length) return null;
+  const values = (got?.values ?? []).filter((v) => fields.some((f) => f.id === v.fieldId));
+  const v = await verifyFields(r.page, fields, values, { ignoreErrors: r.adapter.ignoreErrors });
+  for (const x of values) {
+    const f = fields.find((y) => y.id === x.fieldId);
+    if (f) r.trace.push({ field: f, value: x, step });
+  }
+  dbg(r, `agent step: ${fields.length} fields, verified=${v.verified}${v.problems.length ? ` problems: ${v.problems.slice(0, 3).join(' | ')}` : ''}`);
+  const shot = await stepShot(r.page, r.id, `step-${step + 1}-agent`);
+  if (shot) r.shots.push(shot);
+  return { step, fields, values, log: v.fieldLog, verified: v.verified, problems: v.problems, shot };
+}
+
+/** A verified run doubles as a shadow run for a matching candidate recipe (A06 compares in dry mode; nothing is typed). */
+async function shadowHook(r: Run) {
+  if (r.via === 'agent' || !r.trace.length) return;
+  try {
+    const mod = await import('../agent/index.ts');
+    const res = await mod.shadowFromEngine({ ats: r.ats, company: r.job.company, url: r.page.url(), filled: r.trace, packet: r.packet, runId: r.id });
+    if (res) r.notes.push(`shadow check of candidate recipe ${res.recipeId}: ${res.ok ? 'match' : `mismatch (${res.diff.slice(0, 2).map((d) => d.problem).join('; ')})`}, now ${res.status}`);
+  } catch (err) {
+    r.notes.push(`shadow check skipped: ${(err as Error).message.split('\n')[0]}`);
+  }
 }
