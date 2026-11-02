@@ -27,7 +27,14 @@ export const FoundJobs = z.object({
  * social posts that never reach an aggregator — then the findings are parsed
  * into jobs. Only URLs that appeared in actual search results are kept.
  */
-export async function deepScan(profile: Profile, focus: string, days: number, log: (m: string) => void): Promise<RawJob[]> {
+export async function deepScan(
+  profile: Profile,
+  focus: string,
+  days: number,
+  log: (m: string) => void,
+  /** v2 (scout): sees the raw research so careers URLs and funding news can feed the company registry. */
+  onResearch?: (found: { text: string; sources: { url: string; title: string }[] }) => void,
+): Promise<RawJob[]> {
   const prefs = profile.preferences;
   const prompt = `${profileForPrompt(profile)}
 
@@ -41,6 +48,11 @@ Finish with a clear list of every role you found and verified.`;
   log('Deep scan: Claude is searching the web…');
   const found = await research({ task: 'scan', system: [{ type: 'text', text: SCOUT }], prompt, maxSearches: 12 });
   log(`Deep scan: ${found.sources.length} pages consulted, parsing findings…`);
+  try {
+    onResearch?.(found);
+  } catch {
+    /* registry bookkeeping never sinks a scan */
+  }
 
   const parsed = await structured({
     task: 'capture',

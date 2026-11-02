@@ -5,12 +5,14 @@ import { all, get, getSetting, logEvent, now, run, tx } from '../db.ts';
 import { AppError, redact } from '../errors.ts';
 import { safeFetch } from '../security/safeFetch.ts';
 import { htmlToText } from '../security/sanitize.ts';
-import { CONNECTORS, sourceSettings } from '../sources/index.ts';
+import { sourceSettings } from '../sources/index.ts';
+import { scoutPipeline } from '../scout/index.ts';
+import { ingestSync } from '../scout/ingest.ts';
+import { mineResearch } from '../scout/discovery.ts';
 import type { Category, RawJob } from '../sources/types.ts';
-import { withinDays } from '../sources/util.ts';
 import { apiKey } from '../ai/claude.ts';
 import { emit } from './bus.ts';
-import { canonicalUrl, categorize, normalizeForFingerprint, prefilterScore } from './classify.ts';
+import { prefilterScore } from './classify.ts';
 import { loadProfile } from './profileStore.ts';
 
 export interface ScanSettings {
@@ -27,71 +29,15 @@ let running: string | null = null;
 let runningPromise: Promise<void> | null = null;
 export const currentScan = () => running;
 
-function fingerprint(j: RawJob) {
-  return crypto
-    .createHash('sha256')
-    // Location is left out on purpose: one role posted in five cities is one application.
-    .update(`${normalizeForFingerprint(j.company)}|${normalizeForFingerprint(j.title)}`)
-    .digest('hex')
-    .slice(0, 32);
-}
-
-/** Insert new jobs, skipping anything we have seen by URL or by fingerprint. Returns ids of the new rows. */
+/**
+ * Insert new jobs, skipping (and merging into) anything already known by URL or
+ * fingerprint. Thin adapter over the v2 scout's synchronous ingest, so manual
+ * captures and deep scans get the same new columns (canonical apply URL, ATS,
+ * company, legitimacy, sources, priority) and enter the pipeline at `found`.
+ */
 export function ingest(raw: RawJob[], maxAgeDays: number): { added: string[]; skipped: number } {
-  const profile = loadProfile();
-  const added: string[] = [];
-  let skipped = 0;
-  tx(() => {
-    for (const j of raw) {
-      const webUrl = /^https?:\/\//i.test(j.url);
-      // Feeds sometimes carry javascript: or relative links; only real web URLs are kept (captures may have none).
-      if (!j.title || (!webUrl && !(j.source === 'capture' && j.url === '')) || !withinDays(j.postedAt, maxAgeDays)) {
-        skipped++;
-        continue;
-      }
-      const category = categorize(j);
-      if (!category) {
-        skipped++;
-        continue;
-      }
-      const url = webUrl ? canonicalUrl(j.url) : '';
-      const fp = fingerprint(j);
-      if (get("SELECT 1 FROM jobs WHERE fingerprint = ? OR (url = ? AND url != '')", fp, url)) {
-        skipped++;
-        continue;
-      }
-      const id = crypto.randomUUID();
-      run(
-        `INSERT INTO jobs (id, fingerprint, source, external_id, url, title, company, location, remote, category,
-           description_html, description_text, salary_min, salary_max, salary_currency, tags, posted_at, found_at,
-           prefilter_score, apply_email, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        id,
-        fp,
-        j.source,
-        j.externalId,
-        url,
-        j.title.slice(0, 300),
-        j.company.slice(0, 200),
-        (j.location ?? '').slice(0, 300),
-        j.remote ? 1 : 0,
-        category,
-        j.descriptionHtml ?? '',
-        (j.descriptionText ?? '').slice(0, 60_000),
-        j.salaryMin ?? null,
-        j.salaryMax ?? null,
-        j.salaryCurrency ?? null,
-        JSON.stringify((j.tags ?? []).slice(0, 20)),
-        j.postedAt ?? null,
-        now(),
-        prefilterScore(j, category, profile),
-        j.applyEmail ?? null,
-        now(),
-      );
-      added.push(id);
-    }
-  });
-  return { added, skipped };
+  const r = ingestSync(raw, { maxAgeDays });
+  return { added: r.added, skipped: raw.length - r.added.length };
 }
 
 /** Deep-scan and captured jobs arrive with a summary only; read the real page so scoring has the full posting. */
@@ -140,45 +86,20 @@ export async function runScan(kind: 'sources' | 'deep', options: { only?: string
     try {
       const settings = sourceSettings();
       const profile = loadProfile();
-      const categories: Category[] = profile
-        ? profile.preferences.categories.length
-          ? profile.preferences.categories
-          : profile.categories
-        : ['web', 'security', 'mobile', 'game'];
-      const ctx = {
-        keywords: [...(profile?.preferences.targetRoles ?? []), ...settings.extraKeywords],
-        categories,
-        boards: settings.boards,
-        maxAgeDays: settings.maxAgeDays,
-        log,
-      };
-
       if (kind === 'deep') {
         if (!profile) throw new AppError(412, 'NO_PROFILE', 'Upload your CV first — the deep scan hunts for you specifically.');
-        const raw = await deepScan(profile, options.focus ?? '', settings.maxAgeDays, log);
+        const raw = await deepScan(profile, options.focus ?? '', settings.maxAgeDays, log, (r) => mineResearch(r.text, r.sources));
         found = raw.length;
         const { added } = ingest(raw, settings.maxAgeDays);
         addedTotal = added.length;
         log(`Deep scan: ${raw.length} verified roles, ${added.length} new`);
         await enrich(added);
       } else {
-        const active = CONNECTORS.filter((c) => settings.enabled[c.id] && (!options.only || options.only.includes(c.id)));
-        log(`Scanning ${active.length} sources across ${categories.join(', ')}`);
-        await Promise.all(
-          active.map(async (c) => {
-            const started = Date.now();
-            try {
-              const raw = await c.run(ctx);
-              found += raw.length;
-              const { added } = ingest(raw, settings.maxAgeDays);
-              addedTotal += added.length;
-              log(`${c.label}: ${raw.length} listings, ${added.length} new tech roles (${((Date.now() - started) / 1000).toFixed(1)}s)`);
-              emit({ type: 'jobs-changed' });
-            } catch (err) {
-              log(`${c.label}: failed — ${(err as Error).message}`);
-            }
-          }),
-        );
+        // v2: the scout pipeline does the sources scan (resolve, normalise, dedupe, filter, pipeline entry).
+        const result = await scoutPipeline({ sources: options.only, log, recordScan: false });
+        found = result.found;
+        addedTotal = result.added.length;
+        emit({ type: 'jobs-changed' });
       }
       run('UPDATE scans SET found = ?, added = ? WHERE id = ?', found, addedTotal, scanId);
 
