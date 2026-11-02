@@ -21,7 +21,7 @@ import * as svc from './service.ts';
  *   POST   /api/v1/jobs/:id/claim         take a lease ({ ttlMinutes? }, default 20)       applications:write
  *   DELETE /api/v1/jobs/:id/claim         give it back                                     applications:write
  *   POST   /api/v1/jobs/:id/packet        make sure the packet exists; text + signed URLs  packets:read (claim)
- *   GET    /api/v1/files/:token           a packet PDF (token-only auth works)             packets:read
+ *   GET    /api/v1/files/<token>          a packet PDF (token-only auth works)             packets:read
  *   POST   /api/v1/answers                answer one form question                         answers:read
  *   GET    /api/v1/recipes?url=           the active recipe for a form URL                 recipes:read
  *   POST   /api/v1/traces                 report what the agent did on a form              traces:write
@@ -93,10 +93,11 @@ export async function externalRoutes(app: FastifyInstance) {
 
   app.post('/api/v1/jobs/:id/packet', async (req) => svc.packet(ctxOf(req), jobIdOf(req)));
 
-  app.get('/api/v1/files/:token', async (req, reply) => {
+  // A wildcard, not `:token`: tokens are longer than the router's 100-character parameter limit.
+  app.get('/api/v1/files/*', async (req, reply) => {
     const key = keyOf(req);
     requireScope(key, 'packets:read');
-    const grant = verifyFileToken((req.params as { token: string }).token);
+    const grant = verifyFileToken(String((req.params as { '*': string })['*'] ?? ''));
     if (grant.keyId !== key.id) throw new AppError(403, 'WRONG_KEY', 'This link was issued to another key.');
     const f = resolveGrantFile(grant);
     if (req.apiAudit) Object.assign(req.apiAudit.detail, { jobId: grant.jobId, file: grant.kind });
