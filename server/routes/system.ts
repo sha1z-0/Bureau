@@ -245,10 +245,12 @@ export async function systemRoutes(app: FastifyInstance) {
   app.get('/api/applications/:id/shot.png', async (req, reply) => {
     const { id } = req.params as { id: string };
     const row = get<{ shot: string | null }>('SELECT shot FROM applications WHERE id = ?', id);
-    if (!row?.shot || !/^[0-9a-f-]{36}\.png$/.test(row.shot)) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
+    // PNG from the form engine; PNG or JPEG proofs from external agents (A07 strips their metadata).
+    const m = row?.shot ? /^[0-9a-f-]{36}\.(png|jpg)$/.exec(row.shot) : null;
+    if (!row?.shot || !m) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
     const file = path.join(SHOT_DIR, row.shot);
     if (!fs.existsSync(file)) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
-    reply.header('content-type', 'image/png').header('cache-control', 'no-store');
+    reply.header('content-type', m[1] === 'jpg' ? 'image/jpeg' : 'image/png').header('cache-control', 'no-store');
     return reply.send(fs.readFileSync(file));
   });
 

@@ -1049,7 +1049,20 @@ export interface AuditEntry {
   ts: string;
   route: string;
   status: number;
-  detail: string | null;
+  detail: Record<string, unknown> | string | null;
+}
+
+export interface RateLimits {
+  perMinute: number;
+  aiPerHour: number;
+  perKey: Record<string, { perMinute?: number; aiPerHour?: number }>;
+}
+
+export interface ConnectInfo {
+  restBase: string;
+  mcpUrl: string;
+  docs: string;
+  snippets: { claudeDesktop: unknown; claudeCodeStdio: string; claudeCodeHttp: string; genericHttp: unknown; genericStdio: unknown };
 }
 
 // ── Inbox (A09) and learning (A09) ───────────────────────────────────
