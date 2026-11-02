@@ -1,0 +1,132 @@
+{
+  "task": "evidence",
+  "hash": "7d661d773fdf7b36c1f9e5d7",
+  "scenario": "e2e",
+  "label": "evidence: Quillstack",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Ship features in the React editor without breaking the writing flow",
+      "Node.js services that render and publish Markdown and MDX",
+      "Tests and pull-request review as everyday habits",
+      "A junior who grows fast with a mentor and cares about documentation"
+    ],
+    "mustWins": [
+      "Production TypeScript and React",
+      "Node.js backend experience",
+      "Comfort with pull-request review"
+    ],
+    "tone": "Warm and product-minded; writes like people who care about words",
+    "seniority": "Junior (associate), paired with a mentor for six months",
+    "hooks": [
+      {
+        "text": "Suggested edits: reviewers propose wording changes inline and the author accepts them one by one (launched 2026-07).",
+        "sourceUrl": "https://quillstack.example.com/changelog/suggested-edits"
+      },
+      {
+        "text": "Documentation is part of the product and deserves the same review as code.",
+        "sourceUrl": "https://quillstack.example.com/about"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "Up to 2 years of professional experience with TypeScript and React",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-react",
+          "f-skill-ts",
+          "f-skill-react"
+        ],
+        "evidence": "Built the React (TypeScript) admin screens for refunds and credit notes at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "two years of production TypeScript and React"
+      },
+      {
+        "requirement": "Some backend experience with Node.js",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-skill-node"
+        ],
+        "evidence": "Built and maintains the Node.js/TypeScript invoicing service",
+        "framing": "direct",
+        "phrasing": "maintains a Node.js service in production"
+      },
+      {
+        "requirement": "Comfortable with Git and pull-request workflows",
+        "importance": "important",
+        "factIds": [
+          "f-tess-review"
+        ],
+        "evidence": "Reviews pull requests for the billing team",
+        "framing": "direct",
+        "phrasing": "reviews pull requests for her team every week"
+      },
+      {
+        "requirement": "Ship features in the React editor and its collaboration layer",
+        "importance": "important",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "React admin screens with role-based access checks; no editor work",
+        "framing": "transferable",
+        "phrasing": "React features shipped end to end, with the API checks behind them"
+      },
+      {
+        "requirement": "Node.js services that render Markdown and MDX at scale",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Node.js invoicing service; no rendering pipeline",
+        "framing": "transferable",
+        "phrasing": "Node.js services in production; rendering would be new"
+      },
+      {
+        "requirement": "Write tests and take part in code review",
+        "importance": "important",
+        "factIds": [
+          "f-kestrel-tests",
+          "f-tess-review"
+        ],
+        "evidence": "Raised loader test coverage from 0 to 71% with pytest; reviews billing pull requests",
+        "framing": "direct",
+        "phrasing": "writes tests and reviews code"
+      },
+      {
+        "requirement": "An interest in technical writing",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Wrote the runbook the on-call rotation now uses",
+        "framing": "direct",
+        "phrasing": "wrote the runbook her on-call rotation uses"
+      },
+      {
+        "requirement": "Experience with ProseMirror, CRDTs or real-time collaboration",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "Four hours of overlap with 08:00-16:00 UTC",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "Logistics, not a claim: Lahore is UTC+5",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "No rich-text editor or real-time collaboration experience (ProseMirror, CRDTs)",
+    "fastLearning": "vb-learned-fast"
+  }
+}

@@ -40,6 +40,7 @@ const { all, get } = await import('../../../server/db.ts');
 const { loadManifest } = await import('../manifest.ts');
 const { writeApplicationRun } = await import('../../../server/writer/pipeline.ts');
 const { applicationQuality } = await import('../../../server/writer/quality.ts');
+const { answerQuestionTraced } = await import('../../../server/writer/answers.ts');
 const { APPLICATIONS } = await import('./authored/letters/index.ts');
 const { stepOutput } = await import('./authored/writer.ts');
 type WriterAi = import('../../../server/writer/ai.ts').WriterAi;
@@ -95,6 +96,16 @@ ${tail.slice(0, 2500)}`);
     const issues = (q?.issues ?? []).filter((i) => i.claim !== 'Quality gate');
     for (const i of issues) console.log(`   truth ${i.severity}: ${i.claim} — ${i.reason}`);
     const answers = q?.writer.shortAnswers ?? {};
+    // Form questions beyond the pre-written three: the same lint and truth lock answerQuestion applies in the e2e.
+    for (const fa of a.formAnswers ?? []) {
+      const t = await answerQuestionTraced(job.id, fa.question, { ai, maxChars: fa.maxChars }).catch((err: Error) => {
+        console.log(`   ${err.message.split('\n')[0]}`);
+        return { answered: null, lint: null, truth: null, attempts: 0 };
+      });
+      if (!t.answered) failed++;
+      const bad = [...(t.lint?.checks.filter((c) => !c.pass).map((c) => `${c.id}=${c.value} (${c.target})`) ?? []), ...(t.truth?.issues.filter((i) => i.severity === 'high').map((i) => `truth: ${i.claim} (${i.reason})`) ?? [])];
+      console.log(`   ${t.answered ? 'form answer ok' : 'FORM ANSWER FAILED'}: "${fa.question.slice(0, 70)}" (${fa.answer.length} chars)${bad.length ? ` | ${bad.join('; ')}` : ''}`);
+    }
     console.log(`   answers: ${Object.keys(answers).join(', ') || 'none'} | outreach ${q?.writer.outreach ? 'kept' : 'DROPPED'} | follow-up ${q?.writer.followUp ? 'kept' : 'DROPPED'} | subject: ${q?.writer.subjects[q.writer.subjectIndex] ?? ''}`);
   } catch (err) {
     failed++;
