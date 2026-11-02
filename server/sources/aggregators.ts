@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
-import { getJson, getText } from '../security/safeFetch.ts';
+import { getJson, getText } from './http.ts';
 import { cleanHtml } from '../security/sanitize.ts';
 import type { Category, Connector, RawJob } from './types.ts';
 import { htmlToText, isRemote, num, pool, toIso } from './util.ts';
@@ -94,6 +94,7 @@ export const remoteok: Connector = {
           salaryMax: num(j.salary_max),
           salaryCurrency: j.salary_min ? 'USD' : null,
           tags: j.tags ?? [],
+          applyUrl: j.apply_url && /^https?:/.test(j.apply_url) ? j.apply_url : null,
         };
       });
   },
@@ -215,6 +216,7 @@ export const himalayas: Connector = {
         salaryMax: num(j.maxSalary),
         salaryCurrency: j.currency ?? j.salaryCurrency ?? null,
         tags: j.categories ?? [],
+        applyUrl: j.applicationLink ?? null,
       };
     });
   },

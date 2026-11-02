@@ -1,8 +1,9 @@
 import { XMLParser } from 'fast-xml-parser';
-import { getJson, getText } from '../security/safeFetch.ts';
+import { getJson, getText } from './http.ts';
 import { cleanHtml } from '../security/sanitize.ts';
 import type { Connector, RawJob } from './types.ts';
 import { firstEmail, htmlToText, isRemote, pool, toIso } from './util.ts';
+import { detectAts, findAtsUrls } from '../scout/detect.ts';
 
 const xml = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@', processEntities: true, cdataPropName: false });
 
@@ -176,9 +177,11 @@ export const simplify: Connector = {
   defaultEnabled: false,
   async run(ctx) {
     const rows = await getJson<SimplifyRow[]>('https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json', {
-      maxBytes: 30 * 1024 * 1024,
-      timeoutMs: 45_000,
+      maxBytes: 60 * 1024 * 1024,
+      timeoutMs: 300_000,
     });
+    // Every row (open or closed) names a company's ATS board: feed them all to registry discovery.
+    ctx.discover?.(rows.map((r) => r.url).filter(Boolean), 'simplify');
     const cutoff = Date.now() / 1000 - ctx.maxAgeDays * 86_400;
     return rows
       .filter((r) => r.active && r.is_visible && r.date_posted >= cutoff)
@@ -194,6 +197,7 @@ export const simplify: Connector = {
         descriptionHtml: '',
         postedAt: toIso(r.date_posted),
         tags: ['new-grad', r.category ?? '', r.sponsorship ?? ''].filter(Boolean),
+        applyUrl: r.url,
       }));
   },
 };
@@ -242,7 +246,9 @@ export const reddit: Connector = {
           postedAt: toIso(str(e.published)),
           tags: [`r/${sub}`],
           applyEmail: firstEmail(text),
+          applyUrl: findAtsUrls(html).find((u) => detectAts(u)?.jobId) ?? null,
         });
+        ctx.discover?.(findAtsUrls(html), 'reddit');
       }
     }
     return out;

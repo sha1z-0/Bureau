@@ -1,0 +1,3 @@
+# The JobSpy sidecar's only direct dependency. Its own deps (pandas, numpy,
+# requests, tls-client, beautifulsoup4, markdownify, pydantic) come with it.
+python-jobspy>=1.1.75,<2
