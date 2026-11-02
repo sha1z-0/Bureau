@@ -99,8 +99,25 @@ const ctx: Ctx = {
   mailBridge: { available: false, delivered: 0, errors: [] },
 };
 
+// Harness self-test: stand-in modules prove the stage assertions themselves (never for acceptance).
+let fakes: { close: () => Promise<void> } | null = null;
+if (flag('--fakes')) {
+  const { FAKES } = await import('./e2e/stages.ts');
+  const { makeFakes } = await import('./e2e/fakes.ts');
+  const { chromium } = await import('playwright-core');
+  const made = makeFakes(fx, () =>
+    process.env.BUREAU_CHROME_PATH
+      ? chromium.launch({ executablePath: process.env.BUREAU_CHROME_PATH, headless: !headful })
+      : chromium.launch({ channel: 'chrome', headless: !headful }).catch(() => chromium.launch({ channel: 'msedge', headless: !headful })),
+  );
+  for (const [file, mod] of Object.entries(made.modules)) FAKES[file] = { ...((await import(`../${file}`)) as Record<string, unknown>), ...mod };
+  fakes = made;
+  console.log('\n!! --fakes: harness self-test with stand-in modules for', Object.keys(made.modules).join(', '));
+}
+
 // 2. Mail bridge: mail the fixture server "sends" (Workday verification codes) goes to the inbox ingester.
-const inboxMod = (await import('../server/inbox/index.ts')) as Record<string, unknown>;
+const { FAKES: fakeMods } = await import('./e2e/stages.ts');
+const inboxMod = fakeMods['server/inbox/index.ts'] ?? ((await import('../server/inbox/index.ts')) as Record<string, unknown>);
 const ingestRaw = typeof inboxMod.ingestRaw === 'function' ? (inboxMod.ingestRaw as (raw: string) => Promise<unknown>) : null;
 ctx.mailBridge.available = !!ingestRaw;
 let bridged = 0;
@@ -122,6 +139,7 @@ try {
   results = await runStages(STAGES, ctx, { only });
 } finally {
   clearInterval(bridge);
+  await fakes?.close();
 }
 
 // 3. Report.

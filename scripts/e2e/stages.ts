@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { simpleParser } from 'mailparser';
 import type { FixtureServer } from '../fixture-server.ts';
 import { bus, type BusEvent } from '../../server/services/bus.ts';
 import { get, now, run, setSetting } from '../../server/db.ts';
@@ -53,11 +54,22 @@ export interface E2EContext {
 }
 
 type Mod = Record<string, unknown>;
-const imp = (p: string): Promise<Mod> => import(p) as Promise<Mod>;
+
+/**
+ * Harness self-test only (`npm run e2e -- --fakes`): stand-in modules keyed by
+ * repo path (e.g. 'server/forms/index.ts'), used to prove the stage assertions
+ * themselves before the real modules exist. Never used for acceptance.
+ */
+export const FAKES: Record<string, Mod> = {};
+const imp = (p: string): Promise<Mod> => {
+  const key = p.replace(/^(\.\.\/)+/, '');
+  return FAKES[key] ? Promise.resolve(FAKES[key]) : (import(p) as Promise<Mod>);
+};
 
 /** An export that a pending contract request adds; null until it merges. */
 async function optionalExport<T>(candidates: [string, string][]): Promise<T | null> {
   for (const [file, name] of candidates) {
+    if (typeof FAKES[file]?.[name] === 'function') return FAKES[file][name] as T;
     if (!fs.existsSync(path.join(ROOT, file))) continue;
     const mod = await imp(`../../${file}`);
     if (typeof mod[name] === 'function') return mod[name] as T;
@@ -504,8 +516,10 @@ export const inbox: Stage<E2EContext> = {
     let classified = 0;
     for (const m of index.messages) {
       try {
-        await ingest(fs.readFileSync(path.join(FIXTURES, 'mail', m.file)));
-        const subj = get<{ class: string }>('SELECT class FROM inbox_messages ORDER BY rowid DESC LIMIT 1');
+        const buf = fs.readFileSync(path.join(FIXTURES, 'mail', m.file));
+        await ingest(buf);
+        const mid = (await simpleParser(buf)).messageId ?? '';
+        const subj = get<{ class: string }>('SELECT class FROM inbox_messages WHERE message_id = ? OR message_id = ?', mid, mid.replace(/^<|>$/g, ''));
         classified++;
         if (subj?.class === m.class) right++;
       } catch (err) {
