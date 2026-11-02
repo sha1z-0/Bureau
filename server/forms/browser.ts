@@ -18,6 +18,15 @@ import { isBlockedIp } from '../security/ip.ts';
 const CHANNELS = ['chrome', 'msedge'] as const;
 
 export async function launchBrowser(headless = true): Promise<Browser> {
+  // An explicit Chromium (the Docker image sets /usr/bin/chromium) wins over the installed channels.
+  const exe = process.env.BUREAU_CHROME_PATH;
+  if (exe) {
+    try {
+      return await chromium.launch({ executablePath: exe, headless });
+    } catch {
+      /* fall back to the channels */
+    }
+  }
   for (const channel of CHANNELS) {
     try {
       return await chromium.launch({ channel, headless });
@@ -45,20 +54,16 @@ export async function browserAvailable(): Promise<boolean> {
 
 /**
  * Exact origins (scheme://host:port) the guard lets through even though they are
- * on this machine: the local fixture servers tests and e2e use. Empty in
- * production. `BUREAU_FORMS_ALLOW_ORIGINS` (comma separated) seeds it for e2e
- * runs in a child process. In strict mode nothing else is reachable at all, so a
- * fixture that accidentally links a real site can never load it.
+ * on this machine: the local fixture servers that tests and the e2e serve the ATS
+ * replicas from. Only ever honoured in replay mode (`BUREAU_REPLAY=1`), so a
+ * production run can never be pointed at loopback. Sources:
+ *  - `BUREAU_FIXTURE_ORIGINS` (comma separated), read on every request;
+ *  - `allowFixtureOrigins()` for in-process tests.
+ * In strict mode nothing else is reachable at all, so a fixture that links a real
+ * site by accident can never load it.
  */
-const fixtureOrigins = new Set<string>(
-  (process.env.BUREAU_FORMS_ALLOW_ORIGINS ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => originOf(s))
-    .filter((s): s is string => !!s),
-);
-let strictFixtures = process.env.BUREAU_FORMS_STRICT === '1';
+const testOrigins = new Set<string>();
+let strictFixtures = false;
 
 function originOf(raw: string): string | null {
   try {
@@ -69,21 +74,34 @@ function originOf(raw: string): string | null {
   }
 }
 
-/** Allow these exact local origins (tests). `strict` blocks every other origin. Returns an undo function. */
+function replayMode(): boolean {
+  return process.env.BUREAU_REPLAY === '1';
+}
+
+function fixtureOrigins(): Set<string> {
+  if (!replayMode()) return new Set();
+  const env = (process.env.BUREAU_FIXTURE_ORIGINS ?? '')
+    .split(',')
+    .map((s) => originOf(s.trim()))
+    .filter((s): s is string => !!s);
+  return new Set([...env, ...testOrigins]);
+}
+
+/** Allow these exact local origins (tests, replay mode only). `strict` blocks every other origin. Returns an undo function. */
 export function allowFixtureOrigins(origins: string[], opts: { strict?: boolean } = {}): () => void {
-  const added = origins.map(originOf).filter((o): o is string => !!o && !fixtureOrigins.has(o));
-  for (const o of added) fixtureOrigins.add(o);
+  const added = origins.map(originOf).filter((o): o is string => !!o && !testOrigins.has(o));
+  for (const o of added) testOrigins.add(o);
   const prevStrict = strictFixtures;
   if (opts.strict !== undefined) strictFixtures = opts.strict;
   return () => {
-    for (const o of added) fixtureOrigins.delete(o);
+    for (const o of added) testOrigins.delete(o);
     strictFixtures = prevStrict;
   };
 }
 
 export function isFixtureOrigin(url: string): boolean {
   const o = originOf(url);
-  return !!o && fixtureOrigins.has(o);
+  return !!o && fixtureOrigins().has(o);
 }
 
 const hostVerdicts = new Map<string, { ok: boolean; at: number }>();
@@ -115,8 +133,10 @@ export async function urlAllowed(raw: string): Promise<boolean> {
   }
   if (url.protocol === 'data:' || url.protocol === 'blob:' || raw === 'about:blank' || raw === 'about:srcdoc') return true;
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
-  if (fixtureOrigins.has(url.origin)) return true;
-  if (strictFixtures) return false;
+  const fx = fixtureOrigins();
+  if (fx.has(url.origin)) return true;
+  // Replay runs that serve fixtures never reach anything else.
+  if (replayMode() && (strictFixtures || !!process.env.BUREAU_FIXTURE_ORIGINS)) return false;
   return hostAllowed(url.hostname);
 }
 

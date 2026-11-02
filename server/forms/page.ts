@@ -318,6 +318,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const editable = !native && (el.getAttribute('contenteditable') === '' || el.getAttribute('contenteditable') === 'true') && !(el.parentElement && el.parentElement.isContentEditable);
       const trigger = !native && ((tag === 'BUTTON' || role === 'button' || role === 'combobox') && el.getAttribute('aria-haspopup') === 'listbox' || role === 'combobox');
       const custom = !native && (role === 'radio' || role === 'checkbox' || (role === 'textbox' && !el.querySelector('input,textarea')) || role === 'spinbutton' || editable || trigger);
+      // Yes/No toggle buttons (Ashby and friends): a group of aria-pressed buttons is a radio question.
+      if (!native && tag === 'BUTTON' && el.hasAttribute('aria-pressed') && parentOf(el)) {
+        const members = Array.from(parentOf(el).children).filter((b) => b.tagName === 'BUTTON' && b.hasAttribute('aria-pressed'));
+        members.forEach((m) => consumed.add(m));
+        if (members.length >= 2 && members.some(visible)) {
+          const raw = groupLabel(members[0], null);
+          const id = stampGroup(members, prefix);
+          const label = cleanLabel(raw);
+          out.push({ id, kind: 'radio', rawLabel: raw, label, required: requiredMark(raw) || containerRequired(members[0]), options: members.map(optionLabel), meta: { toggle: true }, el: parentOf(el), selectors: selectorsFor(parentOf(el), label) });
+        }
+        continue;
+      }
       if (!native && !custom) continue;
       if (el.closest('[role="listbox"], [role="menu"], nav, header, footer, [data-bureau-ignore]')) continue;
       if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
@@ -543,7 +555,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         value = members.map((m) => (m.value !== undefined ? m.value : norm(m.textContent))).join('|');
         value = members.map((m) => (m.value !== undefined && m.tagName === 'INPUT' ? m.value : norm(m.getAttribute('aria-valuetext') || m.textContent))).join('|');
       } else if (members.length && kind === 'radio') {
-        const on = members.find((m) => m.checked || m.getAttribute('aria-checked') === 'true');
+        const on = members.find((m) => m.checked || m.getAttribute('aria-checked') === 'true' || m.getAttribute('aria-pressed') === 'true');
         value = on ? optionLabel(on) : '';
       } else if (members.length && kind === 'checkbox') {
         value = members.filter((m) => m.checked || m.getAttribute('aria-checked') === 'true').map(optionLabel).join('; ');
@@ -680,6 +692,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return found;
   }
   if (op === 'scrollTop') { W.scrollTo(0, 0); return true; }
+  if (op === 'saveNear') {
+    // The "Save" / "Done" button of an inline sub-form opened by an "Add" button.
+    const adder = byStamp('data-bureau-add', arg.adderId)[0];
+    let n = adder ? parentOf(adder) : null;
+    for (let i = 0; n && i < 7; i++, n = parentOf(n)) {
+      const btns = Array.from(n.querySelectorAll('button, [role="button"], input[type=button], input[type=submit]')).filter((b) => b !== adder && visible(b) && !b.disabled);
+      const hit = btns.find((b) => /^(save|done|ok|confirm|add|save (entry|position|education|experience))$/i.test(norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent)) || /save(-section)?$|-save$|^save/i.test(b.getAttribute('data-ui') || b.getAttribute('data-test') || ''));
+      if (hit) return stampAttr(hit, 'data-bureau-nav', 'sv');
+      if (n.tagName === 'FORM') break;
+    }
+    return null;
+  }
   return null;
 }`;
 
@@ -717,6 +741,7 @@ export interface RawField {
     options?: string[];
     question?: string;
     hiddenInput?: boolean;
+    toggle?: boolean;
   };
   selectors: string[];
   order: number;

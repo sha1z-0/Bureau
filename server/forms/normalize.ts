@@ -92,6 +92,8 @@ export function optionScore(value: string, option: string): number {
   // Country / dial-code style containment ("Pakistan (+92)" vs "Pakistan").
   if (o.startsWith(v + ' ') || o.endsWith(' ' + v) || v.startsWith(o + ' ')) return 0.9;
   if (o.includes(v) && v.length >= 3) return 0.85;
+  const vw = words(value).filter((w) => w.length >= 3);
+  if (vw.length && vw.every((w) => (' ' + o + ' ').includes(' ' + w + ' '))) return 0.82;
   if (v.includes(o) && o.length >= 4) return 0.8;
   const a = new Set(words(value));
   const b = new Set(words(option));

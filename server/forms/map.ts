@@ -345,7 +345,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
         case 'profile': {
           if (!c) break;
           let v = profileValue(e.key, c, f, g.index);
-          if (e.key === 'work_current' && (f.kind === 'checkbox' || f.kind === 'consent')) return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
+          if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
           if (v && f.options?.length && (f.kind === 'select' || f.kind === 'radio' || f.kind === 'combobox' || f.kind === 'checkbox')) v = fit(f, v, 0.6) ?? '';
           if (v) return val(f, 'profile', e.key, v, syn!.confidence * (g.name ? 0.95 : 1), { synKey: e.key });
           break;
