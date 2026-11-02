@@ -48,6 +48,12 @@ export interface EngineDeps {
   /** AI spend since an instant. */
   /** AI spend since `iso`; with a campaign id, that campaign's tagged spend plus untagged shared spend (scouting, matching). */
   spendSince(iso: string, campaignId?: string): number;
+  /**
+   * The writer's current packet for an application, re-gated: the packet (owner edits
+   * included) when it still passes lint and the truth lock, null when an edit broke the
+   * gates, undefined when the application wasn't written by the v2 writer.
+   */
+  freshPacket?(applicationId: string): Promise<ApplicationPacket | null | undefined>;
   keepAwake: KeepAwake;
   /** Close anything holding a browser (kill switch). */
   closeBrowsers(reason: string): Promise<void>;
@@ -85,6 +91,13 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
     discoverCompanies: (opts) => optional(() => import('../scout/index.ts') as Promise<Record<string, unknown>>, 'discoverCompanies', opts),
     recipeJobs: () => optional(() => import('../agent/index.ts') as Promise<Record<string, unknown>>, 'runRecipeJobs'),
     write: async (jobId, campaignId) => (await import('../writer/index.ts')).writeApplication(jobId, campaignId),
+    freshPacket: async (applicationId) => {
+      const w = await import('../writer/packet.ts');
+      const p = w.loadPacket(applicationId);
+      if (p) return p;
+      const row = get<{ notes: string }>('SELECT notes FROM applications WHERE id = ?', applicationId);
+      return row && w.readNotes(row.notes).writer?.status === 'written' ? null : undefined;
+    },
     fill: async (packet, opts) => (await import('../forms/index.ts')).fillApplication(packet, opts),
     sendEmail: async ({ to, packet }) => {
       const file = packet.cvPdfPath;

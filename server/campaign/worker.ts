@@ -232,6 +232,16 @@ export async function applyOne(ctx: WorkerCtx, item: QueueItem): Promise<JobResu
     if (!packet) return 'quick';
     if (ctx.signal.aborted) return 'stopped';
 
+    // Send what the writer would send now: the owner may have edited the letter since it was written.
+    const fresh = deps.freshPacket ? await deps.freshPacket(packet.applicationId) : undefined;
+    if (fresh === null) {
+      transition(jobId, 'filling', { reason: 'Checking the packet' });
+      transition(jobId, 'needs_you', { reason: 'The letter was edited and no longer passes the quality gates.' });
+      updateApplication(packet.applicationId, 'needs_you', { reason: 'Edited letter fails the gates', campaignId });
+      return 'quick';
+    }
+    if (fresh) packet = fresh;
+
     // ── Route ──
     const route = chooseRoute(j, item.campaign, deps.emailReady());
     recordStep(clock.now(), { campaignId, jobId, step: 'route', status: route.kind });
