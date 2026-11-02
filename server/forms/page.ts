@@ -152,7 +152,11 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     if (by) { const t = byIds(el, by); if (t) return t; }
     const aria = norm(el.getAttribute('aria-label'));
     if (aria) return aria;
+    // Web components carry their label as an attribute or inside their shadow root.
+    const attr = norm(el.getAttribute('label'));
+    if (attr) return attr;
     if (el.tagName !== 'INPUT') { const t = norm(el.innerText || el.textContent); if (t) return t; }
+    if (el.shadowRoot) { const t = ownText(el.shadowRoot.querySelector('label, [class*="label" i]') || el.shadowRoot.host); if (t) return t; }
     const next = el.nextElementSibling;
     if (next && !hasControl(next)) { const t = ownText(next); if (t) return t; }
     return norm(el.value);
@@ -168,7 +172,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return false;
   }
   function cleanLabel(t) {
-    return norm(String(t || '').replace(/\(required\)|\(optional\)/gi, ' ').replace(/\s*[*✱]+\s*/g, ' ').replace(/\s+required\s*\.?\s*$/i, '').replace(/^\s*required\s*[.:]\s*/i, ''));
+    return norm(String(t || '').replace(/\(required\)|\(optional\)/gi, ' ').replace(/\s*[*✱]+\s*/g, ' ').replace(/\s+required\s*\.?\s*$/i, '').replace(/^\s*required\s*[.:]\s*/i, '').replace(/\s*[–—-]*\s*(select( one)?|please select|choose)\s*(\.\.\.|…|[–—-]*)\s*[▾▼⌄▿]?\s*$/i, '').replace(/\s*[▾▼⌄▿]\s*$/, ''));
   }
   const HEAD_DIRECT = ':scope > legend, :scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > [role="heading"], :scope > header h2, :scope > header h3, :scope > div > h2, :scope > div > h3, :scope > div > legend, :scope > [data-automation-id*="sectionHeader" i], :scope > [class*="section-title" i], :scope > [class*="sectionTitle"], :scope > [class*="section-header" i] h2, :scope > [class*="section-header" i] h3';
   function sectionOf(el, label) {

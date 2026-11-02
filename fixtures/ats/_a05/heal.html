@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  A05 self-heal fixture. The same application form in two builds: ?v=1 and ?v=2.
+  v2 renames every id and name (a front-end redeploy), so a recipe recorded on v1
+  finds none of its selectors and has to re-match its steps by field signature.
+  Fictional employer. Local fixture only; posts nowhere (the submit is recorded in
+  window.__posted and shown as a confirmation).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Developer - Heal Co</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 24px auto; }
+    .field { margin: 12px 0; } label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 6px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <h1>Junior Developer</h1>
+  <form id="app" novalidate>
+    <div class="field"><label data-for="first">First name *</label><input data-key="first" required></div>
+    <div class="field"><label data-for="last">Last name *</label><input data-key="last" required></div>
+    <div class="field"><label data-for="email">Email *</label><input data-key="email" type="email" required></div>
+    <div class="field"><label data-for="phone">Phone *</label><input data-key="phone" type="tel" required></div>
+    <div class="field"><label data-for="linkedin">LinkedIn profile</label><input data-key="linkedin"></div>
+    <div class="field"><label data-for="cv">Resume/CV *</label><input data-key="cv" type="file" required></div>
+    <div class="field"><label data-for="gender">Gender</label>
+      <select data-key="gender"><option value="">Select...</option><option>Male</option><option>Female</option><option>Decline to self-identify</option></select></div>
+    <button type="submit">Submit application</button>
+  </form>
+  <div id="done" hidden><h2>Thank you for applying!</h2></div>
+  <script>
+    (function () {
+      var v = /[?&]v=2\b/.test(location.search) ? 'v2' : 'v1';
+      document.querySelectorAll('[data-key]').forEach(function (el) {
+        var k = el.getAttribute('data-key');
+        var id = v === 'v1' ? k : 'fld_' + k.split('').reverse().join('') + '_x';
+        el.id = id;
+        el.name = v === 'v1' ? 'candidate[' + k + ']' : 'c2-' + k.length + '-' + k.toUpperCase();
+        var lab = document.querySelector('[data-for="' + k + '"]');
+        if (lab) lab.setAttribute('for', id);
+      });
+      document.getElementById('app').addEventListener('submit', function (e) {
+        e.preventDefault();
+        window.__posted = (window.__posted || 0) + 1;
+        document.getElementById('app').hidden = true;
+        document.getElementById('done').hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -64,7 +64,7 @@ function words(s: string): string[] {
 }
 
 function numericRange(o: string): [number, number] | null {
-  const n = normText(o);
+  const n = o.toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ').trim();
   let m = n.match(/^(\d+(?:\.\d+)?)\s*(?:to|-|–)\s*(\d+(?:\.\d+)?)/);
   if (m) return [Number(m[1]), Number(m[2])];
   m = n.match(/(\d+(?:\.\d+)?)\s*\+|(?:more than|over|at least|above)\s*(\d+(?:\.\d+)?)/);

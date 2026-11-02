@@ -31,6 +31,7 @@ const GUARD = String.raw`(() => {
 
 /** Arm the guard in every current and future document of this context. */
 export async function armSubmitGuard(ctx: BrowserContext, page: Page) {
+  if (process.env.BUREAU_FORMS_DEBUG_NO_GUARD === '1') return;
   await ctx.addInitScript(GUARD).catch(() => {});
   for (const f of page.frames()) await f.evaluate(GUARD).catch(() => {});
 }

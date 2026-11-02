@@ -104,5 +104,6 @@ await browser.close();
 await fx.close();
 const { db } = await import('../../server/db.ts');
 db.close();
-fs.rmSync(sandbox, { recursive: true, force: true });
+if (flag('--keep')) console.log(`sandbox kept: ${sandbox}`);
+else fs.rmSync(sandbox, { recursive: true, force: true });
 process.exit(0);

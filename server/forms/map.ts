@@ -50,6 +50,8 @@ export interface MapOptions {
   deps?: Partial<MapDeps>;
   /** Memo shared across the steps of one run. */
   cache?: Map<string, Answered | null>;
+  /** All fields on the page (when mapping a subset). */
+  context?: FormField[];
 }
 
 export const MIN_CONFIDENCE = 0.7;
@@ -460,7 +462,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     return a;
   };
   // A phone input next to its own country picker takes the national number.
-  const hasCountryPicker = fields.some((o) => (o.kind === 'combobox' || o.kind === 'select') && (/\b(country|dial|calling) code\b/i.test(o.label) || (!!o.section && /phone|mobile/i.test(o.section) && /country/i.test(o.label))));
+  const hasCountryPicker = [...fields, ...(opts.context ?? [])].some((o) => (o.kind === 'combobox' || o.kind === 'select') && (/\b(country|dial|calling) code\b/i.test(o.label) || (!!o.section && /phone|mobile/i.test(o.section) && /country/i.test(o.label))));
 
   const out: MappedValue[] = [];
   for (const raw of fields) {

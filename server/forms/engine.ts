@@ -91,6 +91,8 @@ interface Run {
   healed: number;
   recipeMissing: number;
   candidate: Candidate | null;
+  /** Every field on the current step (context for the mapper: e.g. a separate phone country picker). */
+  pageFields?: FormField[];
 }
 
 // ── Job and URL ───────────────────────────────────────────────────────────────
@@ -251,7 +253,7 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
       if (opts.length) f.options = opts;
     }
   }
-  const mapped = await mapFieldsWith(fields, r.packet, { writer: r.deps.writer !== false, job: r.job, cache: r.cache, deps: r.deps.map });
+  const mapped = await mapFieldsWith(fields, r.packet, { writer: r.deps.writer !== false, job: r.job, cache: r.cache, deps: r.deps.map, context: r.pageFields });
   // Recipe steps decide values where they name one.
   let resolution: Awaited<ReturnType<typeof resolveSteps>> | null = null;
   if (r.recipe) {
@@ -264,9 +266,10 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
       const f = fields.find((x) => x.id === fid)!;
       const v = recipeValue(s, f, { packet: r.packet, candidate: r.candidate, job: r.job });
       if (v) {
+        // The recipe fills the gaps; a confident answer from the mapper (today's profile and bank) wins.
         const i = mapped.findIndex((m) => m.fieldId === fid);
-        if (i >= 0) mapped[i] = { ...mapped[i], ...v, unknown: false };
-        else mapped.push(v);
+        if (i < 0) mapped.push(v);
+        else if (mapped[i].unknown || mapped[i].confidence < 0.9) mapped[i] = { ...mapped[i], ...v, unknown: false };
       }
     }
   }
@@ -300,6 +303,15 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
       f.id = twin.id;
       v.fieldId = twin.id;
       cur = await readField(frameFor(r.page, f), f).catch(() => null);
+    }
+    if (cur?.exists && f.kind === 'file') {
+      // Already uploaded (an earlier pass, or carried over by the site): never upload twice.
+      const base = v.value.split(/[\\/]/).pop() ?? v.value;
+      const again = await readField(frameFor(r.page, f), f, base).catch(() => null);
+      if (again && (again.value.includes(base) || (again.chip ?? '').includes(base))) {
+        r.trace.push({ field: f, value: v, step });
+        continue;
+      }
     }
     if (cur?.exists && f.kind !== 'file' && cur.value && valuesMatch(f.kind, v.value, cur.value, { display: cur.display, format: f.meta?.format, strict: true })) {
       r.trace.push({ field: f, value: v, step });
@@ -366,11 +378,19 @@ async function repeaters(r: Run, step: number, ex: StepExtract, rec: StepRecord)
 async function fillStep(r: Run, step: number): Promise<{ rec: StepRecord; ex: StepExtract }> {
   const rec: StepRecord = { step, fields: [], values: [], log: [], verified: false, problems: [], shot: null };
   let ex = await extract(r, step);
+  r.pageFields = ex.fields;
   if (r.adapter.beforeStep) {
     await r.adapter.beforeStep(r.page, adapterRun(r, step), ex);
     ex = await extract(r, step);
   }
   ex = await repeaters(r, step, ex, rec);
+  // Parent questions first: a country choice re-draws the state/region list and the phone format.
+  const parents = ex.fields.filter((f) => !/phone|mobile/i.test(f.section ?? "") && (f.kind === 'select' || f.kind === 'combobox') && /^country\b/i.test(f.label.trim()) && !/\b(code|phone|dial|calling|citizenship)\b/i.test(f.label) && !rec.fields.some((x) => x.id === f.id));
+  if (parents.length) {
+    await mapAndFill(r, step, parents, rec);
+    await settle(r.page, 300);
+    ex = await extract(r, step);
+  }
   const done = new Set(rec.fields.map((f) => f.id));
   const doneSig = new Set(rec.fields.map((f) => `${f.signature}|${f.frame ?? ''}|${f.order}`));
   for (let pass = 0; pass < 3; pass++) {
@@ -633,7 +653,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
   try {
     ctx = await guardedContext(lease.browser, { timezoneId: campaignZone(opts.campaignId) ?? Intl.DateTimeFormat().resolvedOptions().timeZone });
     const page = await ctx.newPage();
-    page.setDefaultTimeout(15_000);
+    page.setDefaultTimeout(5_000);
     const candidate = deps.map?.candidate ? deps.map.candidate() : await loadCandidate();
     const r: Run = {
       id: runId,
@@ -810,6 +830,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     }
     r.submitSelectors = finalNav!.selector.startsWith('[data-bureau') ? [] : [finalNav!.selector];
     run("UPDATE form_runs SET status = 'submitting' WHERE id = ?", runId);
+    dbg(r, `submit: ${finalNav!.selector}`);
     await submitVerified({ page, verified, problems }, finalNav!);
     const until = Date.now() + 25_000;
     let ok = false;
@@ -828,6 +849,11 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
       return finish(r, { status: 'submitted', reason: `Submitted through the ${r.adapter === GENERIC ? 'company' : r.adapter.name} form.`, shotPath: shot, verified: true });
     }
     const errors = await pageErrors(page, r.adapter.ignoreErrors);
+    // The browser's own constraint validation blocks a submit silently: name the invalid controls.
+    for (const fr of page.frames()) {
+      const bad = (await fr.evaluate(`Array.from(document.querySelectorAll('input:invalid, select:invalid, textarea:invalid')).map((e) => e.name || e.id || e.type).slice(0, 5)`).catch(() => [])) as string[];
+      if (bad.length) errors.push(`the browser refused: invalid ${bad.join(', ')}`);
+    }
     return finish(r, { status: 'needs_you', reason: errors.length ? `The form reported: ${errors.slice(0, 3).join(' · ').slice(0, 300)}` : 'Submitted, but no confirmation appeared. Check before applying again.', shotPath: shot, verified: true });
   } catch (err) {
     if ((err as Error).name === 'AbortError' || opts.signal?.aborted) throw err;

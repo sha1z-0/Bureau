@@ -61,7 +61,7 @@ export interface OptionView {
 
 /** Poll for visible options (an open listbox / suggestion menu). */
 export async function waitOptions(frame: Frame, forId: string | null, timeoutMs = 2500): Promise<OptionView[]> {
-  const until = Date.now() + timeoutMs;
+  const until = Date.now() + (fastMode() ? Math.min(timeoutMs, 1200) : timeoutMs);
   let last: OptionView[] = [];
   while (Date.now() < until) {
     last = await inFrame<OptionView[]>(frame, 'options', forId ? { forId } : {}).catch(() => []);

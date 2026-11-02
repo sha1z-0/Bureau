@@ -27,7 +27,7 @@ export const ADAPTERS: Adapter[] = [
   {
     ats: 'greenhouse',
     name: 'Greenhouse (classic boards, job-boards app, iframe embeds)',
-    submit: ['#submit_app', '#application-form button[type=submit]', 'button[type=submit]:has-text("Submit")', 'input[type=submit][value*="Submit" i]'],
+    submit: ['#submit_app', '#application-form button[type=submit]:has-text("Submit")', 'button[type=submit]:has-text("Submit application")', 'input[type=submit][value*="Submit" i]'],
     confirm: { text: THANKS, selectors: ['#application_confirmation', '.application-confirmation', '.confirmation h1'], url: /confirmation|thank|__confirm/i },
     ignore: [/^paste$|enter manually|type your resume|^or$/i],
   },

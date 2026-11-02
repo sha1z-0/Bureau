@@ -36,6 +36,8 @@ export async function fillFile(c: HandlerCtx): Promise<HandlerResult> {
     await c.page.waitForTimeout(150);
     r = await readField(c.frame, c.field, name);
   }
+  // Direct-to-storage uploads finish over the network after the chip shows.
+  await c.page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
   // Uploads that post and then parse ("Uploading...", "Reading your resume..."): wait for them to settle.
   const busy = /\b(uploading|reading your (resume|cv)|analy[sz]ing your|parsing your|please wait)\b/i;
   for (let i = 0; i < 60; i++) {
