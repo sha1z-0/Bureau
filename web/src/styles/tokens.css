@@ -1,0 +1,135 @@
+/*
+  Bureau tokens. See design/DESIGN.md.
+  Cream robe, crimson sash, saddle leather, brass, iron-gall ink.
+*/
+
+:root {
+  --parchment: #f2eadb;
+  --vellum: #e7dcc7;
+  --vellum-deep: #ddd0b7;
+  --linen: #fbf8f1;
+  --ink: #211a15;
+  --ink-2: #5b4d42;
+  --ink-3: #8a7a6b;
+  --sash: #8e1b1b;
+  --sash-deep: #6f1414;
+  --sash-tint: #f1dcd6;
+  --brass: #a8842f;
+  --brass-tint: #efe3c4;
+  --leather: #5c3b26;
+  --leather-soft: #9b7656;
+  --olive: #4f5f33;
+  --olive-tint: #e2e6d2;
+  --steel: #5f666d;
+
+  /* Semantic */
+  --bg: var(--parchment);
+  --rail: var(--vellum);
+  --surface: var(--linen);
+  --well: var(--vellum);
+  --hover: color-mix(in oklab, var(--vellum) 55%, var(--linen));
+  --selected: color-mix(in oklab, var(--sash-tint) 55%, var(--linen));
+  --line: color-mix(in oklab, var(--ink) 10%, transparent);
+  --line-strong: color-mix(in oklab, var(--ink) 20%, transparent);
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --text-3: var(--ink-3);
+  --accent: var(--sash);
+  --accent-strong: var(--sash-deep);
+  --accent-soft: var(--sash-tint);
+  --on-accent: #fbf3ea;
+  --focus: var(--brass);
+  --warn: #8a6a22;
+  --warn-soft: var(--brass-tint);
+  --good: var(--olive);
+  --good-soft: var(--olive-tint);
+  --bad: var(--sash);
+  --bad-soft: var(--sash-tint);
+
+  /* Back-compat aliases used by inline styles */
+  --gold: var(--brass);
+  --gold-soft: var(--brass-tint);
+  --raised: var(--linen);
+  --cream-50: #fffdf8;
+  --cream-100: var(--linen);
+  --cream-300: var(--vellum);
+  --cream-400: var(--vellum-deep);
+  --ink-900: var(--ink);
+  --ink-300: var(--ink-3);
+  --leather-400: var(--leather-soft);
+  --leather-600: var(--leather);
+  --leather-800: #3b281b;
+  --leather-100: #eadccd;
+  --brass-200: var(--brass-tint);
+  --brass-500: var(--brass);
+  --crimson-500: var(--sash);
+  --crimson-700: var(--sash-deep);
+  --olive-500: var(--olive);
+  --steel-500: var(--steel);
+  --steel-600: #4c535a;
+
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --t-xs: 0.8125rem;
+  --t-sm: 0.875rem;
+  --t-md: 1rem;
+  --t-lg: 1.125rem;
+  --t-xl: 1.375rem;
+  --t-2xl: 2.25rem;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+
+  --r-control: 6px;
+  --r-panel: 10px;
+
+  /* Depth only for things that float above the page. */
+  --overlay-shadow: 0 18px 48px -18px color-mix(in oklab, #3b281b 55%, transparent), 0 2px 6px -2px color-mix(in oklab, #3b281b 25%, transparent);
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fast: 160ms;
+  --med: 240ms;
+
+  color-scheme: light;
+}
+
+/* Night in Rome — opt-in. Cream is the house colour, so it stays the default. */
+:root[data-theme='dark'] {
+  --bg: #17120f;
+  --rail: #1f1915;
+  --surface: #241d18;
+  --well: #2c241e;
+  --hover: #2a221c;
+  --selected: color-mix(in oklab, #c4473d 16%, #241d18);
+  --line: color-mix(in oklab, #efe6d6 10%, transparent);
+  --line-strong: color-mix(in oklab, #efe6d6 20%, transparent);
+  --text: #efe6d6;
+  --text-2: #bba98f;
+  --text-3: #85776a;
+  --accent: #c4473d;
+  --accent-strong: #e0675c;
+  --accent-soft: color-mix(in oklab, #c4473d 22%, transparent);
+  --on-accent: #fff7f0;
+  --focus: #cfae5c;
+  --warn: #cfae5c;
+  --warn-soft: color-mix(in oklab, #cfae5c 18%, transparent);
+  --good: #a2b47a;
+  --good-soft: color-mix(in oklab, #a2b47a 18%, transparent);
+  --bad: #e0675c;
+  --bad-soft: color-mix(in oklab, #c4473d 20%, transparent);
+  --gold: #cfae5c;
+  --gold-soft: color-mix(in oklab, #cfae5c 18%, transparent);
+  --raised: #241d18;
+  --vellum: #2c241e;
+  --leather-soft: #a8825f;
+  --overlay-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.75);
+  color-scheme: dark;
+}

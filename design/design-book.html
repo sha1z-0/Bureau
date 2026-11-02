@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Bureau — Application Design Book</title>
+<style>
+  @font-face { font-family: 'Cormorant Garamond'; font-weight: 500; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Cormorant Garamond'; font-weight: 500; font-style: italic; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2') format('woff2'); }
+  @font-face { font-family: 'Cormorant Garamond'; font-weight: 600; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Cormorant Garamond'; font-weight: 700; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-700-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'IBM Plex Sans'; font-weight: 400; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'IBM Plex Sans'; font-weight: 500; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'IBM Plex Sans'; font-weight: 600; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'IBM Plex Mono'; font-weight: 400; src: url('../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); }
+
+  @page { size: 297mm 210mm; margin: 0; }
+  :root {
+    --cream-50: #fffdf8; --cream-100: #faf6ee; --cream-200: #f2eadb; --cream-300: #e8dcc6; --cream-400: #d8c7a8;
+    --ink: #211a15; --ink-700: #4a3e35; --ink-500: #6b5d51; --ink-300: #a39383;
+    --crimson: #8e1b1b; --crimson-700: #5e1111; --crimson-600: #7a1616; --crimson-100: #f3dedb;
+    --leather: #5c3b26; --leather-800: #3b281b; --leather-400: #8a6244; --leather-100: #eadccd;
+    --brass: #a8842f; --brass-600: #8a6a22; --brass-200: #e9ddbc;
+    --steel: #5f666d; --olive: #56653a; --olive-100: #e4e8d6;
+    --display: 'Cormorant Garamond', Georgia, serif; --ui: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ddd; }
+  body { font-family: var(--ui); color: var(--ink); font-size: 10.5pt; line-height: 1.55; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 297mm; height: 210mm; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: var(--cream-200); padding: 18mm 20mm 16mm 26mm; }
+  .page::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5mm; background: linear-gradient(180deg, var(--crimson), var(--crimson-700)); box-shadow: 1.2mm 0 0 var(--brass-200); }
+  .folio { position: absolute; left: 26mm; right: 20mm; bottom: 8mm; display: flex; justify-content: space-between; font-family: var(--ui); font-size: 7.5pt; color: var(--ink-300); }
+  .eyebrow { font-family: var(--ui); font-size: 8.5pt; font-weight: 600; letter-spacing: 0; color: var(--ink-500); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; letter-spacing: -.01em; line-height: 1; }
+  h1 { font-size: 46pt; } h2 { font-size: 30pt; margin-top: 3mm; } h3 { font-size: 15pt; font-weight: 600; margin-bottom: 2mm; }
+  em { color: var(--crimson); }
+  h1 em, h2 em { font-style: italic; }
+  p { margin: 0 0 3mm; max-width: 120mm; }
+  .lead { font-family: var(--display); font-size: 15pt; line-height: 1.35; color: var(--ink-700); max-width: 150mm; }
+  .muted { color: var(--ink-500); }
+  .mono { font-family: var(--mono); }
+  .cols { display: grid; gap: 9mm; }
+  .c2 { grid-template-columns: 1fr 1fr; } .c3 { grid-template-columns: repeat(3, 1fr); } .c4 { grid-template-columns: repeat(4, 1fr); }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: .3mm solid rgba(33,26,21,.14); padding-bottom: 5mm; margin-bottom: 8mm; }
+  .card { background: #fbf8f1; border-radius: 2.6mm; padding: 6mm; }
+  .rule { height: 0; margin: 6mm 0; overflow: hidden; color: transparent; font-size: 0; }
+  ul.dash { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.6mm; }
+  ul.dash li { padding-left: 5mm; position: relative; }
+  ul.dash li::before { content: ''; position: absolute; left: 0; top: .62em; width: 2.6mm; height: .4mm; background: var(--crimson); }
+  ul.dash.olive li::before { background: var(--olive); }
+
+  /* Cover */
+  .cover { background: radial-gradient(130% 120% at 100% 0%, rgba(142,27,27,.14), transparent 55%), var(--cream-200); display: grid; grid-template-columns: 1.3fr 1fr; align-items: end; padding-bottom: 22mm; }
+  .cover::after { content: ''; position: absolute; right: 26mm; top: 0; bottom: 0; width: 16mm; background: linear-gradient(180deg, var(--crimson), var(--crimson-700)); box-shadow: -1.4mm 0 0 var(--brass-200), 1.4mm 0 0 var(--brass-200); }
+  .cover h1 { font-size: 96pt; line-height: .85; letter-spacing: -.02em; }
+  .cover .sub { font-family: var(--display); font-style: italic; font-size: 24pt; color: var(--crimson); margin-top: 4mm; }
+
+  /* Swatches */
+  .sw { border-radius: 3mm; overflow: hidden; border: .25mm solid rgba(33,26,21,.12); background: var(--cream-50); }
+  .sw .chip { height: 30mm; position: relative; }
+  .sw .meta { padding: 3mm 4mm; font-size: 8.5pt; }
+  .sw .meta b { font-family: var(--display); font-size: 13pt; font-weight: 600; display: block; }
+  .sw .meta span { font-family: var(--mono); font-size: 7.5pt; color: var(--ink-500); display: block; }
+  .ramp { display: flex; height: 9mm; border-radius: 2mm; overflow: hidden; margin-top: 2mm; }
+  .ramp i { flex: 1; }
+
+  /* Seals */
+  .seal { --s: 15mm; width: var(--s); height: var(--s); border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: calc(var(--s) * .5); color: var(--cream-50);
+    background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--c) 70%, white), var(--c) 45%, color-mix(in oklab, var(--c) 72%, black)); box-shadow: inset 0 0 0 .7mm color-mix(in oklab, var(--c) 80%, black), inset 0 0 0 1.3mm color-mix(in oklab, var(--c) 85%, white), 0 .7mm 1.4mm rgba(59,40,27,.3); }
+  .btn { display: inline-flex; align-items: center; gap: 2mm; height: 9mm; padding: 0 4.5mm; border-radius: 1.6mm; font-weight: 500; font-size: 9pt; border: 0; background: #e7dcc7; }
+  .btn.primary { background: var(--crimson); color: var(--cream-50); border-color: var(--crimson); }
+  .btn.leather { background: var(--leather); color: var(--cream-50); border-color: var(--leather-800); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .tag { display: inline-flex; align-items: center; height: 5.5mm; padding: 0 2.4mm; border-radius: 99px; font-size: 7.5pt; font-weight: 500; border: .25mm solid rgba(33,26,21,.12); background: var(--cream-50); color: var(--ink-500); margin: 0 1mm 1mm 0; }
+  .tag.crimson { background: var(--crimson-100); color: var(--crimson); border-color: transparent; }
+  .tag.brass { background: var(--brass-200); color: var(--brass-600); border-color: transparent; }
+  .tag.olive { background: var(--olive-100); color: var(--olive); border-color: transparent; }
+  .tag.steel { background: #e3e4e3; color: #4c535a; border-color: transparent; }
+  .chip-p { display: inline-flex; height: 8mm; padding: 0 3.5mm; align-items: center; border-radius: 99px; background: #e7dcc7; font-size: 8.5pt; color: var(--ink-500); margin-right: 1.5mm; }
+  .chip-p.on { background: var(--ink); color: var(--cream-200); border-color: var(--ink); }
+  .input { height: 9.5mm; border-radius: 2mm; border: .25mm solid rgba(33,26,21,.22); background: var(--cream-50); padding: 0 3mm; display: flex; align-items: center; font-size: 9pt; color: var(--ink-300); }
+  .input.focus { border-color: var(--brass); box-shadow: 0 0 0 .8mm var(--brass-200); color: var(--ink); }
+  .callout { display: flex; gap: 3mm; padding: 3mm 4mm; border-radius: 2mm; background: var(--brass-200); font-size: 9pt; }
+  .callout.crimson { background: var(--crimson-100); } .callout.olive { background: var(--olive-100); }
+
+  .shot { width: 100%; border-radius: 3mm; border: .25mm solid rgba(33,26,21,.14); box-shadow: 0 6mm 14mm -7mm rgba(59,40,27,.45); display: block; }
+  .shot-full { position: absolute; right: 16mm; top: 30mm; width: 186mm; }
+  .caption { font-family: var(--display); font-style: italic; font-size: 12pt; color: var(--ink-700); }
+
+  table.spec { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  table.spec td, table.spec th { text-align: left; padding: 2.2mm 2mm; border-bottom: .25mm solid rgba(33,26,21,.1); vertical-align: top; }
+  table.spec th { font-family: var(--mono); font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-500); font-weight: 400; }
+
+  .flow { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2.5mm; margin: 6mm 0; }
+  .step { background: var(--cream-50); border: .25mm solid rgba(33,26,21,.14); border-radius: 2.5mm; padding: 3.5mm 3mm; position: relative; min-height: 38mm; }
+  .step .n { font-family: var(--display); font-style: italic; color: var(--crimson); font-size: 15pt; }
+  .step b { display: block; font-family: var(--display); font-size: 13pt; font-weight: 600; margin: 1mm 0; line-height: 1.05; }
+  .step small { font-size: 7.5pt; color: var(--ink-500); line-height: 1.4; display: block; }
+  .step.ai { border-color: var(--crimson); box-shadow: inset 0 0 0 .3mm var(--crimson); }
+  .step.human { background: var(--leather); color: var(--cream-50); border-color: var(--leather-800); }
+  .step.human small { color: var(--leather-100); } .step.human .n { color: var(--brass-200); }
+  .formula { font-family: var(--mono); font-size: 9pt; background: var(--leather-800); color: var(--leather-100); padding: 5mm 6mm; border-radius: 2.5mm; line-height: 1.8; white-space: pre; }
+  .formula b { color: #f0c98a; font-weight: 400; }
+  .layer { display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; padding: 3mm 0; border-bottom: .25mm solid rgba(33,26,21,.1); }
+  .layer .ix { font-family: var(--display); font-style: italic; font-size: 16pt; color: var(--crimson); line-height: 1; }
+  .layer b { font-weight: 600; }
+  .layer span { display: block; font-size: 8.8pt; color: var(--ink-500); }
+</style>
+</head>
+<body>
+
+<!-- I. COVER -->
+<section class="page cover">
+  <div>
+    <svg width="64" height="64" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/><rect x="29" y="51" width="6" height="5" fill="#a8842f"/></svg>
+    <div class="eyebrow" style="margin-top:10mm">Application design book · Version 1.0 · October 2026</div>
+    <h1 style="margin-top:4mm">Bureau</h1>
+    <div class="sub">The job hunt atelier</div>
+    <p class="lead" style="margin-top:9mm">A local-first, Claude-powered workshop that scouts the best tech roles on the open web, weighs each one against who you really are, and writes every application by hand, in your voice, from your facts.</p>
+  </div>
+  <div></div>
+  <div class="folio"><span>Bureau</span><span>Cream &amp; Crimson</span><span>I</span></div>
+</section>
+
+<!-- II. CONTENTS -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">Contents</div><h2>What lies <em>within</em></h2></div></div>
+  <div class="cols c2">
+    <table class="spec">
+      <tr><td class="mono">III</td><td>The concept</td><td class="muted">An assassin's bureau for a job hunt</td></tr>
+      <tr><td class="mono">IV</td><td>The insignia</td><td class="muted">Construction, clear space, misuse</td></tr>
+      <tr><td class="mono">V</td><td>Colour</td><td class="muted">Robe, sash, leather, brass, steel</td></tr>
+      <tr><td class="mono">VI</td><td>Colour in use</td><td class="muted">Proportion, meaning, Night in Rome</td></tr>
+      <tr><td class="mono">VII</td><td>Typography</td><td class="muted">Cormorant, Plex Sans, Plex Mono</td></tr>
+      <tr><td class="mono">VIII</td><td>Voice</td><td class="muted">How Bureau speaks</td></tr>
+      <tr><td class="mono">IX</td><td>Signature components</td><td class="muted">Seals, the dial, buttons</td></tr>
+      <tr><td class="mono">X</td><td>Everyday components</td><td class="muted">Tags, chips, fields, callouts</td></tr>
+    </table>
+    <table class="spec">
+      <tr><td class="mono">XI</td><td>Layout &amp; rhythm</td><td class="muted">Grid, spacing, radius, elevation</td></tr>
+      <tr><td class="mono">XII–XVI</td><td>The screens</td><td class="muted">Overview to Settings</td></tr>
+      <tr><td class="mono">XVII</td><td>The hunt</td><td class="muted">The autonomous loop, its limits and its cost</td></tr>
+      <tr><td class="mono">XVIII</td><td>The engine</td><td class="muted">Every step, and how the score is made</td></tr>
+      <tr><td class="mono">XIX</td><td>Security architecture</td><td class="muted">Built to leave localhost safely</td></tr>
+      <tr><td class="mono">XX</td><td>Craft &amp; access</td><td class="muted">Motion, accessibility, colophon</td></tr>
+    </table>
+  </div>
+  <div class="rule">◆</div>
+  <p class="lead">Bureau is a working tool before it is a costume. The Renaissance kit gives it a memorable character, but every flourish has a job: a seal is a grade, a sash marks where you are, brass marks what is precious. When style and clarity disagree, clarity wins.</p>
+  <div class="folio"><span>Bureau</span><span>Contents</span><span>II</span></div>
+</section>
+
+<!-- III. CONCEPT -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">III · The concept</div><h2>An assassin's <em>bureau</em>, for a job hunt</h2></div></div>
+  <div class="cols c2">
+    <div>
+      <p class="lead">In Renaissance Rome, a master assassin ran a hidden bureau: scouts went out across the city, contracts came in, each one was studied, prepared for, and struck with precision, often without the master lifting a finger. Bureau runs your job hunt the same way.</p>
+      <p>The visual language is drawn from that era's most recognisable kit: the master's cream hooded robe, the crimson sash and cape lining, the oiled leather of bracers and belts, the brass of buckles and insignia, the steel of a concealed blade, and the parchment pages of a polymath inventor's codex. Bureau's insignia, palette and type are our own; nothing is borrowed from any game's trademarks.</p>
+    </div>
+    <table class="spec">
+      <tr><th>In the bureau</th><th>In the app</th><th>Why the metaphor holds</th></tr>
+      <tr><td>The hunt</td><td>Autonomous loop</td><td>One switch: it scouts, weighs, tailors and applies on a timer</td></tr>
+      <tr><td>Scouts</td><td>Sources</td><td>16 connectors and a Claude deep scan that go out and report back</td></tr>
+      <tr><td>Contracts</td><td>Jobs</td><td>Every role is weighed before you commit time to it</td></tr>
+      <tr><td>Synchronisation</td><td>Fit score</td><td>How closely a role syncs with your real CV, 0–100</td></tr>
+      <tr><td>Wax seal</td><td>Grade</td><td>S · A · B · C · D, pressed only after Claude's assessment</td></tr>
+      <tr><td>Atelier</td><td>Studio</td><td>Where letters and tailored CVs are drafted</td></tr>
+      <tr><td>Codex</td><td>Profile</td><td>Your CV as the single source of truth</td></tr>
+      <tr><td>Dispatch</td><td>Outbox</td><td>What the hunt sent, and the few it hands back to you</td></tr>
+      <tr><td>Ledger</td><td>Pipeline</td><td>Every move recorded, from found to offer</td></tr>
+      <tr><td>Armory</td><td>Settings</td><td>Keys, engines and safeguards</td></tr>
+    </table>
+  </div>
+  <div class="folio"><span>Bureau</span><span>The concept</span><span>III</span></div>
+</section>
+
+<!-- IV. INSIGNIA -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">IV · The insignia</div><h2>A hood, a blade, a <em>strap</em></h2></div></div>
+  <div class="cols" style="grid-template-columns: 1.1fr 1fr 1fr; align-items:start">
+    <div class="card" style="display:grid;place-items:center;height:110mm;background:var(--cream-50);position:relative">
+      <svg width="250" height="250" viewBox="0 0 64 64">
+        <g stroke="#a8842f" stroke-width=".15" stroke-dasharray=".6 .6" fill="none"><rect x="12" y="6" width="40" height="50"/><line x1="32" y1="0" x2="32" y2="64"/><line x1="0" y1="47" x2="64" y2="47"/><circle cx="32" cy="34" r="13"/></g>
+        <path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/><rect x="29" y="51" width="6" height="5" fill="#a8842f"/>
+      </svg>
+      <div class="eyebrow" style="position:absolute;bottom:5mm">Construction on a 64-unit grid</div>
+    </div>
+    <div>
+      <h3>Anatomy</h3>
+      <ul class="dash">
+        <li><b>The hood</b>: a crimson arch, the shape of a raised cowl. Its right flank is shadowed to give it depth without gradients.</li>
+        <li><b>The blade</b>: a brass wedge rising inside the arch. The concealed tool, the precise strike.</li>
+        <li><b>The strap</b>: an ink bar with a brass buckle. The leather that holds the kit together, and a baseline for the mark.</li>
+      </ul>
+      <div class="rule">◆</div>
+      <h3>Clear space &amp; size</h3>
+      <p>Keep clear space equal to the strap height (5 units) on every side. Minimum size: 16 px on screen, 6 mm in print. Below 24 px, drop the hood's shadow facet.</p>
+    </div>
+    <div>
+      <h3>On every ground</h3>
+      <div class="cols c3" style="gap:3mm">
+        <div class="card" style="padding:4mm;display:grid;place-items:center"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/></svg></div>
+        <div class="card" style="padding:4mm;display:grid;place-items:center;background:#15110e"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#c4473d"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#cfae5c"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#efe6d6"/></svg></div>
+        <div class="card" style="padding:4mm;display:grid;place-items:center;background:#8e1b1b"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#fffdf8"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#e9ddbc"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#fffdf8"/></svg></div>
+      </div>
+      <div class="rule">◆</div>
+      <h3>Never</h3>
+      <ul class="dash">
+        <li>Recolour the hood anything but crimson, cream or ink.</li>
+        <li>Rotate, outline, or add a drop shadow or glow.</li>
+        <li>Place it on photographs or busy textures.</li>
+        <li>Pair it with any game's real emblem.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>The insignia</span><span>IV</span></div>
+</section>
+
+<!-- V. COLOUR -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">V · Colour</div><h2>Robe, sash, leather, <em>brass</em>, steel</h2></div><p class="muted" style="max-width:95mm;margin:0">Six families, each lifted from one piece of the kit. Cream is the house colour and always the default theme.</p></div>
+  <div class="cols" style="grid-template-columns: repeat(6, 1fr); gap: 4mm">
+    <div class="sw"><div class="chip" style="background:#f2eadb"></div><div class="meta"><b>Parchment</b><span>#F2EADB · the page</span><span>Robe &amp; codex</span></div></div>
+    <div class="sw"><div class="chip" style="background:#211a15"></div><div class="meta"><b>Iron-gall ink</b><span>#211A15 · text</span><span>The codex hand</span></div></div>
+    <div class="sw"><div class="chip" style="background:linear-gradient(180deg,#8e1b1b,#5e1111)"></div><div class="meta"><b>Sash crimson</b><span>#8E1B1B · accent</span><span>Sash &amp; cape lining</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5c3b26"></div><div class="meta"><b>Saddle leather</b><span>#5C3B26 · structure</span><span>Bracers &amp; belts</span></div></div>
+    <div class="sw"><div class="chip" style="background:#a8842f"></div><div class="meta"><b>Brass</b><span>#A8842F · focus, ornament</span><span>Buckles &amp; insignia</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5f666d"></div><div class="meta"><b>Blade steel</b><span>#5F666D · neutral data</span><span>The concealed blade</span></div></div>
+  </div>
+  <div class="cols c3" style="margin-top:8mm;gap:6mm">
+    <div><div class="eyebrow">Parchment ramp · 50 → 400</div><div class="ramp"><i style="background:#fffdf8"></i><i style="background:#faf6ee"></i><i style="background:#f2eadb"></i><i style="background:#e8dcc6"></i><i style="background:#d8c7a8"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Hood white for raised surfaces, linen for cards, parchment for the page, vellum for wells, folded edge for strong borders.</p></div>
+    <div><div class="eyebrow">Crimson · leather · brass</div><div class="ramp"><i style="background:#f3dedb"></i><i style="background:#8e1b1b"></i><i style="background:#5e1111"></i><i style="background:#eadccd"></i><i style="background:#8a6244"></i><i style="background:#3b281b"></i><i style="background:#e9ddbc"></i><i style="background:#8a6a22"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Each accent has a soft tint for backgrounds and a deep tone for pressed states and text on tints.</p></div>
+    <div><div class="eyebrow">Olive · the only green</div><div class="ramp"><i style="background:#e4e8d6"></i><i style="background:#56653a"></i><i style="background:#4a5832"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">An Italian olive rather than a digital green, kept for "met", "sent" and "verified". It never competes with crimson.</p></div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Colour</span><span>V</span></div>
+</section>
+
+<!-- VI. COLOUR IN USE -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">VI · Colour in use</div><h2>Mostly robe, <em>a little</em> blood</h2></div></div>
+  <div class="eyebrow">Proportion</div>
+  <div class="ramp" style="height:16mm;border-radius:3mm"><i style="flex:60;background:#f2eadb;border:.25mm solid rgba(0,0,0,.08)"></i><i style="flex:22;background:#211a15"></i><i style="flex:10;background:#5c3b26"></i><i style="flex:3;background:#a8842f"></i><i style="flex:5;background:#8e1b1b"></i></div>
+  <div class="mono muted" style="display:flex;font-size:7.5pt;margin-top:1.5mm"><span style="flex:60">60 · parchment &amp; linen</span><span style="flex:22">22 · ink</span><span style="flex:10">10 · leather</span><span style="flex:3">3</span><span style="flex:5">5 · crimson</span></div>
+  <div class="cols c2" style="margin-top:9mm">
+    <div>
+      <h3>What each colour means</h3>
+      <table class="spec">
+        <tr><td><span class="tag crimson">crimson</span></td><td>The one thing to do next (primary button), where you are (the sash), grades A and S, critical requirements, failure.</td></tr>
+        <tr><td><span class="tag brass">brass</span></td><td>Focus rings, ornaments, important-but-not-critical, grade B. Never used for body text.</td></tr>
+        <tr><td><span class="tag" style="background:#eadccd;color:#5c3b26;border-color:transparent">leather</span></td><td>Structure and quantity: progress bars, the pre-filter, the scan console.</td></tr>
+        <tr><td><span class="tag olive">olive</span></td><td>Verified facts, met requirements, sent applications.</td></tr>
+        <tr><td><span class="tag steel">steel</span></td><td>Neutral metadata: sources, counts, unscored states.</td></tr>
+      </table>
+      <p class="muted" style="margin-top:4mm;font-size:8.5pt">Colour never carries meaning alone. Every state also has a word, a mark (✓ ~ ✕) or a position.</p>
+    </div>
+    <div class="card" style="background:#15110e;color:#efe6d6;border-color:#2e2721">
+      <div class="eyebrow" style="color:#b3a593">Night in Rome · opt-in dark theme</div>
+      <h3 style="font-size:22pt;margin-top:2mm;color:#efe6d6">The same kit, <span style="color:#e0675c;font-style:italic">by lamplight</span></h3>
+      <div class="ramp" style="height:12mm;margin-top:4mm"><i style="background:#15110e;border:.25mm solid #2e2721"></i><i style="background:#1d1814"></i><i style="background:#26201b"></i><i style="background:#2e2721"></i><i style="background:#efe6d6"></i><i style="background:#c4473d"></i><i style="background:#cfae5c"></i><i style="background:#9cae72"></i></div>
+      <p style="color:#b3a593;font-size:8.8pt;margin-top:4mm">Surfaces are warm umber, never grey or blue-black. Crimson lifts to #C4473D and brass to #CFAE5C so both keep their contrast. Cream stays the default; night is one click away in the sidebar.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Colour in use</span><span>VI</span></div>
+</section>
+
+<!-- VII. TYPE -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">VII · Typography</div><h2>A scholar's hand, an <em>engineer's</em> tools</h2></div></div>
+  <div class="cols" style="grid-template-columns: 1.4fr 1fr 1fr">
+    <div>
+      <div class="eyebrow">Display · Cormorant Garamond 500 / 600 / italic</div>
+      <div style="font-family:var(--display);font-size:64pt;line-height:.9;margin-top:3mm">Every role,<br><em style="font-style:italic">weighed.</em></div>
+      <p class="muted" style="margin-top:5mm">A Garamond revival with high contrast and generous italics: the voice of a Renaissance codex. It's used for page titles, verdicts, letters, numerals and seals, never for dense UI.</p>
+    </div>
+    <div>
+      <div class="eyebrow">Interface · IBM Plex Sans 400 / 500 / 600</div>
+      <div style="font-size:22pt;font-weight:500;margin-top:3mm;line-height:1.15">Senior Security Engineer, Offensive Security</div>
+      <p class="muted" style="margin-top:4mm">Plex Sans' slightly mechanical shapes sit well beside Cormorant and stay legible at 13 px in dense lists.</p>
+      <div class="eyebrow" style="margin-top:6mm">Numbers: IBM Plex Sans, tabular</div>
+      <div style="font-size:16pt;font-weight:600;margin-top:2mm">79 &nbsp; USD 180k–240k</div>
+      <p class="muted" style="margin-top:3mm">IBM Plex Mono appears only in the raw scan log.</p>
+    </div>
+    <div>
+      <div class="eyebrow">Scale (rem)</div>
+      <table class="spec">
+        <tr><td style="font-family:var(--display);font-size:24pt">Aa</td><td>Hero · 4.0 · display</td></tr>
+        <tr><td style="font-family:var(--display);font-size:20pt">Aa</td><td>Page title · 2.625</td></tr>
+        <tr><td style="font-family:var(--display);font-size:15pt">Aa</td><td>Section · 1.375</td></tr>
+        <tr><td style="font-size:12pt;font-weight:600">Aa</td><td>Row title · 0.9375 / 600</td></tr>
+        <tr><td style="font-size:10pt">Aa</td><td>Body · 0.9375 / 400</td></tr>
+        <tr><td style="font-size:8.5pt">Aa</td><td>Meta · 0.8125</td></tr>
+        <tr><td style="font-size:8pt;font-weight:600">Aa</td><td>Label: 0.8125, sentence case, never tracked capitals</td></tr>
+      </table>
+      <p class="muted" style="font-size:8.5pt;margin-top:3mm">All fonts are bundled locally (SIL Open Font License). Bureau makes no font requests over the network.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Typography</span><span>VII</span></div>
+</section>
+
+<!-- VIII. VOICE -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">VIII · Voice</div><h2>Speaks like a <em>mentor</em>, not a mascot</h2></div></div>
+  <div class="cols c3">
+    <div class="card"><h3>Plain first</h3><p>Navigation and buttons use ordinary words: Jobs, Studio, Dispatch, "Draft application". The Renaissance flavour lives in eyebrows, headlines and empty states, never in a control you need to understand.</p></div>
+    <div class="card"><h3>Honest always</h3><p>Bureau never inflates. Scores come with their working. A missing must-have is shown as missing. The fact lock calls out invented claims, even in our own drafts.</p></div>
+    <div class="card"><h3>Brief and warm</h3><p>Short sentences, active voice, no exclamation marks, no hype. A good line reads like a trusted colleague: "4 strong matches await your eye."</p></div>
+  </div>
+  <div class="cols c2" style="margin-top:8mm">
+    <table class="spec">
+      <tr><th>Write</th><th>Not</th></tr>
+      <tr><td>The scouts are out. Results will appear as they come in.</td><td class="muted">🚀 Scanning started!!</td></tr>
+      <tr><td>Claude declined this request (cyber).</td><td class="muted">Oops! Something went wrong.</td></tr>
+      <tr><td>The fact lock found 2 claims your CV doesn't support.</td><td class="muted">Your letter is ready to wow recruiters!</td></tr>
+      <tr><td>Nothing here yet. Loosen the filters, or run a scan.</td><td class="muted">No data.</td></tr>
+    </table>
+    <div>
+      <h3>Applications sound like you</h3>
+      <p>Claude reads your CV once and writes down how you write. Every letter follows that voice plus your tone setting. The house bans: "passionate", "fast-paced", "team player", "leverage", "synergy", "I am writing to apply", flattery, and em-dash flourishes.</p>
+      <div class="callout olive" style="margin-top:4mm">✓&nbsp; Every number and employer in a draft must appear in your CV, or the fact lock flags it.</div>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Voice</span><span>VIII</span></div>
+</section>
+
+<!-- IX. SIGNATURE COMPONENTS -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">IX · Signature components</div><h2>The seal, the score, the <em>sash</em></h2></div></div>
+  <div class="cols c3">
+    <div class="card">
+      <h3>Wax seal · grade</h3>
+      <div style="display:flex;gap:4mm;margin:4mm 0 5mm">
+        <div class="seal" style="--c:#7a1616">S</div><div class="seal" style="--c:#8e1b1b">A</div><div class="seal" style="--c:#8a6a22">B</div><div class="seal" style="--c:#5c3b26">C</div><div class="seal" style="--c:#5f666d">D</div><div class="seal" style="--c:#b8a990;font-size:6mm">·</div>
+      </div>
+      <table class="spec"><tr><td>S ≥ 88</td><td>A ≥ 78</td><td>B ≥ 65</td><td>C ≥ 50</td><td>D &lt; 50</td></tr></table>
+      <table class="spec" style="margin-top:2mm"><tr><td colspan="2">Apply</td><td>Consider</td><td>Research</td><td>Skip</td></tr></table>
+      <p class="muted" style="font-size:8.5pt;margin-top:3mm">Each grade maps to a decision band. Pressed only after Claude's assessment. Unscored roles carry a blank pale seal. Sizes: 30, 40 and 64 px.</p>
+    </div>
+    <div class="card">
+      <h3>Score mark</h3>
+      <div style="display:flex;align-items:center;gap:4mm;margin:6mm 0 5mm">
+        <div class="seal" style="--c:#8e1b1b;--s:17mm">A</div>
+        <div><div style="font-size:24pt;font-weight:600;line-height:1">79<span style="font-size:10pt;color:var(--ink-300);font-weight:500"> / 100</span></div><div class="muted" style="font-size:9pt">Apply</div></div>
+      </div>
+      <p class="muted" style="font-size:8.5pt">The seal and a plain number, with the decision in words. It replaced a progress ring that only decorated the score.</p>
+      <div class="rule"></div>
+      <h3>Numbers</h3>
+      <p class="muted" style="font-size:8.5pt">Every figure is set in IBM Plex Sans with tabular numerals. The serif never labels or measures.</p>
+    </div>
+    <div class="card">
+      <h3>Buttons</h3>
+      <div style="display:grid;gap:3mm;margin-top:3mm">
+        <div><span class="btn primary">Draft application</span> <span class="muted" style="font-size:8pt">&nbsp;Primary · one per view</span></div>
+        <div><span class="btn">Assess with Claude</span> <span class="muted" style="font-size:8pt">&nbsp;Secondary</span></div>
+        <div><span class="btn leather">Export</span> <span class="muted" style="font-size:8pt">&nbsp;Leather · rare, heavy actions</span></div>
+        <div><span class="btn ghost">Dismiss</span> <span class="muted" style="font-size:8pt">&nbsp;Ghost · tertiary</span></div>
+      </div>
+      <div class="rule">◆</div>
+      <h3>The sash</h3>
+      <p class="muted" style="font-size:8.5pt">When the hunt is on, a band of crimson draws across the top of the Overview, the robe's sash made into a status. It's the one bold element; nothing else uses that colour at that scale.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Signature components</span><span>IX</span></div>
+</section>
+
+<!-- X. EVERYDAY COMPONENTS -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">X · Everyday components</div><h2>The <em>workbench</em></h2></div></div>
+  <div class="cols c3">
+    <div class="card">
+      <h3>Tags</h3>
+      <div><span class="tag">Security</span><span class="tag steel">via Greenhouse</span><span class="tag crimson">apply</span><span class="tag brass">consider</span><span class="tag olive">email apply</span><span class="tag crimson">critical</span><span class="tag brass">important</span><span class="tag">nice</span></div>
+      <div class="rule">◆</div>
+      <h3>Filter chips</h3>
+      <div><span class="chip-p on">All</span><span class="chip-p">Security</span><span class="chip-p">Game dev</span></div>
+      <p class="muted" style="font-size:8.5pt;margin-top:3mm">Selected chips invert to ink, so they read as pressed without relying on colour.</p>
+    </div>
+    <div class="card">
+      <h3>Fields</h3>
+      <div class="eyebrow" style="margin-bottom:1.5mm">Rest</div><div class="input">Search title, company, stack…</div>
+      <div class="eyebrow" style="margin:3mm 0 1.5mm">Focus · brass ring</div><div class="input focus">Penetration Tester</div>
+      <div class="eyebrow" style="margin:3mm 0 1.5mm">Letter · Cormorant 18px on hood white</div>
+      <div class="input" style="height:auto;padding:3mm;font-family:var(--display);font-size:12pt;color:var(--ink);line-height:1.4">I ran 40 pentests across 12 web apps at Acme…</div>
+    </div>
+    <div class="card">
+      <h3>Callouts</h3>
+      <div style="display:grid;gap:2.5mm">
+        <div class="callout">✦&nbsp; Not yet assessed. Claude will read the posting and weigh it against your CV.</div>
+        <div class="callout crimson">⚑&nbsp; Red flags: unpaid trial task; personal Gmail, no company.</div>
+        <div class="callout olive">✓&nbsp; Facts verified. Every claim traces to your CV.</div>
+      </div>
+      <div class="rule">◆</div>
+      <h3>Requirement marks</h3>
+      <div style="display:flex;gap:3mm;align-items:center;font-size:9pt"><span class="tag olive">✓ met</span><span class="tag brass">~ partial</span><span class="tag crimson">✕ missing</span></div>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Everyday components</span><span>X</span></div>
+</section>
+
+<!-- XI. LAYOUT -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">XI · Layout &amp; rhythm</div><h2>Ruled like a <em>codex</em> page</h2></div></div>
+  <div class="cols c2">
+    <div>
+      <div class="card" style="height:84mm;padding:0;display:grid;grid-template-columns:28mm 1fr;overflow:hidden">
+        <div style="background:var(--cream-100);border-right:.6mm solid var(--crimson);padding:4mm"><div style="height:4mm;width:16mm;background:var(--crimson);border-radius:1mm"></div><div style="margin-top:6mm;display:grid;gap:2mm"><i style="height:3mm;background:var(--cream-300);border-radius:1mm;display:block"></i><i style="height:3mm;background:var(--cream-300);border-radius:1mm;display:block"></i><i style="height:3mm;background:var(--cream-300);border-radius:1mm;display:block"></i></div></div>
+        <div style="padding:5mm;display:grid;grid-template-rows:auto auto 1fr;gap:3mm"><div style="height:8mm;width:60%;background:var(--cream-400);border-radius:1mm"></div><div style="height:12mm;background:var(--cream-100);border:.25mm solid rgba(0,0,0,.08);border-radius:2mm"></div><div style="display:grid;grid-template-columns:1.55fr 1fr;gap:3mm"><div style="background:var(--cream-100);border:.25mm solid rgba(0,0,0,.08);border-radius:2mm"></div><div style="background:var(--cream-100);border:.25mm solid rgba(0,0,0,.08);border-radius:2mm"></div></div></div>
+      </div>
+      <p class="muted" style="font-size:8.5pt;margin-top:3mm">Sidebar 248 px · fluid main column with 24–48 px gutters · content splits 1.55 : 1 (primary : context). Below 1180 px, splits stack; below 820 px, the sidebar becomes a top bar.</p>
+    </div>
+    <div>
+      <table class="spec">
+        <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+        <tr><td class="mono">space</td><td>4 · 8 · 12 · 16 · 24 · 32 · 48 · 64</td><td>A strict 4-point scale</td></tr>
+        <tr><td class="mono">radius</td><td>4 · 8 · 14 · pill</td><td>Inputs · buttons · cards · tags</td></tr>
+        <tr><td class="mono">line</td><td>ink at 12% / 22%</td><td>Hairlines · strong borders</td></tr>
+        <tr><td class="mono">surfaces</td><td>parchment, vellum, linen</td><td>Separated by tone, not outlines or shadows</td></tr>
+        <tr><td class="mono">selection</td><td>a darker tone of the row</td><td>Never a coloured side border or glow</td></tr>
+        <tr><td class="mono">depth</td><td>leather 55%, y 18, blur 48</td><td>Only things that float: dialogs, toasts</td></tr>
+        <tr><td class="mono">motion</td><td>160–240 ms, ease-out</td><td>State changes only; one authored moment</td></tr>
+        <tr><td class="mono">ornament</td><td>none</td><td>Removing decoration leaves space; it isn't refilled</td></tr>
+      </table>
+      <p class="muted" style="font-size:8.5pt;margin-top:3mm">The one shadow is tinted leather, never neutral grey, so even depth stays warm.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Layout &amp; rhythm</span><span>XI</span></div>
+</section>
+
+<!-- XII. OVERVIEW -->
+<section class="page">
+  <div style="max-width:62mm">
+    <div class="eyebrow">XII · Screens</div><h2>Overview</h2>
+    <p class="caption" style="margin-top:5mm">The control room: the hunt as a crimson sash, then a one-line summary, the best matches waiting, and where everything stands.</p>
+    <ul class="dash" style="font-size:9pt;margin-top:5mm">
+      <li>The hunt band: status in one sentence, the switch, today's counts</li>
+      <li>What still needs setting up appears inside the band</li>
+      <li>A summary line instead of a wall of big numbers</li>
+      <li>Best matches ranked by seal and score, with Claude's verdict</li>
+      <li>Pipeline bars, disciplines, recent activity</li>
+    </ul>
+  </div>
+  <img class="shot shot-full" src="shots/overview.png" alt="Overview screen" />
+  <div class="folio"><span>Bureau</span><span>Screens · Overview</span><span>XII</span></div>
+</section>
+
+<!-- XIII. JOBS -->
+<section class="page">
+  <div style="max-width:62mm">
+    <div class="eyebrow">XIII · Screens</div><h2>Jobs</h2>
+    <p class="caption" style="margin-top:5mm">A ranked list on the left; on the right, Claude's full working for the selected role.</p>
+    <ul class="dash" style="font-size:9pt;margin-top:5mm">
+      <li>Search, sort, minimum score, discipline chips, remote filter</li>
+      <li>Batch-select to assess many roles at once</li>
+      <li>Claude's verdict set in the serif, as the one line to read first</li>
+      <li>Each requirement checked against your CV: met, partly met or missing, with proof</li>
+      <li>The score's working shown: weights, legitimacy, confidence</li>
+      <li>The posting itself, sanitised twice</li>
+    </ul>
+  </div>
+  <img class="shot shot-full" src="shots/jobs.png" alt="Jobs screen" />
+  <div class="folio"><span>Bureau</span><span>Screens · Jobs</span><span>XIII</span></div>
+</section>
+
+<!-- XIV. STUDIO + DISPATCH -->
+<section class="page">
+  <div class="head" style="margin-bottom:6mm"><div><div class="eyebrow">XIV · Screens</div><h2>Studio &amp; <em>Dispatch</em></h2></div><p class="muted" style="max-width:120mm;margin:0">The Studio drafts a cover letter, an outreach message and a tailored ATS-safe CV for one role, then runs the fact lock. Dispatch is the hunt's outbox: everything it applied to, plus "Needs you", the forms it filled but couldn't finish honestly, one click from done.</p></div>
+  <div class="cols c2" style="gap:7mm">
+    <img class="shot" src="shots/studio.png" alt="Studio screen" />
+    <img class="shot" src="shots/dispatch.png" alt="Dispatch screen" />
+  </div>
+  <div class="folio"><span>Bureau</span><span>Screens · Studio &amp; Dispatch</span><span>XIV</span></div>
+</section>
+
+<!-- XV. PIPELINE + PROFILE -->
+<section class="page">
+  <div class="head" style="margin-bottom:6mm"><div><div class="eyebrow">XV · Screens</div><h2>Pipeline &amp; <em>Codex</em></h2></div><p class="muted" style="max-width:120mm;margin:0">A drag-and-drop ledger from shortlist to offer, and the Codex: your CV read into a structured profile, your hunt preferences, your voice and your portfolio evidence.</p></div>
+  <div class="cols c2" style="gap:7mm">
+    <img class="shot" src="shots/pipeline.png" alt="Pipeline screen" />
+    <img class="shot" src="shots/profile.png" alt="Profile screen" />
+  </div>
+  <div class="folio"><span>Bureau</span><span>Screens · Pipeline &amp; Profile</span><span>XV</span></div>
+</section>
+
+<!-- XVI. SOURCES + SETTINGS -->
+<section class="page">
+  <div class="head" style="margin-bottom:6mm"><div><div class="eyebrow">XVI · Screens</div><h2>Scouts &amp; <em>Armory</em></h2></div><p class="muted" style="max-width:120mm;margin:0">Sixteen connectors, curated company boards, cadence and the Claude deep scan, beside the Armory: keys, a model per task, budget, autopilot, email and security.</p></div>
+  <div class="cols c2" style="gap:7mm">
+    <img class="shot" src="shots/sources.png" alt="Sources screen" />
+    <img class="shot" src="shots/settings.png" alt="Settings screen" />
+  </div>
+  <div class="folio"><span>Bureau</span><span>Screens · Sources &amp; Settings</span><span>XVI</span></div>
+</section>
+
+<!-- XVII. THE HUNT -->
+<section class="page">
+  <div class="head" style="margin-bottom:6mm"><div><div class="eyebrow">XVII · The hunt</div><h2>It hunts <em>while you live</em></h2></div><p class="muted" style="max-width:118mm;margin:0">One switch on the Overview. While Bureau runs (it can start with Windows), each round it scouts, has Claude weigh what's new, tailors a CV and letter for every role above your bar, and applies by email or through the company's own form in a real browser.</p></div>
+  <div class="cols" style="grid-template-columns:1.25fr 1fr;gap:8mm;align-items:start">
+    <img class="shot" src="shots/overview.png" alt="Overview with the hunt switched on" />
+    <div>
+      <h3>What it will and won't do</h3>
+      <ul class="dash" style="font-size:9pt">
+        <li>Applies through employers' own logged-out forms (Greenhouse, Lever, Ashby, Workable…) and by email. It never logs in to LinkedIn or Indeed.</li>
+        <li>Claude answers each form from your profile and standing answers. Demographic questions get "decline to self-identify".</li>
+        <li>Never solves a CAPTCHA and never guesses. Those roles go to <b>Needs you</b> with the form filled; "Finish in browser" opens it for your click.</li>
+        <li>Only sends when the fact lock is clean. One automatic rewrite, then it stops and holds the draft for you.</li>
+        <li>Daily cap, a stop button, and Rehearsal mode (fills forms, keeps screenshots, doesn't submit).</li>
+      </ul>
+      <div class="rule">◆</div>
+      <h3>What it costs</h3>
+      <table class="spec">
+        <tr><td>Scoring a role</td><td class="mono">≈ $0.001</td><td class="muted">Haiku 5.5</td></tr>
+        <tr><td>One application</td><td class="mono">≈ $0.34</td><td class="muted">Opus 5.5: draft, audit, form answers</td></tr>
+        <tr><td>Defaults, running all day</td><td class="mono">≤ $3.65/day</td><td class="muted">8 rounds × 40 roles + 10 applications</td></tr>
+      </table>
+      <p class="muted" style="font-size:8pt;margin-top:2mm">Shown live in Settings, from your own spend once there's history. The monthly budget pauses the hunt when it's reached.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>The hunt</span><span>XVII</span></div>
+</section>
+
+<!-- XVIII. ENGINE -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">XVIII · The engine</div><h2>Every step, <em>in order</em></h2></div><div class="mono muted" style="font-size:8pt">◻ code &nbsp;&nbsp; <span style="color:var(--crimson)">◼ Claude</span> &nbsp;&nbsp; <span style="color:var(--leather)">◼ you</span></div></div>
+  <div class="flow">
+    <div class="step"><span class="n">i</span><b>Scout</b><small>16 public sources: ATS boards, aggregators, HN, Reddit RSS, game-dev feeds. Plus a Claude web deep scan.</small></div>
+    <div class="step"><span class="n">ii</span><b>Gate</b><small>Free filters: is it tech, which discipline, dedupe by URL and fingerprint, freshness, deal-breakers.</small></div>
+    <div class="step"><span class="n">iii</span><b>Pre-score</b><small>Discipline, title, skills overlap, logistics, recency, seniority. No tokens spent.</small></div>
+    <div class="step ai"><span class="n">iv</span><b>Assess</b><small>Haiku 5.5. Pass 1: requirements from the posting alone. Pass 2: matched against the CV, with proof.</small></div>
+    <div class="step ai"><span class="n">v</span><b>Tailor</b><small>Letter, outreach note, ATS-safe CV, in your voice, from your facts.</small></div>
+    <div class="step ai"><span class="n">vi</span><b>Fact lock</b><small>Code checks every figure and employer; a fresh auditor lists unsupported claims. One rewrite, or it holds.</small></div>
+    <div class="step ai"><span class="n">vii</span><b>Apply</b><small>Email from your inbox, or the company form in a real browser: fields answered, CV uploaded, submitted.</small></div>
+    <div class="step human"><span class="n">viii</span><b>Needs you</b><small>CAPTCHAs and questions only you can answer, pre-filled. One click finishes them.</small></div>
+  </div>
+  <div class="cols c2">
+    <div>
+      <h3>The score is computed in code</h3>
+      <div class="formula">requirements = Σ weight × match / Σ weight
+  weight: <b>critical 3</b> · important 2 · nice 1
+  match:  met 1 · partial ½ · missing 0
+dimensions = skills .30 + experience .20 + domain .15
+           + logistics .15 + pay .10 + growth .10
+<b>score</b> = .45 × requirements + .35 × dimensions + .20 × pre-filter
+caps: stated must-have missing → ≤ 64 · dealbreaker → ≤ 40
+      low legitimacy −25 · under-levelled −8</div>
+    </div>
+    <div>
+      <h3>Why it's built this way</h3>
+      <ul class="dash">
+        <li>Claude judges; code weighs. The same assessment always gives the same number, and the weights can be tuned.</li>
+        <li>The free gate cuts thousands of listings to the few dozen worth tokens. Prompt caching keeps the rubric and profile warm across a whole scan.</li>
+        <li>Job postings are treated as untrusted data. Injection attempts are flagged as red flags, never obeyed.</li>
+        <li>Haiku 5.5 scores in volume; Opus 5.5 writes everything a hiring manager reads. Server-side fallback on refusals, a model per task, and a monthly budget cap.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>The engine</span><span>XVIII</span></div>
+</section>
+
+<!-- XIX. SECURITY -->
+<section class="page">
+  <div class="head"><div><div class="eyebrow">XIX · Security architecture</div><h2>Built to leave <em>localhost</em> safely</h2></div></div>
+  <div class="cols c2">
+    <div>
+      <div class="layer"><span class="ix">i</span><div><b>Loopback by default</b><span>Listens on 127.0.0.1 only. It refuses to bind elsewhere unless a passphrase is set.</span></div></div>
+      <div class="layer"><span class="ix">ii</span><div><b>Host, Origin &amp; path guard</b><span>Unknown Host headers are refused (defeats DNS rebinding), cross-site requests rejected, and every request guarded on its decoded path, so encoded URLs can't slip past.</span></div></div>
+      <div class="layer"><span class="ix">iii</span><div><b>Session + CSRF</b><span>256-bit HttpOnly, SameSite=Strict cookie; every change needs a per-session token a hostile page can't read.</span></div></div>
+      <div class="layer"><span class="ix">iv</span><div><b>Passphrase lock</b><span>scrypt (N=2¹⁵) hashed, rate-limited, session rotated on login.</span></div></div>
+      <div class="layer"><span class="ix">v</span><div><b>Secrets vault</b><span>API key and SMTP password encrypted with AES-256-GCM; the master key is sealed with Windows DPAPI. Secrets are never sent to the browser and are redacted from logs.</span></div></div>
+    </div>
+    <div>
+      <div class="layer"><span class="ix">vi</span><div><b>SSRF guard</b><span>All outbound fetches validate every resolved IP at connect time, re-check each redirect, and block private, loopback, link-local and metadata ranges.</span></div></div>
+      <div class="layer"><span class="ix">vii</span><div><b>Hostile content</b><span>Job HTML sanitised on the server (sanitize-html) and again in the browser (DOMPurify), under a strict CSP: no inline scripts, no third-party origins.</span></div></div>
+      <div class="layer"><span class="ix">viii</span><div><b>Uploads</b><span>10 MB cap, type checked by magic bytes, stored under random names outside the web root.</span></div></div>
+      <div class="layer"><span class="ix">ix</span><div><b>Prompt-injection posture</b><span>Postings are fenced as data and can't forge the prompt's tags. An apply address is trusted only if it appears in that job's own text. The fact lock and the daily cap bound what the hunt can send.</span></div></div>
+      <div class="layer"><span class="ix">x</span><div><b>The hunt's browser</b><span>Every request it makes passes the same private-network guard. Fresh context per application, downloads off. It never logs in to LinkedIn or Indeed, so your accounts can't be banned for it.</span></div></div>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Security architecture</span><span>XIX</span></div>
+</section>
+
+<!-- XIX. CRAFT -->
+<section class="page">
+  <div class="cols" style="grid-template-columns:1fr 1.05fr;gap:12mm;align-items:start">
+    <div>
+      <div class="eyebrow">XX · Craft &amp; access</div><h2>Quiet motion, <em>open</em> doors</h2>
+      <h3 style="margin-top:8mm">Motion</h3>
+      <ul class="dash"><li>One easing curve, cubic-bezier(.16,1,.3,1); 160–240 ms for state changes.</li><li>One authored moment: the sash drawing across when the hunt starts. A thin moving line shows a round in progress. Nothing bounces.</li><li>prefers-reduced-motion turns all of it off.</li></ul>
+      <h3 style="margin-top:6mm">Accessibility</h3>
+      <ul class="dash olive"><li>Ink on parchment ≈ 14:1; crimson on parchment ≈ 7.8:1; white on crimson ≈ 9:1.</li><li>Brass focus ring on every interactive element; full keyboard paths; selection, caret and scrollbars themed from the palette.</li><li>Roles and labels on lists, tabs, switches, dialogs and live regions.</li><li>States never rely on colour alone.</li></ul>
+      <h3 style="margin-top:6mm">Colophon</h3>
+      <p class="muted" style="font-size:8.8pt">Set in Cormorant Garamond, IBM Plex Sans and IBM Plex Mono. Built with Node 24, Fastify, SQLite, React 19, Vite, Playwright (driving your own Chrome or Edge) and the Anthropic TypeScript SDK. Icons from Lucide at a 1.8 stroke. Insignia and palette are original work for Bureau.</p>
+    </div>
+    <div>
+      <img class="shot" src="shots/overview-night.png" alt="Overview in Night in Rome theme" />
+      <p class="caption" style="margin-top:4mm">Night in Rome: the same atelier by lamplight.</p>
+    </div>
+  </div>
+  <div class="folio"><span>Bureau</span><span>Craft &amp; access</span><span>XX</span></div>
+</section>
+
+</body>
+</html>
