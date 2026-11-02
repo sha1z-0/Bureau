@@ -13,6 +13,7 @@ import path from 'node:path';
 import { all, get, now, run } from '../../server/db.ts';
 import { saveProfile, ProfileSchema } from '../../server/services/profileStore.ts';
 import { ensurePipeline, pipelineState, transition } from '../../server/campaign/pipeline.ts';
+import { canonicalCountry, normalizeQuestion } from '../../server/profile/questions.ts';
 import { ATS_FAMILIES, type AtsFamily } from '../../server/contracts/job.ts';
 import { CampaignConfigSchema, TRANSITIONS, type CampaignConfig, type PipelineState } from '../../server/contracts/campaign.ts';
 import type { ApplicationPacket } from '../../server/contracts/writer.ts';
@@ -20,6 +21,11 @@ import { FIXTURES, type FormSpec } from './manifest.ts';
 
 const PROFILE_DIR = path.join(FIXTURES, 'profile');
 const readJson = <T>(f: string): T => JSON.parse(fs.readFileSync(path.join(PROFILE_DIR, f), 'utf8')) as T;
+
+const scoped = (scope: unknown): Record<string, unknown> => {
+  const sc = (scope ?? {}) as { countries?: string[] };
+  return sc.countries?.length ? { ...sc, countries: [...new Set(sc.countries.map(canonicalCountry))].sort() } : { ...sc };
+};
 
 export function seedProfile(): { facts: number; voice: number; answers: number; learning: number } {
   const raw = readJson<Record<string, unknown>>('profile.json');
@@ -37,10 +43,11 @@ export function seedProfile(): { facts: number; voice: number; answers: number; 
     run(
       'INSERT OR REPLACE INTO answer_bank (id, question_norm, question_raw, answer, scope, source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       a.id,
-      a.questionNorm,
+      normalizeQuestion(a.questionRaw), // the key the app itself would store (the file's questionNorm is only a hint)
       a.questionRaw,
       a.answer,
-      JSON.stringify(a.scope ?? {}),
+      // Countries as the app stores them ("PK" → "pakistan"), the way upsertAnswer cleans a scope.
+      JSON.stringify(scoped(a.scope)),
       a.source,
       ts,
       ts,

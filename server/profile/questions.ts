@@ -357,8 +357,15 @@ export function detectCountries(text: string): string[] {
 export function canonicalCountry(name: string): string {
   const n = name.trim().toLowerCase().replace(/\.$/, '');
   for (const [country, aliases] of Object.entries(COUNTRY_ALIASES)) if (aliases.includes(n) || country === n) return country;
-  return n;
+  return ISO_COUNTRIES[n] ?? n;
 }
+
+/** Two-letter codes, for scopes only: in prose "in", "it" or "de" are words, not countries. */
+const ISO_COUNTRIES: Record<string, string> = {
+  us: 'united states', gb: 'united kingdom', pk: 'pakistan', in: 'india', ae: 'united arab emirates', sa: 'saudi arabia', qa: 'qatar',
+  de: 'germany', nl: 'netherlands', fr: 'france', ie: 'ireland', es: 'spain', pt: 'portugal', it: 'italy', pl: 'poland', se: 'sweden',
+  ch: 'switzerland', ca: 'canada', au: 'australia', sg: 'singapore', jp: 'japan', tr: 'turkey', eg: 'egypt', my: 'malaysia', nz: 'new zealand',
+};
 
 // ── Intent detection ─────────────────────────────────────────────────────────
 

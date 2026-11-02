@@ -482,6 +482,16 @@ export default async function a03({ check, section }: Harness) {
     assert.equal(answers.matchOption('5', ['Less than 1 year', '1 to 3 years', 'More than 3 years']), 'More than 3 years');
   });
 
+  await check('a scope typed as a country code matches; a date field never gets "two weeks"', async () => {
+    const pk = answers.upsertAnswer({ question: 'Are you authorized to work in Pakistan?', answer: 'Yes', scope: { countries: ['PK'] } });
+    assert.deepEqual(pk.scope.countries, ['pakistan']);
+    assert.equal((await P.answerFor('Are you legally authorized to work in Pakistan?', { options: ['Yes', 'No'] }))?.key, pk.id);
+    answers.deleteAnswer(pk.id);
+    // The bank's start answer is a duration, so a date picker gets nothing rather than a non-date.
+    assert.ok((await P.answerFor('When can you start?'))?.value);
+    assert.equal(await P.answerFor('When can you start?', { fieldKind: 'date' }), null);
+  });
+
   const jobIn = (location: string) => {
     const id = crypto.randomUUID();
     run(

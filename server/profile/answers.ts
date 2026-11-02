@@ -516,15 +516,19 @@ export async function answerFor(question: string, ctx: AnswerContext = {}): Prom
     if (fit >= 0) candidates.push({ entry, intent, fit });
   }
 
-  // 1–2. Same question (exact normalised form) or same intent with a compatible slot.
+  // 1–2. Same question (word for word, then exact normalised form) or same intent with a compatible slot.
+  // "When can you start?" and "What is your notice period?" share a normalised form, so the wording breaks the tie.
+  const sameWords = cleanQuestion(question);
   const confident = candidates
-    .map((c) => ({ ...c, kind: c.entry.questionNorm === norm ? 2 : qIntent && c.intent && slotsCompatible(qIntent, c.intent, c.entry) ? 1 : 0 }))
+    .map((c) => ({ ...c, kind: cleanQuestion(c.entry.questionRaw) === sameWords ? 3 : c.entry.questionNorm === norm ? 2 : qIntent && c.intent && slotsCompatible(qIntent, c.intent, c.entry) ? 1 : 0 }))
     .filter((c) => c.kind > 0)
     .sort((a, b) => b.fit - a.fit || b.kind - a.kind || (a.entry.source === 'owner' ? -1 : 1) - (b.entry.source === 'owner' ? -1 : 1) || b.entry.updatedAt.localeCompare(a.entry.updatedAt));
   for (const c of confident) {
     const value = finish(c.entry.answer, ctx);
     if (!value) continue;
-    let confidence = c.kind === 2 ? 0.97 : 0.92;
+    // A date field needs a date, not "2 weeks".
+    if (ctx.fieldKind === 'date' && Number.isNaN(Date.parse(value))) continue;
+    let confidence = c.kind >= 2 ? 0.97 : 0.92;
     if (c.entry.source === 'derived') confidence -= 0.08;
     if (qIntent?.currency && !(c.intent?.currency ?? detectCurrency(c.entry.answer))) confidence -= 0.1;
     return { value, source: 'answer_bank', confidence: Math.round(confidence * 100) / 100, key: c.entry.id };

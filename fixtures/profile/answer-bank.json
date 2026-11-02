@@ -29,5 +29,9 @@
   { "id": "ab-pronouns", "questionRaw": "What are your pronouns?", "questionNorm": "pronouns", "answer": "Prefer not to say", "scope": {}, "source": "owner" },
   { "id": "ab-onsite", "questionRaw": "Are you open to hybrid or onsite work?", "questionNorm": "open to hybrid onsite", "answer": "Hybrid in Lahore only; otherwise remote", "scope": {}, "source": "owner" },
   { "id": "ab-background-check", "questionRaw": "Do you consent to a background check if you receive an offer?", "questionNorm": "consent to background check", "answer": "Yes", "scope": {}, "source": "owner" },
-  { "id": "ab-contractor", "questionRaw": "Are you open to a contractor arrangement?", "questionNorm": "open to contractor arrangement", "answer": "Yes", "scope": {}, "source": "owner" }
+  { "id": "ab-contractor", "questionRaw": "Are you open to a contractor arrangement?", "questionNorm": "open to contractor arrangement", "answer": "Yes", "scope": {}, "source": "owner" },
+  { "id": "ab-address", "questionRaw": "What is your street address?", "questionNorm": "what is your street address", "answer": "House 14, Street 7, Model Town", "scope": {}, "source": "owner" },
+  { "id": "ab-postal", "questionRaw": "What is your postal code?", "questionNorm": "what is your postal code", "answer": "54700", "scope": {}, "source": "owner" },
+  { "id": "ab-region", "questionRaw": "What is your state or province?", "questionNorm": "what is your state or province", "answer": "Punjab", "scope": {}, "source": "owner" },
+  { "id": "ab-work-auth-us", "questionRaw": "Are you legally authorized to work in the United States?", "questionNorm": "work authorization :: united states", "answer": "No", "scope": { "countries": ["US"] }, "source": "owner" }
 ]
