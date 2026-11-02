@@ -114,6 +114,28 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     }
     return '';
   }
+  /** The menu a menu button opens, when its items are choices (menuitemcheckbox / menuitemradio), else null. */
+  function choiceMenu(el) {
+    const pop = el.getAttribute('aria-haspopup');
+    if (pop !== 'menu' && pop !== 'true') return null;
+    const ctl = el.getAttribute('aria-controls') || el.getAttribute('aria-owns');
+    const menu = ctl && rootOf(el).getElementById ? rootOf(el).getElementById(ctl) : null;
+    return menu && menu.querySelector('[role="menuitemcheckbox"], [role="menuitemradio"]') ? menu : null;
+  }
+  /**
+   * The visible drop zone a detached file input serves (Dropzone.js appends one hidden input per zone to <body>,
+   * in zone order). Null for inputs that sit inside their form or zone.
+   */
+  function detachedZone(el) {
+    if (el.parentElement !== document.body) return null;
+    const ZONE = '.dropzone, .dz-clickable, [class*="upload-trigger" i], [data-controller*="upload" i] [role="button"], [role="button"][aria-label*="upload" i], [class*="dropzone" i]:not(input)';
+    const found = deepAll(ZONE);
+    // Visible or not: a zone hides itself once its file is attached, and the label must not change then.
+    const zones = found.filter((z) => z.tagName !== 'INPUT' && !z.querySelector('input[type=file]') && !found.some((o) => o !== z && o.contains(z)));
+    if (!zones.length) return null;
+    const detached = Array.from(document.body.children).filter((c) => c.tagName === 'INPUT' && c.type === 'file');
+    return zones[Math.max(0, detached.indexOf(el))] || zones[0];
+  }
   /** A placeholder that names the field ("Company", "Field of Study"), not an example value or an instruction. */
   function placeholderName(el) {
     const ph = norm(el.getAttribute('placeholder'));
@@ -379,7 +401,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const role = el.getAttribute('role');
       const native = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
       const editable = !native && (el.getAttribute('contenteditable') === '' || el.getAttribute('contenteditable') === 'true') && !(el.parentElement && el.parentElement.isContentEditable);
-      const trigger = !native && ((tag === 'BUTTON' || role === 'button' || role === 'combobox') && el.getAttribute('aria-haspopup') === 'listbox' || role === 'combobox');
+      const trigger = !native && ((tag === 'BUTTON' || role === 'button' || role === 'combobox') && (el.getAttribute('aria-haspopup') === 'listbox' || choiceMenu(el)) || role === 'combobox');
       const custom = !native && (role === 'radio' || role === 'checkbox' || (role === 'textbox' && !el.querySelector('input,textarea')) || role === 'spinbutton' || editable || trigger);
       // Yes/No toggle buttons (Ashby and friends): a group of aria-pressed buttons is a radio question.
       if (!native && tag === 'BUTTON' && el.hasAttribute('aria-pressed') && parentOf(el)) {
@@ -484,8 +506,10 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         let raw = labelOf(el) || '';
         // Drop zones label themselves "Upload a file…" or with the accept list: find what the upload is for.
         if (!raw || /^\s*\.\w+\s*,/.test(raw) || /^(upload|choose|drop|drag|attach|browse|select)\b/i.test(raw)) {
-          let n = parentOf(el);
-          for (let i = 0; n && i < 5; i++, n = parentOf(n)) {
+          // Dropzone.js puts its hidden input at the end of <body>, far from the zone it serves: read the zone's context.
+          const zone = detachedZone(el);
+          let n = zone || parentOf(el);
+          for (let i = 0; n && i < 5 && n !== document.body && n !== document.documentElement; i++, n = parentOf(n)) {
             const t = ownText(n);
             const m = t.match(/(resume\s*\/\s*cv|curriculum vitae|resume|\bcv\b|cover letter|motivation letter|anschreiben|lebenslauf|portfolio|transcript|photo)/i);
             if (m) { raw = m[1] + (/[*✱]/.test(t.slice(0, 60)) ? ' *' : ''); break; }
@@ -536,6 +560,12 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       if (trigger) {
         kind = 'combobox';
         meta.trigger = 'button';
+        // A menu button over menuitemcheckbox items (Teamtailor's multiple choice) picks several.
+        const menu = choiceMenu(el);
+        if (menu) {
+          if (menu.querySelector('[role="menuitemcheckbox"]')) meta.multi = true;
+          meta.options = Array.from(menu.querySelectorAll('[role="menuitemcheckbox"], [role="menuitemradio"], [role="option"]')).map((o) => norm(o.getAttribute('data-search-text') || o.textContent).replace(/^✓\s*/, '')).filter(Boolean);
+        }
       } else if (tag === 'TEXTAREA') {
         kind = 'textarea';
         if (el.maxLength > 0) meta.maxLength = el.maxLength;

@@ -4,7 +4,7 @@ import type { ApplicationPacket } from '../contracts/writer.ts';
 import { all, get } from '../db.ts';
 import { loadProfile } from '../services/profileStore.ts';
 import { type Candidate, candidateFrom, degreeLevel, DIAL_CODES } from './candidate.ts';
-import { bestOption, declineOption, labelNorm as normLabel, normText, optionScore, parseDate, truthy } from './normalize.ts';
+import { bestOption, declineOption, labelNorm as normLabel, normText, parseDate, sameItem, truthy } from './normalize.ts';
 import { matchSynonym, type SynEntry } from './synonyms.ts';
 
 /**
@@ -128,7 +128,7 @@ export function rankSkills(c: Pick<Candidate, 'skills' | 'coreStack'>, job: Pick
   return c.skills.map((s, i) => ({ s, i, t: tier(s) })).sort((a, b) => a.t - b.t || a.i - b.i).map((x) => x.s);
 }
 
-type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string } };
+type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string; trigger?: string; format?: string } };
 
 const SOURCE_LABELS: Record<string, string> = {
   linkedin: 'LinkedIn',
@@ -585,11 +585,14 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           if (e.key === 'skills') {
             // Only skills the profile really lists, the most relevant to this job first.
             const ranked = rankSkills(c, job);
-            const optionFor = (sk: string) => (f.options ?? []).find((o) => optionScore(sk, o) >= 0.9) ?? null;
+            // The same skill, not a near one: "SQL" is not "SQL Server" or "MySQL".
+            const optionFor = (sk: string) => (f.options ?? []).find((o) => sameItem(sk, o)) ?? null;
             if (f.kind === 'combobox') {
               // Menus hide what is already picked and creatable ones add what they lack: rank by relevance, not by
               // the options shown, so the answer is stable across passes and the core stack is never dropped.
-              const picks = [...new Set(ranked.map((sk) => optionFor(sk) ?? sk))];
+              // A menu you cannot type into (a button that opens a fixed list) only offers its options.
+              const fixed = f.meta?.trigger === 'button' && !!f.options?.length;
+              const picks = [...new Set(ranked.map((sk) => optionFor(sk) ?? (fixed ? '' : sk)).filter(Boolean))];
               // A single-pick menu with known options takes the most relevant listed one.
               const single = !!f.options?.length && !f.meta?.multi;
               const want = (single ? picks.filter((p) => f.options!.includes(p)).slice(0, 1) : picks.slice(0, 6)).join('; ');
@@ -613,7 +616,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             // The profile has the graduation year only and the field wants a month: the owner's own answer to
             // "When did you complete your degree?" gives it, when it names the same year.
             const have = parseDate((g.name === 'education' ? c.education[g.index] : c.education[0])?.end ?? '');
-            const wantsMonth = f.kind === 'date' || /m/i.test(String((f.meta as { format?: string } | undefined)?.format ?? '')) || /\bmonth\b/.test(f.labelNorm);
+            const wantsMonth = f.kind === 'date' || /m/i.test(String(f.meta?.format ?? '')) || /\bmonth\b/.test(f.labelNorm);
             if (have && !have.m && wantsMonth) {
               for (const q of ALT_QUESTIONS.graduation_date ?? []) {
                 const a = await askRaw(q, f);
@@ -630,7 +633,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             // getting an invented "01/2019".
             const p = parseDate(v);
             const yearField = /\byear\b/.test(f.labelNorm) || (f.options ?? []).filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
-            const fmt = String((f.meta as { format?: string } | undefined)?.format ?? '');
+            const fmt = String(f.meta?.format ?? '');
             const monthField = fmt ? /m|iso/i.test(fmt) : f.kind === 'date';
             if (p && !p.m && !yearField && monthField) return null;
           }
