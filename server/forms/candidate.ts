@@ -49,6 +49,8 @@ export interface Candidate {
   cvText: string;
   summary: string;
   skills: string[];
+  /** Every link the profile lists, in the profile's order (GitHub, portfolio, LinkedIn...). */
+  links?: string[];
   /** The profile's core stack (a subset of `skills`), when it names one. */
   coreStack?: string[];
 }
@@ -195,5 +197,6 @@ export function candidateFrom(p: Profile | null, links: { linkedin?: string; git
     summary: p.summary,
     skills: [...new Set([...(p.coreStack ?? []), ...(p.skills ?? [])])],
     coreStack: [...(p.coreStack ?? [])],
+    links: [...new Set([...p.links.map((l) => l.url), links.github, links.portfolio, links.linkedin].filter((u): u is string => !!u))],
   };
 }

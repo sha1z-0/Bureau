@@ -332,7 +332,11 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
 async function refind(r: Run, step: number, f: ExtractedField): Promise<ExtractedField | null> {
   const ex = await extract(r, step);
   const same = ex.fields.filter((x) => x.signature === f.signature && (x.frame ?? '') === (f.frame ?? ''));
-  return same.find((x) => x.order === f.order) ?? same[0] ?? ex.fields.find((x) => x.labelNorm === f.labelNorm && x.kind === f.kind && x.section === f.section) ?? null;
+  // Twins (Workday's "Website 1" / "Website 2" URL boxes share a signature): the same id or name first, so a
+  // re-rendered field is never confused with its neighbour.
+  const keyed = (f.selectors ?? []).filter((s) => /^#|\[name=/.test(s));
+  const byKey = keyed.length ? same.find((x) => (x.selectors ?? []).some((s) => keyed.includes(s))) : undefined;
+  return byKey ?? same.find((x) => x.order === f.order) ?? same[0] ??ex.fields.find((x) => x.labelNorm === f.labelNorm && x.kind === f.kind && x.section === f.section) ?? null;
 }
 
 /** A wizard page counts as a form when it has fields, or a field and a way forward. */

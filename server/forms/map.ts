@@ -406,6 +406,14 @@ export function profileValue(key: string, c: Candidate, f: Field, gi: number): s
       return dateFor(e?.end ?? '', f);
     case 'edu_description':
       return e?.details ?? '';
+    case 'gpa': {
+      // Only a grade the profile states ("CGPA 3.4 / 4.0" → "3.4"); the scale goes in its own field if asked.
+      const m = (e?.details ?? '').match(/\b(?:c?gpa|grade point average)\b\s*(?:of|[:=])?\s*(\d(?:\.\d{1,2})?)(?:\s*(?:\/|out of)\s*(\d(?:\.\d{1,2})?))?/i);
+      if (!m) return '';
+      // "GPA scale" asks for the scale; "GPA (4.0 scale)" asks for the grade on that scale.
+      if (/\bscale\b/.test(f.labelNorm) && !/\d/.test(f.labelNorm)) return m[2] ?? '';
+      return m[1];
+    }
     case 'work_company':
       return w?.company ?? '';
     case 'work_title':
@@ -445,6 +453,41 @@ function val(f: Field, source: ValueSource, key: string, value: string, confiden
 
 function unknown(f: Field, reason: string, extra: Partial<MappedValue> = {}): MappedValue {
   return { fieldId: f.id, source: 'generated', key: 'unknown', value: '', confidence: 0, unknown: true, reason, ...extra };
+}
+
+/** A link field that names no particular site ("URL" under "Website 2", "Website", "Link"). */
+const GENERIC_SITE = /^(url|link|web ?site|web ?site url|website link|other url|other link|additional link|online profile)( \d+)?$/;
+
+/**
+ * Several generic website fields (Workday's "Websites": Website 1, Website 2…) each get a different one of the
+ * candidate's links, in the profile's own order, never the same link twice and never a link another field on
+ * the page asks for by name (LinkedIn). One generic field keeps the usual portfolio-first answer.
+ */
+function spreadWebsites(fields: Field[], out: MappedValue[], c: Candidate, context: FormField[]) {
+  const sites = fields.filter((f) => {
+    const v = out.find((m) => m.fieldId === f.id);
+    return v && !v.unknown && v.source === 'profile' && ['portfolio', 'other_url'].includes(v.key) && GENERIC_SITE.test(f.labelNorm || normLabel(f.label));
+  });
+  // A numbered panel ("#website-2--url", section "Website 2") says which of the list it is, whichever pass maps it.
+  const numbered = (f: Field) => {
+    const sel = (f as Field & { selectors?: string[] }).selectors ?? [];
+    const m = `${sel.join(' ')} ${f.section ?? ''}`.match(/\b(?:web ?sites?|urls?|links?)[-_ [#]*(\d{1,2})\b/i);
+    return m ? Math.max(0, Number(m[1]) - 1) : null;
+  };
+  if (sites.length < 2 && !sites.some((f) => numbered(f) !== null)) return;
+  const named = [...fields, ...context].map((f) => normText(f.label));
+  // Links that have their own field on the page (by name) are not repeated here. The page, not this call, decides,
+  // so every pass computes the same list.
+  const own: [RegExp, RegExp][] = [[/linkedin\.com/i, /\blinkedin\b/], [/github\.com/i, /\bgithub\b/], [/(twitter|x)\.com/i, /\b(twitter|x)\b/]];
+  const pool = (c.links?.length ? c.links : [c.github, c.portfolio, c.linkedin, c.twitter])
+    .filter((u) => !!u)
+    .filter((u) => !own.some(([site, label]) => site.test(u) && named.some((l) => label.test(l))));
+  sites.forEach((f, i) => {
+    const k = out.findIndex((m) => m.fieldId === f.id);
+    const url = pool[numbered(f) ?? i];
+    if (url) out[k] = { ...out[k], value: url, key: 'website', confidence: Math.min(out[k].confidence, 0.9) };
+    else out.splice(k, 1);
+  });
 }
 
 /** Fit a free value to the field's options (when it has any). Null = no honest option. */
@@ -508,6 +551,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     const v = await mapOne(f);
     if (v) out.push(v);
   }
+  if (c) spreadWebsites(fields as Field[], out, c, opts.context ?? []);
   return out;
 
   /** The saved question behind an answer-bank answer must be the same attestation (or a canonical re-wording of it). */

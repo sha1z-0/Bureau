@@ -102,7 +102,7 @@ export const SYNONYMS: SynEntry[] = [
   { key: 'edu_start', source: 'profile', group: 'education', labels: ['start date', 'from', 'start year', 'start month', 'from date', 'year started', 'start'] },
   { key: 'edu_end', source: 'profile', group: 'education', labels: ['end date', 'to', 'end year', 'graduation date', 'graduation year', 'to date', 'year graduated', 'end', 'expected graduation', 'completion date', 'actual or expected'] },
   { key: 'edu_description', source: 'profile', group: 'education', labels: ['description', 'summary', 'details', 'activities', 'activities and societies', 'additional details'] },
-  { key: 'gpa', source: 'never', labels: ['gpa', 'grade', 'grade point average', 'overall result', 'cgpa', 'grades'] },
+  { key: 'gpa', source: 'profile', labels: ['gpa', 'grade', 'grade point average', 'overall result', 'cgpa', 'grades'] },
   // ── Work history (repeating group) ──
   { key: 'work_company', source: 'profile', group: 'work', labels: ['company', 'employer', 'company name', 'organization', 'organisation', 'employer name'] },
   { key: 'work_title', source: 'profile', group: 'work', labels: ['job title', 'title', 'position', 'role', 'position title'] },
