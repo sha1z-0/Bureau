@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "totalCount": 26
+  },
+  "result": [
+    {
+      "id": "23",
+      "jobOpeningName": "Retail Technician – Tech Repair & Sales",
+      "departmentId": "18561",
+      "departmentLabel": "Operations",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": "Plano",
+        "state": "Texas"
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": null,
+      "locationType": "0"
+    },
+    {
+      "id": "28",
+      "jobOpeningName": "Bilingual Mobile Repair Technician - Field Position",
+      "departmentId": "18561",
+      "departmentLabel": "Operations",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": "El Paso",
+        "state": "Texas"
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": null,
+      "locationType": "0"
+    },
+    {
+      "id": "85",
+      "jobOpeningName": "Mobile Repair Technician - Field Position",
+      "departmentId": "18561",
+      "departmentLabel": "Operations",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": "Springfield",
+        "state": "Missouri"
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": null,
+      "locationType": "0"
+    },
+    {
+      "id": "123",
+      "jobOpeningName": "Retail Technician – Tech Repair & Sales - Cypress, TX",
+      "departmentId": "18561",
+      "departmentLabel": "Operations",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": "Cypress",
+        "state": "Texas"
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": null,
+      "locationType": "0"
+    },
+    {
+      "id": "139",
+      "jobOpeningName": "Retail Technician – Tech Repair & Sales",
+      "departmentId": "18561",
+      "departmentLabel": "Operations",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": "Garland",
+        "state": "Texas"
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": null,
+      "locationType": "0"
+    }
+  ]
+}

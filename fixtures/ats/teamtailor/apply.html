@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Teamtailor career-site application page
+  (<company>.teamtailor.com/jobs/<id>-<slug>/applications/new), Rails + Stimulus + Turbo.
+  Markup follows the live page: form#job-application-form (data-remote, novalidate,
+  action=/applications) with authenticity_token / verify_token / form_metrics[...] hidden
+  fields and the hidden candidate[linkedin_*] fields the "Apply with LinkedIn" widget fills;
+  qualifying questions FIRST (div.question[data-question-mandatory], hidden question_id +
+  picked_question_id, number input with pattern=[0-9]*, boolean radios valued true/false
+  with ids boolean-<n>-true, a multiple-choice question rendered as a button that opens a
+  role=menu of menuitemcheckbox buttons mirroring hidden candidate[...][choices][] checkboxes),
+  then first/last/email ("Did you mean ...?" suggestion), an intl-tel-input phone,
+  the "Upload CV" Dropzone ("Drop your file or upload") whose hidden <input type=file
+  class=dz-hidden-input> is appended to <body> (outside the form) and which uploads straight
+  to S3 and fills candidate[resume_remote_url], a cover letter textarea (candidate[pitch]),
+  and the consent checkboxes with Rails' hidden "0" twins. "Submit application" is a
+  rails-ujs remote submit (multipart FormData via fetch). Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Full-Stack Developer, Early Career - Saffron Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-param" content="authenticity_token">
+  <meta name="csrf-token" content="fx-tt-csrf-9c1d7e33a0b24f6e">
+  <style>
+    body { margin: 0; font-family: "Helvetica Neue", Arial, sans-serif; color: #222; background: #f6f1ea; }
+    .careersite-header { background: #b4441c; color: #fff; padding: 20px 24px; font-weight: 700; font-size: 20px; }
+    main { padding: 32px 16px 80px; }
+    .max-w-650 { max-width: 650px; margin: 0 auto; }
+    .job-title { font-size: 34px; margin: 0 0 6px; }
+    .job-meta { color: #6b6158; margin-bottom: 24px; }
+    .job-body { line-height: 1.6; background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+    .mb-48 { margin-bottom: 40px; }
+    label.lbl, legend.lbl { display: block; font-weight: 500; font-size: 19px; margin-bottom: 12px; padding: 0; }
+    sup[data-asterisk] { margin-left: 4px; opacity: .75; font-weight: 400; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .shadow-form { box-sizing: border-box; width: 100%; height: 70px; padding: 0 24px; border: 2px solid #fff; border-radius: 8px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.08); font-size: 17px; }
+    textarea.shadow-form { height: 180px; padding: 18px 24px; resize: vertical; }
+    .shadow-form[aria-invalid=true] { border-color: #d6293e; }
+    fieldset { border: 0; margin: 0; padding: 0; }
+    .flex { display: flex; gap: 12px; }
+    .choice-input-wrapper { background: #fff; border-radius: 8px; padding: 18px 22px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .choice-input-wrapper input { width: 18px; height: 18px; margin: 0; }
+    .dropdown-btn { width: 100%; height: 70px; background: #fff; border: 2px solid #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); text-align: left; padding: 0 20px; font-size: 17px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .dropdown-menu { position: absolute; left: 0; top: 100%; z-index: 30; background: #fff; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.15); padding: 8px; min-width: 220px; }
+    .dropdown-menu.hidden { display: none; }
+    .dropdown-menu button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; font-size: 16px; cursor: pointer; border-radius: 4px; }
+    .dropdown-menu button:hover, .dropdown-menu button:focus { background: #f6e3d9; }
+    .dropdown-menu .fa-check { display: inline-block; width: 18px; }
+    .dropdown-menu .invisible { visibility: hidden; }
+    .hidden-choices { display: none; }
+    .suggest { margin-top: 8px; font-size: 14px; }
+    .suggest.hidden, .hidden { display: none; }
+    .error-msg { color: #d6293e; font-size: 14px; margin-top: 6px; }
+    .iti { position: relative; display: flex; }
+    .iti__selected-flag { display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #fff; border-radius: 8px 0 0 8px; cursor: pointer; height: 70px; box-shadow: 0 2px 10px rgba(0,0,0,.08); font-size: 15px; }
+    .iti input { border-radius: 0 8px 8px 0; }
+    .iti__country-list { position: absolute; top: 72px; left: 0; z-index: 30; background: #fff; list-style: none; margin: 0; padding: 4px 0; max-height: 240px; overflow-y: auto; box-shadow: 0 6px 20px rgba(0,0,0,.15); border-radius: 6px; min-width: 280px; }
+    .iti__country { padding: 8px 14px; cursor: pointer; }
+    .iti__country.iti__highlight { background: #f6e3d9; }
+    .iti__hide { display: none; }
+    .upload-trigger { background: #fff; border: 2px dashed #c9b8a8; border-radius: 8px; padding: 28px; text-align: center; cursor: pointer; font-size: 17px; }
+    .upload-trigger.dz-drag-hover { background: #fbefe8; }
+    .upload-preview { background: #fff; border-radius: 8px; padding: 14px 18px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .upload-preview button { background: none; border: 0; cursor: pointer; font-size: 18px; color: #b4441c; }
+    .consent { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 18px; font-size: 15px; line-height: 1.5; }
+    .consent input { width: 20px; height: 20px; margin-top: 3px; }
+    .consent p { margin: 0; }
+    input[type=submit] { width: 100%; height: 70px; background: #b4441c; color: #fff; border: 0; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; }
+    input[type=submit]:disabled { opacity: .6; }
+    .linkedin-apply { margin-bottom: 40px; }
+    .linkedin-apply button { background: #0a66c2; color: #fff; border: 0; border-radius: 24px; padding: 12px 22px; font-size: 16px; cursor: pointer; }
+    #form-error { color: #d6293e; margin-top: 12px; }
+    footer { text-align: center; font-size: 13px; color: #6b6158; padding: 24px; }
+  </style>
+</head>
+<body>
+<header class="careersite-header">Saffron Studio</header>
+<main>
+  <div class="max-w-650">
+    <h1 class="job-title">Full-Stack Developer, Early Career</h1>
+    <div class="job-meta">Engineering · Manchester / Remote (UK &amp; EMEA time zones)</div>
+    <div class="job-body">
+      <p>Saffron Studio makes recipe and meal-planning apps used by 2 million home cooks. Our product team of 14 ships a Rails API, a React web app and two native apps.</p>
+      <p><strong>What you'll do</strong></p>
+      <ul><li>Build features across our Rails API and React front end</li><li>Pair with senior engineers and own small projects end to end</li><li>Help keep our test suite fast and our deploys boring</li></ul>
+      <p><strong>Who you are</strong></p>
+      <ul><li>Around two years of professional experience, or a strong portfolio of side projects</li><li>Comfortable with JavaScript/TypeScript and SQL; Ruby is a bonus</li><li>You write clearly and ask good questions</li></ul>
+      <p><strong>Benefits</strong>: remote-friendly, 27 days holiday plus bank holidays, learning budget, a cookbook allowance.</p>
+    </div>
+  </div>
+
+  <turbo-frame id="application_form">
+  <form id="job-application-form" class="mx-auto max-w-650" data-controller="careersite--form careersite--messenger-token careersite--form-metrics" data-remote="true" data-turbo-frame="application_form" novalidate="novalidate" action="/saffronstudio.teamtailor.com/applications" accept-charset="UTF-8" method="post">
+    <input type="hidden" name="authenticity_token" value="fx-tt-csrf-9c1d7e33a0b24f6e">
+    <input type="hidden" name="verify_token" id="verify_token" value="fx-verify-a51e0c--BvT2--q9w==">
+    <div hidden>
+      <input type="hidden" name="form_metrics[pastes]" data-careersite--form-metrics-target="pastes" value="0">
+      <input type="hidden" name="form_metrics[keystrokes]" data-careersite--form-metrics-target="keystrokes" value="0">
+      <input type="hidden" name="form_metrics[pointer]" data-careersite--form-metrics-target="pointer" value="">
+    </div>
+    <input type="hidden" name="city" id="city" value="true">
+    <input type="hidden" name="device_signals" id="device_signals">
+    <input type="hidden" name="ctoken" id="ctoken">
+    <input type="hidden" name="candidate[referrer]" id="candidate_referrer">
+    <input type="hidden" name="candidate[linkedin_uid]" id="candidate_linkedin_uid">
+    <input type="hidden" name="candidate[linkedin_url]" id="candidate_linkedin_url">
+    <input type="hidden" name="candidate[linkedin_profile]" id="candidate_linkedin_profile">
+    <input type="hidden" value="" name="candidate[social_image_url]" id="candidate_social_image_url">
+
+    <div class="linkedin-apply" data-controller="careersite--linkedin-apply" data-careersite--linkedin-apply-oauth-url-value="https://tt.teamtailor.com/auth/linkedin_apply?career_site_id=48&amp;company=saffronstudio&amp;job_id=4471203">
+      <button type="button" id="linkedin-apply-button">Apply with LinkedIn</button>
+      <p style="font-size:14px;color:#6b6158">Or fill in the form below.</p>
+    </div>
+
+    <div data-careersite--form-target="formContent">
+      <div class="question mb-48" data-question-uuid="0b6e9a3c-2f8d-4c1b-9e57-3a1d8f4c6e21" data-question-mandatory="true" data-question-multiple-choice="false">
+        <input type="hidden" value="5712001" name="candidate[answers_attributes][0][question_id]" id="candidate_answers_attributes_0_question_id">
+        <input type="hidden" value="73100411" name="candidate[answers_attributes][0][picked_question_id]" id="candidate_answers_attributes_0_picked_question_id">
+        <div id="id_5300100" data-controller="forms--inputs--text tooltip">
+          <label class="lbl" for="candidate_answers_attributes_0_number">How many years of professional software development experience do you have?<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+          <input pattern="[0-9]*" class="shadow-form connect-input element-to-focus" inputmode="numeric" type="number" name="candidate[answers_attributes][0][number]" id="candidate_answers_attributes_0_number">
+        </div>
+      </div>
+
+      <div class="question mb-48" data-question-uuid="5d2c71aa-8e0b-4f3e-a2c9-91b7e4d0f512" data-question-mandatory="true" data-question-multiple-choice="false">
+        <input type="hidden" value="5712002" name="candidate[answers_attributes][1][question_id]" id="candidate_answers_attributes_1_question_id">
+        <input type="hidden" value="73100412" name="candidate[answers_attributes][1][picked_question_id]" id="candidate_answers_attributes_1_picked_question_id">
+        <fieldset id="id_5300116">
+          <legend class="lbl"><span class="block">Will you now or in the future require visa sponsorship to work for us in the UK?<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></span></legend>
+          <div class="flex" data-controller="forms--inputs--boolean">
+            <div class="choice-input-wrapper"><input class="choice-input-wrapper__input form-radio" id="boolean-5300108-true" data-forms--inputs--boolean-target="yes" type="radio" value="true" name="candidate[answers_attributes][1][boolean]"><label for="boolean-5300108-true" class="choice-input-wrapper__label"> Yes </label></div>
+            <div class="choice-input-wrapper"><input class="choice-input-wrapper__input form-radio" id="boolean-5300108-false" type="radio" value="false" name="candidate[answers_attributes][1][boolean]"><label for="boolean-5300108-false" class="choice-input-wrapper__label"> No </label></div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="question mb-48" data-question-uuid="a8f04e6b-13c2-4d9a-b0e5-7c6d2f1e9a34" data-question-mandatory="true" data-question-multiple-choice="false">
+        <input type="hidden" value="5712003" name="candidate[answers_attributes][2][question_id]" id="candidate_answers_attributes_2_question_id">
+        <input type="hidden" value="73100413" name="candidate[answers_attributes][2][picked_question_id]" id="candidate_answers_attributes_2_picked_question_id">
+        <fieldset id="id_5300132">
+          <legend class="lbl"><span class="block">Are you 18 years of age or older?<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></span></legend>
+          <div class="flex" data-controller="forms--inputs--boolean">
+            <div class="choice-input-wrapper"><input class="choice-input-wrapper__input form-radio" id="boolean-5300124-true" data-forms--inputs--boolean-target="yes" type="radio" value="true" name="candidate[answers_attributes][2][boolean]"><label for="boolean-5300124-true" class="choice-input-wrapper__label"> Yes </label></div>
+            <div class="choice-input-wrapper"><input class="choice-input-wrapper__input form-radio" id="boolean-5300124-false" type="radio" value="false" name="candidate[answers_attributes][2][boolean]"><label for="boolean-5300124-false" class="choice-input-wrapper__label"> No </label></div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="question mb-48" data-question-uuid="3c9e1f70-6a4b-48d2-8f13-e05b7a2c4d68" data-question-mandatory="true" data-question-multiple-choice="false">
+        <input type="hidden" value="5712004" name="candidate[answers_attributes][3][question_id]" id="candidate_answers_attributes_3_question_id">
+        <input type="hidden" value="73100414" name="candidate[answers_attributes][3][picked_question_id]" id="candidate_answers_attributes_3_picked_question_id">
+        <div id="id_5300140" data-controller="forms--inputs--text tooltip">
+          <label class="lbl" for="candidate_answers_attributes_3_text">What are your salary expectations for this role?<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+          <input class="shadow-form connect-input element-to-focus" data-forms--inputs--text-target="text" rows="1" type="text" name="candidate[answers_attributes][3][text]" id="candidate_answers_attributes_3_text">
+        </div>
+      </div>
+
+      <div class="question mb-48" data-question-uuid="e71b3d95-0c6f-4a28-9d4e-5b8a1c7f2e03" data-question-mandatory="false" data-question-multiple-choice="true">
+        <input type="hidden" value="5712005" name="candidate[answers_attributes][4][question_id]" id="candidate_answers_attributes_4_question_id">
+        <input type="hidden" value="73100415" name="candidate[answers_attributes][4][picked_question_id]" id="candidate_answers_attributes_4_picked_question_id">
+        <fieldset id="id_5300148" class="group min-w-0">
+          <legend class="lbl" id="id_5300148_label"><span class="block">Which of these have you used in production?</span></legend>
+          <div data-controller="forms--inputs--choice" data-forms--inputs--choice-show-as-dropdown-value="true" data-forms--inputs--choice-multiple-value="true">
+            <div style="position:relative" data-controller="common--dropdown" data-common--dropdown-validation-error-value="You must select an option">
+              <button type="button" role="button" id="trigger-dropdown-5e0c2a71" aria-required="false" aria-label="Select one or more options" aria-haspopup="menu" aria-expanded="false" aria-controls="dropdown-5e0c2a71" aria-labelledby="id_5300148_label id_5300148_selected" class="dropdown-btn" data-common--dropdown-target="button">
+                <span class="sr-only">Select one or more options</span>
+                <span><span id="id_5300148_selected" data-forms--inputs--choice-target="selectedOptions" class="truncate"></span><span data-forms--inputs--choice-target="dropdownTrigger" style="color:#999"> Select one or more options </span></span>
+                <i aria-hidden="true">▾</i>
+              </button>
+              <div id="dropdown-5e0c2a71" role="menu" aria-labelledby="trigger-dropdown-5e0c2a71" class="dropdown-menu hidden" data-common--dropdown-target="dropdown">
+                <button type="button" role="menuitemcheckbox" data-value="1" data-search-text="React" aria-checked="false"><i class="fa-check invisible" aria-hidden="true">✓</i> React </button>
+                <button type="button" role="menuitemcheckbox" data-value="2" data-search-text="Node.js" aria-checked="false"><i class="fa-check invisible" aria-hidden="true">✓</i> Node.js </button>
+                <button type="button" role="menuitemcheckbox" data-value="3" data-search-text="PostgreSQL" aria-checked="false"><i class="fa-check invisible" aria-hidden="true">✓</i> PostgreSQL </button>
+                <button type="button" role="menuitemcheckbox" data-value="4" data-search-text="Ruby on Rails" aria-checked="false"><i class="fa-check invisible" aria-hidden="true">✓</i> Ruby on Rails </button>
+                <button type="button" role="menuitemcheckbox" data-value="5" data-search-text="Kubernetes" aria-checked="false"><i class="fa-check invisible" aria-hidden="true">✓</i> Kubernetes </button>
+              </div>
+            </div>
+            <div class="hidden-choices" data-forms--inputs--choice-target="checkboxes">
+              <div><input data-forms--inputs--choice-target="checkbox" type="checkbox" value="1" name="candidate[answers_attributes][4][choices][]" id="candidate_answers_attributes_4_choices_1"><label for="candidate_answers_attributes_4_choices_1">React</label></div>
+              <div><input data-forms--inputs--choice-target="checkbox" type="checkbox" value="2" name="candidate[answers_attributes][4][choices][]" id="candidate_answers_attributes_4_choices_2"><label for="candidate_answers_attributes_4_choices_2">Node.js</label></div>
+              <div><input data-forms--inputs--choice-target="checkbox" type="checkbox" value="3" name="candidate[answers_attributes][4][choices][]" id="candidate_answers_attributes_4_choices_3"><label for="candidate_answers_attributes_4_choices_3">PostgreSQL</label></div>
+              <div><input data-forms--inputs--choice-target="checkbox" type="checkbox" value="4" name="candidate[answers_attributes][4][choices][]" id="candidate_answers_attributes_4_choices_4"><label for="candidate_answers_attributes_4_choices_4">Ruby on Rails</label></div>
+              <div><input data-forms--inputs--choice-target="checkbox" type="checkbox" value="5" name="candidate[answers_attributes][4][choices][]" id="candidate_answers_attributes_4_choices_5"><label for="candidate_answers_attributes_4_choices_5">Kubernetes</label></div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="mb-48" id="id_5300168" data-controller="forms--inputs--text tooltip">
+        <label class="lbl" for="candidate_first_name">First name<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+        <input autocomplete="given-name" class="shadow-form" data-forms--inputs--text-target="text" maxlength="50" data-careersite--form-target="firstName" size="50" type="text" name="candidate[first_name]" id="candidate_first_name">
+      </div>
+      <div class="mb-48" id="id_5300176" data-controller="forms--inputs--text tooltip">
+        <label class="lbl" for="candidate_last_name">Last name<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+        <input autocomplete="family-name" class="shadow-form" data-forms--inputs--text-target="text" maxlength="50" data-careersite--form-target="lastName" size="50" type="text" name="candidate[last_name]" id="candidate_last_name">
+      </div>
+      <div class="mb-48" id="id_5300184" data-controller="forms--inputs--text tooltip">
+        <label class="lbl" for="candidate_email">Email<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+        <input autocomplete="email" class="shadow-form" data-forms--inputs--text-target="text" data-careersite--form-target="email" data-suggest-email-correction="true" type="email" name="candidate[email]" id="candidate_email">
+        <div class="suggest hidden" data-forms--inputs--text-target="suggestionElementContainer"><span> Did you mean <button type="button" class="underline" data-forms--inputs--text-target="suggestionElement"></button>?</span></div>
+      </div>
+      <div class="mb-48" id="id_5300192">
+        <label class="lbl" for="candidate_phone">Phone<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+        <div class="iti iti--allow-dropdown iti--separate-dial-code">
+          <div class="iti__flag-container"><div class="iti__selected-flag" role="combobox" aria-controls="iti-0__country-listbox" aria-owns="iti-0__country-listbox" aria-expanded="false" aria-haspopup="listbox" tabindex="0" title="United Kingdom: +44" aria-label="Selected country"><span class="iti__flag iti__gb" aria-hidden="true">GB</span><span class="iti__selected-dial-code">+44</span><span class="iti__arrow" aria-hidden="true">▾</span></div>
+            <ul class="iti__country-list iti__hide" id="iti-0__country-listbox" role="listbox" aria-label="List of countries"></ul></div>
+          <input autocomplete="tel" aria-label="Phone number with country code" data-controller="phone-input" data-phone-input-country-value="GB" data-invalid-number="Invalid number" data-too-short="Too short" data-too-long="Too long" data-careersite--form-target="phone" class="shadow-form" type="tel" name="candidate[phone]" id="candidate_phone" placeholder="07400 123456">
+        </div>
+      </div>
+
+      <div class="mb-48" data-controller="forms--inputs--upload" data-forms--inputs--upload-accepted-files-value=".doc,.docx,.pptx,.pdf,.pages,.txt,.rtf" data-forms--inputs--upload-max-files-value="1">
+        <label class="lbl" for="candidate_resume_remote_url">Upload CV<sup data-asterisk="true" aria-hidden="true">*</sup><span class="sr-only">Required</span></label>
+        <div class="upload-trigger" data-forms--inputs--upload-target="trigger" tabindex="0" role="button" aria-label="Upload CV">
+          <span data-forms--inputs--upload-target="desktopText"> Drop your file or <u>upload</u></span>
+        </div>
+        <div data-forms--inputs--upload-target="previewsContainer"></div>
+        <p class="error-msg hidden" data-forms--inputs--upload-target="errorContainer"><span data-forms--inputs--upload-target="errorMsg"></span></p>
+        <template data-forms--inputs--upload-target="templatePreview">
+          <div class="upload-preview" data-controller="forms--inputs--upload-preview" data-forms--inputs--upload-preview-name-value="resume_remote_url">
+            <div data-forms--inputs--upload-preview-target="name"><a data-dz-name href="javascript:void(0);" target="_blank" rel="noopener noreferrer"></a></div>
+            <div data-progress><span>Uploading…</span></div>
+            <button tabindex="0" title="Clear file selection" data-dz-remove="true" type="button">×</button>
+            <input value="" disabled="disabled" type="text" name="candidate[resume_remote_url]" id="candidate_resume_remote_url" hidden>
+            <input disabled="disabled" value="0" type="hidden" name="candidate[delete_resume_remote_url]" id="candidate_delete_resume_remote_url">
+          </div>
+        </template>
+      </div>
+
+      <div class="mb-48" id="id_5300200" data-controller="forms--inputs--text tooltip">
+        <label class="lbl" for="candidate_pitch">Cover letter</label>
+        <textarea class="shadow-form" data-forms--inputs--text-target="text" name="candidate[pitch]" id="candidate_pitch" placeholder="Write a few lines about yourself"></textarea>
+      </div>
+
+      <input type="hidden" value="4471203" name="candidate[job_applications_attributes][0][job_id]" id="candidate_job_applications_attributes_0_job_id">
+      <input type="hidden" name="candidate[job_applications_attributes][0][job_ad_id]" id="candidate_job_applications_attributes_0_job_ad_id">
+
+      <div class="consent" id="id_5300208">
+        <input name="candidate[consent_given]" type="hidden" value="0"><input type="checkbox" value="1" name="candidate[consent_given]" id="candidate_consent_given">
+        <label for="candidate_consent_given"><span class="sr-only">Required.</span><p>By submitting this application, I confirm that I have read the <a data-turbo="false" href="#privacy-policy">Privacy Policy</a> and I understand that Saffron Studio will process my personal data as described in it.</p><sup data-asterisk="true" aria-hidden="true">*</sup></label>
+      </div>
+      <div class="error-msg hidden" id="consent-error">You need to agree to the privacy policy</div>
+      <div class="consent" id="id_5300216">
+        <input name="candidate[consent_given_future_jobs]" type="hidden" value="0"><input type="checkbox" value="1" name="candidate[consent_given_future_jobs]" id="candidate_consent_given_future_jobs">
+        <label for="candidate_consent_given_future_jobs"><p>I consent to Saffron Studio considering me for, and contacting me about, future vacancies.</p></label>
+      </div>
+      <div class="consent" id="id_5300232">
+        <input name="candidate[consent_given_sms]" type="hidden" value="0"><input type="checkbox" value="1" name="candidate[consent_given_sms]" id="candidate_consent_given_sms">
+        <label for="candidate_consent_given_sms">Saffron Studio can use my phone number for recruiting-related communication via SMS.</label>
+      </div>
+
+      <input type="submit" name="commit" value="Submit application" data-careersite--form-target="submitButton" data-disable-with="Submit application">
+      <div id="form-error" role="alert"></div>
+    </div>
+  </form>
+  </turbo-frame>
+</main>
+<footer>Career site by Teamtailor</footer>
+
+<script>
+(function () {
+  'use strict';
+  var form = document.getElementById('job-application-form');
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // ---- form metrics (careersite--form-metrics) ----------------------------------------
+  var ks = 0, pastes = 0;
+  form.addEventListener('input', function () { ks++; $('[name="form_metrics[keystrokes]"]').value = ks; });
+  form.addEventListener('paste', function () { pastes++; $('[name="form_metrics[pastes]"]').value = pastes; });
+  window.addEventListener('pointermove', function once() { $('[name="form_metrics[pointer]"]').value = 'true'; window.removeEventListener('pointermove', once); });
+  $('#device_signals').value = JSON.stringify({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, lang: navigator.language });
+
+  $('#linkedin-apply-button').addEventListener('click', function () { alert('LinkedIn is not available in this environment.'); });
+
+  // ---- multiple choice dropdown (common--dropdown + forms--inputs--choice) -------------------
+  var ddBtn = $('#trigger-dropdown-5e0c2a71');
+  var ddMenu = $('#dropdown-5e0c2a71');
+  function ddOpen(on) {
+    ddMenu.classList.toggle('hidden', !on);
+    ddBtn.setAttribute('aria-expanded', String(on));
+    if (on) { var first = $('[role=menuitemcheckbox]', ddMenu); if (first) first.focus(); }
+  }
+  ddBtn.addEventListener('click', function () { ddOpen(ddMenu.classList.contains('hidden')); });
+  function paintChoices() {
+    var names = $$('[role=menuitemcheckbox][aria-checked=true]', ddMenu).map(function (b) { return b.getAttribute('data-search-text'); });
+    $('#id_5300148_selected').textContent = names.join(', ');
+    $('[data-forms--inputs--choice-target=dropdownTrigger]').style.display = names.length ? 'none' : '';
+  }
+  $$('[role=menuitemcheckbox]', ddMenu).forEach(function (b, i, all) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-checked') !== 'true';
+      b.setAttribute('aria-checked', String(on));
+      $('.fa-check', b).classList.toggle('invisible', !on);
+      $('#candidate_answers_attributes_4_choices_' + b.getAttribute('data-value')).checked = on;
+      paintChoices();
+    });
+    b.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); (all[i + 1] || all[0]).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (all[i - 1] || all[all.length - 1]).focus(); }
+      else if (e.key === 'Escape') { ddOpen(false); ddBtn.focus(); }
+    });
+  });
+  document.addEventListener('click', function (e) { if (!ddMenu.contains(e.target) && !ddBtn.contains(e.target)) ddOpen(false); });
+
+  // ---- email suggestion ------------------------------------------------------------------
+  var TYPO = { 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'hotmial.com': 'hotmail.com', 'yaho.com': 'yahoo.com', 'outlok.com': 'outlook.com' };
+  var email = $('#candidate_email');
+  var sug = $('[data-forms--inputs--text-target=suggestionElementContainer]');
+  email.addEventListener('blur', function () {
+    var m = /^(.+)@(.+)$/.exec(email.value.trim());
+    var fix = m && TYPO[m[2].toLowerCase()];
+    sug.classList.toggle('hidden', !fix);
+    if (fix) $('button', sug).textContent = m[1] + '@' + fix;
+  });
+  $('button', sug).addEventListener('click', function () { email.value = this.textContent; sug.classList.add('hidden'); });
+
+  // ---- intl-tel-input ----------------------------------------------------------------------
+  var COUNTRIES = [['gb', 'United Kingdom', '44'], ['ie', 'Ireland', '353'], ['de', 'Germany', '49'], ['nl', 'Netherlands', '31'], ['pk', 'Pakistan', '92'], ['in', 'India', '91'], ['ng', 'Nigeria', '234'], ['ae', 'United Arab Emirates', '971'], ['us', 'United States', '1']];
+  var flag = $('.iti__selected-flag');
+  var list = $('#iti-0__country-listbox');
+  var phone = $('#candidate_phone');
+  var country = COUNTRIES[0];
+  var hi = 0;
+  COUNTRIES.forEach(function (c, i) {
+    var li = document.createElement('li');
+    li.className = 'iti__country';
+    li.setAttribute('role', 'option');
+    li.id = 'iti-0__item-' + c[0];
+    li.setAttribute('data-dial-code', c[2]);
+    li.setAttribute('data-country-code', c[0]);
+    li.setAttribute('aria-selected', String(i === 0));
+    li.innerHTML = '<span class="iti__country-name"></span> <span class="iti__dial-code"></span>';
+    li.firstChild.textContent = c[1];
+    li.lastChild.textContent = '+' + c[2];
+    li.addEventListener('click', function () { setCountry(c); closeList(); phone.focus(); });
+    list.appendChild(li);
+  });
+  function setCountry(c) {
+    country = c;
+    $('.iti__flag', flag).className = 'iti__flag iti__' + c[0];
+    $('.iti__flag', flag).textContent = c[0].toUpperCase();
+    $('.iti__selected-dial-code', flag).textContent = '+' + c[2];
+    flag.title = c[1] + ': +' + c[2];
+    $$('.iti__country', list).forEach(function (li) { li.setAttribute('aria-selected', String(li.getAttribute('data-country-code') === c[0])); });
+  }
+  function hl(i) { hi = i; $$('.iti__country', list).forEach(function (li, j) { li.classList.toggle('iti__highlight', j === i); }); }
+  function openList() { list.classList.remove('iti__hide'); flag.setAttribute('aria-expanded', 'true'); hl(COUNTRIES.indexOf(country)); }
+  function closeList() { list.classList.add('iti__hide'); flag.setAttribute('aria-expanded', 'false'); }
+  flag.addEventListener('click', function () { list.classList.contains('iti__hide') ? openList() : closeList(); });
+  flag.addEventListener('keydown', function (e) {
+    var open = !list.classList.contains('iti__hide');
+    if (!open && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); openList(); return; }
+    if (!open) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); hl(Math.min(COUNTRIES.length - 1, hi + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); hl(Math.max(0, hi - 1)); }
+    else if (e.key === 'Enter') { e.preventDefault(); setCountry(COUNTRIES[hi]); closeList(); phone.focus(); }
+    else if (e.key === 'Escape') closeList();
+    else if (/^[a-z]$/i.test(e.key)) { var j = COUNTRIES.findIndex(function (c) { return c[1].toLowerCase().charAt(0) === e.key.toLowerCase(); }); if (j >= 0) hl(j); }
+  });
+  document.addEventListener('click', function (e) { if (!flag.contains(e.target) && !list.contains(e.target)) closeList(); });
+  phone.addEventListener('input', function () {
+    var v = phone.value.replace(/[\s()-]/g, '');
+    if (v.charAt(0) !== '+') return;
+    var hit = COUNTRIES.slice().sort(function (a, b) { return b[2].length - a[2].length; }).find(function (c) { return v.slice(1).indexOf(c[2]) === 0; });
+    if (hit && hit !== country) setCountry(hit);
+  });
+  function e164() {
+    var v = phone.value.replace(/[^\d+]/g, '');
+    if (!v) return '';
+    if (v.charAt(0) === '+') return v;
+    return '+' + country[2] + v.replace(/^0+/, '');
+  }
+
+  // ---- Dropzone: hidden input appended to <body>, direct upload to S3 -------------------
+  var upRoot = $('[data-controller="forms--inputs--upload"]');
+  var trigger = $('[data-forms--inputs--upload-target=trigger]', upRoot);
+  var previews = $('[data-forms--inputs--upload-target=previewsContainer]', upRoot);
+  var errBox = $('[data-forms--inputs--upload-target=errorContainer]', upRoot);
+  var accepted = upRoot.getAttribute('data-forms--inputs--upload-accepted-files-value').split(',');
+  var hidden = document.createElement('input');
+  hidden.type = 'file';
+  hidden.className = 'dz-hidden-input';
+  hidden.setAttribute('accept', accepted.join(','));
+  hidden.setAttribute('tabindex', '-1');
+  hidden.style.cssText = 'visibility:hidden;position:absolute;top:0;left:0;height:0;width:0;';
+  document.body.appendChild(hidden);
+  var uploading = false;
+  function uploadErr(msg) { errBox.classList.toggle('hidden', !msg); $('[data-forms--inputs--upload-target=errorMsg]', errBox).textContent = msg || ''; }
+  function addFile(file) {
+    if (!file) return;
+    var ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+    if (accepted.indexOf(ext) === -1) { uploadErr('You can’t upload files of this type. Allowed types: ' + accepted.join(',')); return; }
+    if (file.size > 100 * 1024 * 1024) { uploadErr('File is too big (' + (file.size / 1048576).toFixed(1) + 'MB). Max filesize: 100MB.'); return; }
+    uploadErr('');
+    previews.innerHTML = '';
+    var node = $('[data-forms--inputs--upload-target=templatePreview]', upRoot).content.firstElementChild.cloneNode(true);
+    previews.appendChild(node);
+    $('[data-dz-name]', node).textContent = file.name;
+    trigger.classList.add('hidden');
+    uploading = true;
+    var fd = new FormData();
+    fd.append('key', 'uploads/${filename}');
+    fd.append('acl', 'private');
+    fd.append('success_action_status', '201');
+    fd.append('Content-Type', file.type || 'application/octet-stream');
+    fd.append('file', file, file.name);
+    fetch('/teamtailor-production.s3.eu-west-1.amazonaws.com/uploads', { method: 'POST', body: fd })
+      .then(function (r) { return r.text().then(function (t) { return { status: r.status, xml: t }; }); })
+      .then(function (res) {
+        uploading = false;
+        var loc = /<Location>([^<]+)<\/Location>/.exec(res.xml);
+        if (res.status !== 201 || !loc) { previews.innerHTML = ''; trigger.classList.remove('hidden'); uploadErr('Server responded with ' + res.status + ' code.'); return; }
+        $('[data-progress]', node).remove();
+        var url = $('input[name="candidate[resume_remote_url]"]', node);
+        url.disabled = false;
+        url.value = loc[1];
+        $('[data-dz-name]', node).href = loc[1];
+      });
+    $('[data-dz-remove]', node).addEventListener('click', function () { previews.innerHTML = ''; trigger.classList.remove('hidden'); });
+  }
+  trigger.addEventListener('click', function () { hidden.click(); });
+  trigger.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hidden.click(); } });
+  hidden.addEventListener('change', function () { addFile(hidden.files[0]); hidden.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (t) { trigger.addEventListener(t, function (e) { e.preventDefault(); trigger.classList.add('dz-drag-hover'); }); });
+  trigger.addEventListener('dragleave', function () { trigger.classList.remove('dz-drag-hover'); });
+  trigger.addEventListener('drop', function (e) { e.preventDefault(); trigger.classList.remove('dz-drag-hover'); addFile(e.dataTransfer.files[0]); });
+
+  // ---- validation + rails-ujs remote submit --------------------------------------------------
+  function mark(el, msg) {
+    var holder = el.closest('.question, .mb-48') || el.parentNode;
+    var m = holder.querySelector(':scope > .error-msg.js');
+    if (msg && !m) { m = document.createElement('div'); m.className = 'error-msg js'; holder.appendChild(m); }
+    if (m) { m.textContent = msg || ''; if (!msg) m.remove(); }
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = [];
+    $$('.question[data-question-mandatory=true]', form).forEach(function (q) {
+      var radios = $$('input[type=radio]', q);
+      var ctl = radios[0] || $('input[type=number], input[type=text], textarea', q);
+      var empty = radios.length ? !radios.some(function (r) { return r.checked; }) : !ctl.value.trim();
+      mark(ctl, empty ? 'This field is required' : '');
+      if (empty) bad.push(ctl);
+    });
+    [['#candidate_first_name', 'First name is required'], ['#candidate_last_name', 'Last name is required']].forEach(function (p) {
+      var el = $(p[0]); var empty = !el.value.trim(); mark(el, empty ? p[1] : ''); if (empty) bad.push(el);
+    });
+    var emOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+    mark(email, emOk ? '' : (email.value.trim() ? 'Email is invalid' : 'Email is required')); if (!emOk) bad.push(email);
+    var digits = e164().replace(/\D/g, '');
+    var phMsg = !digits ? 'Phone is required' : digits.length < 9 ? 'Too short' : digits.length > 15 ? 'Too long' : '';
+    mark(phone, phMsg); if (phMsg) bad.push(phone);
+    var url = $('input[name="candidate[resume_remote_url]"]:not([disabled])', previews);
+    if (!url || !url.value) { uploadErr(uploading ? 'Please wait for the upload to finish.' : 'Your CV is required'); bad.push(trigger); }
+    var consent = $('#candidate_consent_given');
+    $('#consent-error').classList.toggle('hidden', consent.checked);
+    if (!consent.checked) bad.push(consent);
+    if (bad.length) { bad[0].scrollIntoView({ block: 'center' }); if (bad[0].focus) bad[0].focus(); return; }
+
+    var submit = $('input[type=submit]', form);
+    submit.disabled = true;
+    submit.value = submit.getAttribute('data-disable-with');
+    var phoneRaw = phone.value;
+    phone.value = e164(); // the phone-input controller writes the full international number before submit
+    var fd = new FormData(form);
+    phone.value = phoneRaw;
+    fetch(form.action, { method: 'POST', body: fd, headers: { accept: 'text/vnd.turbo-stream.html, text/html, application/xhtml+xml, application/json', 'X-CSRF-Token': $('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.ok && res.redirect) { window.location.assign(res.redirect); return; }
+        submit.disabled = false;
+        $('#form-error').textContent = 'Something went wrong, please check the form and try again.';
+      });
+  });
+})();
+</script>
+</body>
+</html>

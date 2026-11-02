@@ -1,0 +1,93 @@
+{
+  "comments": "21/08/2026: Cursor pagination is now available and is the preferred way to page through jobs. Pass the nextCursor value from the previous response as ?cursor=. offset still works but is capped.",
+  "updatedAt": 1793599200,
+  "offset": 0,
+  "limit": 20,
+  "totalCount": 2,
+  "jobs": [
+    {
+      "title": "Junior Backend Engineer",
+      "excerpt": "Lumen Ledger is hiring a junior backend engineer to build Node.js and TypeScript services for its reconciliation platform.",
+      "companyName": "Lumen Ledger",
+      "companySlug": "lumen-ledger",
+      "companyLogo": "https://cdn-images.himalayas.app/lumen-ledger-logo-fixture",
+      "employmentType": "Full Time",
+      "minSalary": 28000,
+      "maxSalary": 36000,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Entry-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [
+        "Pakistan",
+        "India",
+        "United Kingdom",
+        "Germany",
+        "Egypt",
+        "United Arab Emirates"
+      ],
+      "timezoneRestrictions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "categories": [
+        "Backend-Engineer",
+        "Node-js-Developer"
+      ],
+      "parentCategories": [
+        "Developer"
+      ],
+      "description": "<p>Lumen Ledger builds reconciliation and month-end close software for small finance teams, used by accountants at 20-200 person companies who are done matching bank lines in spreadsheets. The company is a remote team of 34 across EMEA and South Asia and is hiring its second junior backend engineer.</p>\n<h3>What you'll do</h3>\n<ul><li>Build and maintain Node.js and TypeScript services that import bank feeds and match transactions to invoices.</li><li>Write PostgreSQL migrations and tune the matching engine's queries.</li><li>Ship small, tested changes to production several times a week with senior review.</li><li>Join a light daytime support rotation once settled.</li></ul>\n<h3>Must have</h3>\n<ul><li>1+ year of professional backend work in Node.js with TypeScript.</li><li>Comfort with SQL and relational modelling, ideally PostgreSQL.</li><li>Clear written English.</li><li>Four hours of overlap with 09:00-17:00 CET.</li></ul>\n<h3>Nice to have</h3>\n<ul><li>Docker and Docker Compose; some AWS (RDS, ECS or Lambda); interest in accounting or payments.</li></ul>\n<p>Fully remote within UTC-1 to UTC+6. USD 28,000-36,000 per year via employer of record, plus a learning budget and home-office stipend.</p>",
+      "pubDate": 1793538120,
+      "expiryDate": 1796130120,
+      "applicationLink": "{{ORIGIN_A}}/boards.greenhouse.io/lumenledger/jobs/4012345",
+      "guid": "https://himalayas.app/companies/lumen-ledger/jobs/junior-backend-engineer"
+    },
+    {
+      "title": "Backend Developer (Node.js)",
+      "excerpt": "Fernhill Logistics is looking for a Backend Developer to build Node.js routing services for its last-mile delivery fleet.",
+      "companyName": "Fernhill Logistics",
+      "companySlug": "fernhill-logistics",
+      "companyLogo": "https://cdn-images.himalayas.app/fernhill-logistics-logo-fixture",
+      "employmentType": "Full Time",
+      "minSalary": 45000,
+      "maxSalary": 55000,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Mid-level"
+      ],
+      "currency": "EUR",
+      "locationRestrictions": [
+        "Netherlands",
+        "Belgium",
+        "Germany",
+        "Pakistan"
+      ],
+      "timezoneRestrictions": [
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "categories": [
+        "Backend-Developer",
+        "Node-js-Developer"
+      ],
+      "parentCategories": [
+        "Developer"
+      ],
+      "description": "<p>Fernhill Logistics runs last-mile delivery for grocery chains in the Benelux. We are looking for a Backend Developer to join our routing team of eight engineers, who work mostly asynchronously.</p>\n<h3>What you'll do</h3>\n<ul><li>Build Node.js and TypeScript services that plan delivery routes for 600 vans a day.</li><li>Maintain our PostgreSQL and Redis data layer.</li><li>Integrate with telematics providers and our driver app.</li><li>Monitor services in production and improve alerting.</li></ul>\n<h3>Requirements</h3>\n<ul><li>2+ years of experience with Node.js and TypeScript.</li><li>Good SQL skills and experience with PostgreSQL.</li><li>Experience with message queues (RabbitMQ or SQS).</li></ul>\n<h3>Nice to have</h3>\n<ul><li>Experience with routing or optimisation problems.</li><li>Docker and Kubernetes.</li><li>Dutch.</li></ul>\n<h3>What we offer</h3>\n<p>Remote within Europe and nearby time zones (UTC-1 to UTC+4), EUR 45,000-55,000 per year, 26 days of leave and a yearly team trip. This posting was first published in August and may already be filled.</p>",
+      "pubDate": 1785835800,
+      "expiryDate": 1788427800,
+      "applicationLink": "https://fernhill-logistics.example.com/careers/backend-developer-nodejs",
+      "guid": "https://himalayas.app/companies/fernhill-logistics/jobs/backend-developer-node-js"
+    }
+  ]
+}

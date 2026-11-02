@@ -1,0 +1,41 @@
+/* Shared look of the Personio job page and apply page fixtures (CSS-module class names as the real Next.js app emits them). */
+body { margin: 0; font-family: Tahoma, Verdana, Arial, sans-serif; color: #1f1f1f; background: #fff; }
+.Header_header { background: #2c268a; color: #fff; padding: 18px 24px; font-weight: 700; font-size: 18px; }
+.page_container__x1Fq2 { max-width: 840px; margin: 0 auto; padding: 32px 16px 64px; }
+.page_jobHeader__b_ebM { margin-bottom: 24px; }
+.page_jobTitle__ydmA2, .jb-title { font-size: 30px; margin: 0 0 8px; }
+.job-details-info { color: #555; font-size: 15px; }
+.page_applyButtonWrapper__VB_gJ { display: inline-block; margin-top: 18px; background: #3766e6; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: 700; }
+.job-description section { margin: 24px 0; line-height: 1.6; }
+.job-description h2 { font-size: 18px; margin: 0 0 6px; }
+.DynamicForm_formContainer__PHnT_ { margin-top: 24px; }
+.DynamicForm_fieldset__Ti4mU { border: 0; padding: 0; margin: 0; }
+.DynamicForm_fieldRow__JaOBt { display: flex; flex-wrap: wrap; gap: 20px; }
+.DynamicForm_fullWidth__vAHrb, .name-group-container { flex: 1 1 100%; }
+.DynamicForm_halfWidth__qgqPh { flex: 1 1 calc(50% - 10px); min-width: 240px; }
+.DynamicForm_nameGroupInputs__cCgoN { display: flex; gap: 20px; }
+.DynamicForm_formLabel__aTROQ { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.DynamicForm_formLabel__aTROQ span[aria-hidden] { color: #d0021b; margin-left: 2px; }
+.DynamicForm_textField__r9bZB, .DynamicForm_selectField__fun8W, .DynamicForm_textArea__u1d8V { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid #c8c8d0; border-radius: 6px; font: inherit; background: #fff; }
+.DynamicForm_textArea__u1d8V { min-height: 120px; resize: vertical; }
+.DynamicForm_textField__r9bZB[aria-invalid=true], .DynamicForm_selectField__fun8W[aria-invalid=true] { border-color: #d0021b; }
+.DynamicForm_fieldFeedback__Q5F6M { color: #d0021b; font-size: 12px; min-height: 16px; margin-top: 4px; }
+.DynamicForm_checkboxGroup__Qm2xP label { display: flex; gap: 8px; align-items: center; margin: 6px 0; font-size: 14px; }
+.DynamicForm_sectionSpacing__fNn9P { margin-top: 32px; }
+.DynamicForm_documentHeader__OIt1C { font-size: 18px; margin: 0 0 12px; }
+.DynamicForm_documentCategoryWrapper__Hwpk_ { border: 1px solid #e3e3ea; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+.DynamicForm_documentCategoryLabel__nUd68 { font-weight: 700; margin-bottom: 8px; }
+.DynamicForm_documentCategoryLabel__nUd68 span[aria-hidden] { color: #d0021b; margin-left: 2px; }
+.DynamicForm_optionalText__oW3Xm { font-weight: 400; color: #777; margin-left: 4px; }
+.DynamicForm_addFileButton__3mZlN { background: #fff; border: 1px solid #3766e6; color: #3766e6; border-radius: 6px; padding: 8px 14px; cursor: pointer; font: inherit; }
+.DynamicForm_hidden__lwBPb { display: none; }
+.DynamicForm_fileList__Zp4cR { list-style: none; padding: 0; margin: 10px 0 0; }
+.DynamicForm_fileItem__k2V9s { display: flex; justify-content: space-between; align-items: center; background: #f5f5fa; border-radius: 6px; padding: 8px 12px; margin-top: 6px; font-size: 14px; }
+.DynamicForm_fileItem__k2V9s button { background: none; border: 0; color: #d0021b; cursor: pointer; font: inherit; }
+.DynamicForm_privacy__s8Jq1 { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; }
+.Button_buttonWrapper___5Rvi { background: #3766e6; color: #fff; border: 0; border-radius: 6px; padding: 14px 32px; font: 700 16px Tahoma, Verdana, Arial, sans-serif; cursor: pointer; }
+.Button_buttonWrapper___5Rvi:disabled { background: #a9b9ee; cursor: not-allowed; }
+.DynamicForm_formError__Pp0Qe { color: #d0021b; margin-top: 12px; }
+.Footer_footerWrapper__k4I53 { border-top: 1px solid #eee; padding: 20px; text-align: center; font-size: 13px; color: #666; }
+.Footer_footerWrapper__k4I53 a { color: #2c268a; margin: 0 8px; }
+.application-content h5 { font-size: 22px; margin: 0 0 8px; }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: application form protected by a VISIBLE hCaptcha checkbox (mock).
+  Reproduced:
+   - div.h-captcha[data-sitekey] rendered by an "hcaptcha api.js" stand-in into
+     <iframe title="Widget containing checkbox for hCaptcha security challenge" data-hcaptcha-widget-id=..
+     src="{{ORIGIN_B}}/widgets/captcha/hcaptcha.com/captcha/v1/static/hcaptcha.html#frame=checkbox&id=..&host=..&sitekey=.."
+     style="width: 303px; height: 78px"> plus hidden textarea[name=g-recaptcha-response] and textarea[name=h-captcha-response];
+   - the frames are CROSS-ORIGIN (origin B), like newassets.hcaptcha.com is for a real site;
+   - a trusted click on "I am human" opens the challenge iframe (title "Main content of the hCaptcha
+     challenge", #frame=challenge) over a near-transparent full-page overlay; clicking it dismisses;
+   - the image grid (captcha/challenge.js) mints a "human-..." token only for a trusted,
+     human-paced, correct solve, never under navigator.webdriver.
+  Server: manifest captcha=true (token must start with "human-").
+  Client: submit without a token shows "Please complete the CAPTCHA" and posts nothing.
+  Expected outcome for an automated filler: needs_you.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Backend Engineer, Payments - Orchard Payments Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin: 0; color: #1f2933; background: #f5f7fa; }
+    header { background: #14532d; color: #fff; padding: 18px 32px; }
+    header .brand { font-weight: 700; letter-spacing: .3px; }
+    main { max-width: 720px; margin: 24px auto; background: #fff; padding: 28px 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h1 { font-size: 24px; margin: 0 0 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .req { color: #c53030; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #cbd2d9; border-radius: 4px; font-size: 15px; }
+    input[aria-invalid=true] { border-color: #c53030; }
+    .field-error { color: #c53030; font-size: 13px; margin-top: 4px; }
+    .hint { color: #7b8794; font-size: 12px; }
+    .captcha-row { margin: 22px 0 8px; }
+    .captcha-error { display: none; color: #c53030; font-weight: 600; margin-top: 6px; }
+    .summary { display: none; color: #c53030; margin: 8px 0; }
+    button[type=submit] { background: #15803d; color: #fff; border: 0; padding: 11px 26px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+    button[disabled] { opacity: .6; }
+  </style>
+</head>
+<body>
+<header><span class="brand">Orchard Payments</span> &middot; Careers</header>
+<main>
+  <h1>Backend Engineer, Payments</h1>
+  <div class="meta">Remote &middot; Full-time &middot; Engineering</div>
+  <p>Orchard Payments runs card acquiring for independent grocers. You will work on our settlement and payout services (TypeScript, PostgreSQL) and help keep money moving correctly.</p>
+
+  <h2>Apply for this job</h2>
+  <form id="application" action="/__submit/{{FORM_ID}}" method="post" enctype="multipart/form-data">
+    <div class="field"><label for="first_name">First name <span class="req">*</span></label><input type="text" id="first_name" name="first_name" autocomplete="given-name" required></div>
+    <div class="field"><label for="last_name">Last name <span class="req">*</span></label><input type="text" id="last_name" name="last_name" autocomplete="family-name" required></div>
+    <div class="field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" autocomplete="email" required></div>
+    <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" autocomplete="tel"></div>
+    <div class="field"><label for="linkedin">LinkedIn profile</label><input type="url" id="linkedin" name="linkedin"></div>
+    <div class="field"><label for="resume">Resume/CV</label><input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx"><div class="hint">PDF or Word, max 10 MB</div></div>
+
+    <div class="captcha-row">
+      <div class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-fixture0rchard" data-theme="light" id="hcaptcha"></div>
+      <div class="captcha-error" id="captcha_error" role="alert"></div>
+    </div>
+    <div class="summary" id="summary" role="alert"></div>
+    <button type="submit" id="submit_app">Submit application</button>
+  </form>
+</main>
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/_widgets/captcha/host.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FRAME_ORIGIN = '{{ORIGIN_B}}';
+  var holder = document.getElementById('hcaptcha');
+  var key = holder.getAttribute('data-sitekey');
+  var id = Math.random().toString(36).slice(2, 12);
+  var base = FRAME_ORIGIN + '/widgets/captcha/hcaptcha.com/captcha/v1/static/hcaptcha.html#';
+  function hash(frame) {
+    return 'frame=' + frame + '&id=' + id + '&host=' + encodeURIComponent(location.origin) + '&sentry=false&recaptchacompat=true&custom=false&hl=en&tplinks=on&sitekey=' + key + '&theme=light';
+  }
+  holder.setAttribute('data-hcaptcha-widget-id', id);
+  holder.setAttribute('data-hcaptcha-response', '');
+  holder.innerHTML =
+    '<iframe src="' + base + hash('checkbox') + '" tabindex="0" frameborder="0" scrolling="no" title="Widget containing checkbox for hCaptcha security challenge"' +
+    ' data-hcaptcha-widget-id="' + id + '" data-hcaptcha-response="" style="pointer-events: auto; width: 303px; height: 78px; overflow: hidden;"></iframe>' +
+    '<textarea id="g-recaptcha-response-' + id + '" name="g-recaptcha-response" style="display: none;"></textarea>' +
+    '<textarea id="h-captcha-response-' + id + '" name="h-captcha-response" style="display: none;"></textarea>';
+  var anchor = holder.querySelector('iframe');
+  var tokens = [holder.querySelector('[name=g-recaptcha-response]'), holder.querySelector('[name=h-captcha-response]')];
+
+  FXCaptchaHost.attach({
+    frameOrigin: FRAME_ORIGIN,
+    anchor: anchor,
+    tokenInputs: tokens,
+    onToken: function (t) {
+      holder.setAttribute('data-hcaptcha-response', t);
+      anchor.setAttribute('data-hcaptcha-response', t);
+    },
+    challenge: {
+      build: function () {
+        var d = document.createElement('div');
+        d.style.cssText = 'visibility: hidden; position: absolute; top: 0px; left: 0px; z-index: 2147483647;';
+        d.innerHTML =
+          '<div data-fx-overlay style="position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgb(255, 255, 255); opacity: 0.05; z-index: 2147483647;"></div>' +
+          '<div data-fx-bubble style="position: absolute; z-index: 2147483647; border: 1px solid rgb(215, 215, 215); border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 4px; background-color: rgb(255, 255, 255); width: 400px; height: 600px;">' +
+          '<iframe src="' + base + hash('challenge') + '" frameborder="0" scrolling="no" title="Main content of the hCaptcha challenge" style="border: 0px; position: relative; width: 400px; height: 600px;"></iframe></div>';
+        return d;
+      },
+    },
+  });
+
+  FXCaptchaHost.form(document.getElementById('application'), '{{FORM_ID}}', {
+    tokenInputs: tokens,
+    captchaError: document.getElementById('captcha_error'),
+    errorBox: document.getElementById('summary'),
+  });
+})();
+</script>
+</body>
+</html>

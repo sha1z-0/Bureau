@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: a location typeahead that only accepts a picked suggestion (Ashby / Workable style; NOT Google Places).
+
+  DOM: input#location[name=location][role=combobox][aria-autocomplete=list][aria-expanded][aria-controls=location-listbox]
+       (+ aria-activedescendant while an option is active), input[type=hidden][name=location_id],
+       ul#location-listbox[role=listbox] > li.ta-option#location-option-N[role=option][aria-selected][data-location-id]
+       with a primary city line and a secondary region line, a polite status line ("Searching..." / "No locations found"),
+       and an inline error div#location-error.
+  Behaviour:
+    - Suggestions come from the page's own "geo service": 300 ms debounce after the last keystroke, then a 250 ms
+      simulated request; responses for older queries are discarded. Needs at least 2 characters.
+    - ArrowDown/ArrowUp move the active option, Enter or click picks, Escape closes.
+    - Picking fills the visible input with "City, Region, Country" and the hidden location_id (e.g. geo-1172451).
+    - ANY later edit clears location_id. Free text (even an exact label) is rejected on blur and on submit with
+      "Please select a location from the list" (aria-invalid=true); the server requires location_id.
+  Trap: typing the right words is not enough; only a picked suggestion commits a value.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Engineer - Driftwood Energy - Apply</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --ink: #1b1b29; --muted: #6a6a80; --line: #dcdce6; --accent: #4b45d6; --bad: #c62828; }
+    body { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); background: #fff; }
+    .shell { max-width: 640px; margin: 0 auto; padding: 32px 20px 60px; }
+    .org { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    h1 { font-size: 28px; margin: 6px 0 4px; }
+    .tags { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+    .overview { line-height: 1.6; border-bottom: 1px solid var(--line); padding-bottom: 18px; margin-bottom: 22px; }
+    .q { margin-bottom: 20px; }
+    .q label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .q label .star { color: var(--bad); }
+    .q input[type=text], .q input[type=email] { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+    .q input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .q input[aria-invalid=true] { border-color: var(--bad); }
+    .q .err { color: var(--bad); font-size: 13px; margin-top: 6px; display: none; }
+    .q .err.show { display: block; }
+    .ta { position: relative; }
+    .ta-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 10; list-style: none; margin: 0; padding: 4px 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(20,20,60,.12); max-height: 260px; overflow-y: auto; }
+    .ta-option { padding: 8px 12px; cursor: pointer; }
+    .ta-option .city { font-size: 15px; }
+    .ta-option .region { font-size: 12px; color: var(--muted); }
+    .ta-option.active { background: #efeffd; }
+    .ta-status { font-size: 12px; color: var(--muted); margin-top: 4px; min-height: 14px; }
+    .submit { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 12px 26px; font-size: 15px; cursor: pointer; }
+    #summary { display: none; color: var(--bad); margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="org">Driftwood Energy</div>
+  <h1>Data Engineer, Grid Forecasting</h1>
+  <div class="tags">Hybrid or remote &middot; Engineering &middot; Full time</div>
+  <div class="overview">
+    <p>Driftwood Energy forecasts demand for community solar co-operatives. You will build the pipelines that pull
+    smart-meter and weather data into our forecasting models, mostly in Python and SQL.</p>
+    <p>We hire across several countries and need to know where you are based for payroll and tax purposes.</p>
+  </div>
+
+  <div id="summary" role="alert">Please fix the errors below.</div>
+  <form id="app-form" novalidate autocomplete="off">
+    <div class="q"><label for="first_name">First name <span class="star">*</span></label><input type="text" id="first_name" name="first_name" required><div class="err">First name is required</div></div>
+    <div class="q"><label for="last_name">Last name <span class="star">*</span></label><input type="text" id="last_name" name="last_name" required><div class="err">Last name is required</div></div>
+    <div class="q"><label for="email">Email <span class="star">*</span></label><input type="email" id="email" name="email" required><div class="err">Enter a valid email address</div></div>
+
+    <div class="q" id="location-q">
+      <label id="location-label" for="location">Where are you currently based? <span class="star">*</span></label>
+      <div class="ta">
+        <input type="text" id="location" name="location" placeholder="Start typing a city" role="combobox" aria-autocomplete="list"
+               aria-expanded="false" aria-controls="location-listbox" aria-describedby="location-status location-error" autocomplete="off" required>
+        <input type="hidden" id="location_id" name="location_id" value="">
+        <ul id="location-listbox" class="ta-list" role="listbox" aria-labelledby="location-label" hidden></ul>
+      </div>
+      <div class="ta-status" id="location-status" aria-live="polite"></div>
+      <div class="err" id="location-error">Please select a location from the list</div>
+    </div>
+
+    <button class="submit" type="submit" id="submit">Submit application</button>
+  </form>
+</div>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+
+  // The page's own geo directory (GeoNames-style ids).
+  var GEO = [
+    ['geo-1172451', 'Lahore', 'Punjab, Pakistan'],
+    ['geo-1172452', 'Lahore Cantonment', 'Punjab, Pakistan'],
+    ['geo-1174872', 'Karachi', 'Sindh, Pakistan'],
+    ['geo-1176615', 'Islamabad', 'Islamabad Capital Territory, Pakistan'],
+    ['geo-1166993', 'Rawalpindi', 'Punjab, Pakistan'],
+    ['geo-1179400', 'Faisalabad', 'Punjab, Pakistan'],
+    ['geo-2332459', 'Lagos', 'Lagos, Nigeria'],
+    ['geo-5849996', 'Lahaina', 'Hawaii, United States'],
+    ['geo-2881509', 'Lahr', 'Baden-Wuerttemberg, Germany'],
+    ['geo-649360', 'Lahti', 'Paijat-Hame, Finland'],
+    ['geo-1734199', 'Lahad Datu', 'Sabah, Malaysia'],
+    ['geo-2643743', 'London', 'England, United Kingdom'],
+    ['geo-2950159', 'Berlin', 'Berlin, Germany'],
+    ['geo-292223', 'Dubai', 'Dubai, United Arab Emirates'],
+    ['geo-1880252', 'Singapore', 'Singapore'],
+    ['geo-6167865', 'Toronto', 'Ontario, Canada'],
+    ['geo-5128581', 'New York', 'New York, United States'],
+    ['geo-5391959', 'San Francisco', 'California, United States'],
+    ['geo-2759794', 'Amsterdam', 'North Holland, Netherlands']
+  ];
+  function geoSearch(q) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        var n = q.trim().toLowerCase();
+        resolve(GEO.filter(function (g) { return (g[1] + ', ' + g[2]).toLowerCase().indexOf(n) !== -1; }).slice(0, 6)
+          .map(function (g) { return { id: g[0], city: g[1], region: g[2], label: g[1] + ', ' + g[2] }; }));
+      }, 250);
+    });
+  }
+
+  var input = document.getElementById('location');
+  var hidden = document.getElementById('location_id');
+  var list = document.getElementById('location-listbox');
+  var status = document.getElementById('location-status');
+  var error = document.getElementById('location-error');
+  var results = [], active = -1, timer = null, seq = 0, picking = false;
+
+  function setError(on) {
+    error.classList.toggle('show', on);
+    input.setAttribute('aria-invalid', on ? 'true' : 'false');
+  }
+  function close() {
+    list.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    active = -1;
+  }
+  function setActive(i) {
+    active = i;
+    Array.prototype.forEach.call(list.children, function (li, j) {
+      li.classList.toggle('active', j === i);
+      li.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    if (i >= 0 && list.children[i]) {
+      input.setAttribute('aria-activedescendant', list.children[i].id);
+      list.children[i].scrollIntoView({ block: 'nearest' });
+    } else input.removeAttribute('aria-activedescendant');
+  }
+  function render() {
+    list.innerHTML = '';
+    results.forEach(function (r, i) {
+      var li = document.createElement('li');
+      li.className = 'ta-option';
+      li.id = 'location-option-' + i;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', 'false');
+      li.dataset.locationId = r.id;
+      li.innerHTML = '<div class="city"></div><div class="region"></div>';
+      li.querySelector('.city').textContent = r.city;
+      li.querySelector('.region').textContent = r.region;
+      li.setAttribute('aria-label', r.label);
+      li.addEventListener('mousedown', function (e) { e.preventDefault(); picking = true; });
+      li.addEventListener('click', function () { pick(i); });
+      li.addEventListener('mousemove', function () { if (active !== i) setActive(i); });
+      list.appendChild(li);
+    });
+    if (results.length) {
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      status.textContent = results.length + ' location' + (results.length === 1 ? '' : 's') + ' found';
+      setActive(-1);
+    } else {
+      close();
+      status.textContent = 'No locations found';
+    }
+  }
+  function pick(i) {
+    var r = results[i];
+    picking = false;
+    if (!r) return;
+    input.value = r.label;
+    hidden.value = r.id;
+    status.textContent = '';
+    setError(false);
+    close();
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  input.addEventListener('input', function () {
+    hidden.value = ''; // any edit discards the previous pick
+    clearTimeout(timer);
+    var q = input.value;
+    if (q.trim().length < 2) { close(); results = []; status.textContent = ''; seq++; return; }
+    timer = setTimeout(function () {
+      var my = ++seq;
+      status.textContent = 'Searching...';
+      geoSearch(q).then(function (res) {
+        if (my !== seq) return; // stale response
+        results = res;
+        if (document.activeElement === input) render();
+        else status.textContent = '';
+      });
+    }, 300);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (!list.hidden) setActive(Math.min(results.length - 1, active + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); if (!list.hidden) setActive(Math.max(0, active - 1)); }
+    else if (e.key === 'Enter') { if (!list.hidden && active >= 0) { e.preventDefault(); pick(active); } else if (!list.hidden) e.preventDefault(); }
+    else if (e.key === 'Escape') { if (!list.hidden) { e.preventDefault(); close(); } }
+  });
+  input.addEventListener('blur', function () {
+    if (picking) return;
+    clearTimeout(timer);
+    seq++;
+    close();
+    status.textContent = '';
+    error.textContent = 'Please select a location from the list';
+    setError(input.value.trim() !== '' && !hidden.value);
+  });
+  input.addEventListener('focus', function () { if (!hidden.value && results.length && input.value.trim().length >= 2) render(); });
+
+  var form = document.getElementById('app-form');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var bad = 0;
+    ['first_name', 'last_name', 'email'].forEach(function (id) {
+      var el = document.getElementById(id);
+      var b = !el.value.trim() || (id === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
+      el.setAttribute('aria-invalid', b ? 'true' : 'false');
+      el.parentNode.querySelector('.err').classList.toggle('show', b);
+      if (b) bad++;
+    });
+    if (!hidden.value) {
+      error.textContent = input.value.trim() ? 'Please select a location from the list' : 'Location is required';
+      setError(true);
+      bad++;
+    }
+    document.getElementById('summary').style.display = bad ? 'block' : 'none';
+    if (bad) return;
+    var btn = document.getElementById('submit');
+    btn.disabled = true;
+    var res = await FX.postForm(FORM_ID, new FormData(form));
+    if (!FX.finish(res)) {
+      btn.disabled = false;
+      var s = document.getElementById('summary');
+      s.textContent = 'Submission failed: ' + (res.errors || []).join('; ');
+      s.style.display = 'block';
+    }
+  });
+})();
+</script>
+</body>
+</html>

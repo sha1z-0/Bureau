@@ -1,0 +1,37 @@
+{
+  "jobPostingInfo": {
+    "id": "c4e8a2f61b3d10017a9e5c3b2f4d0000",
+    "title": "Associate Software Engineer",
+    "jobDescription": "<p><b>Company overview</b></p><p>Atlas Mutual is a member-owned insurer serving 2.4 million policyholders. Our Digital Engineering group builds the quoting, claims and customer self-service platforms, and has opened a remote engineering hub for talent in Pakistan.</p><p><b>Position summary</b></p><p>As an Associate Software Engineer you will join the Claims Experience team, building the web and API layers that let members file and track claims online.</p><p><b>Key responsibilities</b></p><ul><li>Develop features in our TypeScript and Node.js API layer and React front end.</li><li>Write unit and integration tests and fix defects found in QA.</li><li>Work with PostgreSQL and with event streams from our core claims system.</li><li>Participate in agile ceremonies and code reviews.</li></ul><p><b>Required qualifications</b></p><ul><li>Bachelor's degree in Computer Science or a related field.</li><li>1-2 years of experience with JavaScript or TypeScript, including Node.js.</li><li>Working knowledge of SQL and REST APIs.</li></ul><p><b>Preferred qualifications</b></p><ul><li>Java or Spring Boot exposure.</li><li>Experience with Docker or AWS.</li><li>Interest in insurance or financial services.</li></ul><p><b>Compensation</b></p><p>PKR 300,000-380,000 per month, paid through our local employer-of-record. Remote within Pakistan, with core hours 13:00-21:00 PKT.</p>",
+    "location": "Remote - Pakistan",
+    "postedOn": "Posted 2 Days Ago",
+    "startDate": "2026-10-31",
+    "timeType": "Full time",
+    "jobReqId": "R-104233",
+    "jobPostingId": "Associate-Software-Engineer_R-104233",
+    "jobPostingSiteId": "AtlasCareers",
+    "country": {
+      "descriptor": "Pakistan",
+      "id": "9f2c4e6a8b0d4f1a3c5e7b9d1f3a5c01"
+    },
+    "canApply": true,
+    "posted": true,
+    "includeResumeParsing": true,
+    "jobRequisitionLocation": {
+      "descriptor": "Remote - Pakistan",
+      "country": {
+        "descriptor": "Pakistan",
+        "id": "9f2c4e6a8b0d4f1a3c5e7b9d1f3a5c01",
+        "alpha2Code": "PK"
+      }
+    },
+    "externalUrl": "{{ORIGIN_A}}/atlasmutual.wd5.myworkdayjobs.com/en-US/AtlasCareers/job/Remote---Pakistan/Associate-Software-Engineer_R-104233",
+    "questionnaireId": "3b5d7f9a1c2e40018e6c4a2b0d9f0000"
+  },
+  "hiringOrganization": {
+    "name": "Atlas Mutual Insurance Company",
+    "url": ""
+  },
+  "similarJobs": [],
+  "userAuthenticated": false
+}

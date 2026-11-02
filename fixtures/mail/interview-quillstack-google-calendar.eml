@@ -1,0 +1,85 @@
+Return-Path: <daniel.okafor@quillstack.example.com>
+From: Daniel Okafor <daniel.okafor@quillstack.example.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: =?UTF-8?B?UXVpbGxzdGFjayDigJMgbmV4dCBzdGVwOiB0ZWNobmljYWwgY29udmVy?=
+ =?UTF-8?B?c2F0aW9u?=
+Date: Mon, 26 Oct 2026 09:35:11 +0000
+Message-ID: <CAQs9mK2p8-next-step-tech@mail.quillstack.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0016_fixture.tnvn80"
+
+------=_Part_0016_fixture.tnvn80
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Rania,
+
+Great news: the Editor team would like to meet you! The next step is a 45-minute technical conversation with Hana Petrova (Senior Engineer) and me. We'll talk through a small React component you've built and how you'd extend it; no whiteboard puzzles.
+
+Any of these times work for us (all PKT):
+- Wednesday 28 October, 16:00-16:45
+- Thursday 29 October, 14:00-14:45
+- Thursday 29 October, 18:00-18:45
+
+Or choose another slot on my booking page:
+https://calendar.google.com/calendar/appointments/schedules/AcZssZ0fixtureQuillstackEditor
+
+I've put a tentative hold on the first option (invite attached); just reply with the slot you prefer and I'll move it.
+
+Video call: https://meet.google.com/qsk-edtr-int
+
+Best,
+Daniel Okafor
+Engineering Recruiter, Quillstack
+
+------=_Part_0016_fixture.tnvn80
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Hi Rania,</p>
+<p>Great news: the Editor team would like to meet you! The next step is a 45-minute technical conversation with Hana Petrova (Senior Engineer) and me. We'll talk through a small React component you've built and how you'd extend it; no whiteboard puzzles.</p>
+<p>Any of these times work for us (all PKT):<br>
+- Wednesday 28 October, 16:00-16:45<br>
+- Thursday 29 October, 14:00-14:45<br>
+- Thursday 29 October, 18:00-18:45</p>
+<p>Or choose another slot on my booking page:<br>
+<a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0fixtureQuillstackEditor">https://calendar.google.com/calendar/appointments/schedules/AcZssZ0fixtureQuillstackEditor</a></p>
+<p>I've put a tentative hold on the first option (invite attached); just reply with the slot you prefer and I'll move it.</p>
+<p>Video call: <a href="https://meet.google.com/qsk-edtr-int">https://meet.google.com/qsk-edtr-int</a></p>
+<p>Best,<br>
+Daniel Okafor<br>
+Engineering Recruiter, Quillstack</p>
+</body>
+</html>
+
+------=_Part_0016_fixture.tnvn80
+Content-Type: text/calendar; charset="UTF-8"; method=REQUEST
+Content-Transfer-Encoding: 7bit
+
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20261028T110000Z
+DTEND:20261028T114500Z
+DTSTAMP:20261026T093511Z
+ORGANIZER;CN=Daniel Okafor:mailto:daniel.okafor@quillstack.example.com
+UID:7q2c9k4m1v8x3b6n0z5w@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=rania.haroon.jobs@example.com:mailto:rania.haroon.jobs@example.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=TRUE;CN=Hana Petrova:mailto:hana.petrova@quillstack.example.com
+DESCRIPTION:Technical conversation: Associate Software Engineer (Editor team).\nJoin with Google Meet: https://meet.google.com/qsk-edtr-int
+LOCATION:https://meet.google.com/qsk-edtr-int
+SEQUENCE:0
+STATUS:TENTATIVE
+SUMMARY:HOLD: Quillstack technical interview - Rania Haroon
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+
+------=_Part_0016_fixture.tnvn80--

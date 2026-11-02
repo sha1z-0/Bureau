@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: international phone pickers, vanilla JS.
+
+  1. intl-tel-input v23 (separateDialCode / showSelectedDialCode, hiddenInput) on "Mobile phone":
+     div.iti.iti--allow-dropdown.iti--show-flags.iti--inline-dropdown.iti--show-selected-dial-code
+       div.iti__country-container
+         button.iti__selected-country[role=combobox][aria-expanded][aria-haspopup=true][aria-controls=iti-0__dropdown-content][title="United States: +1"]
+           div.iti__selected-country-primary > div.iti__flag.iti__us + div.iti__arrow(.iti__arrow--up)
+           div.iti__selected-dial-code "+1"
+         div#iti-0__dropdown-content.iti__dropdown-content(.iti__hide)
+           input.iti__search-input[role=combobox][aria-controls=iti-0__country-listbox][aria-activedescendant]
+           span.iti__a11y-text "N results found"
+           ul#iti-0__country-list.iti__country-list[role=listbox] > li.iti__country#iti-0__item-xx[role=option][data-country-code][data-dial-code][aria-selected]
+             (.iti__highlight on the keyboard/hover item) > div.iti__flag-box + span.iti__country-name + span.iti__dial-code
+       input#phone[type=tel][name=phone] with a per-country placeholder (US "201-555-0123", PK "301 2345678")
+       input[type=hidden][name=phone_full] + input[type=hidden][name=phone_country]
+     Behaviour: default country United States; clicking the selected country opens the dropdown and focuses the search;
+     search filters by name / ISO code / dial code; ArrowUp/Down + Enter, click, Escape, outside click; ArrowDown/Enter/Space on
+     the closed button opens it. Typing "+92..." into the number switches the country and strips the dial code. A leading
+     national trunk "0" is dropped. As-you-type formatting (US "(301) 555-0142" style "301-555-0142", PK "301 5550142").
+     TRAP (faithful to the library): the hidden phone_full / phone_country inputs are only written in the form's submit
+     event (iti's own submit listener), so reading them back before submit shows empty values. The visible state
+     (title/aria-label of the selected country, .iti__selected-dial-code) is what to verify.
+
+  2. react-phone-number-input on "WhatsApp number" (defaultCountry US):
+     div.PhoneInput > div.PhoneInputCountry > select.PhoneInputCountrySelect[aria-label="Phone number country"] (transparent,
+     absolutely positioned over the flag icon) + div.PhoneInputCountryIcon + div.PhoneInputCountrySelectArrow,
+     then input.PhoneInputInput[type=tel]. The component value is E.164; the app mirrors it to hidden "whatsapp".
+     The visible text is national format; typing "+92 ..." switches the select to PK.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Operations Engineer - Saltmarsh Logistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "Inter", "Segoe UI", Arial, sans-serif; color: #18212b; background: #eef2f1; }
+    .top { background: #fff; border-bottom: 3px solid #1d7a5f; padding: 14px 28px; font-weight: 700; color: #1d7a5f; }
+    .wrap { max-width: 700px; margin: 26px auto; background: #fff; padding: 26px 30px; border-radius: 6px; }
+    h1 { margin: 0 0 4px; font-size: 24px; }
+    .loc { color: #5b6b78; margin-bottom: 14px; }
+    .blurb { color: #3c4a55; line-height: 1.55; margin-bottom: 18px; }
+    .f { margin-bottom: 18px; }
+    .f > label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .f .req { color: #c0392b; }
+    .f .help { font-size: 12px; color: #6b7b88; margin-top: 4px; }
+    .f .err { font-size: 13px; color: #c0392b; margin-top: 4px; display: none; }
+    .f.invalid .err { display: block; }
+    .f.invalid input { border-color: #c0392b !important; }
+    .txt { width: 100%; box-sizing: border-box; padding: 9px 11px; font-size: 15px; border: 1px solid #c4ccd3; border-radius: 4px; }
+    .two { display: flex; gap: 16px; } .two .f { flex: 1; }
+    .btn { background: #1d7a5f; color: #fff; border: 0; padding: 11px 24px; font-size: 15px; border-radius: 4px; cursor: pointer; }
+    #banner { display: none; background: #fdecea; color: #922; padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; }
+
+    /* intl-tel-input */
+    .iti { position: relative; display: inline-block; width: 100%; }
+    .iti input[type=tel] { padding-right: 6px; margin-right: 0; position: relative; z-index: 0; width: 100%; box-sizing: border-box; padding-top: 9px; padding-bottom: 9px; font-size: 15px; border: 1px solid #c4ccd3; border-radius: 4px; }
+    .iti__country-container { position: absolute; top: 0; bottom: 0; left: 0; padding: 1px; }
+    .iti__selected-country { z-index: 1; position: relative; display: flex; align-items: center; height: 100%; background: none; border: 0; margin: 0; padding: 0; font-family: inherit; font-size: inherit; color: inherit; border-radius: 0; cursor: pointer; }
+    .iti__selected-country-primary { display: flex; align-items: center; height: 100%; padding: 0 6px 0 8px; }
+    .iti__selected-country:hover, .iti__selected-country[aria-expanded=true] { background: rgba(0,0,0,.05); }
+    .iti__arrow { margin-left: 6px; width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 4px solid #555; }
+    .iti__arrow--up { border-top: none; border-bottom: 4px solid #555; }
+    .iti__selected-dial-code { margin-left: 4px; }
+    .iti__flag { width: 20px; height: 14px; box-shadow: 0 0 1px 0 #888; background: #dfe6ea; font-size: 8px; line-height: 14px; text-align: center; text-transform: uppercase; color: #445; overflow: hidden; }
+    .iti__flag::after { content: attr(data-code); }
+    .iti__dropdown-content { position: absolute; z-index: 2; margin-top: 3px; margin-left: -1px; border-radius: 3px; background: #fff; border: 1px solid #ccc; box-shadow: 1px 1px 4px rgba(0,0,0,.2); width: 320px; }
+    .iti__hide { display: none; }
+    .iti__search-input { width: 100%; border-width: 0 0 1px 0; border-color: #ccc; border-style: solid; padding: 9px 12px; box-sizing: border-box; font-size: 14px; outline: none; }
+    .iti__a11y-text { width: 1px; height: 1px; clip: rect(1px,1px,1px,1px); overflow: hidden; position: absolute; }
+    .iti__country-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
+    .iti__country { display: flex; align-items: center; padding: 8px 8px; outline: none; cursor: pointer; font-size: 14px; }
+    .iti__country.iti__highlight { background: rgba(0,0,0,.05); }
+    .iti__flag-box { margin-right: 8px; }
+    .iti__dial-code { color: #999; margin-left: 6px; }
+
+    /* react-phone-number-input */
+    .PhoneInput { display: flex; align-items: center; border: 1px solid #c4ccd3; border-radius: 4px; padding: 0 0 0 10px; }
+    .PhoneInputCountry { position: relative; align-self: stretch; display: flex; align-items: center; margin-right: 8px; }
+    .PhoneInputCountrySelect { position: absolute; top: 0; left: 0; height: 100%; width: 100%; z-index: 1; border: 0; opacity: 0; cursor: pointer; }
+    .PhoneInputCountryIcon { width: 24px; height: 16px; font-size: 9px; line-height: 16px; text-align: center; background: #dfe6ea; color: #445; }
+    .PhoneInputCountryIcon--border { box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
+    .PhoneInputCountrySelectArrow { display: block; content: ''; width: .3em; height: .3em; margin-left: .35em; border-style: solid; border-color: currentColor; border-top-width: 0; border-bottom-width: 1px; border-left-width: 0; border-right-width: 1px; transform: rotate(45deg); opacity: .45; }
+    .PhoneInputInput { flex: 1; min-width: 0; border: 0; outline: none; padding: 9px 11px 9px 0; font-size: 15px; }
+  </style>
+</head>
+<body>
+<div class="top">Saltmarsh Logistics &mdash; Careers</div>
+<div class="wrap">
+  <h1>Operations Engineer (On-call, APAC)</h1>
+  <div class="loc">Remote &middot; Karachi / Lahore / Singapore time zones</div>
+  <div class="blurb">Saltmarsh Logistics moves refrigerated freight through 14 ports. Our operations engineers keep the
+    tracking platform healthy around the clock, so we will call you on the number below if you are shortlisted.
+    Please include your country code.</div>
+
+  <div id="banner" role="alert"></div>
+  <form id="apply" novalidate>
+    <div class="two">
+      <div class="f"><label for="first_name">First name <span class="req">*</span></label><input class="txt" id="first_name" name="first_name" autocomplete="given-name" required><div class="err">Required</div></div>
+      <div class="f"><label for="last_name">Last name <span class="req">*</span></label><input class="txt" id="last_name" name="last_name" autocomplete="family-name" required><div class="err">Required</div></div>
+    </div>
+    <div class="f"><label for="email">Email address <span class="req">*</span></label><input class="txt" id="email" name="email" type="email" autocomplete="email" required><div class="err">Enter a valid email</div></div>
+
+    <div class="f" id="phone-field">
+      <label for="phone">Mobile phone <span class="req">*</span></label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel-national" required>
+      <div class="help">We will only use this to schedule interviews.</div>
+      <div class="err" id="phone-error">Invalid number</div>
+    </div>
+
+    <div class="f" id="whatsapp-field">
+      <label for="whatsapp-input">WhatsApp number (optional)</label>
+      <div id="whatsapp-mount"></div>
+      <div class="err">Invalid phone number</div>
+    </div>
+
+    <button class="btn" type="submit" id="submit">Send application</button>
+  </form>
+</div>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/_widgets/countries.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var COUNTRIES = window.FXCountries.slice();
+  var byIso = {};
+  COUNTRIES.forEach(function (c) { byIso[c.iso2] = c; });
+
+  function digits(s) { return String(s).replace(/\D/g, ''); }
+  // Format a national significant number (no trunk 0) as libphonenumber's INTERNATIONAL format minus the dial code.
+  function formatNsn(iso, d) {
+    if (iso === 'us' || iso === 'ca') {
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return d.slice(0, 3) + '-' + d.slice(3);
+      return d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6, 10) + d.slice(10);
+    }
+    if (iso === 'pk') return d.length <= 3 ? d : d.slice(0, 3) + ' ' + d.slice(3);
+    return d.replace(/(\d{3})(?=\d)/g, '$1 ');
+  }
+  // National format (with trunk prefix where the country uses one), as react-phone-number-input shows it.
+  function formatNational(iso, d, trunk) {
+    if (iso === 'us' || iso === 'ca') {
+      if (d.length <= 3) return d.length ? '(' + d : '';
+      if (d.length <= 6) return '(' + d.slice(0, 3) + ') ' + d.slice(3);
+      return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6, 10) + d.slice(10);
+    }
+    if (iso === 'pk') { var t = trunk ? '0' : ''; return d.length <= 3 ? t + d : t + d.slice(0, 3) + ' ' + d.slice(3); }
+    return (trunk ? '0' : '') + d.replace(/(\d{3})(?=\d)/g, '$1 ');
+  }
+  function validNsn(iso, d) {
+    if (iso === 'us' || iso === 'ca') return /^[2-9]\d{9}$/.test(d);
+    if (iso === 'pk') return /^3\d{9}$/.test(d) || /^[2-9]\d{8,9}$/.test(d);
+    return d.length >= 6 && d.length <= 13;
+  }
+  function placeholderFor(c) {
+    if (c.iso2 === 'us' || c.iso2 === 'ca') return c.iso2 === 'us' ? '201-555-0123' : '506-234-5678';
+    if (c.placeholder) return c.placeholder.replace(/^0/, '');
+    return '';
+  }
+  function detectDial(d) {
+    // longest dial-code prefix; ties go to the first country with that code (US for +1)
+    for (var len = 4; len >= 1; len--) {
+      var p = d.slice(0, len);
+      var hit = COUNTRIES.filter(function (c) { return c.dialCode === p; });
+      if (hit.length) return hit.find(function (c) { return c.iso2 === 'us'; }) || hit[0];
+    }
+    return null;
+  }
+
+  // ===================== intl-tel-input v23 =====================
+  function intlTelInput(input, opts) {
+    var n = 0;
+    var country = byIso[opts.initialCountry];
+    var wrap = document.createElement('div');
+    wrap.className = 'iti iti--allow-dropdown iti--show-flags iti--inline-dropdown iti--show-selected-dial-code';
+    input.parentNode.insertBefore(wrap, input);
+    var cc = document.createElement('div');
+    cc.className = 'iti__country-container';
+    cc.style.left = '0px';
+    var sel = document.createElement('button');
+    sel.type = 'button';
+    sel.className = 'iti__selected-country';
+    sel.setAttribute('aria-expanded', 'false');
+    sel.setAttribute('aria-label', 'Selected country');
+    sel.setAttribute('aria-haspopup', 'true');
+    sel.setAttribute('aria-controls', 'iti-' + n + '__dropdown-content');
+    sel.setAttribute('role', 'combobox');
+    sel.innerHTML = '<div class="iti__selected-country-primary"><div class="iti__flag"></div><div class="iti__arrow"></div></div><div class="iti__selected-dial-code"></div>';
+    var dd = document.createElement('div');
+    dd.id = 'iti-' + n + '__dropdown-content';
+    dd.className = 'iti__dropdown-content iti__hide';
+    dd.innerHTML = '<input type="text" class="iti__search-input" placeholder="Search" role="combobox" aria-expanded="true" aria-label="Search" aria-controls="iti-' + n + '__country-listbox" aria-autocomplete="list" autocomplete="off">' +
+      '<span class="iti__a11y-text"></span><ul class="iti__country-list" id="iti-' + n + '__country-listbox" role="listbox" aria-label="List of countries"></ul>';
+    cc.appendChild(sel);
+    cc.appendChild(dd);
+    wrap.appendChild(cc);
+    wrap.appendChild(input);
+    var search = dd.querySelector('.iti__search-input');
+    var a11y = dd.querySelector('.iti__a11y-text');
+    var list = dd.querySelector('.iti__country-list');
+    COUNTRIES.forEach(function (c) {
+      var li = document.createElement('li');
+      li.className = 'iti__country';
+      li.tabIndex = -1;
+      li.id = 'iti-' + n + '__item-' + c.iso2;
+      li.setAttribute('role', 'option');
+      li.dataset.dialCode = c.dialCode;
+      li.dataset.countryCode = c.iso2;
+      li.setAttribute('aria-selected', 'false');
+      li.innerHTML = '<div class="iti__flag-box"><div class="iti__flag iti__' + c.iso2 + '" data-code="' + c.iso2 + '"></div></div><span class="iti__country-name"></span><span class="iti__dial-code">+' + c.dialCode + '</span>';
+      li.querySelector('.iti__country-name').textContent = c.name;
+      list.appendChild(li);
+    });
+    var hiddenFull = document.createElement('input');
+    hiddenFull.type = 'hidden'; hiddenFull.name = opts.hiddenInput.phone;
+    var hiddenCountry = document.createElement('input');
+    hiddenCountry.type = 'hidden'; hiddenCountry.name = opts.hiddenInput.country;
+    wrap.appendChild(hiddenFull);
+    wrap.appendChild(hiddenCountry);
+    var highlighted = null;
+
+    function padInput() { input.style.paddingLeft = (cc.offsetWidth + 6) + 'px'; }
+    function setCountry(c) {
+      country = c;
+      var f = sel.querySelector('.iti__flag');
+      f.className = 'iti__flag iti__' + c.iso2;
+      f.setAttribute('data-code', c.iso2);
+      sel.querySelector('.iti__selected-dial-code').textContent = '+' + c.dialCode;
+      sel.title = c.name + ': +' + c.dialCode;
+      sel.setAttribute('aria-label', 'Selected country: ' + c.name + ' +' + c.dialCode);
+      list.querySelectorAll('.iti__country').forEach(function (li) { li.setAttribute('aria-selected', li.dataset.countryCode === c.iso2 ? 'true' : 'false'); });
+      input.placeholder = placeholderFor(c);
+      padInput();
+      reformat();
+      input.dispatchEvent(new CustomEvent('countrychange', { bubbles: true }));
+    }
+    function highlight(li, scroll) {
+      if (highlighted) highlighted.classList.remove('iti__highlight');
+      highlighted = li;
+      if (li) {
+        li.classList.add('iti__highlight');
+        search.setAttribute('aria-activedescendant', li.id);
+        if (scroll) {
+          if (li.offsetTop < list.scrollTop) list.scrollTop = li.offsetTop;
+          else if (li.offsetTop + li.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = li.offsetTop + li.offsetHeight - list.clientHeight;
+        }
+      } else search.removeAttribute('aria-activedescendant');
+    }
+    function visibleItems() { return Array.prototype.filter.call(list.children, function (li) { return !li.classList.contains('iti__hide'); }); }
+    function filter() {
+      var q = search.value.trim().toLowerCase().replace(/^\+/, '');
+      var first = null, count = 0;
+      Array.prototype.forEach.call(list.children, function (li) {
+        var c = byIso[li.dataset.countryCode];
+        var ok = !q || c.name.toLowerCase().indexOf(q) !== -1 || c.iso2 === q || c.dialCode.indexOf(q) === 0 ||
+          c.name.toLowerCase().split(/[\s(]+/).some(function (w) { return w.indexOf(q) === 0; });
+        li.classList.toggle('iti__hide', !ok);
+        if (ok) { count++; if (!first) first = li; }
+      });
+      a11y.textContent = count ? count + ' results found' : 'No results found';
+      list.scrollTop = 0;
+      highlight(first, false);
+    }
+    function open() {
+      dd.classList.remove('iti__hide');
+      sel.setAttribute('aria-expanded', 'true');
+      sel.querySelector('.iti__arrow').classList.add('iti__arrow--up');
+      search.value = '';
+      filter();
+      var cur = document.getElementById('iti-' + n + '__item-' + country.iso2);
+      highlight(cur, true);
+      search.focus();
+      setTimeout(function () { document.addEventListener('mousedown', outside, true); }, 0);
+    }
+    function close() {
+      dd.classList.add('iti__hide');
+      sel.setAttribute('aria-expanded', 'false');
+      sel.querySelector('.iti__arrow').classList.remove('iti__arrow--up');
+      document.removeEventListener('mousedown', outside, true);
+    }
+    function outside(e) { if (!cc.contains(e.target)) close(); }
+    function choose(li) {
+      setCountry(byIso[li.dataset.countryCode]);
+      close();
+      input.focus();
+    }
+    sel.addEventListener('click', function () { if (dd.classList.contains('iti__hide')) open(); else close(); });
+    sel.addEventListener('keydown', function (e) {
+      if (dd.classList.contains('iti__hide') && ['ArrowUp', 'ArrowDown', ' ', 'Enter'].indexOf(e.key) !== -1) { e.preventDefault(); open(); }
+    });
+    search.addEventListener('input', filter);
+    search.addEventListener('keydown', function (e) {
+      var items = visibleItems();
+      var i = items.indexOf(highlighted);
+      if (e.key === 'ArrowDown') { e.preventDefault(); highlight(items[Math.min(items.length - 1, i + 1)] || null, true); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(items[Math.max(0, i - 1)] || null, true); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (highlighted) choose(highlighted); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); sel.focus(); }
+      else if (e.key === 'Tab') close();
+    });
+    list.addEventListener('mouseover', function (e) { var li = e.target.closest('.iti__country'); if (li) highlight(li, false); });
+    list.addEventListener('click', function (e) { var li = e.target.closest('.iti__country'); if (li) choose(li); });
+
+    function nsn() {
+      var d = digits(input.value);
+      if (d.charAt(0) === '0') d = d.replace(/^0+/, ''); // national trunk prefix
+      return d;
+    }
+    function reformat() {
+      var raw = input.value;
+      if (/^\s*\+/.test(raw)) {
+        var d = digits(raw);
+        var c = detectDial(d);
+        if (c && d.length > c.dialCode.length) {
+          if (c !== country) { country = c; setCountry(c); return; }
+          input.value = formatNsn(c.iso2, d.slice(c.dialCode.length));
+          return;
+        }
+        return; // still typing the dial code
+      }
+      var formatted = formatNsn(country.iso2, nsn());
+      if (input.value !== formatted) input.value = formatted;
+    }
+    input.addEventListener('input', function (e) {
+      if (e.inputType && e.inputType.indexOf('delete') === 0) return; // let backspace work on separators
+      reformat();
+    });
+    input.addEventListener('blur', reformat);
+    // intl-tel-input writes the hidden inputs in its own submit listener, not on input.
+    if (input.form) {
+      input.form.addEventListener('submit', function () {
+        hiddenFull.value = nsn() ? '+' + country.dialCode + nsn() : '';
+        hiddenCountry.value = country.iso2;
+      });
+    }
+    setCountry(country);
+    window.addEventListener('load', padInput);
+    return {
+      isValidNumber: function () { return validNsn(country.iso2, nsn()); },
+      getNumber: function () { return nsn() ? '+' + country.dialCode + nsn() : ''; },
+      getSelectedCountryData: function () { return { iso2: country.iso2, dialCode: country.dialCode, name: country.name }; }
+    };
+  }
+
+  // ===================== react-phone-number-input =====================
+  function PhoneInput(mount, opts) {
+    var root = document.createElement('div');
+    root.className = 'PhoneInput';
+    var countryWrap = document.createElement('div');
+    countryWrap.className = 'PhoneInputCountry';
+    var select = document.createElement('select');
+    select.className = 'PhoneInputCountrySelect';
+    select.setAttribute('aria-label', 'Phone number country');
+    select.name = opts.name + 'Country';
+    var o = document.createElement('option');
+    o.value = 'ZZ'; o.textContent = 'International';
+    select.appendChild(o);
+    COUNTRIES.forEach(function (c) {
+      var op = document.createElement('option');
+      op.value = c.iso2.toUpperCase();
+      op.textContent = c.name;
+      select.appendChild(op);
+    });
+    var icon = document.createElement('div');
+    icon.className = 'PhoneInputCountryIcon PhoneInputCountryIcon--border';
+    icon.setAttribute('aria-hidden', 'true');
+    var arrow = document.createElement('div');
+    arrow.className = 'PhoneInputCountrySelectArrow';
+    countryWrap.appendChild(select);
+    countryWrap.appendChild(icon);
+    countryWrap.appendChild(arrow);
+    var input = document.createElement('input');
+    input.type = 'tel';
+    input.autocomplete = 'tel';
+    input.className = 'PhoneInputInput';
+    input.id = opts.id;
+    input.placeholder = 'Enter phone number';
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = opts.name;
+    root.appendChild(countryWrap);
+    root.appendChild(input);
+    mount.appendChild(root);
+    mount.appendChild(hidden);
+    var country = opts.defaultCountry;
+    function setIcon() { icon.textContent = country === 'ZZ' ? '+' : country; }
+    function value() {
+      var raw = input.value;
+      var d = digits(raw);
+      if (!d) return '';
+      if (country === 'ZZ' || /^\s*\+/.test(raw)) return '+' + d;
+      var c = byIso[country.toLowerCase()];
+      return '+' + c.dialCode + d.replace(/^0+/, '');
+    }
+    function sync() {
+      hidden.value = value();
+      mount.dispatchEvent(new CustomEvent('phonechange', { bubbles: true, detail: hidden.value }));
+    }
+    function format() {
+      var raw = input.value;
+      if (/^\s*\+/.test(raw)) {
+        var d = digits(raw);
+        var c = detectDial(d);
+        if (c && d.length > c.dialCode.length) {
+          // international input switches the country, shown in international format
+          country = c.iso2.toUpperCase();
+          select.value = country;
+          setIcon();
+          input.value = '+' + c.dialCode + ' ' + formatNsn(c.iso2, d.slice(c.dialCode.length));
+        }
+        return;
+      }
+      if (country === 'ZZ') return;
+      var dd = digits(raw);
+      var trunk = dd.charAt(0) === '0';
+      input.value = formatNational(country.toLowerCase(), dd.replace(/^0+/, ''), trunk);
+    }
+    select.value = country;
+    setIcon();
+    select.addEventListener('change', function () {
+      country = select.value;
+      setIcon();
+      // the library clears an incompatible national number when the country changes
+      if (!/^\s*\+/.test(input.value)) input.value = '';
+      sync();
+      input.focus();
+    });
+    input.addEventListener('input', function (e) {
+      if (!(e.inputType && e.inputType.indexOf('delete') === 0)) format();
+      sync();
+    });
+    return {
+      isValid: function () {
+        var v = value();
+        if (!v) return true;
+        var d = v.slice(1);
+        var c = detectDial(d);
+        return !!c && validNsn(c.iso2, d.slice(c.dialCode.length));
+      }
+    };
+  }
+
+  var form = document.getElementById('apply');
+  var iti = intlTelInput(document.getElementById('phone'), { initialCountry: 'us', separateDialCode: true, hiddenInput: { phone: 'phone_full', country: 'phone_country' } });
+  var wa = PhoneInput(document.getElementById('whatsapp-mount'), { id: 'whatsapp-input', name: 'whatsapp', defaultCountry: 'US' });
+
+  form.addEventListener('submit', async function (e) {
+    // iti's submit listener (registered first) has already written phone_full / phone_country.
+    e.preventDefault();
+    var bad = 0;
+    ['first_name', 'last_name'].forEach(function (id) { var el = document.getElementById(id); el.parentNode.classList.toggle('invalid', !el.value.trim()); if (!el.value.trim()) bad++; });
+    var em = document.getElementById('email');
+    var emBad = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim());
+    em.parentNode.classList.toggle('invalid', emBad);
+    if (emBad) bad++;
+    var ph = document.getElementById('phone');
+    var phBad = !ph.value.trim() || !iti.isValidNumber();
+    document.getElementById('phone-error').textContent = !ph.value.trim() ? 'Required' : 'Invalid number';
+    document.getElementById('phone-field').classList.toggle('invalid', phBad);
+    if (phBad) bad++;
+    var waBad = !wa.isValid();
+    document.getElementById('whatsapp-field').classList.toggle('invalid', waBad);
+    if (waBad) bad++;
+    var banner = document.getElementById('banner');
+    if (bad) { banner.textContent = 'Please check the highlighted fields.'; banner.style.display = 'block'; return; }
+    banner.style.display = 'none';
+    var btn = document.getElementById('submit');
+    btn.disabled = true;
+    var res = await FX.postForm(FORM_ID, new FormData(form));
+    if (!FX.finish(res)) {
+      btn.disabled = false;
+      banner.textContent = 'Submission failed: ' + (res.errors || []).join('; ');
+      banner.style.display = 'block';
+    }
+  });
+})();
+</script>
+</body>
+</html>

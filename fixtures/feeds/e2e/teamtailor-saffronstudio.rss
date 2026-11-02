@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:tt="https://teamtailor.com/locations">
+  <channel>
+    <title>Saffron Studio</title>
+    <description>Current job openings</description>
+    <link>{{ORIGIN_A}}/saffronstudio.teamtailor.com/jobs</link>
+    <item>
+      <title>Full-Stack Developer, Early Career</title>
+      <description>&lt;p&gt;Saffron Studio is a product studio in Stockholm that builds ordering, loyalty and kitchen-display apps for restaurant groups across the Nordics. We are 25 people and we ship everything in-house, from design to infrastructure.&lt;/p&gt;&lt;h4&gt;About the role&lt;/h4&gt;&lt;p&gt;Our early-career developers work on real client projects from week one, with a buddy and a clear growth plan. You will mostly work on our Next.js and Node.js platform.&lt;/p&gt;&lt;h4&gt;What you'll do&lt;/h4&gt;&lt;ul&gt;&lt;li&gt;Build features across our React / Next.js front ends and Node.js (TypeScript) APIs.&lt;/li&gt;&lt;li&gt;Model menus, orders and loyalty points in PostgreSQL.&lt;/li&gt;&lt;li&gt;Write tests, review code and join client demos.&lt;/li&gt;&lt;/ul&gt;&lt;h4&gt;Must have&lt;/h4&gt;&lt;ul&gt;&lt;li&gt;Up to 2 years of professional experience with JavaScript or TypeScript.&lt;/li&gt;&lt;li&gt;Experience with React and with building REST APIs in Node.js.&lt;/li&gt;&lt;li&gt;Basic SQL.&lt;/li&gt;&lt;/ul&gt;&lt;h4&gt;Nice to have&lt;/h4&gt;&lt;ul&gt;&lt;li&gt;Next.js, Prisma, or Stripe integrations.&lt;/li&gt;&lt;li&gt;Experience with mobile (React Native).&lt;/li&gt;&lt;/ul&gt;&lt;h4&gt;The details&lt;/h4&gt;&lt;p&gt;Fully remote within CET +/- 4 hours, or from our Stockholm office. SEK 38,000-44,000 per month for Swedish employees; contractor rates elsewhere. Five weeks of vacation.&lt;/p&gt;</description>
+      <pubDate>Sat, 31 Oct 2026 10:00:00 +0100</pubDate>
+      <link>{{ORIGIN_A}}/saffronstudio.teamtailor.com/jobs/4471203-full-stack-developer-early-career/applications/new</link>
+      <remoteStatus>fully</remoteStatus>
+      <guid>7e3c1a9b-2d4f-4b6a-8c0e-5f1a3b7d9c24</guid>
+      <tt:locations>
+        <tt:location>
+          <tt:name>Stockholm</tt:name>
+          <tt:address>Sankt Eriksgatan 44</tt:address>
+          <tt:zip>112 34</tt:zip>
+          <tt:city>Stockholm</tt:city>
+          <tt:country>Sweden</tt:country>
+        </tt:location>
+      </tt:locations>
+      <tt:department>Engineering</tt:department>
+      <tt:role>Full-Stack Developer</tt:role>
+      <tt:division/>
+    </item>
+  </channel>
+</rss>

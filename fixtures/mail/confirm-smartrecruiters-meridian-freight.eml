@@ -1,0 +1,40 @@
+Return-Path: <noreply@smartrecruiters.com>
+From: Meridian Freight <noreply@smartrecruiters.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: =?UTF-8?B?VGhhbmsgeW91IGZvciB5b3VyIGFwcGxpY2F0aW9uIOKAkyBHcmFkdWF0?=
+ =?UTF-8?B?ZSBTb2Z0d2FyZSBFbmdpbmVlcg==?=
+Date: Sun, 01 Nov 2026 08:06:12 +0000
+Message-ID: <20261101080612.9e3a1c7d5b@mail.smartrecruiters.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0009_fixture.tnugg7"
+
+------=_Part_0009_fixture.tnugg7
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Dear Rania,
+
+Thank you for applying for the Graduate Software Engineer role at Meridian Freight. We have successfully received your application.
+
+Our graduate programme has three stages: an application review, a conversation with an engineering manager, and a short technical assessment centre. We will contact you if your profile is shortlisted.
+
+Best regards,
+Meridian Freight Talent Team
+
+------=_Part_0009_fixture.tnugg7
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Dear Rania,</p>
+<p>Thank you for applying for the Graduate Software Engineer role at Meridian Freight. We have successfully received your application.</p>
+<p>Our graduate programme has three stages: an application review, a conversation with an engineering manager, and a short technical assessment centre. We will contact you if your profile is shortlisted.</p>
+<p>Best regards,<br>
+Meridian Freight Talent Team</p>
+</body>
+</html>
+
+------=_Part_0009_fixture.tnugg7--

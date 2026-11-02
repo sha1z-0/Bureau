@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<workzag-jobs>
+
+<position>
+    <id>1458822</id>
+    <subcompany>Kranich Software GmbH</subcompany>
+    <office>Remote</office>
+    <additionalOffices>
+        <office>Hamburg</office>
+    </additionalOffices>
+    <department>Engineering</department>
+    <recruitingCategory>Software Development</recruitingCategory>
+    <name>Junior Backend Developer (m/w/d)</name>
+    <jobDescriptions>
+        <jobDescription>
+            <name>About Kranich</name>
+            <value>
+                <![CDATA[<p>Kranich Software GmbH builds warehouse-management software for mid-sized retailers in Germany and Austria. We are 60 people, headquartered in Hamburg, and our engineering team has worked fully remotely since 2020.</p>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Your mission</name>
+            <value>
+                <![CDATA[<ul><li>Develop and maintain Node.js and TypeScript services for stock movements, picking and shipping.</li><li>Design PostgreSQL schemas and write efficient queries for tables with hundreds of millions of rows.</li><li>Build integrations with ERP and accounting systems (SAP, DATEV) over REST and SFTP.</li><li>Write automated tests and take part in code reviews and our fortnightly architecture round.</li></ul>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Your profile</name>
+            <value>
+                <![CDATA[<ul><li><strong>Must have:</strong> 1-2 years of professional experience with Node.js and TypeScript.</li><li><strong>Must have:</strong> solid SQL, ideally PostgreSQL.</li><li><strong>Must have:</strong> English at B2 level or better. German is not required; the engineering team works in English.</li><li><strong>Nice to have:</strong> Docker, RabbitMQ, or experience with logistics software.</li></ul>]]>
+            </value>
+        </jobDescription>
+        <jobDescription>
+            <name>Why us?</name>
+            <value>
+                <![CDATA[<ul><li>EUR 42,000-50,000 per year, or an equivalent contractor rate outside the EU.</li><li>Remote across EMEA and South Asia through our employer-of-record partner.</li><li>30 days of vacation, a learning budget of EUR 1,000 and a yearly team week in Hamburg.</li></ul>]]>
+            </value>
+        </jobDescription>
+    </jobDescriptions>
+    <employmentType>permanent</employmentType>
+    <seniority>entry-level</seniority>
+    <schedule>full-time</schedule>
+    <yearsOfExperience>1-2</yearsOfExperience>
+    <keywords>Node.js,TypeScript,PostgreSQL,Backend,Junior,Remote</keywords>
+    <occupation>software_development</occupation>
+    <occupationCategory>it_software</occupationCategory>
+    <createdAt>2026-10-30T08:05:00+00:00</createdAt>
+    <salaryInformation>
+        <min>42000.00</min>
+        <max>50000.00</max>
+        <currencySymbol>€</currencySymbol>
+        <currencyCode>EUR</currencyCode>
+        <type>yearly</type>
+    </salaryInformation>
+</position>
+
+</workzag-jobs>

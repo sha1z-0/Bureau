@@ -1,0 +1,54 @@
+{
+  "forms": [
+    {
+      "id": "breezy-portal",
+      "ats": "breezy",
+      "title": "Breezy HR portal application (AngularJS, polygot tokens, resume pre-upload, 3-section questionnaire wizard)",
+      "route": "/pebble-analytics.breezy.hr/p/6f1c2e9a8b7d-junior-software-developer/apply",
+      "file": "breezy/apply.html",
+      "extraRoutes": [{ "route": "/pebble-analytics.breezy.hr/p/6f1c2e9a8b7d-junior-software-developer/apply/submitted", "file": "breezy/submitted.html" }],
+      "confirmationFile": "breezy/submitted.html",
+      "confirmationText": "Application Submitted",
+      "steps": 3,
+      "required": ["name", "email_address", "phone_number", "address", "resume", "gdpr[consent]"],
+      "honeypots": ["hp_7f2b"],
+      "expect": {
+        "name": "profile:fullName",
+        "email_address": "profile:email",
+        "phone_number": "profile:phone",
+        "address": "contains:Lahore",
+        "address_details[city][long_name]": "profile:city",
+        "resume": "file:cv",
+        "work_history[0][company_name]": "profile:currentCompany",
+        "work_history[0][title]": "profile:currentTitle",
+        "work_history[0][date_start]": "contains:2023-07",
+        "education[0][school_name]": "profile:school",
+        "education[0][field_of_study]": "profile:fieldOfStudy",
+        "cover_letter": "nonempty",
+        "salary[salary]": "answer:salaryNumber",
+        "salary[period][_id]": "=yearly",
+        "questionnaire[0][response]": "answer:needsSponsorship",
+        "questionnaire[1][selected]": "=Python",
+        "questionnaire[2][response]": "answer:noticePeriod",
+        "questionnaire[3][response]": "nonempty",
+        "questionnaire[4][response]": "=Job board",
+        "gdpr[consent]": "true",
+        "sms_consent[has_consent]": "false",
+        "hp_7f2b": "empty"
+      },
+      "quirks": [
+        "polygot i18n: labels/placeholders are literal %PLACEHOLDER_FULL_NAME% tokens for ~120 ms until translated",
+        "inputs have no labels: the field name is the preceding <h3> text or the placeholder",
+        "'Upload Resume' button over a hidden input#main-attachment; the file uploads immediately ('Uploading Resume' -> 'Attached'), only candidate.resume {file_name,url} is submitted",
+        "'Apply Using LinkedIn' / 'Use My Indeed Resume' buttons that must be ignored",
+        "address via the googleplace directive (Places .pac-container)",
+        "desired salary + period select (Yearly default); salary is stripped to digits",
+        "Add Position / Add Education ng-repeat entries with date inputs",
+        "off-screen honeypot input#hp_7f2b (autocomplete=hp-4f3c9a) must stay empty",
+        "v2 questionnaire wizard in one page: application -> questions (radio, checkboxes, text, paragraph, dropdown) -> GDPR consent, Next/Back with ng-hide error containers",
+        "JSON PortalClient.apply() then location -> .../apply/submitted"
+      ],
+      "reference": "Live breezy.breezy.hr/p/<id>/apply markup, portal.js / portal_rest_client.js / translate.breezy.js (English strings), studied read-only"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "name": "Rania Haroon",
+  "headline": "Junior Software Engineer (TypeScript, Node.js, PostgreSQL)",
+  "email": "rania.haroon.jobs@example.com",
+  "phone": "+92 301 5550142",
+  "location": "Lahore, Pakistan",
+  "links": [
+    { "label": "GitHub", "url": "https://github.com/rania-haroon-example" },
+    { "label": "Portfolio", "url": "https://rania-haroon.example.com" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/rania-haroon-example" }
+  ],
+  "summary": "Junior software engineer with two years of production work on TypeScript and Node.js services and React front ends. Most comfortable close to the database: schema design, migrations, and the slow query nobody else wants to look at.",
+  "yearsExperience": 2,
+  "seniority": "junior",
+  "categories": ["web", "software"],
+  "targetRoles": ["Junior Backend Engineer", "Junior Full-Stack Developer", "Software Engineer I", "Associate Software Engineer", "Junior Node.js Developer"],
+  "coreStack": ["TypeScript", "Node.js", "PostgreSQL", "React", "Docker", "SQL"],
+  "skills": ["JavaScript", "Python", "Docker Compose", "Fastify", "Express", "REST APIs", "Git", "Linux", "pytest", "Jest", "HTML", "CSS", "Leaflet", "Burp Suite (Community)"],
+  "experience": [
+    {
+      "role": "Junior Software Engineer",
+      "company": "Tessellate Labs",
+      "location": "Lahore (hybrid)",
+      "start": "Jul 2023",
+      "end": "Present",
+      "bullets": [
+        "Built and maintain the invoicing service (Node.js, TypeScript, PostgreSQL) that issues about 9,000 invoices a month for the company's logistics clients.",
+        "Cut the nightly reconciliation job from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes.",
+        "Moved four services from a hand-built VPS setup to Docker Compose with health checks; wrote the runbook the on-call rotation now uses.",
+        "Built the React (TypeScript) admin screens for refunds and credit notes, including role-based access checks on the API side.",
+        "Reviews pull requests for the billing team and paired with two interns through their first month."
+      ]
+    },
+    {
+      "role": "Software Engineering Intern",
+      "company": "Kestrel Analytics",
+      "location": "Lahore",
+      "start": "Jun 2022",
+      "end": "Sep 2022",
+      "bullets": [
+        "Wrote Python scripts that cleaned and loaded retail sales CSVs into PostgreSQL for the analytics team (about 2 million rows a week).",
+        "Added unit tests to the ingestion scripts (pytest), raising coverage of the loader module from 0 to 71%."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "ledger-lite",
+      "link": "https://github.com/rania-haroon-example/ledger-lite",
+      "description": "A small double-entry bookkeeping API in TypeScript (Fastify, PostgreSQL).",
+      "highlights": ["Enforces balanced journal entries with a database constraint", "Trial balance endpoint", "140 GitHub stars"]
+    },
+    {
+      "name": "chai-check",
+      "link": "https://github.com/rania-haroon-example/chai-check",
+      "description": "A browser extension that flags insecure form actions (HTTP, mixed content) on pages you visit.",
+      "highlights": ["Built while working through the PortSwigger Web Security Academy"]
+    },
+    {
+      "name": "Bus Tracker Lahore",
+      "link": "https://rania-haroon.example.com/bus-tracker",
+      "description": "A React + Leaflet map of Metro Bus stops with estimated arrival gaps from public timetables.",
+      "highlights": ["About 300 monthly users"]
+    }
+  ],
+  "education": [
+    {
+      "school": "Lahore Institute of Computing",
+      "degree": "Bachelor of Science, Computer Science",
+      "start": "2019",
+      "end": "2023",
+      "details": "CGPA 3.4 / 4.0. Final-year project: offline-first attendance app for rural schools (React Native, SQLite)."
+    }
+  ],
+  "certifications": [],
+  "languages": ["English (fluent)", "Urdu (native)", "Punjabi (conversational)"],
+  "achievements": ["Cut a nightly reconciliation job from 41 minutes to 6", "ledger-lite reached 140 GitHub stars"],
+  "voice": "Plain and concrete. Short declarative sentences mixed with the odd long one that runs on a little. Uses contractions, names the actual tool or number, and admits what went wrong before saying what changed.",
+  "cvMarkdown": "@cv.md",
+  "portfolioNotes": "Portfolio at https://rania-haroon.example.com has write-ups for ledger-lite (why the balance check lives in a database constraint) and Bus Tracker Lahore (timetable parsing).",
+  "preferences": {
+    "targetRoles": ["Junior Backend Engineer", "Junior Full-Stack Developer", "Software Engineer I"],
+    "categories": ["web", "software"],
+    "locations": ["Remote", "Lahore"],
+    "remoteOnly": true,
+    "openToRelocation": false,
+    "needsSponsorship": true,
+    "minSalary": 24000,
+    "currency": "USD",
+    "excludeCompanies": [],
+    "excludeKeywords": ["unpaid", "commission only"],
+    "tone": "Warm, direct and specific. No hype.",
+    "signature": "Rania Haroon\nrania.haroon.jobs@example.com · +92 301 5550142",
+    "workAuthorization": "Authorized to work in Pakistan; open to remote contractor or employer-of-record arrangements elsewhere",
+    "noticePeriod": "2 weeks",
+    "salaryExpectation": "USD 30,000 per year",
+    "extraAnswers": "Timezone: PKT (UTC+5). Comfortable overlapping 4 hours with CET."
+  }
+}

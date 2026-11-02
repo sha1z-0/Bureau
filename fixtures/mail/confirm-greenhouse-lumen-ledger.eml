@@ -1,0 +1,43 @@
+Return-Path: <no-reply@greenhouse.io>
+From: Lumen Ledger <no-reply@greenhouse.io>
+Reply-To: Lumen Ledger Talent <talent@lumenledger.example.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: Thank you for applying to Lumen Ledger
+Date: Sun, 01 Nov 2026 16:20:44 +0000
+Message-ID: <5f3b8e2d10a24c7f.4012345.applied@greenhouse.io>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0004_fixture.tntlwc"
+
+------=_Part_0004_fixture.tntlwc
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Rania,
+
+Thanks for your interest in Lumen Ledger! We've received your application for Junior Backend Engineer and our team is reviewing it now.
+
+If your experience looks like a good fit, someone from our talent team will reach out to set up a first interview. Either way, we'll let you know where things stand within two weeks.
+
+In the meantime, you can read about how we work at https://lumenledger.example.com/engineering.
+
+Best,
+The Lumen Ledger Talent Team
+
+------=_Part_0004_fixture.tntlwc
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Hi Rania,</p>
+<p>Thanks for your interest in Lumen Ledger! We've received your application for Junior Backend Engineer and our team is reviewing it now.</p>
+<p>If your experience looks like a good fit, someone from our talent team will reach out to set up a first interview. Either way, we'll let you know where things stand within two weeks.</p>
+<p>In the meantime, you can read about how we work at <a href="https://lumenledger.example.com/engineering.">https://lumenledger.example.com/engineering.</a></p>
+<p>Best,<br>
+The Lumen Ledger Talent Team</p>
+</body>
+</html>
+
+------=_Part_0004_fixture.tntlwc--
