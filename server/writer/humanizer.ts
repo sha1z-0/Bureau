@@ -175,6 +175,13 @@ export const HUMANIZER_RULES: HumanizerRule[] = [
     pattern: /\*\*[^*\n]+\*\*|^#{1,6}\s|^---+\s*$|```|^\s*[-*•]\s+\S/gm,
   },
   {
+    id: 'title-case-heading',
+    category: 'formatting',
+    description: 'A Title Case heading line inside prose (letters and answers have no headings).',
+    fix: 'Remove the heading; let the paragraph speak for itself.',
+    pattern: /^[ 	]*(?:[A-Z][a-z]+|&)(?:[ 	]+(?:[A-Z][a-z]+|&|of|and|for|the|to|in|a|an)){2,7}[ 	]*$/gm,
+  },
+  {
     id: 'placeholder',
     category: 'formatting',
     description: 'An unfilled template placeholder.',

@@ -156,7 +156,8 @@ export function lintLetter(text: string, ctx: LintContext): LetterLint {
   const nom = nominalRate(body);
   checks.push(check('nominalizations', nom <= nomMax, nom, `≤ ${round(nomMax, 2)} per 100 words (your voice bank: ${round(baseNominal, 2)})`));
 
-  const tells = findTells(text);
+  // Tells are read from the body (a signature is a name, not a heading); a placeholder anywhere still counts.
+  const tells = [...findTells(body), ...findTells(text).filter((t) => t.rule === 'placeholder' && !body.includes(t.match))];
   const banned = tells.filter((t) => t.category !== 'formatting');
   checks.push(check('banned_phrases', banned.length === 0, banned.length, banned.length ? `0 (found: ${[...new Set(banned.map((t) => t.match.trim()))].slice(0, 6).join('; ')})` : '0'));
 

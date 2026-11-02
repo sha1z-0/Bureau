@@ -6,6 +6,7 @@ import { writerSystem } from './evidence.ts';
 import { findTells, rulesForPrompt } from './humanizer.ts';
 import { targetSentences } from './lint.ts';
 import { TAILOR_RULES } from './prompts.ts';
+import { letterBody } from './text.ts';
 
 /**
  * Step 7 (humanizer) and the lint's targeted rewrite. Claude returns edits as
@@ -45,7 +46,7 @@ export function humanizeTargets(text: string, lint?: LintResult | null): Target[
     if (!s.trim()) return;
     map.set(s, (map.get(s) ?? new Set()).add(p));
   };
-  for (const t of findTells(text)) add(t.sentence, `${t.rule}: "${t.match.trim()}"`);
+  for (const t of findTells(letterBody(text))) add(t.sentence, `${t.rule}: "${t.match.trim()}"`);
   if (lint) {
     const failing = lint.checks.filter((c) => !c.pass).map((c) => c.id);
     for (const s of targetSentences(text, failing)) for (const f of failing) if (!['banned_phrases', 'formatting', 'length', 'voice_adaptation'].includes(f)) add(s, f);
