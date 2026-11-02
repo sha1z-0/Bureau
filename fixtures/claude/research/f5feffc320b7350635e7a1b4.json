@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "f5feffc320b7350635e7a1b4",
+  "scenario": "e2e",
+  "label": "research: Copperline Payments",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Copperline provides a payout and reconciliation API for online marketplaces that pay sellers in many countries. The engineering blog has a clear post on idempotency keys for payouts, and the product site added a returned-payouts dashboard for operations teams. The careers page talks about blameless incident reviews.\n\n```json\n{\n  \"whatTheyBuild\": \"A payout and reconciliation API that online marketplaces use to pay their sellers across many countries.\",\n  \"products\": [\n    {\n      \"text\": \"Payouts API that schedules, batches and tracks payments to marketplace sellers.\",\n      \"sourceUrl\": \"https://copperline.example.com/\"\n    },\n    {\n      \"text\": \"Reconciliation reports that tie every payout back to the marketplace’s ledger.\",\n      \"sourceUrl\": \"https://copperline.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched a returned-payouts dashboard so operations teams can see and re-send payouts a bank sends back.\",\n      \"sourceUrl\": \"https://copperline.example.com/product/returns\",\n      \"date\": \"2026-08\"\n    },\n    {\n      \"text\": \"Engineering post on idempotency keys: every payout request carries a key so a retry can never pay a seller twice.\",\n      \"sourceUrl\": \"https://copperline.example.com/engineering/idempotency-keys\",\n      \"date\": \"2026-10\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Node.js and TypeScript services on PostgreSQL; internal tools in React.\",\n      \"sourceUrl\": \"https://copperline.example.com/careers\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Blameless incident reviews after anything goes wrong with money movement.\",\n      \"sourceUrl\": \"https://copperline.example.com/careers\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"about 30 engineers\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://copperline.example.com/",
+      "title": "Copperline: payouts and reconciliation for marketplaces"
+    },
+    {
+      "url": "https://copperline.example.com/product/returns",
+      "title": "Returned payouts, handled | Copperline"
+    },
+    {
+      "url": "https://copperline.example.com/engineering/idempotency-keys",
+      "title": "Idempotency keys for payouts | Copperline Engineering"
+    },
+    {
+      "url": "https://copperline.example.com/careers",
+      "title": "Careers | Copperline Payments"
+    }
+  ]
+}

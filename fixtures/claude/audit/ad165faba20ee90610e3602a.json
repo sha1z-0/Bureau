@@ -1,0 +1,16 @@
+{
+  "task": "audit",
+  "hash": "ad165faba20ee90610e3602a",
+  "scenario": "e2e",
+  "label": "audit: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4900,
+    "output_tokens": 170,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "issues": []
+  }
+}

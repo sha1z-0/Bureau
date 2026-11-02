@@ -1,0 +1,43 @@
+{
+  "task": "critic",
+  "hash": "c43587500c9ad09c03fcefc2",
+  "scenario": "a04",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4200,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 8.8,
+        "scores": {
+          "specificity": 9,
+          "evidence": 9,
+          "voice": 9,
+          "clarity": 8,
+          "ask": 8,
+          "aiTells": 9
+        },
+        "demands": []
+      },
+      {
+        "strategy": "proof",
+        "score": 8.5,
+        "scores": {
+          "specificity": 8,
+          "evidence": 9,
+          "voice": 8,
+          "clarity": 9,
+          "ask": 8,
+          "aiTells": 8
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 1
+  }
+}

@@ -19,6 +19,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { E2E_NOW_DEFAULT, installClock } from './e2e/clock.ts';
 import { startFixtureServer } from './fixture-server.ts';
 
 const argv = process.argv.slice(2);
@@ -30,6 +31,10 @@ const opt = (f: string) => {
 const strict = flag('--strict') || process.env.BUREAU_STRICT === '1';
 const keep = flag('--keep');
 const headful = flag('--headful');
+
+// 0. A pinned clock, so date-bearing prompts hash the same every day (scripts/e2e/clock.ts).
+if (!process.env.BUREAU_E2E_NOW) process.env.BUREAU_E2E_NOW = E2E_NOW_DEFAULT;
+installClock();
 
 // 1. Sandbox and environment, before any app module reads it.
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'bureau-e2e-'));
@@ -49,6 +54,8 @@ const childEnv: Record<string, string> = {
   E2E_ORIGIN_A: fx.originA,
   E2E_ORIGIN_B: fx.originB,
   BUREAU_LOG: 'error',
+  BUREAU_E2E_NOW: process.env.BUREAU_E2E_NOW ?? '',
+  BUREAU_E2E_CLOCK_OFFSET: process.env.BUREAU_E2E_CLOCK_OFFSET ?? '',
 };
 Object.assign(process.env, childEnv);
 
@@ -60,6 +67,12 @@ if (flag('--list')) {
 }
 
 const { runStages } = await import('./e2e/runner.ts');
+// Offline from the first stage: until the scout stage installs the e2e feed set, every safeFetch is refused.
+// (startCampaign() scouts in the background during the campaign stage; without this it reached the live job boards.)
+{
+  const { installFetchReplay } = await import('./e2e/fetch-replay.ts');
+  await installFetchReplay(() => null);
+}
 const { campaignConfig } = await import('./e2e/seed.ts');
 const { replayMisses } = await import('../server/ai/claude.ts');
 type Ctx = import('./e2e/stages.ts').E2EContext;

@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "68b1b4a7671aa230b5cde6f1",
+  "scenario": "e2e",
+  "label": "research: Atlas Mutual",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Atlas Mutual is a member-owned insurer. Its Digital Engineering group builds the quoting, claims and self-service platforms, and this year it opened a remote engineering hub for engineers in Pakistan. The most relevant recent launch is online claim tracking for members. It is a long-established mutual, so 'stage' in the startup sense does not apply.\n\n```json\n{\n  \"whatTheyBuild\": \"Insurance for its members, with an in-house Digital Engineering group that builds quoting, claims and member self-service platforms.\",\n  \"products\": [\n    {\n      \"text\": \"Online claims: members file a claim and follow its progress from the website and app.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/newsroom/claims-tracking\"\n    },\n    {\n      \"text\": \"Online quotes and policy self-service for members.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched online claim tracking so members can see each step of a claim without calling.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/newsroom/claims-tracking\",\n      \"date\": \"2026-07\"\n    },\n    {\n      \"text\": \"Opened a remote engineering hub for engineers based in Pakistan.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/careers/digital-engineering\",\n      \"date\": \"2026-06\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Digital Engineering builds the API layer in TypeScript and Node.js with a React front end and PostgreSQL.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/careers/digital-engineering\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Member-owned: the company answers to its policyholders rather than shareholders.\",\n      \"sourceUrl\": \"https://atlasmutual.example.com/about\"\n    }\n  ],\n  \"stage\": \"established mutual insurer (member-owned)\",\n  \"teamSize\": \"unknown\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://atlasmutual.example.com/",
+      "title": "Atlas Mutual: insurance owned by our members"
+    },
+    {
+      "url": "https://atlasmutual.example.com/about",
+      "title": "About Atlas Mutual"
+    },
+    {
+      "url": "https://atlasmutual.example.com/newsroom/claims-tracking",
+      "title": "Members can now track claims online | Atlas Mutual newsroom"
+    },
+    {
+      "url": "https://atlasmutual.example.com/careers/digital-engineering",
+      "title": "Digital Engineering careers | Atlas Mutual"
+    }
+  ]
+}

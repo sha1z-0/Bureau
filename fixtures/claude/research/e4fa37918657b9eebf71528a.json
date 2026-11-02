@@ -1,0 +1,28 @@
+{
+  "task": "research",
+  "hash": "e4fa37918657b9eebf71528a",
+  "scenario": "e2e",
+  "label": "research: Pebble Analytics",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "The job ad itself is a one-liner, so the company site carries the context: Pebble Analytics builds reporting dashboards for independent gyms and fitness studios. The team describes its stack plainly (Python/Django backend, TypeScript front end, a PostgreSQL warehouse fed by nightly pipelines), and recently launched class-attendance forecasts.\n\n```json\n{\n  \"whatTheyBuild\": \"Reporting dashboards for independent gyms and fitness studios.\",\n  \"products\": [\n    {\n      \"text\": \"Dashboards for memberships, class attendance and revenue for gyms and studios.\",\n      \"sourceUrl\": \"https://pebbleanalytics.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched class-attendance forecasts so studios can plan instructors a week ahead.\",\n      \"sourceUrl\": \"https://pebbleanalytics.example.com/blog/attendance-forecasts\",\n      \"date\": \"2026-09\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Python/Django backend, a TypeScript front end and a PostgreSQL warehouse fed by nightly pipelines.\",\n      \"sourceUrl\": \"https://pebbleanalytics.example.com/team\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"A small team that publishes the salary range for every role it opens.\",\n      \"sourceUrl\": \"https://pebbleanalytics.example.com/team\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"seven engineers\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://pebbleanalytics.example.com/",
+      "title": "Pebble Analytics: reporting for gyms and studios"
+    },
+    {
+      "url": "https://pebbleanalytics.example.com/blog/attendance-forecasts",
+      "title": "Class attendance forecasts | Pebble Analytics"
+    },
+    {
+      "url": "https://pebbleanalytics.example.com/team",
+      "title": "The Pebble team"
+    }
+  ]
+}

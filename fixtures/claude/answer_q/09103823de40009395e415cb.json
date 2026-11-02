@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "09103823de40009395e415cb",
+  "scenario": "e2e",
+  "label": "short_answers: Northwind Labs",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Northwind Labs builds an API other developers depend on, and your post on migrating the bookings table without downtime shows the team takes that seriously. I learned the same lesson the hard way: a column rename in my first month at Tessellate Labs blanked an admin screen, and now I write the rollback before every migration."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Backend Engineer (Junior) role on the Core API squad is Node.js, TypeScript and PostgreSQL, which is what I work in every day at Tessellate Labs. I maintain the invoicing service there and cut our nightly reconciliation job from 41 minutes to 6 with set-based SQL. I haven't used NestJS, but I've built APIs in Fastify and expect the move to be quick."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "The reconciliation job at Tessellate took 41 minutes and nobody touched it because it worked, until it started overlapping with the morning invoice run and customers got duplicate reminders. I spent a day reading EXPLAIN output and found the boring cause: rows updated one at a time inside a loop. I rewrote it as two set-based UPDATE statements with a partial index on unpaid invoices, and it now takes 6 minutes."
+      }
+    ]
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "task": "evidence",
+  "hash": "3063a1fc244fa9199dedd2a9",
+  "scenario": "e2e",
+  "label": "evidence: Kranich Software GmbH",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Node.js and TypeScript services for stock movements, picking and shipping",
+      "PostgreSQL schemas and queries on very large tables",
+      "ERP and accounting integrations over REST and SFTP",
+      "Tests, code review and an architecture habit"
+    ],
+    "mustWins": [
+      "1-2 years of Node.js and TypeScript",
+      "Solid SQL, ideally PostgreSQL",
+      "Working English"
+    ],
+    "tone": "Plain and well organised; a profitable, remote-first German company",
+    "seniority": "Junior (1-2 years)",
+    "hooks": [
+      {
+        "text": "Engineering blog post on partitioning the stock-movements table in PostgreSQL by month (2026-09).",
+        "sourceUrl": "https://kranich.example.com/en/blog/partitioning-stock-movements"
+      },
+      {
+        "text": "DATEV export so stock valuations flow straight into accounting (2026-06).",
+        "sourceUrl": "https://kranich.example.com/en/news/datev-export"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1-2 years of professional experience with Node.js and TypeScript",
+        "importance": "critical",
+        "factIds": [
+          "f-exp-tessellate",
+          "f-tess-invoicing"
+        ],
+        "evidence": "Two years at Tessellate Labs on the Node.js/TypeScript invoicing service",
+        "framing": "direct",
+        "phrasing": "two years of Node.js and TypeScript in production"
+      },
+      {
+        "requirement": "Solid SQL, ideally PostgreSQL",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-recon",
+          "f-skill-pg"
+        ],
+        "evidence": "Reconciliation job from 41 to 6 minutes with set-based SQL and two partial indexes",
+        "framing": "direct",
+        "phrasing": "set-based SQL and partial indexes in PostgreSQL"
+      },
+      {
+        "requirement": "English at B2 level or better",
+        "importance": "critical",
+        "factIds": [],
+        "evidence": "English is fluent (profile languages; not a fact id)",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "PostgreSQL schemas for tables with hundreds of millions of rows",
+        "importance": "important",
+        "factIds": [
+          "f-tess-recon",
+          "f-kestrel-etl"
+        ],
+        "evidence": "Index and query work on the invoicing database; loaded about 2 million rows a week at Kestrel",
+        "framing": "transferable",
+        "phrasing": "query and index work at a smaller scale"
+      },
+      {
+        "requirement": "Integrations with ERP and accounting systems (SAP, DATEV)",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Invoicing for logistics clients; no SAP or DATEV",
+        "framing": "transferable",
+        "phrasing": "billing systems that feed accounting"
+      },
+      {
+        "requirement": "Automated tests and code reviews",
+        "importance": "important",
+        "factIds": [
+          "f-tess-review",
+          "f-kestrel-tests"
+        ],
+        "evidence": "Reviews billing pull requests; loader coverage 0 to 71%",
+        "framing": "direct",
+        "phrasing": "code reviews and automated tests"
+      },
+      {
+        "requirement": "Docker",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Moved four services to Docker Compose",
+        "framing": "direct",
+        "phrasing": "moved four services to Docker Compose"
+      },
+      {
+        "requirement": "RabbitMQ",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "Experience with logistics software",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Invoicing service for logistics clients",
+        "framing": "transferable",
+        "phrasing": "billing software for logistics clients"
+      }
+    ],
+    "biggestGap": "No SAP or DATEV integrations, and no tables at hundreds of millions of rows",
+    "fastLearning": "vb-learned-fast"
+  }
+}

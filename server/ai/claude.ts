@@ -137,8 +137,15 @@ interface Recording {
   sources?: { url: string; title: string }[];
 }
 
+/**
+ * Loopback ports are ephemeral (the e2e fixture server binds port 0), so they are
+ * not part of the key: `http://127.0.0.1:54573/x` and `…:61002/x` hash alike.
+ * Real hosts are never loopback, so production keys are unaffected.
+ */
+const LOOPBACK_PORT = /(127\.0\.0\.1|localhost|\[::1\]):\d{2,5}\b/g;
+
 export function replayHash(task: string, system: SystemBlocks, content: UserContent): string {
-  const body = JSON.stringify({ task, system: system.map((b) => b.text), content });
+  const body = JSON.stringify({ task, system: system.map((b) => b.text), content }).replace(LOOPBACK_PORT, '$1:<port>');
   return crypto.createHash('sha256').update(body).digest('hex').slice(0, 24);
 }
 

@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "6e39517dd6d34382467fcd3b",
+  "scenario": "e2e",
+  "label": "research: Northwind Labs",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Northwind Labs sells a scheduling and dispatch API that home-services businesses build into their own apps. The engineering blog is active: a recent post covers running migrations on the bookings table without downtime, and a product update shipped signed webhooks. The company describes itself as a remote team of 22.\n\n```json\n{\n  \"whatTheyBuild\": \"A scheduling and dispatch API that home-services businesses (plumbers, electricians, cleaners) plug into their own apps.\",\n  \"products\": [\n    {\n      \"text\": \"Bookings API for scheduling jobs and technicians.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/\"\n    },\n    {\n      \"text\": \"Webhooks v2 with signed payloads and automatic retries.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/docs/webhooks\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Shipped webhooks v2 with signed payloads and retries.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/docs/webhooks\",\n      \"date\": \"2026-08\"\n    },\n    {\n      \"text\": \"Blog post on migrating the bookings table without downtime using expand-and-contract steps.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/blog/zero-downtime-migrations\",\n      \"date\": \"2026-10\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"NestJS on Node.js and TypeScript, PostgreSQL, BullMQ for background jobs.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/blog/zero-downtime-migrations\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Remote-first; engineers take a turn answering customer developers’ questions.\",\n      \"sourceUrl\": \"https://northwindlabs.example.com/about\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"22 people\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://northwindlabs.example.com/",
+      "title": "Northwind Labs: scheduling and dispatch API"
+    },
+    {
+      "url": "https://northwindlabs.example.com/docs/webhooks",
+      "title": "Webhooks v2 | Northwind Labs docs"
+    },
+    {
+      "url": "https://northwindlabs.example.com/blog/zero-downtime-migrations",
+      "title": "Migrating a busy bookings table without downtime | Northwind Labs"
+    },
+    {
+      "url": "https://northwindlabs.example.com/about",
+      "title": "About Northwind Labs"
+    }
+  ]
+}

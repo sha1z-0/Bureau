@@ -5,6 +5,7 @@
  * Re-run after changing the rubric, the profile rendering or the job rendering:
  *   npx tsx server/match/record-fixtures.ts
  * The selfcheck (scripts/checks/a02-match.ts) fails with a pointer here when a recording is stale.
+ * Each fixture is a batch of one, so its posting key (and result id) is "1".
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -30,7 +31,7 @@ function fixtureFiles() {
       task: 'match',
       hash,
       file: path.join(FIXTURES_DIR, 'claude', 'match', `${hash}.json`),
-      body: { task: 'match', hash, model: MODEL, case: key, usage: FIXTURE_USAGE[key], output: { results: [FIXTURE_ASSESSMENTS[key]] } },
+      body: { task: 'match', hash, model: MODEL, case: key, usage: FIXTURE_USAGE[key], output: { results: [{ ...FIXTURE_ASSESSMENTS[key], id: '1' }] } },
     });
   }
   const scoreSystem = buildSystemBlocks(toMatchProfile(TEST_V1_PROFILE));
@@ -40,7 +41,7 @@ function fixtureFiles() {
     task: 'score',
     hash,
     file: path.join(FIXTURES_DIR, 'claude', 'score', `${hash}.json`),
-    body: { task: 'score', hash, model: MODEL, case: 'strong (v1 scoreJobs)', usage: FIXTURE_USAGE.inflated, output: { results: [FIXTURE_ASSESSMENTS.strong] } },
+    body: { task: 'score', hash, model: MODEL, case: 'strong (v1 scoreJobs)', usage: FIXTURE_USAGE.inflated, output: { results: [{ ...FIXTURE_ASSESSMENTS.strong, id: '1' }] } },
   });
   return out;
 }

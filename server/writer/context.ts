@@ -169,7 +169,8 @@ export function voiceBlock(m: MasterProfile): string {
 export function jobBlock(ctx: WriterContext): string {
   const { job, match, brief } = ctx;
   const parts = [
-    `<job_posting id="${job.id}">`,
+    // No database id here: it is a random UUID, which would change the prompt (and its replay key) every run.
+    '<job_posting>',
     `Title: ${fence(job.title)}`,
     `Company: ${fence(job.company)}`,
     `Location: ${fence(job.location ?? '')}`,

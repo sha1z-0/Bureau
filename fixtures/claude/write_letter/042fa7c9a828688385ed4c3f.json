@@ -1,0 +1,52 @@
+{
+  "task": "write_letter",
+  "hash": "042fa7c9a828688385ed4c3f",
+  "scenario": "a04",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3400,
+    "output_tokens": 2600,
+    "cache_read_input_tokens": 3600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-why-build",
+          "vb-proudest",
+          "vb-learning-now"
+        ],
+        "text": "Dear Daftar Pay Payments team,\n\nI am writing to apply for the Backend Engineer, Payments role. Your engineering post on moving Daftar Pay's ledger to PostgreSQL logical replication, so reconciliation reads never block posting, describes a problem I've been living with on a much smaller scale. My family runs a hardware store in Lahore. For years the books lived in a paper ledger that only my uncle could read, and every month-end he'd lose three days to it.\n\nSo I learned Go and PostgreSQL from the docs and a lot of trial and error, and built him a double-entry bookkeeping API. I am excited to bring my skills to your team. The hard part wasn't the code. It was the accounting. Now it posts about 400 entries a day across both branches, and month-end closing takes 2 hours instead of 3 days.\n\nI haven't run anything on AWS or Kubernetes in production. I'm learning both now: a small k3s cluster at home runs LedgerLite's staging copy, and I'm working through the AWS Developer Associate course at night.\n\nCould we talk next week about how your team keeps posting idempotent?\n\nBest,\nAyesha Khan"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-proudest",
+          "vb-hard-bug",
+          "vb-learning-now"
+        ],
+        "text": "Dear Daftar Pay Payments team,\n\nI cut month-end closing at my family's hardware store from 3 days to 2 hours, and your Backend Engineer, Payments role reads like the grown-up version of that job. The store's books lived in a paper ledger that only my uncle could read. So I built LedgerLite, a double-entry bookkeeping API in Go and PostgreSQL, and it now runs both branches.\n\nThe hard part wasn't the code. It was the accounting: I had to learn why every debit needs a credit before I could write a single migration, and I got it wrong twice. It posts about 400 ledger entries a day with sub-50ms queries on a $5 VPS. Reconciliation is automated, which is where the 3 days went.\n\nYour posting also asks for instrumentation with OpenTelemetry and Prometheus. The closest thing I've done is a memory leak in a Rust worker. I spent two evenings reading tracing-subscriber's source before I saw it: spans dropped across await points were never freed. Getting the fix merged upstream took a week of review, and span memory went from 1.2 GB to 140 MB.\n\nAWS and Kubernetes are new to me. I'm learning Kubernetes on a small k3s cluster at home, and I'm working through the AWS Developer Associate course at night.\n\nIn short, my ledger experience and fast learning would make me a strong fit for your team.\n\nBest,\nAyesha Khan"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-learned-fast",
+          "vb-proudest",
+          "vb-learning-now"
+        ],
+        "text": "Dear Daftar Pay Payments team,\n\nThe week before Eid, the busiest week of the year, my family's hardware store lost its spreadsheet, and that week is the reason I'm applying to work on Daftar Pay's ledger. I'd promised my uncle a replacement. I learned Go in about three weeks because I had to: I read the tour, wrote small programs every night and asked a lot of dumb questions on the Gophers Slack. It wasn't pretty code. But it shipped, it balanced, and nobody lost a sale.\n\nThat replacement grew into LedgerLite, a double-entry bookkeeping API in Go and PostgreSQL that runs both branches of the store. It posts about 400 entries a day, and month-end closing takes 2 hours instead of 3 days. My uncle checks the balance sheet on his phone. He still prints it out, though.\n\nYour Backend Engineer, Payments posting asks for idempotent posting and clean reconciliation, which is the crucial part of this work for me. It also asks for AWS and Kubernetes, and I haven't used either in production. I run a small k3s cluster on two old laptops at home for LedgerLite's staging copy, and I'm working through the AWS Developer Associate course at night.\n\nCould we find half an hour next week to talk about your ledger?\n\nBest,\nAyesha Khan"
+      }
+    ],
+    "subjects": [
+      "Backend Engineer, Payments: I built a double-entry ledger in Go",
+      "Backend Engineer, Payments: month-end close from 3 days to 2 hours",
+      "Payments role: a Go and PostgreSQL ledger for a two-branch store",
+      "Backend Engineer application: ledger reconciliation in Go",
+      "Your logical replication post, and the Backend Engineer role"
+    ],
+    "outreach": "Hi, I read Daftar Pay's post on moving the ledger to PostgreSQL logical replication and wanted to say hello. I built LedgerLite, a double-entry bookkeeping API in Go and PostgreSQL that runs both branches of my family's hardware store; it cut month-end closing from 3 days to 2 hours. I've applied for the Backend Engineer, Payments role. I'm learning Kubernetes and AWS now, and I'd value a few minutes to hear how your team keeps posting idempotent. Thanks, Ayesha",
+    "followUp": "Dear Daftar Pay Payments team,\n\nI applied for the Backend Engineer, Payments role last week and wanted to add one thing I left out. I'm learning Kubernetes on a small k3s cluster at home, and LedgerLite's staging copy runs on it, so I've already broken it a fair few times. Half of what I know so far came from that.\n\nIf it would help, I'm happy to walk someone on your team through how LedgerLite keeps the books balanced. Is there a good time next week?\n\nBest,\nAyesha Khan"
+  }
+}

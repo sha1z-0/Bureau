@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "02a55dfdd565ca57980ebf62",
+  "scenario": "e2e",
+  "label": "research: Quillstack",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Quillstack is a docs-as-code platform for technical documentation teams, with live previews and review workflows modelled on pull requests. Its changelog shows a suggested-edits feature for the editor this summer and MDX 3 support in the renderer. The site says about 2,000 companies publish developer docs with it.\n\n```json\n{\n  \"whatTheyBuild\": \"A writing platform for technical documentation teams: docs-as-code, live previews and review workflows that work like pull requests.\",\n  \"products\": [\n    {\n      \"text\": \"A collaborative React editor with live previews of the published page.\",\n      \"sourceUrl\": \"https://quillstack.example.com/\"\n    },\n    {\n      \"text\": \"Review workflows where doc changes are proposed, commented on and merged like pull requests.\",\n      \"sourceUrl\": \"https://quillstack.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched suggested edits: reviewers propose wording changes inline and the author accepts them one by one.\",\n      \"sourceUrl\": \"https://quillstack.example.com/changelog/suggested-edits\",\n      \"date\": \"2026-07\"\n    },\n    {\n      \"text\": \"Rendering service upgraded to MDX 3.\",\n      \"sourceUrl\": \"https://quillstack.example.com/changelog/mdx-3\",\n      \"date\": \"2026-10\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"TypeScript throughout: a React editor and Node.js services that render Markdown and MDX.\",\n      \"sourceUrl\": \"https://quillstack.example.com/changelog/mdx-3\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Documentation is part of the product, and it deserves the same review as code.\",\n      \"sourceUrl\": \"https://quillstack.example.com/about\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"unknown\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://quillstack.example.com/",
+      "title": "Quillstack: docs as code, with reviews that feel like pull requests"
+    },
+    {
+      "url": "https://quillstack.example.com/changelog/suggested-edits",
+      "title": "Suggested edits in the editor | Quillstack changelog"
+    },
+    {
+      "url": "https://quillstack.example.com/changelog/mdx-3",
+      "title": "MDX 3 rendering | Quillstack changelog"
+    },
+    {
+      "url": "https://quillstack.example.com/about",
+      "title": "About Quillstack"
+    }
+  ]
+}

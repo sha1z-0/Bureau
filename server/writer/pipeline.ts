@@ -7,6 +7,7 @@ import { logEvent, now, run } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { fingerprintOf } from '../profile/index.ts';
 import { emit } from '../services/bus.ts';
+import { REPLAY } from '../ai/claude.ts';
 import { defaultWriterAi, type WriterAi } from './ai.ts';
 import { lintAnswer, writeShortAnswers } from './answers.ts';
 import { LENGTH_ARMS, pickLength, pickStrategy, type LengthArm } from './bandit.ts';
@@ -21,6 +22,7 @@ import { lintLetter, lintShort, type LintContext } from './lint.ts';
 import { loadPacket, renderPacketFiles, saveApplication, setPacketPaths, type AuditIssueV1, type VariantRecord, type WriterNotes, type WriterStep } from './packet.ts';
 import { truthLock } from './lock.ts';
 import { truthResult, type CodeIssue } from './truth.ts';
+import { seededRng } from './text.ts';
 
 /**
  * writeApplication: decode → research → evidence map → CV → three letters →
@@ -34,9 +36,12 @@ import { truthResult, type CodeIssue } from './truth.ts';
  * through transition(), never by writing the pipeline table.
  */
 
+/** The bandit's seed when replaying recordings and no rng is given (e2e, API, autopilot). */
+export const REPLAY_SEED = 1;
+
 export interface WriteOptions {
   ai?: WriterAi;
-  /** Seeded in tests and recordings; Math.random in production. */
+  /** Seeded in tests and recordings; Math.random in production; REPLAY_SEED in replay mode. */
   rng?: () => number;
   /** The owner's notes for this draft (studio "rewrite with notes"). */
   instructions?: string;
@@ -96,7 +101,8 @@ function paperFor(location: string): 'A4' | 'LETTER' {
 
 async function run_(jobId: string, campaignId: string | null, opts: WriteOptions): Promise<WriteRun> {
   const ai = opts.ai ?? defaultWriterAi;
-  const rng = opts.rng ?? Math.random;
+  // Replay mode must be deterministic (the bandit's picks change the prompts), so it gets a fixed seed.
+  const rng = opts.rng ?? (REPLAY ? seededRng(REPLAY_SEED) : Math.random);
   const tracked = enterWriting(jobId, campaignId, !!opts.manual);
   const steps: WriterStep[] = [];
   const step = (name: string, detail: string) => steps.push({ step: name, at: now(), detail });

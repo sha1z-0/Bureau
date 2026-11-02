@@ -1,0 +1,28 @@
+{
+  "task": "research",
+  "hash": "1cac52c5b534a7b159b08a40",
+  "scenario": "e2e",
+  "label": "research: Harbor & Pine",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Harbor & Pine runs the booking and payments platform used by independent outdoor-gear rental shops across North America. Its Platform team owns authentication, billing, event streaming and an internal developer portal; the engineering blog describes the event-streaming platform on Kafka and services on Kubernetes. The developer portal was opened to all product teams this year.\n\n```json\n{\n  \"whatTheyBuild\": \"The booking and payments platform behind independent outdoor-gear rental shops in North America.\",\n  \"products\": [\n    {\n      \"text\": \"Online booking and payments for gear rental shops.\",\n      \"sourceUrl\": \"https://harborpine.example.com/\"\n    },\n    {\n      \"text\": \"Shared platform services: authentication, billing, event streaming and an internal developer portal.\",\n      \"sourceUrl\": \"https://harborpine.example.com/engineering/platform-team\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Opened the internal developer portal to every product team.\",\n      \"sourceUrl\": \"https://harborpine.example.com/engineering/developer-portal\",\n      \"date\": \"2026-08\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Go and TypeScript services on Kubernetes; Kafka for event streaming.\",\n      \"sourceUrl\": \"https://harborpine.example.com/engineering/platform-team\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Teams own the reliability of the services they build, including on-call.\",\n      \"sourceUrl\": \"https://harborpine.example.com/engineering/platform-team\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"unknown\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://harborpine.example.com/",
+      "title": "Harbor & Pine: booking and payments for rental shops"
+    },
+    {
+      "url": "https://harborpine.example.com/engineering/platform-team",
+      "title": "What the Platform team does | Harbor & Pine Engineering"
+    },
+    {
+      "url": "https://harborpine.example.com/engineering/developer-portal",
+      "title": "Our internal developer portal | Harbor & Pine Engineering"
+    }
+  ]
+}

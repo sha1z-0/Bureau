@@ -38,3 +38,5 @@ feeds are the only third-party data).
 - `BUREAU_RECORD=1` (with a real key, not replaying) records live responses into this layout.
 - Recordings need deterministic prompts: no timestamps, random ids or temp paths in prompt text, or the hash changes every run.
 - `scripts/e2e/replay-fixtures.ts` writes the canonical recordings selfcheck uses to prove replay works.
+- The e2e's own recordings (scan, match, research, the writer's thirteen applications, the learning plan) carry `scenario: "e2e"` and are written by `npx tsx scripts/e2e/recordings/record.ts` from the hand-written answers in `scripts/e2e/recordings/authored/`; `scripts/e2e/recordings/bench.ts` dry-runs the writer's gates on them first. Re-run the recorder after a prompt change.
+- The e2e runs on a pinned clock (`scripts/e2e/clock.ts`, `BUREAU_E2E_NOW`, default 2026-11-02T09:00Z) and loopback ports are not part of `replayHash`, so date-bearing prompts and fixture URLs hash the same on every run.

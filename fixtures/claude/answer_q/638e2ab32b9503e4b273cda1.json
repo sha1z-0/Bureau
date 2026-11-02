@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "638e2ab32b9503e4b273cda1",
+  "scenario": "e2e",
+  "label": "short_answers: Tulip & Tern",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Tulip & Tern builds tools for small, independent hotels, and I like working for people who run their own place. My father kept his shop's accounts in a green register, and the small spreadsheet I made him mattered more than anything clever. Your published accessibility checklist also tells me the studio does the careful work before launch."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Junior Web Developer role is React and TypeScript components on a Node.js API, which is what I've built for two years at Tessellate Labs. I also built Bus Tracker Lahore, a React and Leaflet map about 300 people use a month. Accessibility audits would be new to me, and I'd start with your checklist."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "Bus Tracker Lahore is a React and Leaflet map of Metro Bus stops that shows estimated arrival gaps worked out from public timetables. It's a side project, and about 300 people use it a month, which is enough to make me careful with every change I push."
+      }
+    ]
+  }
+}

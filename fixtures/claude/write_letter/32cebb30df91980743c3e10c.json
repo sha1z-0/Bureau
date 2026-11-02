@@ -1,0 +1,29 @@
+{
+  "task": "write_letter",
+  "hash": "32cebb30df91980743c3e10c",
+  "scenario": "e2e",
+  "label": "revise: Meridian Freight",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Meridian Freight team,\n\nMeridian Freight's platform is the kind of logistics software I already work next to. I am a software engineer with two years of experience in TypeScript, Node.js and PostgreSQL.\n\nAt Tessellate Labs I built the invoicing service for our logistics clients and cut the nightly reconciliation job from 41 minutes to 6. I also built React admin screens and moved four services to Docker Compose.\n\nCould we set up a short call?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-learned-fast"
+        ],
+        "text": "Dear Meridian Freight team,\n\nNobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus and broke my laptop's networking twice. We moved four services.\n\nThat is how I'd approach a graduate role: say yes to the thing nobody has done yet, then write down how it went.\n\nI've spent two years at Tessellate Labs on billing software for logistics clients, in Node.js, TypeScript and PostgreSQL, so freight bookings would not be a strange domain.\n\nCould we set up a short call about the graduate role?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

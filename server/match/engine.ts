@@ -23,6 +23,11 @@ import { readMatch, rejectedMatch, saveAssessed, saveRejected, type StoredMatch 
  *   scored, or skipped with a reason).
  */
 
+/** A run-independent ordering key for a job (database ids are random UUIDs). */
+function stableKey(j: MatchJob): string {
+  return `${j.company}|${j.title}|${j.applyUrl ?? j.url}`;
+}
+
 export interface MatchOptions {
   /** Campaign the jobs are being matched for; recorded on pipeline rows. */
   campaignId?: string | null;
@@ -119,7 +124,8 @@ export async function runMatch(jobIds: string[], cfg: CampaignConfig, opts: Matc
       const similarity = sim?.score.get(j.id) ?? null;
       return { job: j, similarity, preRank: combinePreRank(j.prefilterScore, similarity), fresh: isFresh(j.postedAt, now) };
     })
-    .sort((a, b) => Number(b.fresh) - Number(a.fresh) || b.preRank - a.preRank || a.job.id.localeCompare(b.job.id));
+    // Ties break on content, not the random id, so batches (and their prompts) are the same every run.
+    .sort((a, b) => Number(b.fresh) - Number(a.fresh) || b.preRank - a.preRank || stableKey(a.job).localeCompare(stableKey(b.job)) || a.job.id.localeCompare(b.job.id));
 
   const queue: typeof ranked = [];
   for (const r of ranked) {

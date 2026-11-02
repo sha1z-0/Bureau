@@ -1,0 +1,169 @@
+{
+  "task": "match",
+  "hash": "9a0172065bb6a678122d99a5",
+  "model": "claude-haiku-5-5",
+  "case": "inflated",
+  "usage": {
+    "input_tokens": 640,
+    "output_tokens": 1180,
+    "cache_creation_input_tokens": 2780,
+    "cache_read_input_tokens": 0
+  },
+  "output": {
+    "results": [
+      {
+        "id": "1",
+        "postingLevel": "entry",
+        "inflatedPosting": true,
+        "inflationNote": "An entry-level title asks for 5+ years and a production AWS, Docker and Kubernetes stack.",
+        "requirements": [
+          {
+            "text": "React and TypeScript",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "1.5 years of React and TypeScript at Kestrel Apps"
+          },
+          {
+            "text": "Node.js and REST API design",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Wrote the Node.js/Express REST API (14 endpoints)"
+          },
+          {
+            "text": "5+ years of professional experience",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 5,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Owns the PostgreSQL schema and migrations at Kestrel Apps"
+          },
+          {
+            "text": "AWS (Lambda, S3, ECS)",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "learning",
+            "proof": "currently learning"
+          },
+          {
+            "text": "Docker in production",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "learning",
+            "proof": "currently learning"
+          },
+          {
+            "text": "Kubernetes in production",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "CI/CD pipelines (GitHub Actions)",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Set up GitHub Actions lint, test and preview deploys"
+          },
+          {
+            "text": "GraphQL",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "Computer science degree",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "BS Computer Science, FAST-NUCES 2024"
+          }
+        ],
+        "dimensions": {
+          "skills": 4,
+          "experience": 3,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 4
+        },
+        "legitimacy": "ok",
+        "confidence": "high",
+        "verdict": "Apply: the core React, TypeScript, Node and PostgreSQL stack is all there, and the 5-year line is boilerplate on an entry-level role.",
+        "strengths": [
+          "Same core stack in production at Kestrel Apps",
+          "Owns a REST API and its PostgreSQL schema",
+          "GitHub Actions CI already set up",
+          "Remote work with a distributed team"
+        ],
+        "gaps": [
+          "Far short of the stated 5 years",
+          "No production Kubernetes",
+          "AWS and Docker only at the learning stage"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "PostgreSQL",
+          "CI/CD",
+          "GitHub Actions"
+        ],
+        "seniorityFit": "match"
+      }
+    ]
+  }
+}

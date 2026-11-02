@@ -1,0 +1,131 @@
+{
+  "task": "match",
+  "hash": "886fa15f13a3864c3bfcf243",
+  "model": "claude-haiku-5-5",
+  "case": "clearance",
+  "usage": {
+    "input_tokens": 560,
+    "output_tokens": 940,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 2780
+  },
+  "output": {
+    "results": [
+      {
+        "id": "1",
+        "postingLevel": "mid",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "Active Secret security clearance",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": true,
+            "blockerKind": "clearance",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "U.S. citizenship",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": true,
+            "blockerKind": "citizenship",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "3+ years of software engineering",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": true,
+            "blockerKind": "years",
+            "yearsAsked": 3,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "TypeScript and React in production",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Ships React and TypeScript features at Kestrel Apps"
+          },
+          {
+            "text": "Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Maintains the Node.js/Express API at Kestrel Apps"
+          },
+          {
+            "text": "AWS GovCloud",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "learning",
+            "proof": "currently learning"
+          },
+          {
+            "text": "DoD compliance (NIST 800-171, CMMC)",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 4,
+          "experience": 2,
+          "domain": 1,
+          "logistics": 1,
+          "compensation": 5,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "high",
+        "verdict": "Skip: the role needs an active Secret clearance and U.S. citizenship, which the candidate cannot get past at the screen.",
+        "strengths": [
+          "React and TypeScript match the front-end work",
+          "Node.js services experience"
+        ],
+        "gaps": [
+          "No security clearance",
+          "Not a U.S. citizen",
+          "Short of the 3 years asked",
+          "No defence or compliance background"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "React",
+          "Node.js"
+        ],
+        "seniorityFit": "under"
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "task": "research",
+  "hash": "d72dcb3c82638a501e05edc8",
+  "scenario": "e2e",
+  "label": "research: Lumen Ledger",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Lumen Ledger sells reconciliation and month-end close software to small finance teams, mostly accountants at companies of 20 to 200 people. Its site and engineering blog are recent and specific: the matching engine pairs bank lines with invoices, and the team has written about moving candidate matching into PostgreSQL. The careers page describes a remote team across EMEA and South Asia. I found no funding announcement in the window, so stage is left unknown.\n\n```json\n{\n  \"whatTheyBuild\": \"Reconciliation and month-end close software for small finance teams: bank feeds are imported and bank lines are matched to invoices automatically.\",\n  \"products\": [\n    {\n      \"text\": \"Bank matching: imports bank feeds and matches each bank line to open invoices, leaving only the exceptions for an accountant.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/product/matching\"\n    },\n    {\n      \"text\": \"Close checklist: a shared month-end close list with sign-offs per account.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched matching rules that learn from the manual matches accountants make, so repeat exceptions get matched automatically the next month.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/blog/matching-rules-that-learn\",\n      \"date\": \"2026-09\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Engineering post on moving candidate matching out of application code and into PostgreSQL queries.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/engineering/matching-in-postgres\"\n    },\n    {\n      \"text\": \"Backend services are Node.js and TypeScript on PostgreSQL.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/careers\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Customers are accountants who are tired of matching bank lines in spreadsheets.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/\"\n    },\n    {\n      \"text\": \"Small, well-tested changes shipped several times a week, reviewed by a senior engineer.\",\n      \"sourceUrl\": \"https://lumenledger.example.com/careers\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"about 34 people (careers page)\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://lumenledger.example.com/",
+      "title": "Lumen Ledger: reconciliation and month-end close for small finance teams"
+    },
+    {
+      "url": "https://lumenledger.example.com/product/matching",
+      "title": "Bank matching | Lumen Ledger"
+    },
+    {
+      "url": "https://lumenledger.example.com/blog/matching-rules-that-learn",
+      "title": "Matching rules that learn from your team | Lumen Ledger"
+    },
+    {
+      "url": "https://lumenledger.example.com/engineering/matching-in-postgres",
+      "title": "Moving candidate matching into Postgres | Lumen Ledger Engineering"
+    },
+    {
+      "url": "https://lumenledger.example.com/careers",
+      "title": "Careers at Lumen Ledger"
+    }
+  ]
+}

@@ -1,0 +1,930 @@
+{
+  "task": "match",
+  "hash": "7e53ef632c3b04486939cf88",
+  "scenario": "e2e",
+  "label": "batch: Widget Works captcha-turnstile, Widget Works rich-text, Atlas Mutual, Northwind Labs, Widget Works mui-datepicker, Widget Works prompt-injection",
+  "model": "claude-haiku-5-5",
+  "usage": {
+    "input_tokens": 4100,
+    "output_tokens": 5200,
+    "cache_read_input_tokens": 2600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "results": [
+      {
+        "id": "1",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years with TypeScript or Python",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years of TypeScript/Node.js at Tessellate Labs"
+          },
+          {
+            "text": "comfort with SQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Cut a 41-minute reconciliation job to 6 with set-based SQL"
+          },
+          {
+            "text": "TypeScript and Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built the Node.js/TypeScript invoicing service"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Invoicing service and ledger-lite run on PostgreSQL"
+          },
+          {
+            "text": "write SQL migrations",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations are her stated strength"
+          },
+          {
+            "text": "ship small features end to end",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built React admin screens plus their API checks"
+          },
+          {
+            "text": "Remote within UTC+0 to UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Based in Lahore (UTC+5), remote only"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "React",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "React admin screens for refunds and credit notes"
+          },
+          {
+            "text": "AWS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "medium",
+        "verdict": "Strong chance: TypeScript, Node.js and PostgreSQL are her daily stack and the time zone fits; the company itself says little about the team.",
+        "strengths": [
+          "Two years of production TypeScript and Node.js",
+          "Real PostgreSQL performance work (41 to 6 minutes)",
+          "Docker Compose migration and runbook",
+          "React admin screens"
+        ],
+        "gaps": [
+          "No AWS experience (only queued on her learning list)",
+          "The posting is short, so the team and product are unclear"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "Docker",
+          "React"
+        ],
+        "seniorityFit": "match"
+      },
+      {
+        "id": "2",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years with TypeScript or Python",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years of TypeScript/Node.js at Tessellate Labs"
+          },
+          {
+            "text": "comfort with SQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Cut a 41-minute reconciliation job to 6 with set-based SQL"
+          },
+          {
+            "text": "TypeScript and Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built the Node.js/TypeScript invoicing service"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Invoicing service and ledger-lite run on PostgreSQL"
+          },
+          {
+            "text": "write SQL migrations",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations are her stated strength"
+          },
+          {
+            "text": "ship small features end to end",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built React admin screens plus their API checks"
+          },
+          {
+            "text": "Remote within UTC+0 to UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Based in Lahore (UTC+5), remote only"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "React",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "React admin screens for refunds and credit notes"
+          },
+          {
+            "text": "AWS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "medium",
+        "verdict": "Strong chance: TypeScript, Node.js and PostgreSQL are her daily stack and the time zone fits; the company itself says little about the team.",
+        "strengths": [
+          "Two years of production TypeScript and Node.js",
+          "Real PostgreSQL performance work (41 to 6 minutes)",
+          "Docker Compose migration and runbook",
+          "React admin screens"
+        ],
+        "gaps": [
+          "No AWS experience (only queued on her learning list)",
+          "The posting is short, so the team and product are unclear"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "Docker",
+          "React"
+        ],
+        "seniorityFit": "match"
+      },
+      {
+        "id": "3",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years with TypeScript or Python",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years of TypeScript/Node.js at Tessellate Labs"
+          },
+          {
+            "text": "comfort with SQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Cut a 41-minute reconciliation job to 6 with set-based SQL"
+          },
+          {
+            "text": "TypeScript and Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built the Node.js/TypeScript invoicing service"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Invoicing service and ledger-lite run on PostgreSQL"
+          },
+          {
+            "text": "write SQL migrations",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations are her stated strength"
+          },
+          {
+            "text": "ship small features end to end",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built React admin screens plus their API checks"
+          },
+          {
+            "text": "Remote within UTC+0 to UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Based in Lahore (UTC+5), remote only"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "React",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "React admin screens for refunds and credit notes"
+          },
+          {
+            "text": "AWS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 2,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "medium",
+        "verdict": "Good chance at Atlas Mutual: the posting asks for exactly her stack and time zone; nothing in it is a gate she misses.",
+        "strengths": [
+          "Two years of production TypeScript and Node.js",
+          "Real PostgreSQL performance work (41 to 6 minutes)",
+          "Docker Compose migration and runbook",
+          "React admin screens"
+        ],
+        "gaps": [
+          "No AWS experience (only queued on her learning list)",
+          "The posting is short, so the team and product are unclear"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "Docker",
+          "React"
+        ],
+        "seniorityFit": "match"
+      },
+      {
+        "id": "4",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years of professional experience with Node.js and TypeScript",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years on Node.js/TypeScript at Tessellate Labs"
+          },
+          {
+            "text": "Solid SQL skills and experience with PostgreSQL or MySQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Set-based SQL rewrite took a job from 41 to 6 minutes"
+          },
+          {
+            "text": "migrations that run safely on large tables",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations; partial indexes in production"
+          },
+          {
+            "text": "clear pull-request descriptions; ask questions early",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Reviews pull requests for the billing team"
+          },
+          {
+            "text": "Improve our test suite",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Raised loader test coverage from 0 to 71% with pytest"
+          },
+          {
+            "text": "Remote between UTC-1 and UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Lahore, UTC+5"
+          },
+          {
+            "text": "NestJS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "Fastify and Express APIs, not NestJS"
+          },
+          {
+            "text": "Redis or message queues (BullMQ, SQS)",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "designing public APIs and webhooks",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "REST APIs for invoicing and ledger-lite"
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 4
+        },
+        "legitimacy": "ok",
+        "confidence": "high",
+        "verdict": "Strong chance: Node.js, TypeScript and PostgreSQL migrations are her daily work, the time zone fits and Northwind hires through an employer of record.",
+        "strengths": [
+          "Node.js and TypeScript in production",
+          "PostgreSQL performance work",
+          "Writes tests and reviews pull requests",
+          "Fastify and Express REST APIs"
+        ],
+        "gaps": [
+          "No NestJS",
+          "No Redis or queue experience"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "Node.js",
+          "TypeScript",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "test suite",
+          "Docker",
+          "pull-request"
+        ],
+        "seniorityFit": "match"
+      },
+      {
+        "id": "5",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years with TypeScript or Python",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years of TypeScript/Node.js at Tessellate Labs"
+          },
+          {
+            "text": "comfort with SQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Cut a 41-minute reconciliation job to 6 with set-based SQL"
+          },
+          {
+            "text": "TypeScript and Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built the Node.js/TypeScript invoicing service"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Invoicing service and ledger-lite run on PostgreSQL"
+          },
+          {
+            "text": "write SQL migrations",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations are her stated strength"
+          },
+          {
+            "text": "ship small features end to end",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built React admin screens plus their API checks"
+          },
+          {
+            "text": "Remote within UTC+0 to UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Based in Lahore (UTC+5), remote only"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "React",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "React admin screens for refunds and credit notes"
+          },
+          {
+            "text": "AWS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "medium",
+        "verdict": "Strong chance: TypeScript, Node.js and PostgreSQL are her daily stack and the time zone fits; the company itself says little about the team.",
+        "strengths": [
+          "Two years of production TypeScript and Node.js",
+          "Real PostgreSQL performance work (41 to 6 minutes)",
+          "Docker Compose migration and runbook",
+          "React admin screens"
+        ],
+        "gaps": [
+          "No AWS experience (only queued on her learning list)",
+          "The posting is short, so the team and product are unclear"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "Docker",
+          "React"
+        ],
+        "seniorityFit": "match"
+      },
+      {
+        "id": "6",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1+ years with TypeScript or Python",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years of TypeScript/Node.js at Tessellate Labs"
+          },
+          {
+            "text": "comfort with SQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Cut a 41-minute reconciliation job to 6 with set-based SQL"
+          },
+          {
+            "text": "TypeScript and Node.js services",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built the Node.js/TypeScript invoicing service"
+          },
+          {
+            "text": "PostgreSQL",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Invoicing service and ledger-lite run on PostgreSQL"
+          },
+          {
+            "text": "write SQL migrations",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Schema design and migrations are her stated strength"
+          },
+          {
+            "text": "ship small features end to end",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Built React admin screens plus their API checks"
+          },
+          {
+            "text": "Remote within UTC+0 to UTC+6",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Based in Lahore (UTC+5), remote only"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "React",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "React admin screens for refunds and credit notes"
+          },
+          {
+            "text": "AWS",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 3,
+          "logistics": 5,
+          "compensation": 4,
+          "growth": 3
+        },
+        "legitimacy": "ok",
+        "confidence": "medium",
+        "verdict": "Strong chance: TypeScript, Node.js and PostgreSQL are her daily stack and the time zone fits; the company itself says little about the team.",
+        "strengths": [
+          "Two years of production TypeScript and Node.js",
+          "Real PostgreSQL performance work (41 to 6 minutes)",
+          "Docker Compose migration and runbook",
+          "React admin screens"
+        ],
+        "gaps": [
+          "No AWS experience (only queued on her learning list)",
+          "The posting is short, so the team and product are unclear"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "SQL",
+          "migrations",
+          "Docker",
+          "React"
+        ],
+        "seniorityFit": "match"
+      }
+    ]
+  }
+}
