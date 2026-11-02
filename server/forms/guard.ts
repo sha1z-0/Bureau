@@ -15,15 +15,17 @@ const GUARD = String.raw`(() => {
   window.__bureauAllowSubmit = false;
   window.__bureauBlockedSubmits = 0;
   const blocked = () => { window.__bureauBlockedSubmits = (window.__bureauBlockedSubmits || 0) + 1; };
+  // The application form: one holding the fields Bureau fills (helper forms, e.g. a direct-to-storage upload, pass).
+  const isApp = (f) => !!f && !!f.querySelectorAll && f.querySelectorAll('input:not([type=hidden]):not([type=file]), select, textarea').length >= 2;
   document.addEventListener('submit', (e) => {
-    if (!window.__bureauAllowSubmit) { e.preventDefault(); e.stopImmediatePropagation(); blocked(); }
+    if (!window.__bureauAllowSubmit && isApp(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); blocked(); }
   }, true);
   const P = HTMLFormElement.prototype;
   const submit = P.submit;
-  P.submit = function () { if (!window.__bureauAllowSubmit) { blocked(); return; } return submit.call(this); };
+  P.submit = function () { if (!window.__bureauAllowSubmit && isApp(this)) { blocked(); return; } return submit.call(this); };
   if (P.requestSubmit) {
     const rs = P.requestSubmit;
-    P.requestSubmit = function (s) { if (!window.__bureauAllowSubmit) { blocked(); return; } return rs.call(this, s); };
+    P.requestSubmit = function (s) { if (!window.__bureauAllowSubmit && isApp(this)) { blocked(); return; } return rs.call(this, s); };
   }
 })()`;
 

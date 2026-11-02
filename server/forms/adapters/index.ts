@@ -36,6 +36,8 @@ export const ADAPTERS: Adapter[] = [
     name: 'Lever',
     applyUrl: (u) => (/jobs\.(eu\.)?lever\.co\/[^/]+\/[0-9a-f-]{36}\/?$/i.test(u) ? u.replace(/\/?$/, '/apply') : u),
     submit: ['#btn-submit', 'button[data-qa=btn-submit]', 'button[type=submit]'],
+    // Lever's location box is a suggestion typeahead (a pick fills the hidden selectedLocation).
+    fixField: (f) => (f.selectors.some((s) => /location-input|name="location"/.test(s)) && f.kind === 'text' ? { ...f, kind: 'location' } : f),
     confirm: { text: /application submitted|thank(s| you) for applying/i, selectors: ['[data-qa=msg-submit-success]'], url: /\/thanks|__confirm/i },
   },
   {

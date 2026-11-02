@@ -17,7 +17,7 @@ import { fillField, type FileSet } from './handlers/index.ts';
 import { readField } from './handlers/common.ts';
 import { probeOptions } from './handlers/combobox.ts';
 import { pause } from './human.ts';
-import { invalidateCandidate, jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from './map.ts';
+import { groupFor, invalidateCandidate, jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from './map.ts';
 import { companyKey, valuesMatch } from './normalize.ts';
 import { inFrame } from './page.ts';
 import { buildRecipe, recipePages, recipeValue, resolveSteps, type TraceField } from './recipeRun.ts';
@@ -64,6 +64,8 @@ interface StepRecord {
   verified: boolean;
   problems: string[];
   shot: string | null;
+  /** Fields committed into saved entry cards (their inputs are gone or empty by design). */
+  saved?: Set<string>;
 }
 
 interface Run {
@@ -215,7 +217,11 @@ function usable(r: Run, f: ExtractedField): boolean {
 }
 
 function groupCount(ex: StepExtract, name: string): number {
-  const idx = new Set(ex.fields.filter((f) => f.meta?.group?.name === name).map((f) => f.meta!.group!.index));
+  const idx = new Set<number>();
+  for (const f of ex.fields) {
+    const g = groupFor(f);
+    if (g.name === name) idx.add(g.index);
+  }
   return idx.size;
 }
 
@@ -275,6 +281,12 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
     }
     rec.values.push(v);
     if (v.unknown || v.confidence < MIN_CONFIDENCE) {
+      // A question that went away (a dependent field re-drawn by an earlier answer) is not a question any more.
+      const still = await readField(frameFor(r.page, f), f).catch(() => null);
+      if (still && !still.exists) {
+        rec.values.pop();
+        continue;
+      }
       if (f.required) r.unknown.set(f.labelNorm, { label: f.label, kind: f.kind, options: f.options ?? [], reason: v.reason ?? 'unknown' });
       v.unknown = true;
       continue;
@@ -373,14 +385,61 @@ async function fillStep(r: Run, step: number): Promise<{ rec: StepRecord; ex: St
     await settle(r.page, 150);
     ex = await extract(r, step);
   }
+  // Entry sub-forms left open ("Save" / "Done" under an experience or education entry) are saved.
+  const saved = new Set<string>();
+  const savedProblems: string[] = [];
+  for (const fr of r.page.frames()) {
+    if (fr.isDetached()) continue;
+    const saves = await inFrame<{ id: string; fields: string[]; values: string[] }[]>(fr, 'saveButtons').catch(() => []);
+    for (const sv of saves) {
+      await withSubmitAllowed(r.page, () => clickStamped(fr, 'data-bureau-nav', sv.id));
+      await settle(r.page, 300);
+      for (const id of sv.fields) saved.add(id);
+      // The saved entry must show what was typed into it.
+      const text = await fr.locator('body').innerText().catch(() => '');
+      const missing = sv.values.filter((v) => v.length <= 60 && !text.includes(v));
+      if (missing.length) savedProblems.push(`saved entry does not show "${missing[0].slice(0, 60)}"`);
+      dbg(r, `saved an open entry sub-form (${sv.fields.length} fields)`);
+    }
+  }
   // Fields re-rendered with new ids: verify against what's on the page now.
   const live = await extract(r, step);
   const liveIds = new Set(live.fields.map((f) => f.id));
-  const checkFields = rec.fields.filter((f) => liveIds.has(f.id) || rec.values.some((v) => v.fieldId === f.id && !v.unknown));
+  const checkFields = rec.fields.filter((f) => !saved.has(f.id) && (liveIds.has(f.id) || rec.values.some((v) => v.fieldId === f.id && !v.unknown)));
   const v = await verifyFields(r.page, checkFields, rec.values, { ignoreErrors: r.adapter.ignoreErrors });
+  // Saved entry fields count as verified when the entry shows their values.
+  for (const f of rec.fields.filter((x) => saved.has(x.id))) {
+    const want = rec.values.find((x) => x.fieldId === f.id && !x.unknown);
+    if (want) v.fieldLog.push({ signature: f.signature, label: f.label, kind: f.kind, required: f.required, source: want.source, key: want.key, intended: want.value.slice(0, 2000), readBack: '(saved entry)', ok: !savedProblems.length, note: savedProblems[0] });
+  }
+  if (savedProblems.length) {
+    v.verified = false;
+    v.problems.push(...savedProblems);
+  }
+  // Entries saved into a summary card: their inputs are gone, their values are on the page.
+  if (saved.size || v.fieldLog.some((e) => e.note === 'field disappeared')) {
+    let pageText = '';
+    for (const fr of r.page.frames()) if (!fr.isDetached()) pageText += ' ' + (await fr.locator('body').innerText().catch(() => ''));
+    const gone = v.fieldLog.filter((e) => e.note === 'field disappeared' && e.intended);
+    const sectionOf = (e: FieldLogEntry) => rec.fields.find((f) => f.signature === e.signature)?.section ?? '';
+    const cardShown = new Set(gone.filter((e) => e.intended!.length <= 60 && pageText.includes(e.intended!)).map(sectionOf));
+    for (const e of v.fieldLog) {
+      if (e.ok || e.note !== 'field disappeared' || !e.intended) continue;
+      // Shown on the entry card, or part of an entry whose card shows its other values.
+      const shown = e.kind === 'checkbox' || e.kind === 'date' || e.intended.length > 60 || pageText.includes(e.intended) || cardShown.has(sectionOf(e));
+      if (!shown) continue;
+      e.ok = true;
+      e.readBack = '(saved entry)';
+      e.note = undefined;
+      const i = v.problems.findIndex((p) => p.startsWith(`${e.label}: field disappeared`));
+      if (i >= 0) v.problems.splice(i, 1);
+    }
+    v.verified = v.problems.length === 0;
+  }
   rec.log = v.fieldLog;
   rec.verified = v.verified;
   rec.problems = v.problems;
+  rec.saved = new Set([...saved, ...rec.fields.filter((f) => v.fieldLog.some((e) => e.signature === f.signature && e.readBack === '(saved entry)')).map((f) => f.id)]);
   dbg(r, `step ${step + 1}: ${rec.fields.length} fields, verified=${rec.verified}${rec.problems.length ? ` problems: ${rec.problems.slice(0, 3).join(' | ')}` : ''}`);
   rec.shot = await stepShot(r.page, r.id, `step-${step + 1}`);
   if (rec.shot) r.shots.push(rec.shot);
@@ -745,7 +804,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     aborted(opts);
     if (alreadySubmitted(packet.jobId)) return finish(r, { status: 'skipped', reason: 'Already submitted: Bureau never applies twice.', verified: true });
     const last = r.steps.at(-1)!;
-    const recheck = await verifyFields(page, last.fields, last.values, { ignoreErrors: r.adapter.ignoreErrors });
+    const recheck = await verifyFields(page, last.fields.filter((f) => !last.saved?.has(f.id)), last.values, { ignoreErrors: r.adapter.ignoreErrors });
     if (!recheck.verified) {
       return finish(r, { status: 'needs_you', reason: `The form changed before submit: ${recheck.problems.slice(0, 3).join('; ')}`, shotPath: await proofShot(page, packet.applicationId), verified: false });
     }

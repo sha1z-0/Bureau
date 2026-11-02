@@ -53,7 +53,7 @@ export const SYNONYMS: SynEntry[] = [
   { key: 'country', source: 'profile', labels: ['country', 'country of residence', 'current country', 'country region', 'nation', 'land', 'pais', 'country you live in', 'residence country', 'country territory'] },
   { key: 'postal_code', source: 'bank', labels: ['zip', 'zip code', 'postal code', 'postcode', 'post code', 'plz', 'postleitzahl', 'zip postal code'] },
   { key: 'address_line', source: 'bank', labels: ['address', 'street address', 'address line 1', 'street', 'home address', 'address 1', 'mailing address', 'address line1', 'strasse'] },
-  { key: 'address_line2', source: 'bank', labels: ['address line 2', 'apartment', 'apt suite', 'address 2', 'address line2'] },
+  { key: 'address_line2', source: 'never', labels: ['address line 2', 'apartment', 'apt suite', 'address 2', 'address line2'] },
   // ── Current role ──
   { key: 'current_company', source: 'profile', labels: ['current company', 'current employer', 'employer', 'present employer', 'most recent employer', 'latest employer', 'current organization', 'current organisation', 'company you work for', 'current company name'] },
   { key: 'current_title', source: 'profile', labels: ['current title', 'current job title', 'current role', 'current position', 'present position', 'most recent title', 'designation', 'most recent job title', 'your current title'] },
@@ -62,7 +62,7 @@ export const SYNONYMS: SynEntry[] = [
   { key: 'salary_expectation', source: 'bank', labels: ['salary expectations', 'expected salary', 'desired salary', 'salary requirements', 'compensation expectations', 'desired compensation', 'expected compensation', 'salary expectation', 'what are your salary expectations', 'target salary', 'gehaltsvorstellung', 'expected ctc', 'salary range expectation', 'desired pay'], patterns: [/\b(expected|desired|target)\b.*\b(salary|compensation|pay)\b/, /\bsalary (expectation|requirement)/] },
   { key: 'current_salary', source: 'bank', labels: ['current salary', 'current compensation', 'current ctc', 'present salary', 'current base salary'] },
   { key: 'notice_period', source: 'bank', labels: ['notice period', 'notice', 'how much notice', 'current notice period', 'kundigungsfrist', 'what is your notice period', 'notice period in weeks'] },
-  { key: 'start_date', source: 'bank', labels: ['start date', 'earliest start date', 'available start date', 'when can you start', 'availability', 'available from', 'date available', 'availability date', 'desired start date', 'earliest available start date', 'when are you available to start'] },
+  { key: 'start_date', source: 'bank', labels: ['start date', 'earliest start date', 'available start date', 'when can you start', 'availability', 'available from', 'date available', 'availability date', 'desired start date', 'earliest available start date', 'when are you available to start', 'when could you start', 'available to start', 'start date availability'], patterns: [/\bwhen (can|could|would) you (start|begin|join)\b/, /\b(earliest|possible|available) (start|starting) date\b/] },
   { key: 'sponsorship', source: 'bank', attestation: true, labels: ['sponsorship', 'visa sponsorship', 'require sponsorship', 'need sponsorship', 'will you require sponsorship', 'do you require visa sponsorship', 'sponsorship required'], patterns: [/\bsponsor/, /\b(require|need)\b.*\bvisa\b/, /\bh ?1 ?b\b/, /\b(need|require)\b.*\bwork permit\b/] },
   { key: 'work_authorization', source: 'bank', attestation: true, labels: ['work authorization', 'work authorisation', 'authorized to work', 'legally authorized to work', 'right to work', 'work permit', 'eligible to work', 'work eligibility', 'are you legally authorized to work', 'employment eligibility'], patterns: [/\b(legally )?(authori[sz]ed|eligible|entitled|permitted) to work\b/, /\bright to work\b/, /\bwork (permit|authori[sz]ation|visa)\b/] },
   { key: 'citizenship', source: 'bank', attestation: true, labels: ['citizenship', 'nationality', 'citizen', 'country of citizenship', 'are you a citizen'], patterns: [/\bcitizen(ship)?\b/, /\bnationalit/] },
@@ -76,7 +76,7 @@ export const SYNONYMS: SynEntry[] = [
   { key: 'remote', source: 'bank', labels: ['open to remote', 'work remotely', 'remote work', 'are you open to hybrid', 'onsite', 'on site', 'in office', 'hybrid work'], patterns: [/\b(on ?site|in (the )?office|hybrid)\b.*\b(work|days|able|willing|comfortable)\b/] },
   { key: 'travel', source: 'bank', labels: ['willing to travel', 'travel', 'are you willing to travel', 'travel requirements'], patterns: [/\b(willing|able|open|available) to travel\b/] },
   { key: 'languages', source: 'bank', labels: ['languages', 'languages spoken', 'what languages do you speak', 'language skills', 'spoken languages'] },
-  { key: 'timezone', source: 'bank', labels: ['timezone', 'time zone', 'your time zone', 'current time zone'] },
+  { key: 'timezone', source: 'bank', labels: ['timezone', 'time zone', 'your time zone', 'current time zone'], patterns: [/\btime ?zone\b/] },
   { key: 'highest_education', source: 'bank', labels: ['highest level of education', 'highest degree', 'highest education', 'education level', 'level of education', 'highest qualification', 'highest degree obtained'] },
   { key: 'drivers_licence', source: 'bank', labels: ['drivers license', 'driving licence', 'driver s license', 'valid drivers license'] },
   // ── Source / referral ──
@@ -117,11 +117,12 @@ export const SYNONYMS: SynEntry[] = [
   { key: 'skills', source: 'profile', labels: ['skills', 'technical skills', 'key skills', 'tech stack', 'technologies', 'tools', 'programming languages', 'which technologies have you used'], patterns: [/\b(which|what) (of these|technologies|tools|languages|frameworks|skills)\b/, /\bhave you used\b/, /\b(tech(nology)? stack|technical skills|key skills)\b/] },
   { key: 'summary', source: 'profile', labels: ['summary', 'professional summary', 'about you', 'about me', 'bio', 'profile summary', 'short bio', 'introduce yourself', 'tell us about yourself'] },
   // ── Consent and certification ──
-  { key: 'consent_marketing', source: 'consent', labels: ['send me job alerts', 'subscribe', 'keep me updated', 'talent community', 'future opportunities', 'marketing emails', 'newsletter'], patterns: [/\b(job alerts?|newsletter|talent (community|pool|network)|future (job )?opportunit|keep me (informed|updated)|marketing|subscribe|sms|text messages?)\b/] },
+  { key: 'consent_marketing', source: 'consent', labels: ['send me job alerts', 'subscribe', 'keep me updated', 'talent community', 'future opportunities', 'marketing emails', 'newsletter'], patterns: [/\b(job alerts?|newsletter|talent (community|pool|network)|future (job )?opportunit|future (roles|positions|vacancies|openings|jobs)|keep my (data|details|cv|information)|keep me (informed|updated)|marketing|subscribe|sms|text messages?)\b/] },
   { key: 'consent_privacy', source: 'consent', labels: ['i agree to the privacy policy', 'privacy policy', 'i have read the privacy notice', 'data processing consent', 'gdpr consent', 'i consent to the processing of my personal data', 'i accept the terms and conditions', 'terms and conditions', 'i agree', 'privacy notice', 'consent'], patterns: [/\b(privacy|gdpr|data (protection|processing)|personal data|terms (and|&) conditions|terms of (use|service)|i (have )?read|i agree|i accept|i consent)\b/] },
   { key: 'certify_accurate', source: 'consent', labels: ['i certify that the information provided is accurate', 'i certify', 'attestation', 'i confirm the information is true', 'acknowledgement'], patterns: [/\b(certify|attest|confirm)\b.*\b(true|accurate|correct|complete)\b/] },
   // ── Signature dates: today ──
   { key: 'date_today', source: 'generated', labels: ['date', 'today s date', 'todays date', 'date signed', 'signature date', 'date of signature', 'signed on'] },
+  { key: 'graduation_date', source: 'bank', labels: ['graduation date', 'graduation year', 'expected graduation', 'year of graduation', 'expected graduation date', 'date of graduation'] },
   // ── Never entered by Bureau ──
   { key: 'date_of_birth', source: 'never', labels: ['date of birth', 'dob', 'birthday', 'birth date', 'geburtsdatum'], patterns: [/\b(date of birth|birth ?date|birthday)\b/] },
   { key: 'national_id', source: 'never', labels: ['social security number', 'ssn', 'national id', 'cnic', 'passport number', 'tax id', 'national insurance number', 'sin', 'id number'], patterns: [/\b(social security|ssn|national (id|identity|insurance)|passport|cnic|tax (id|number)|aadhaar|pan number)\b/] },
@@ -171,7 +172,7 @@ export function matchSynonym(labelN: string, group: string | null = null): SynMa
   if (words.length <= 7) {
     let best: { e: SynEntry; len: number } | null = null;
     for (const [k, list] of exactIndex) {
-      if (k.length < 4) continue;
+      if (k.length < 4 || list.every((x) => x.key === 'date_today')) continue;
       if ((' ' + l + ' ').includes(' ' + k + ' ')) {
         const e = pick(list, group);
         if (e && (!best || k.length > best.len)) best = { e, len: k.length };

@@ -4,7 +4,7 @@ import type { ApplicationPacket } from '../contracts/writer.ts';
 import { all, get } from '../db.ts';
 import { loadProfile } from '../services/profileStore.ts';
 import { type Candidate, candidateFrom, degreeLevel, DIAL_CODES } from './candidate.ts';
-import { bestOption, declineOption, labelNorm as normLabel, normText, optionScore, parseDate } from './normalize.ts';
+import { bestOption, declineOption, labelNorm as normLabel, normText, optionScore, parseDate, truthy } from './normalize.ts';
 import { matchSynonym, type SynEntry } from './synonyms.ts';
 
 /**
@@ -150,6 +150,8 @@ const ALT_QUESTIONS: Record<string, string[]> = {
   highest_education: ['What is your highest level of education?'],
   address_line: ['What is your street address?', 'Address line 1'],
   postal_code: ['What is your postal code?', 'Postal code'],
+  state: ['What is your state or province?', 'State or province', 'Region'],
+  graduation_date: ['When did you complete your degree?', 'When did you graduate?'],
 };
 
 const COUNTRY_WORDS: [string, RegExp][] = [
@@ -172,6 +174,7 @@ const contentWords = (s: string) => new Set(normText(s).split(' ').filter((w) =>
 const KEY_TOPIC: Record<string, RegExp> = {
   start_date: /\b(start|available|availability|join|begin)\b/,
   notice_period: /\bnotice\b/,
+  timezone: /\btime ?zone\b/,
   salary_expectation: /\bsalary|compensation\b/,
   salary_expectation_number: /\bsalary|compensation\b/,
 };
@@ -253,17 +256,38 @@ function shortAnswerFor(f: Field, packet: ApplicationPacket | null, job: JobInfo
     const v = answers.get(key);
     if (v && re.test(l)) return { key: `writer:${key}`, value: v };
   }
+  // "Why Acme?" (the question itself; anything after the question mark is ignored).
+  const head = normText(f.label.split('?')[0]);
+  if (/^why [a-z0-9&]+( [a-z0-9&]+){0,2}$/.test(head) && !/\b(role|position|job|team)\b/.test(head) && answers.get('why us')) return { key: 'writer:why us', value: answers.get('why us')! };
   return null;
 }
 
-function groupOf(f: Field): { name: 'work' | 'education' | null; index: number } {
+/**
+ * Which repeating entry a field belongs to (work / education, 0-based index):
+ * the extractor's group, then indexed names/ids ("exp_0_company",
+ * "experience[1][title]", "workExperience-2--jobTitle"), then a numbered section
+ * heading ("Position 2"), then a plain section ("Education").
+ */
+export function groupFor(f: FormField & { meta?: { group?: { index: number; name: string }; hint?: string }; selectors?: string[] }): { name: 'work' | 'education' | null; index: number } {
   const g = f.meta?.group;
-  const section = normText(f.section ?? '');
   if (g && (g.name === 'work' || g.name === 'education')) return { name: g.name, index: g.index };
-  if (/\b(education|school|academic|university)\b/.test(section)) return { name: 'education', index: g?.index ?? 0 };
-  if (/\b(work experience|employment|work history|experience|professional experience|previous (jobs|employment))\b/.test(section) && !/question/.test(section)) return { name: 'work', index: g?.index ?? 0 };
+  const hint = `${(f.selectors ?? []).join(' ')} ${f.meta?.hint ?? ''}`;
+  const kindOf = (w: string): 'work' | 'education' | null => (/^(edu|education|school|academic)/i.test(w) ? 'education' : /^(exp|experience|work|employment|job|position|history|workexperience)/i.test(w) ? 'work' : null);
+  let m = hint.match(/(?:^|[#[\s"'_.-])(edu|education|school|exp|experience|work_?experience|workexperience|work|employment|job|position|history)s?(?:\[|_)(\d+)(?:\]|_)/i);
+  if (m && kindOf(m[1])) return { name: kindOf(m[1]), index: Number(m[2]) };
+  m = hint.match(/(?:^|[#[\s"'_.-])(education|workexperience|experience|employment|position)s?-(\d+)\b/i);
+  if (m && kindOf(m[1])) return { name: kindOf(m[1]), index: Math.max(0, Number(m[2]) - 1) };
+  // Un-numbered entry fields ("#education-school", "experience-title"): the entry being edited.
+  m = hint.match(/(?:^|[#[\s"'.])(education|edu|experience|exp|work_?experience|employment)[-_](?!\d)/i);
+  if (m && kindOf(m[1])) return { name: kindOf(m[1]), index: g?.index ?? 0 };
+  const section = normText(f.section ?? '');
+  const num = section.match(/(\d+)\s*$/);
+  const idx = num ? Math.max(0, Number(num[1]) - 1) : (g?.index ?? 0);
+  if (/\b(education|school|academic|university|degree)\b/.test(section)) return { name: 'education', index: idx };
+  if (/\b(work experience|employment|work history|experience|professional experience|previous (jobs|employment)|position|job|employer|role)\b/.test(section) && !/question/.test(section)) return { name: 'work', index: idx };
   return { name: null, index: 0 };
 }
+const groupOf = (f: Field) => groupFor(f as never);
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -273,8 +297,11 @@ function dateFor(raw: string, f: Field): string {
   const l = f.labelNorm;
   const p = parseDate(raw);
   if (!p) return raw;
-  if (/\bmonth\b/.test(l) && p.m) return f.options?.length ? (bestOption(MONTH_NAMES[p.m - 1], f.options, 0.6) ?? String(p.m)) : MONTH_NAMES[p.m - 1];
-  if (/\byear\b/.test(l)) return String(p.y);
+  const opts = f.options ?? [];
+  const monthList = opts.filter((o) => /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(o.trim())).length >= 6;
+  const yearList = opts.filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
+  if ((/\bmonth\b/.test(l) || monthList) && p.m) return opts.length ? (bestOption(MONTH_NAMES[p.m - 1], opts, 0.6) ?? String(p.m)) : MONTH_NAMES[p.m - 1];
+  if (/\byear\b/.test(l) || yearList) return String(p.y);
   return p.m ? `${p.y}-${String(p.m).padStart(2, '0')}${p.d ? `-${String(p.d).padStart(2, '0')}` : ''}` : String(p.y);
 }
 
@@ -330,8 +357,8 @@ export function profileValue(key: string, c: Candidate, f: Field, gi: number): s
     case 'degree': {
       const d = e ?? c.education[0];
       if (!d) return '';
-      if (f.options?.length) return bestOption(d.degreeLevel, f.options, 0.6) ?? bestOption(d.degree, f.options, 0.6) ?? bestOption(degreeLevel(d.degree).replace(/'s Degree$/, ''), f.options, 0.6) ?? '';
-      return d.degree;
+      if (f.options?.length) return bestOption(d.degreeName, f.options, 0.85) ?? bestOption(d.degreeLevel, f.options, 0.6) ?? bestOption(d.degree, f.options, 0.6) ?? bestOption(degreeLevel(d.degree).replace(/'s Degree$/, ''), f.options, 0.6) ?? '';
+      return d.degreeName || d.degree;
     }
     case 'discipline':
       return (e ?? c.education[0])?.discipline ?? '';
@@ -515,7 +542,14 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
           if (v && f.options?.length && choice) v = fit(f, v, 0.6) ?? '';
           if (v) return val(f, 'profile', e.key, v, syn!.confidence * (g.name ? 0.95 : 1), { synKey: e.key });
-          // Entry fields with nothing in the profile (an end date for the current job, a missing entry) stay empty.
+          // Not in the profile: the owner may have answered it in the bank (a region, a postal address).
+          if (!v && !e.group && ['state', 'city', 'country', 'location', 'middle_name', 'preferred_name'].includes(e.key) && f.required) {
+            const b = await ask(f, e.key);
+            if (b && b.confidence >= MIN_CONFIDENCE) return val(f, b.source, b.key, b.value, b.confidence, { synKey: e.key });
+          }
+          // The current job has no end date: leave it empty (the form hides or ignores it once "currently work here" is set).
+          if (e.key === 'work_end' && c.work[g.index]?.current) return null;
+          // Entry fields with nothing in the profile (a missing entry) stay empty.
           if (e.group) return f.required ? unknown(f, 'Not in your profile.', { synKey: e.key }) : null;
           break;
         }
@@ -546,12 +580,16 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           const key = e.key;
           const money = /salary|compensation|pay|ctc/.test(key);
           const numeric = f.kind === 'number' || /\((usd|eur|gbp|pkr|number|numbers? only|amount)\)|\bnumber only\b|\bin (usd|eur|gbp)\b/i.test(f.label);
-          const accept = (x: Answered) => (f.kind === 'date' ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true);
+          // A start date in a free date field must be a date ("2 weeks" is a notice period, not a date).
+          const wantsDate = f.kind === 'date' || ((key === 'start_date' || key === 'graduation_date') && !f.options?.length);
+          const accept = (x: Answered) => (wantsDate ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true);
           const a = await ask(f, numeric && money ? `${key}_number` : key, accept);
           if (e.attestation) {
             if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: key });
             return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true, synKey: key }) : null;
           }
+          // "Were you referred?" -> "No" is not a referrer's name or code.
+          if (a && key === 'referred_by' && !f.options?.length && truthy(a.value) === false) return null;
           if (a && a.confidence >= MIN_CONFIDENCE) {
             let v = a.value;
             if (numeric && money) v = toNumber(v) ?? v;
@@ -561,6 +599,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             const v = f.options?.length ? fit(f, String(Math.round(c.yearsExperience)), 0.8) : String(Math.round(c.yearsExperience));
             if (v) return val(f, 'profile', 'yearsExperience', v, 0.8, { synKey: key });
           }
+          if (key === 'graduation_date' && c?.education[0]?.end) return val(f, 'profile', 'edu_end', dateFor(c.education[0].end, f), 0.85, { synKey: key });
           if (key === 'referred_by' && !f.required) return null;
           return f.required ? unknown(f, 'Not in your answer bank yet.', { synKey: key }) : null;
         }
@@ -577,7 +616,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     }
 
     // 7. The answer bank.
-    const a = await ask(f);
+    const a = await ask(f, f.kind === 'date' && /\b(start|available|availability|join|begin)\b/i.test(f.label) ? 'start_date' : undefined, (x) => f.kind !== 'date' || !!parseDate(x.value));
     if (a && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence);
 
     // 8. The packet's pre-written answers, then the writer, for long-form prose only.

@@ -61,7 +61,8 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           const t = c.tagName;
           if (t === 'SELECT' || t === 'OPTION' || t === 'TEXTAREA' || t === 'INPUT' || t === 'SCRIPT' || t === 'STYLE' || t === 'NOSCRIPT' || t === 'svg') continue;
           const r = c.getAttribute('role');
-          if (r === 'listbox' || r === 'option' || r === 'tooltip') continue;
+          if (r === 'listbox' || r === 'option' || r === 'tooltip' || r === 'combobox') continue;
+          if (t === 'BUTTON' && c.getAttribute('aria-haspopup')) continue;
           if (c.hasAttribute('data-bureau-skiptext')) continue;
           if (c.getClientRects().length === 0 && getComputedStyle(c).display === 'none') continue;
           walk(c);
@@ -298,7 +299,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
   const CONSENT_RE = /\b(agree|consent|acknowledge|accept|privacy|terms|gdpr|data (protection|processing)|i (have )?read|certify|confirm that|attest|understand that)\b/i;
   const EEO_RE = /voluntary|self[- ]?identif|equal (employment )?opportunit|\beeo\b|\beeoc\b|demographic|diversity|veteran|disabilit|gender|\brace\b|ethnic|hispanic|latin[oax]|sexual orientation|transgender/i;
 
-  const PHONE_PICKER = '.iti__selected-flag, .iti__selected-country, [class*="flag-dropdown" i], [class*="country-select" i] button, button[aria-label*="calling code" i], button[aria-label*="country code" i], [role=combobox][aria-label*="country code" i], [role=combobox][aria-label*="calling code" i]';
+  const PHONE_PICKER = '.iti__selected-flag, .iti__selected-country, [class*="flag-dropdown" i], [class*="country-select" i] button, button[aria-label*="calling code" i], button[aria-label*="country code" i], [role=combobox][aria-label*="country code" i], [role=combobox][aria-label*="calling code" i], [aria-label*="region code" i], [class*="phone" i] > [role=combobox], [class*="phone" i] > button[aria-haspopup]';
   function nativeSelectFor(trigger) {
     const box = trigger.closest('.select2-container, .chosen-container, [id^="s2id_"], [id$="_chosen"]') || parentOf(trigger);
     if (!box) return null;
@@ -367,7 +368,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       if (el.closest('[role="listbox"], [role="menu"], nav, header, footer, [data-bureau-ignore]')) continue;
       if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
       const type = (el.getAttribute('type') || (tag === 'INPUT' ? 'text' : tag)).toLowerCase();
-      if (['hidden', 'submit', 'button', 'image', 'reset', 'password', 'search'].indexOf(type) >= 0) continue;
+      if (tag === 'INPUT' && ['hidden', 'submit', 'button', 'image', 'reset', 'password', 'search'].indexOf(type) >= 0) continue;
       if (el.closest('[aria-hidden="true"]') && type !== 'file') continue;
 
       // Date segments (MUI sections, Workday month/day/year boxes).
@@ -518,7 +519,8 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         const ph = norm(el.getAttribute('placeholder'));
         const hint = String(el.className) + ' ' + (el.getAttribute('data-automation-id') || '') + ' ' + (el.getAttribute('aria-haspopup') || '') + ' ' + (el.name || '') + ' ' + (el.id || '');
         const comboish = role === 'combobox' || /^(list|both)$/.test(el.getAttribute('aria-autocomplete') || '') || el.getAttribute('aria-haspopup') === 'listbox' || !!el.getAttribute('list') || /select__input|react-select|autocomplete|typeahead/i.test(hint) || !!el.closest(COMBO_WRAP);
-        if (DATE_PH.test(ph) || (/date|picker|calendar/i.test(hint) && /date|birth|start|end|from|to|graduat|available/i.test(raw))) {
+        const dialogDate = el.getAttribute('aria-haspopup') === 'dialog' && /date|birth|start|end|from|graduat|available|availability/i.test(raw);
+        if (DATE_PH.test(ph) || dialogDate || (/date|picker|calendar/i.test(hint) && /date|birth|start|end|from|to|graduat|available/i.test(raw))) {
           kind = 'date';
           meta.format = DATE_PH.test(ph) ? ph.toUpperCase().replace(/^M([\/.\- ])/, 'MM$1').replace(/([\/.\- ])D([\/.\- ])/, '$1DD$2') : 'MM/DD/YYYY';
         } else if (type === 'tel' || (/\b(phone|mobile|telephone|cell)\b/i.test(raw) && !comboish && !/code|extension|type|device/i.test(raw))) {
@@ -580,7 +582,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const t = norm(t0 === 'INPUT' ? b.value : (b.innerText || b.textContent)) || norm(b.getAttribute('aria-label'));
       if (!t || t.length > 70) continue;
       const da = b.getAttribute('data-automation-id') || '';
-      if (/^\+?\s*add\b(?!ress)/i.test(t) || /^add(Button)?$|-add$/i.test(da)) {
+      if (/^add\b(?!ress)/i.test(t.replace(/^[^a-z]+/i, '')) || /^add(Button)?$|-add$/i.test(da)) {
         const id = stampAttr(b, 'data-bureau-add', prefix + 'a');
         let ctx = t + ' ' + attrsOf(b) + ' ' + (b.getAttribute('data-test') || '') + ' ' + (b.getAttribute('data-ui') || '');
         let up = parentOf(b);
@@ -790,6 +792,28 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return found;
   }
   if (op === 'scrollTop') { W.scrollTo(0, 0); return true; }
+  if (op === 'saveButtons') {
+    // Visible "Save" buttons of open entry sub-forms (never the application's own submit).
+    const out = [];
+    const seen = new Set();
+    for (const b of deepAll('button, [role="button"], input[type=button], [data-test$="-save"], [data-ui$="save-section"]')) {
+      if (seen.has(b) || !visible(b) || b.disabled) continue;
+      seen.add(b);
+      const t = norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent);
+      const tag = (b.getAttribute('data-ui') || '') + ' ' + (b.getAttribute('data-test') || '') + ' ' + (b.getAttribute('data-automation-id') || '');
+      const isSave = /^(save|done|save entry|save (position|education|experience))$/i.test(t) || /(^|[-_ ])save(-section)?$|-save$/i.test(tag.trim());
+      if (!isSave || b.type === 'submit' || /submit|apply/i.test(tag)) continue;
+      let box = parentOf(b);
+      for (let k = 0; box && k < 5 && !box.querySelector('input:not([type=hidden]), textarea, select'); k++) box = parentOf(box);
+      if (!box || box.tagName === 'FORM' || box === document.body) continue;
+      if (box.querySelectorAll('input:not([type=hidden]), textarea, select').length > 12) continue;
+      // The fields this save commits (they empty out afterwards): reported so verification checks the saved entry instead.
+      const ids = Array.from(box.querySelectorAll('[data-bureau-id]')).map((e) => e.getAttribute('data-bureau-id'));
+      const values = Array.from(box.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea')).map((e) => norm(e.value)).filter((v) => v.length >= 3);
+      out.push({ id: stampAttr(b, 'data-bureau-nav', 'sb'), fields: ids, values });
+    }
+    return out;
+  }
   if (op === 'saveNear') {
     // The "Save" / "Done" button of an inline sub-form opened by an "Add" button.
     const adder = byStamp('data-bureau-add', arg.adderId)[0];

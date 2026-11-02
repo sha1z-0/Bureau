@@ -112,7 +112,7 @@ async function pickPath(c: HandlerCtx, want: string, first: OptionView): Promise
     if (r.display && valuesMatch(c.field.kind, picked, r.display)) break;
     const sub = (await waitOptions(c.frame, c.field.id, 700)).filter((o) => o.text !== picked);
     if (!sub.length) break;
-    const next = bestOf(want, sub, 0.6) ?? sub.find((o) => /^other/i.test(o.text)) ?? null;
+    const next = bestOf(want, sub, 0.6) ?? sub.find((o) => /^other\b/i.test(o.text)) ?? null;
     if (!next) break;
     picked = next.text;
     await clickOption(c.frame, next);

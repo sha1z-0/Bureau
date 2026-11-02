@@ -51,7 +51,7 @@ export async function verifyFields(page: Page, fields: FormField[], intended: (F
   const expects = new Map<string, string>();
   for (const v of intended) {
     const f = vf.find((x) => x.id === v.fieldId);
-    if (f?.kind === 'file' && v.value) expects.set(f.id, v.value.split(/[\/]/).pop() ?? v.value);
+    if (f?.kind === 'file' && v.value) expects.set(f.id, v.value.split(/[\\/]/).pop() ?? v.value);
   }
   const reads = await readAll(page, vf, expects);
   // Fields re-rendered since extraction (SPA re-mounts): re-extract and match by signature.
@@ -64,7 +64,7 @@ export async function verifyFields(page: Page, fields: FormField[], intended: (F
       if (twin) remap.set(m.id, twin);
     }
     if (remap.size) {
-      const again = await readAll(page, [...remap.values()]);
+      const again = await readAll(page, [...remap.values()], new Map([...remap].map(([oldId, twin]) => [twin.id, expects.get(oldId) ?? ''] as [string, string]).filter(([, e]) => e)));
       for (const [oldId, twin] of remap) reads.set(oldId, again.get(twin.id) ?? { exists: false, value: '' });
     }
   }
@@ -83,6 +83,7 @@ export async function verifyFields(page: Page, fields: FormField[], intended: (F
     } else if (want && !want.unknown && want.value !== '') {
       ok = valuesMatch(f.kind, want.value, r.value, { display: r.display, chip: r.chip, format: f.meta?.format });
       if (!ok) note = `expected "${want.value.slice(0, 80)}", read "${shown.slice(0, 80)}"`;
+      if (!ok && process.env.BUREAU_FORMS_DEBUG === '1') console.log(`    [verify] ${f.id} ${f.kind} ${f.label}: ${JSON.stringify(r).slice(0, 200)} expect=${expects.get(f.id) ?? ''}`);
     } else if (f.required) {
       const empty = !shown.trim() || (f.kind === 'checkbox' || f.kind === 'consent' ? r.value !== 'true' && !r.value.includes(';') && !(f.options?.length && r.value) : false);
       if (empty) {
