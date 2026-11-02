@@ -1,6 +1,6 @@
 {
   "task": "match",
-  "hash": "20b062067f94b6a242786517",
+  "hash": "886fa15f13a3864c3bfcf243",
   "model": "claude-haiku-5-5",
   "case": "clearance",
   "usage": {
@@ -12,7 +12,7 @@
   "output": {
     "results": [
       {
-        "id": "fx-match-clearance",
+        "id": "1",
         "postingLevel": "mid",
         "inflatedPosting": false,
         "inflationNote": "",

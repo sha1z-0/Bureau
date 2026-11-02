@@ -1,6 +1,6 @@
 {
   "task": "match",
-  "hash": "55b341e1d0bc51f209d2288e",
+  "hash": "9a0172065bb6a678122d99a5",
   "model": "claude-haiku-5-5",
   "case": "inflated",
   "usage": {
@@ -12,7 +12,7 @@
   "output": {
     "results": [
       {
-        "id": "fx-match-inflated",
+        "id": "1",
         "postingLevel": "entry",
         "inflatedPosting": true,
         "inflationNote": "An entry-level title asks for 5+ years and a production AWS, Docker and Kubernetes stack.",

@@ -1,6 +1,7 @@
 {
   "task": "evidence",
-  "hash": "1e2cf66191a9eb1b2ad1c94e",
+  "hash": "47c5a0e4c417701ec2549016",
+  "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {
     "input_tokens": 2400,

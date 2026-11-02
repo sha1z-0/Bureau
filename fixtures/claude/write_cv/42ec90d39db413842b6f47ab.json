@@ -1,6 +1,7 @@
 {
   "task": "write_cv",
-  "hash": "c5d91acfeac6bfd3a41be85a",
+  "hash": "42ec90d39db413842b6f47ab",
+  "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {
     "input_tokens": 3100,

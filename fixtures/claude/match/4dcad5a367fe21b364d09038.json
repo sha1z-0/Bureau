@@ -1,6 +1,6 @@
 {
   "task": "match",
-  "hash": "7bd39c6cc218b224fbad7a25",
+  "hash": "4dcad5a367fe21b364d09038",
   "model": "claude-haiku-5-5",
   "case": "strong",
   "usage": {
@@ -12,7 +12,7 @@
   "output": {
     "results": [
       {
-        "id": "fx-match-strong",
+        "id": "1",
         "postingLevel": "junior",
         "inflatedPosting": false,
         "inflationNote": "",

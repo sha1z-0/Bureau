@@ -1,6 +1,7 @@
 {
   "task": "critic",
-  "hash": "867b4f57874525b66a90d4b3",
+  "hash": "82cc30ea43c914bf2bde1ce7",
+  "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {
     "input_tokens": 4200,

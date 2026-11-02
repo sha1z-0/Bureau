@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { ROOT } from './manifest.ts';
 
 /** Child processes for the e2e: the real Bureau server and the autopilot worker. */
@@ -28,9 +29,12 @@ export interface Proc {
 
 /** Run a TypeScript entry point under the same Node with tsx, capturing output. */
 export function spawnTs(entry: string, args: string[], env: Record<string, string>, opts: { echo?: boolean; label?: string } = {}): Proc {
-  const child = spawn(process.execPath, ['--import', 'tsx', path.join(ROOT, entry), ...args], {
+  const merged = { ...process.env, ...env };
+  // The e2e's pinned clock (scripts/e2e/clock.ts) goes to every child, so prompts carry the same dates.
+  const clock = merged.BUREAU_E2E_NOW ? ['--import', pathToFileURL(path.join(ROOT, 'scripts/e2e/clock.ts')).href] : [];
+  const child = spawn(process.execPath, ['--import', 'tsx', ...clock, path.join(ROOT, entry), ...args], {
     cwd: ROOT,
-    env: { ...process.env, ...env },
+    env: merged,
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   });

@@ -1,6 +1,6 @@
 {
   "task": "score",
-  "hash": "6a7203f220c980a6ed129b16",
+  "hash": "3bca79668bef61500c4bc033",
   "model": "claude-haiku-5-5",
   "case": "strong (v1 scoreJobs)",
   "usage": {
@@ -12,7 +12,7 @@
   "output": {
     "results": [
       {
-        "id": "fx-match-strong",
+        "id": "1",
         "postingLevel": "junior",
         "inflatedPosting": false,
         "inflationNote": "",

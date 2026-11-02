@@ -1,6 +1,7 @@
 {
   "task": "answer_q",
-  "hash": "60d3ab5e8c50ea25184eca09",
+  "hash": "0c1d2686a6662dd01d3b23fb",
+  "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {
     "input_tokens": 2600,

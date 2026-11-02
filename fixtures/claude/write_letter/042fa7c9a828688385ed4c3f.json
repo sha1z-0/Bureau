@@ -1,6 +1,7 @@
 {
   "task": "write_letter",
-  "hash": "8b293633923d3585c093dafe",
+  "hash": "042fa7c9a828688385ed4c3f",
+  "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {
     "input_tokens": 3400,

@@ -27,12 +27,17 @@ function money(n: number): string {
   return Math.round(n).toLocaleString('en-US');
 }
 
-/** One posting, fenced. Only stable fields: no clocks, no ids that change between runs. */
-export function renderJob(j: MatchJob): string {
+/**
+ * One posting, fenced. Only stable fields: no clocks, no ids that change between
+ * runs. `key` is the posting's position in its batch ("1", "2", …), not the job's
+ * database id (a random UUID), so the same postings always render the same
+ * prompt and replay recordings keep matching.
+ */
+export function renderJob(j: MatchJob, key = '1'): string {
   const desc = j.descriptionText.slice(0, MAX_DESCRIPTION);
   const salary =
     j.salaryMin || j.salaryMax ? `${j.salaryMin ? money(j.salaryMin) : '?'} to ${j.salaryMax ? money(j.salaryMax) : '?'} ${j.salaryCurrency ?? ''}`.trim() : 'not stated';
-  return `<job_posting id="${j.id}">
+  return `<job_posting id="${key}">
 Title: ${fence(j.title)}
 Company: ${fence(j.company)}
 Location: ${fence(j.location) || 'not stated'}${j.remote ? ' (remote)' : ''}
@@ -45,7 +50,7 @@ ${fence(desc)}${j.descriptionText.length > MAX_DESCRIPTION ? '\n[posting continu
 }
 
 export function renderBatchContent(jobs: MatchJob[]): string {
-  return `Assess ${jobs.length === 1 ? 'this job' : `these ${jobs.length} jobs`} for the candidate: the chance they pass the screen.\n\n${jobs.map(renderJob).join('\n\n')}`;
+  return `Assess ${jobs.length === 1 ? 'this job' : `these ${jobs.length} jobs`} for the candidate: the chance they pass the screen.\n\n${jobs.map((j, i) => renderJob(j, String(i + 1))).join('\n\n')}`;
 }
 
 export type StructuredFn = typeof structured;
@@ -57,7 +62,7 @@ export interface BatchCall {
   jobIds: string[];
 }
 
-/** Assess one batch. Results come back keyed by job id; unknown ids are dropped. */
+/** Assess one batch. Results come back keyed by batch position and are returned keyed by job id; unknown keys are dropped. */
 export async function assessBatch(
   jobs: MatchJob[],
   system: SystemBlocks,
@@ -68,8 +73,12 @@ export async function assessBatch(
   opts.onCall?.({ task, system, content, jobIds: jobs.map((j) => j.id) });
   const call = opts.structuredFn ?? structured;
   const out = await call({ task, system, content, schema: MatchBatchSchema, maxTokens: 16000 + 1500 * Math.max(0, jobs.length - 6) });
-  const wanted = new Set(jobs.map((j) => j.id));
+  // Results come back keyed by the batch position; map them to the real job ids.
+  const byKey = new Map(jobs.map((j, i) => [String(i + 1), j.id]));
   const byId = new Map<string, JobMatchAssessment>();
-  for (const r of out.results) if (wanted.has(r.id) && !byId.has(r.id)) byId.set(r.id, r);
+  for (const r of out.results) {
+    const id = byKey.get(r.id.trim());
+    if (id && !byId.has(id)) byId.set(id, { ...r, id });
+  }
   return byId;
 }

@@ -54,10 +54,20 @@ const canned: Record<string, unknown> = {
   },
 };
 
+// Remove only this scenario's stale recordings (they carry `scenario: "a04"`); the same
+// folders hold other suites' recordings (A11's canonical ones, the e2e's).
 if (!preview) {
   for (const t of WRITER_TASKS) {
     const dir = path.join(FIXTURES_DIR, 'claude', t);
-    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (f.endsWith('.json')) fs.rmSync(path.join(dir, f));
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.json')) continue;
+      try {
+        if ((JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) as { scenario?: string }).scenario === 'a04') fs.rmSync(path.join(dir, f));
+      } catch {
+        /* not ours */
+      }
+    }
   }
 }
 
@@ -72,7 +82,7 @@ const ai: WriterAi = {
     if (!preview) {
       const file = path.join(FIXTURES_DIR, 'claude', opts.task, `${hash}.json`);
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(file, `${JSON.stringify({ task: opts.task, hash, model: modelFor(opts.task), usage: USAGE[opts.task], output }, null, 2)}\n`);
+      fs.writeFileSync(file, `${JSON.stringify({ task: opts.task, hash, scenario: 'a04', model: modelFor(opts.task), usage: USAGE[opts.task], output }, null, 2)}\n`);
     }
     return parsed;
   },

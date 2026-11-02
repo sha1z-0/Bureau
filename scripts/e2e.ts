@@ -19,6 +19,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { E2E_NOW_DEFAULT, installClock } from './e2e/clock.ts';
 import { startFixtureServer } from './fixture-server.ts';
 
 const argv = process.argv.slice(2);
@@ -30,6 +31,10 @@ const opt = (f: string) => {
 const strict = flag('--strict') || process.env.BUREAU_STRICT === '1';
 const keep = flag('--keep');
 const headful = flag('--headful');
+
+// 0. A pinned clock, so date-bearing prompts hash the same every day (scripts/e2e/clock.ts).
+process.env.BUREAU_E2E_NOW ??= E2E_NOW_DEFAULT;
+installClock();
 
 // 1. Sandbox and environment, before any app module reads it.
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'bureau-e2e-'));
@@ -49,6 +54,8 @@ const childEnv: Record<string, string> = {
   E2E_ORIGIN_A: fx.originA,
   E2E_ORIGIN_B: fx.originB,
   BUREAU_LOG: 'error',
+  BUREAU_E2E_NOW: process.env.BUREAU_E2E_NOW ?? '',
+  BUREAU_E2E_CLOCK_OFFSET: process.env.BUREAU_E2E_CLOCK_OFFSET ?? '',
 };
 Object.assign(process.env, childEnv);
 
