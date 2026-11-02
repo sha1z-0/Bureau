@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Check, ExternalLink, FileText, Inbox as InboxIcon, Minus, PenLine, Radar, Scale, ScrollText, Workflow, X } from 'lucide-react';
-import { maybe, optional, type FormRun, type JobFile, type LetterVariant, type MatchView, type TimelineEntry, type WriterDetail } from '../api';
+import { maybe, optional, type FormRun, type FormRunDetail, type JobFile, type LetterVariant, type MatchView, type TimelineEntry, type WriterDetail } from '../api';
 import { Seal, ago, sourceLabel } from '../ui';
 import { Drawer, Facts, Hint, STATE_LABEL, StateTag, Tabs, atsLabel, plain, stamp } from '../kit';
 import { CLASS_LABEL } from './Inbox';
+import { FormRunBody, RunLine } from './FormRunView';
 
 function Head({ icon: Icon, title, right }: { icon: typeof Radar; title: string; right?: React.ReactNode }) {
   return (
@@ -301,62 +302,16 @@ export function WriterQuality({ w, appId, inStudio }: { w: WriterDetail; appId: 
 function FormSection({ file, runs, timeline }: { file: JobFile; runs: FormRun[] | null; timeline: TimelineEntry[] }) {
   const app = file.applications[0];
   const run = runs?.[0];
+  const runDetail = useQuery({ queryKey: ['forms', 'run', run?.id], queryFn: () => maybe<FormRunDetail>(`/api/forms/runs/${run!.id}`), enabled: !!run });
   if (run) {
     return (
       <div className="stack" style={{ gap: 'var(--s-3)' }}>
-        <div className="row wrap">
-          <span className={`tag ${run.verified ? 'olive' : 'crimson'}`}>{run.verified ? 'Every field verified' : 'Not verified'}</span>
-          <span className="muted" style={{ fontSize: 'var(--t-sm)' }}>
-            {plain(run.status)}
-            {run.via ? `, by ${run.via}` : ''}
-            {run.ats ? ` on ${atsLabel(run.ats)}` : ''}, {ago(run.at)}
-          </span>
-        </div>
-        {run.reason ? <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>{run.reason}</p> : null}
-        {run.shots.length ? (
-          <div className="shot-row">
-            {run.shots.map((s, i) => (
-              <figure key={s}>
-                <a href={s} target="_blank" rel="noopener noreferrer">
-                  <img src={s} alt={`Form page ${i + 1}`} loading="lazy" />
-                </a>
-                <figcaption>Page {i + 1}</figcaption>
-              </figure>
-            ))}
-          </div>
-        ) : null}
-        {run.fieldLog.length ? (
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th />
-                  <th>Field</th>
-                  <th>Value</th>
-                  <th className="hide-phone">From</th>
-                </tr>
-              </thead>
-              <tbody>
-                {run.fieldLog.map((f) => (
-                  <tr key={f.signature}>
-                    <td style={{ width: 28 }}>
-                      <OkMark ok={f.ok} />
-                    </td>
-                    <td>
-                      {f.label}
-                      {f.required ? <span className="faint"> (required)</span> : null}
-                      {f.note ? <div className="faint" style={{ fontSize: 'var(--t-xs)' }}>{f.note}</div> : null}
-                    </td>
-                    <td style={{ overflowWrap: 'anywhere' }}>
-                      {f.readBack ?? f.intended ?? ''}
-                      {f.intended && f.readBack && f.intended !== f.readBack ? <div className="faint" style={{ fontSize: 'var(--t-xs)' }}>meant: {f.intended}</div> : null}
-                    </td>
-                    <td className="hide-phone muted">{f.source ? `${plain(f.source)}${f.key ? `: ${f.key}` : ''}` : 'None'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {runDetail.data ? <FormRunBody data={runDetail.data} /> : runDetail.isLoading ? <div className="skeleton" style={{ height: 120 }} /> : <RunLine run={run} />}
+        {runs!.length > 1 ? (
+          <p className="faint" style={{ fontSize: 'var(--t-xs)' }}>
+            {runs!.length - 1} earlier {runs!.length === 2 ? 'run' : 'runs'} on this job.{' '}
+            <a href={`#/forms?tab=fills&job=${encodeURIComponent(file.job.id)}`}>See every run</a>
+          </p>
         ) : null}
       </div>
     );

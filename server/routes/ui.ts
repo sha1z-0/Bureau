@@ -162,7 +162,10 @@ export async function uiRoutes(app: FastifyInstance) {
       counts: {
         questions: count("SELECT COUNT(*) AS n FROM unknown_questions WHERE status = 'open'"),
         needsYou: count("SELECT COUNT(*) AS n FROM pipeline WHERE state = 'needs_you'"),
-        inbox: count('SELECT COUNT(*) AS n FROM inbox_messages WHERE handled = 0'),
+        // Replies that want the owner (interviews, assessments, offers, recruiter questions, or held for review) and aren't marked done.
+        inbox: count(
+          "SELECT COUNT(*) AS n FROM inbox_messages WHERE COALESCE(json_extract(data, '$.done'), 0) = 0 AND (class IN ('interview_invite', 'assessment', 'offer', 'recruiter_question') OR COALESCE(json_extract(data, '$.needsReview'), 0) = 1)",
+        ),
         drafts: count("SELECT COUNT(*) AS n FROM applications WHERE status = 'draft'"),
       },
       onboarding: { done: ob.done, firstRun: ob.firstRun, ready: ob.ready, total: ob.total },

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw } from 'lucide-react';
-import { api, optional, post, put, type GapReport, type LearningItem, type StoredPlan } from '../api';
+import { ExternalLink, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { api, del, maybe, optional, post, put, type GapReportRow, type LearningItem, type LearningSettings, type StoredPlan } from '../api';
 import { setParam, useRoute } from '../App';
 import { Btn, Switch, ago, useToast } from '../ui';
 import { Drawer, PageHead, day } from '../kit';
@@ -15,6 +15,7 @@ function PlanView({ p }: { p: StoredPlan }) {
         <span>{plan.role}</span>
         {plan.interviewDate ? <span>Interview {day(plan.interviewDate)}</span> : null}
         <span>Made {ago(p.createdAt)}</span>
+        {p.via === 'fallback' ? <span>Built without Claude: one gap a day from the official docs</span> : null}
       </div>
       {plan.gaps.length ? (
         <div>
@@ -79,44 +80,78 @@ function PlanView({ p }: { p: StoredPlan }) {
   );
 }
 
+function PlanDrawer({ id, listed, onClose }: { id: string; listed?: StoredPlan; onClose: () => void }) {
+  const toast = useToast();
+  const qc = useQueryClient();
+  const one = useQuery({ queryKey: ['learning', 'plan', id], queryFn: () => maybe<{ plan: StoredPlan }>(`/api/learning/plans/${encodeURIComponent(id)}`), enabled: !listed });
+  const p = listed ?? one.data?.plan;
+  const remove = useMutation({
+    mutationFn: () => del(`/api/learning/plans/${encodeURIComponent(id)}`),
+    onSuccess: () => {
+      toast.success('Plan deleted.');
+      qc.invalidateQueries({ queryKey: ['learning'] });
+      onClose();
+    },
+    onError: toast.error,
+  });
+  return (
+    <Drawer
+      title={p ? `Crash plan: ${p.company}` : 'Crash plan'}
+      onClose={onClose}
+      actions={
+        p ? (
+          <Btn size="sm" variant="ghost" busy={remove.isPending} onClick={() => remove.mutate()} aria-label="Delete this plan">
+            <Trash2 /> Delete
+          </Btn>
+        ) : null
+      }
+    >
+      {p ? <PlanView p={p} /> : one.isLoading ? <div className="skeleton" style={{ height: 300 }} /> : <p className="muted">This plan is no longer in Bureau.</p>}
+    </Drawer>
+  );
+}
+
 export default function Learning() {
   const [, params] = useRoute();
   const planId = params.get('plan');
   const toast = useToast();
   const qc = useQueryClient();
-  const plans = useQuery({ queryKey: ['learning', 'plans'], queryFn: () => optional<{ plans: StoredPlan[] }>('/api/learning/plans') });
-  const gaps = useQuery({ queryKey: ['learning', 'gaps'], queryFn: () => optional<{ report: GapReport | null }>('/api/learning/gaps') });
-  const settings = useQuery({ queryKey: ['learning', 'settings'], queryFn: () => optional<{ autoAcceptTopGaps: boolean }>('/api/learning/settings') });
+  const plans = useQuery({ queryKey: ['learning', 'plans'], queryFn: () => optional<{ items: StoredPlan[] }>('/api/learning/plans') });
+  const gaps = useQuery({ queryKey: ['learning', 'gaps'], queryFn: () => optional<{ report: GapReportRow | null }>('/api/learning/gaps/latest') });
+  const settings = useQuery({ queryKey: ['learning', 'settings'], queryFn: () => optional<{ settings: LearningSettings }>('/api/learning/settings') });
   const list = useQuery({ queryKey: ['master', 'learning'], queryFn: () => api<{ items: LearningItem[] }>('/api/master/learning') });
   const [adding, setAdding] = useState<string | null>(null);
   const runGaps = useMutation({
-    mutationFn: () => post('/api/learning/gaps/run'),
-    onSuccess: () => {
-      toast.success('Gap report rebuilt.');
+    mutationFn: () => post<{ report: GapReportRow | null; queued: string[] }>('/api/learning/gaps', {}),
+    onSuccess: (r) => {
+      toast.success(r.queued?.length ? `Gap report rebuilt. Queued on your list: ${r.queued.join(', ')}.` : 'Gap report rebuilt.');
       qc.invalidateQueries({ queryKey: ['learning'] });
+      qc.invalidateQueries({ queryKey: ['master', 'learning'] });
     },
     onError: toast.error,
   });
-  const auto = useMutation({
-    mutationFn: (v: boolean) => put('/api/learning/settings', { autoAcceptTopGaps: v }),
+  const saveSettings = useMutation({
+    mutationFn: (patch: Partial<LearningSettings>) => put('/api/learning/settings', patch),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['learning', 'settings'] }),
     onError: toast.error,
   });
   const addSkill = useMutation({
     mutationFn: (skill: string) => {
       setAdding(skill);
-      return post('/api/master/learning', { skill, status: 'queued' });
+      return post<{ added: boolean }>('/api/learning/list/queue', { skill });
     },
-    onSuccess: (_r, skill) => {
-      toast.success(`${skill} is queued on your learning list. Mark it Learning when you start.`);
+    onSuccess: (r, skill) => {
+      toast.success(r.added ? `${skill} is queued on your learning list. Mark it Learning when you start.` : `${skill} is already on your list.`);
       qc.invalidateQueries({ queryKey: ['master', 'learning'] });
     },
     onError: toast.error,
     onSettled: () => setAdding(null),
   });
   const known = new Set((list.data?.items ?? []).map((i) => i.skill.toLowerCase()));
-  const open = plans.data?.plans.find((p) => p.id === planId);
-  const report = gaps.data?.report;
+  const items = plans.data?.items ?? [];
+  const open = items.find((p) => p.id === planId);
+  const report = gaps.data?.report?.report;
+  const cfg = settings.data?.settings;
 
   return (
     <>
@@ -127,13 +162,15 @@ export default function Learning() {
             <div className="card-head">
               <h2>Crash plans</h2>
             </div>
-            {plans.data === null ? (
+            {plans.isLoading ? (
+              <div className="skeleton" style={{ height: 120, margin: '0 var(--s-5) var(--s-5)' }} />
+            ) : plans.data === null ? (
               <p className="muted" style={{ padding: '0 var(--s-5) var(--s-5)' }}>
                 Learning plans aren't in this build yet. Once they are, every interview or assessment gets a day-by-day plan here.
               </p>
-            ) : plans.data?.plans.length ? (
-              plans.data.plans.map((p) => (
-                <button key={p.id} className="list-row" onClick={() => setParam('plan', p.id)}>
+            ) : items.length ? (
+              items.map((p) => (
+                <button key={p.id} className="list-row" onClick={() => setParam('plan', p.id)} data-testid="learning-plan">
                   <div style={{ minWidth: 0 }}>
                     <div className="title">{p.company}</div>
                     <div className="meta">
@@ -163,7 +200,9 @@ export default function Learning() {
                 </Btn>
               ) : null}
             </div>
-            {gaps.data === null ? (
+            {gaps.isLoading ? (
+              <div className="skeleton" style={{ height: 160, margin: '0 var(--s-5) var(--s-5)' }} />
+            ) : gaps.data === null ? (
               <p className="muted" style={{ padding: '0 var(--s-5) var(--s-5)' }}>
                 The weekly gap report isn't in this build yet.
               </p>
@@ -173,7 +212,7 @@ export default function Learning() {
                   {report.period}, across {report.jobsConsidered.toLocaleString()} scored jobs, weighted by how good the jobs were.
                 </p>
                 <div className="table-wrap">
-                  <table className="table">
+                  <table className="table" data-testid="gap-report">
                     <thead>
                       <tr>
                         <th>Skill</th>
@@ -210,19 +249,36 @@ export default function Learning() {
               </>
             ) : (
               <p className="muted" style={{ padding: '0 var(--s-5) var(--s-5)' }}>
-                The first report is built on the weekly day set in Settings, once there are scored jobs to learn from.
+                {report ? `${report.period}: no gaps across ${report.jobsConsidered.toLocaleString()} scored jobs.` : 'The first report is built each week once there are scored jobs to learn from. Rebuild it now to see this week so far.'}
               </p>
             )}
-            {settings.data ? (
-              <div className="toggle-row" style={{ padding: 'var(--s-3) var(--s-5)', borderTop: '1px solid var(--line)' }}>
-                <div>
-                  <strong>Queue the top three gaps automatically</strong>
-                  <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
-                    They go on your list as Queued. Nothing reaches a CV until you mark it Learning.
+            {cfg ? (
+              <>
+                <div className="toggle-row" style={{ padding: 'var(--s-3) var(--s-5)', borderTop: '1px solid var(--line)' }}>
+                  <div>
+                    <strong>Queue the top three gaps automatically</strong>
+                    <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
+                      They go on your list as Queued. Nothing reaches a CV until you mark it Learning.
+                    </div>
                   </div>
+                  <Switch label="Queue the top gaps" checked={cfg.autoQueueTopGaps} onChange={(v) => saveSettings.mutate({ autoQueueTopGaps: v })} />
                 </div>
-                <Switch label="Queue the top gaps" checked={settings.data.autoAcceptTopGaps} onChange={(v) => auto.mutate(v)} />
-              </div>
+                <div className="toggle-row" style={{ padding: 'var(--s-3) var(--s-5)', borderTop: '1px solid var(--line)' }}>
+                  <div>
+                    <strong>Crash plan length</strong>
+                    <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
+                      Days, when the invitation gives no interview date.
+                    </div>
+                  </div>
+                  <select className="select" style={{ width: 'auto' }} aria-label="Crash plan length in days" value={cfg.defaultPlanDays} onChange={(e) => saveSettings.mutate({ defaultPlanDays: Number(e.target.value) })}>
+                    {Array.from({ length: 14 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>
+                        {n} {n === 1 ? 'day' : 'days'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
             ) : null}
           </section>
         </div>
@@ -233,11 +289,7 @@ export default function Learning() {
           <LearningListEditor />
         </section>
       </div>
-      {open ? (
-        <Drawer title={`Crash plan: ${open.company}`} onClose={() => setParam('plan', null)}>
-          <PlanView p={open} />
-        </Drawer>
-      ) : null}
+      {planId ? <PlanDrawer id={planId} listed={open} onClose={() => setParam('plan', null)} /> : null}
     </>
   );
 }

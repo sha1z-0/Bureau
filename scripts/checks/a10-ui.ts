@@ -133,6 +133,98 @@ export default async function a10Ui({ check, section }: Harness) {
   await app.close();
   run('DELETE FROM unknown_questions WHERE job_id = ?', jobId);
 
+  section('A10 UI: wiring to the form engine (A05) and the inbox (A09)');
+  {
+    const { DATA_DIR } = await import('../../server/config.ts');
+    const { formsRoutes } = await import('../../server/forms/routes.ts');
+    const { inboxRoutes } = await import('../../server/inbox/routes.ts');
+    const w = Fastify();
+    w.setErrorHandler((err: Error, _req, reply) => {
+      if (err instanceof AppError) return reply.status(err.status).send({ error: err.code, message: err.message });
+      return reply.status((err as { statusCode?: number }).statusCode ?? 500).send({ error: 'X', message: err.message });
+    });
+    await w.register(systemRoutes);
+    await w.register(formsRoutes);
+    await w.register(inboxRoutes);
+    await w.ready();
+    const call = async (method: 'GET' | 'POST', url: string, payload?: unknown) => {
+      const r = await w.inject({ method, url, ...(payload !== undefined ? { payload: payload as object } : {}) });
+      return { status: r.statusCode, json: (r.body ? JSON.parse(r.body) : {}) as Record<string, unknown>, raw: r.body };
+    };
+    const appId = crypto.randomUUID();
+    run("INSERT INTO applications (id, job_id, status, channel, created_at, updated_at) VALUES (?, ?, 'sent', 'ats', ?, ?)", appId, jobId, ts, ts);
+    const msgIds: string[] = [];
+    const plant = (cls: string, data: Record<string, unknown>, linked: boolean) => {
+      const id = crypto.randomUUID();
+      msgIds.push(id);
+      run(
+        'INSERT INTO inbox_messages (id, message_id, from_addr, subject, received_at, class, application_id, data, handled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
+        id,
+        `<${id}@a10.example.net>`,
+        'talent@a10check.example.net',
+        `A10 check ${cls}`,
+        ts,
+        cls,
+        linked ? appId : null,
+        JSON.stringify({ summary: 'x', ...data }),
+      );
+      return id;
+    };
+
+    await check('marking a reply done is the owner flag only: the badge drops, the pipeline flag stays', async () => {
+      const before = ((await call('GET', '/api/shell')).json.counts as { inbox: number }).inbox;
+      const invite = plant('interview_invite', {}, true);
+      plant('confirmation_received', {}, true);
+      plant('other', { needsReview: true, suspicious: true }, false);
+      const withNew = ((await call('GET', '/api/shell')).json.counts as { inbox: number }).inbox;
+      assert.equal(withNew, before + 2, 'an interview and a held message count; a plain confirmation does not');
+      const r = await call('POST', `/api/inbox/messages/${invite}/done`, { done: true });
+      assert.equal(r.status, 200);
+      assert.equal((r.json.message as { done: boolean }).done, true);
+      assert.equal((r.json.message as { handled: boolean }).handled, true, 'handled (effects ran) is untouched');
+      assert.equal((r.json.message as { jobId: string }).jobId, jobId);
+      assert.equal(((await call('GET', '/api/shell')).json.counts as { inbox: number }).inbox, before + 1);
+      await call('POST', `/api/inbox/messages/${invite}/done`, { done: false });
+      assert.equal(((await call('GET', '/api/shell')).json.counts as { inbox: number }).inbox, before + 2);
+      assert.equal((await call('POST', `/api/inbox/messages/${invite}/done`, { done: 'yes' })).status, 400);
+      assert.equal((await call('POST', '/api/inbox/messages/..%2Fx/done', { done: true })).status, 400);
+      assert.equal((await call('POST', `/api/inbox/messages/${crypto.randomUUID()}/done`, { done: true })).status, 404);
+    });
+
+    await check('the inbox list carries the linked job id and never a code', async () => {
+      const r = await call('GET', '/api/inbox/messages?q=A10%20check&limit=50');
+      const items = r.json.items as { id: string; jobId: string | null; applicationId: string | null; code: unknown }[];
+      assert.ok(items.length >= 3);
+      for (const m of items) {
+        assert.equal(m.jobId, m.applicationId ? jobId : null);
+        assert.equal(m.code, null);
+      }
+    });
+
+    await check('a form run answers with screenshot URLs, only for safe names', async () => {
+      const runId = crypto.randomUUID();
+      const dir = path.join(DATA_DIR, 'forms', 'runs', runId);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'step-1.jpg'), Buffer.from([0xff, 0xd8, 0xff, 0xd9]));
+      fs.writeFileSync(
+        path.join(dir, 'run.json'),
+        JSON.stringify({ status: 'rehearsed', shots: [`forms/runs/${runId}/step-1.jpg`, `forms/runs/${runId}/../../../bureau.db`, `forms/runs/${runId}/..jpg`, 'a b.jpg', 42], fieldLog: [] }),
+      );
+      run("INSERT INTO form_runs (id, job_id, url, ats, via, submit, status, verified, started_at) VALUES (?, ?, 'https://a10.example.net/apply', 'greenhouse', 'adapter', 0, 'rehearsed', 1, ?)", runId, jobId, ts);
+      const r = await call('GET', `/api/forms/runs/${runId}`);
+      assert.equal(r.status, 200);
+      assert.deepEqual(r.json.shots, [`/api/forms/runs/${runId}/shots/step-1.jpg`]);
+      assert.equal((await w.inject({ method: 'GET', url: `/api/forms/runs/${runId}/shots/step-1.jpg` })).statusCode, 200);
+      assert.ok((await w.inject({ method: 'GET', url: `/api/forms/runs/${runId}/shots/..jpg` })).statusCode >= 400);
+      run('DELETE FROM form_runs WHERE id = ?', runId);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    await w.close();
+    for (const id of msgIds) run('DELETE FROM inbox_messages WHERE id = ?', id);
+    run('DELETE FROM applications WHERE id = ?', appId);
+  }
+
   section('A10 UI: installable app and design lint');
 
   await check('the PWA manifest is valid and its icons exist', () => {

@@ -14,6 +14,15 @@ import App from './App';
 import { queryClient } from './api';
 import { ToastProvider } from './ui';
 
+// Alert deep links arrive as paths (A09: /inbox/<id>, /learning/plans/<id>); the app routes by hash.
+{
+  const path = window.location.pathname;
+  const inbox = /^\/inbox\/([A-Za-z0-9-]{1,100})\/?$/.exec(path);
+  const plan = /^\/learning\/plans\/([A-Za-z0-9-]{1,100})\/?$/.exec(path);
+  const hash = inbox ? `#/inbox?message=${inbox[1]}` : plan ? `#/learning?plan=${plan[1]}` : null;
+  if (hash) window.history.replaceState(null, '', `/${hash}`);
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

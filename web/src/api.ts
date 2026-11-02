@@ -924,7 +924,9 @@ export interface Company {
 }
 
 // ── Forms and recipes (A05), browser agent and traces (A06) ──────────
-// Proposed in docs/build/requests/A10.md; screens fall back to "not set up yet".
+// Forms: the real A05 routes in server/forms/routes.ts. Agent metrics and
+// traces: proposed in docs/build/requests/A10.md §2 (A06 is not merged yet),
+// so those screens still fall back to "not in this build" on 404.
 
 export interface FieldLogEntry {
   signature: string;
@@ -939,52 +941,97 @@ export interface FieldLogEntry {
   note?: string;
 }
 
+export type RecipeStatus = 'candidate' | 'shadow' | 'active' | 'demoted';
+
+export interface RecipeStep {
+  action: string;
+  fieldSignature?: string;
+  labelNorm?: string;
+  widget: string;
+  valueSource?: string;
+  valueKey?: string;
+  selectors: string[];
+}
+
+/** GET /api/forms/recipes → { recipes }: every version of every recipe. */
 export interface RecipeRow {
   id: string;
   ats: string;
   scope: 'ats' | 'company' | 'url';
   scopeKey: string;
   version: number;
-  status: 'candidate' | 'shadow' | 'active' | 'demoted';
+  status: RecipeStatus;
   successes: number;
   failures: number;
-  steps?: number;
-  createdAt: string;
   updatedAt: string;
+  match: { urlPattern?: string; domFingerprint?: string };
+  steps: RecipeStep[];
+  hooks: { fieldSignature: string; labelNorm: string }[];
 }
 
+/** GET /api/forms/recipes/:id */
 export interface RecipeDetail {
-  recipe: RecipeRow & {
-    match?: { urlPattern?: string; domFingerprint?: string };
-    steps: { action: string; fieldSignature?: string; labelNorm?: string; widget: string; valueSource?: string; valueKey?: string; selectors: string[] }[];
-  };
-  versions: { version: number; status: string; successes: number; failures: number; updatedAt: string }[];
+  recipe: RecipeRow;
+  runs: { ok: boolean; detail: string | null; at: string }[];
 }
 
-export interface AtsCoverage {
-  ats: string;
-  recipes: number;
-  active: number;
-  runs: number;
-  verified: number;
-  submitted: number;
-  successRate: number | null;
+/** GET /api/forms/summary */
+export interface FormsSummary {
+  adapters: { ats: string; name: string; accounts: boolean }[];
+  synonyms: number;
+  recipes: Partial<Record<RecipeStatus, number>>;
+  last30Days: { ats: string; runs: number; ok: number; verified: number; successRate: number }[];
 }
 
+export type FillStatus = 'submitted' | 'rehearsed' | 'needs_you' | 'skipped' | 'failed' | 'submitting';
+
+/** GET /api/forms/runs → { runs }. `status` is null while a run is still going. */
 export interface FormRun {
   id: string;
   jobId: string | null;
   applicationId: string | null;
-  at: string;
-  status: string;
-  via: string | null;
-  ats: string | null;
+  campaignId: string | null;
   url: string | null;
+  ats: string | null;
+  via: 'recipe' | 'adapter' | 'agent' | 'generic' | null;
+  recipeId: string | null;
+  /** True when the run was allowed to submit; false for a rehearsal. */
+  live: boolean;
+  status: FillStatus | null;
   verified: boolean;
-  reason: string;
-  /** Screenshot URLs, one per wizard step. */
+  reason: string | null;
+  fields: { total: number; ok: number };
+  steps: number;
+  startedAt: string;
+  finishedAt: string | null;
+}
+
+/** GET /api/forms/runs/:id */
+export interface FormRunDetail {
+  run: FormRun;
+  /** run.json: the fill outcome plus notes and problems (null when the run left no files). */
+  detail: {
+    status?: string;
+    reason?: string;
+    verified?: boolean;
+    answers?: { label: string; value: string; source: string | null }[];
+    unknownQuestions?: { label: string; kind: string; options: string[] }[];
+    fieldLog?: FieldLogEntry[];
+    notes?: string[];
+    problems?: string[];
+  } | null;
+  /** Step screenshot URLs (/api/forms/runs/:id/shots/:name). */
   shots: string[];
-  fieldLog: FieldLogEntry[];
+}
+
+export interface SiteAccount {
+  domain: string;
+  username: string;
+  createdAt: string;
+}
+
+export interface FormsSettings {
+  accountEmail?: string;
 }
 
 export interface AgentMetrics {
@@ -1066,10 +1113,14 @@ export interface ConnectInfo {
 }
 
 // ── Inbox (A09) and learning (A09) ───────────────────────────────────
+// The real routes in server/inbox/routes.ts and server/learning/routes.ts.
 
 export const INBOX_CLASSES = ['verification_code', 'confirmation_received', 'rejection', 'interview_invite', 'assessment', 'recruiter_question', 'offer', 'other'] as const;
 export type InboxClass = (typeof INBOX_CLASSES)[number];
+export const APPLICATION_STAGES = ['applied', 'screening', 'interview', 'offer', 'rejected'] as const;
+export type ApplicationStage = (typeof APPLICATION_STAGES)[number];
 
+/** GET /api/inbox/messages → { items, total }. Verification mail keeps no code, links or preview. */
 export interface InboxMessage {
   id: string;
   messageId: string;
@@ -1077,21 +1128,83 @@ export interface InboxMessage {
   subject: string;
   receivedAt: string;
   class: InboxClass;
-  confidence?: number;
+  confidence: number;
   company: string | null;
+  role: string | null;
   summary: string;
   deadline: string | null;
   applicationId: string | null;
-  application?: { jobId: string; title: string; company: string } | null;
+  /** The linked application's job (added by the list and detail routes). */
+  jobId?: string | null;
+  links: string[];
+  schedulingLinks: string[];
+  dates: string[];
+  preview: string | null;
+  suspicious: boolean;
+  needsReview: boolean;
+  via: 'rules' | 'ai' | 'fallback' | 'owner';
+  reason: string;
+  link: { score: number; reasons: string[]; ambiguous: boolean; lookalike: boolean };
+  questions: string[];
+  draft: { to: string; subject: string; body: string; answers: { question: string; answer: string; source: string; confidence: number }[]; status: 'queued' | 'done' | 'dismissed' } | null;
+  unanswered: string[];
+  interviewDate: string | null;
+  planId: string | null;
+  stage: { from: string; to: string } | null;
+  /** Effects have run (owned by the inbox pipeline). */
   handled: boolean;
-  links?: string[];
-  schedulingLinks?: string[];
+  /** The owner marked it dealt with. */
+  done?: boolean;
 }
 
-export interface ImapSettings {
-  imap: { host: string; port: number; secure: boolean; user: string; passwordSet: boolean } | null;
-  lastPollAt?: string | null;
-  lastError?: string | null;
+/** GET /api/inbox/settings → { settings }. The password never comes back; `password.set` says whether one is stored. */
+export interface InboxSettings {
+  enabled: boolean;
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  mailbox: string;
+  sinceDays: number;
+  idle: boolean;
+  followUps: { enabled: boolean; defaultDays: number; perDay: number };
+  draftReplies: boolean;
+  password: { set: boolean };
+}
+
+/** GET /api/inbox/status */
+export interface InboxStatus {
+  enabled: boolean;
+  lastPoll: { at: string; handled: number } | null;
+  lastError: { at: string; message: string } | null;
+  counts: { all: Partial<Record<InboxClass, number>>; week: Partial<Record<InboxClass, number>> };
+  unlinked: number;
+  review: number;
+  codes: { held: number; waiting: number };
+  followUps: { today: number; perDay: number };
+}
+
+export interface FollowUpCandidate {
+  applicationId: string;
+  jobId: string;
+  company: string;
+  title: string;
+  sentAt: string;
+  dueAt: string;
+  to: string | null;
+  campaignId: string | null;
+  dryRun: boolean;
+  blocked: string | null;
+}
+
+/** GET /api/inbox/followups */
+export interface FollowUps {
+  log: { applicationId: string; status: string; to: string | null; subject: string; reason: string | null; createdAt: string; sentAt: string | null; company: string | null; title: string | null }[];
+  due: FollowUpCandidate[];
+  waiting: FollowUpCandidate[];
+  blocked: FollowUpCandidate[];
+  today: number;
+  perDay: number;
 }
 
 export interface LearningPlan {
@@ -1105,12 +1218,15 @@ export interface LearningPlan {
   talkingPoints: string[];
 }
 
+/** GET /api/learning/plans → { items } */
 export interface StoredPlan {
   id: string;
-  applicationId: string;
+  applicationId: string | null;
   company: string;
   createdAt: string;
   plan: LearningPlan;
+  /** 'ai', or 'fallback' when code built it because the model was unavailable. */
+  via: string;
 }
 
 export interface GapReport {
@@ -1118,4 +1234,18 @@ export interface GapReport {
   generatedAt: string;
   jobsConsidered: number;
   skills: { skill: string; count: number; weighted: number; typicalDepth: string; suggestedProject: string }[];
+}
+
+/** GET /api/learning/gaps/latest → { report: GapReportRow | null } */
+export interface GapReportRow {
+  id: string;
+  period: string;
+  createdAt: string;
+  report: GapReport;
+}
+
+/** GET /api/learning/settings → { settings } */
+export interface LearningSettings {
+  autoQueueTopGaps: boolean;
+  defaultPlanDays: number;
 }
