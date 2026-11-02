@@ -70,6 +70,20 @@ export function parseRobots(txt: string): (path: string) => boolean {
   };
 }
 
+/** Drop elements a visitor can't see (display:none, hidden, aria-hidden): hidden text is where prompt injections live. */
+export function stripHidden(html: string): string {
+  return html.replace(
+    /<([a-z][a-z0-9]*)\b[^>]*?(?:style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^"']*["']|\shidden(?=[\s>=])|aria-hidden\s*=\s*["']true["'])[^>]*>[\s\S]*?<\/\1>/gi,
+    ' ',
+  );
+}
+
+/** The readable content of a page: body only, without hidden elements, navigation, header or footer. */
+export function pageText(html: string): string {
+  const body = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? html;
+  return htmlToText(stripHidden(body).replace(/<(nav|footer|header)\b[\s\S]*?<\/\1>/gi, ' '));
+}
+
 function links(html: string, base: string): string[] {
   const out: string[] = [];
   for (const m of html.matchAll(/<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
@@ -133,8 +147,7 @@ export async function crawlSite(start: string, fetcher: Fetcher, maxPages = MAX_
     if (hostKey(finalUrl.hostname) !== site) continue; // redirected off-site
     const html = page.text();
     const title = htmlToText(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '').slice(0, 200);
-    const body = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? html;
-    const text = clip(htmlToText(body.replace(/<(nav|footer|header)\b[\s\S]*?<\/\1>/gi, ' ')), 8000);
+    const text = clip(pageText(html), 8000);
     res.pages.push({ url: canonical(finalUrl), title, text });
     for (const l of links(html, finalUrl.toString())) {
       let lu: URL;

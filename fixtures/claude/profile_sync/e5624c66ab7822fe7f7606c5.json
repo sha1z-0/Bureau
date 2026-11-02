@@ -1,0 +1,50 @@
+{
+  "task": "profile_sync",
+  "hash": "e5624c66ab7822fe7f7606c5",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 4200,
+    "output_tokens": 650,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "facts": [
+      {
+        "kind": "project",
+        "text": "LedgerLite is a double-entry bookkeeping API for small shops.",
+        "sourceRef": "https://github.com/ayesha-dev/ledgerlite"
+      },
+      {
+        "kind": "project",
+        "text": "I built it for my family's hardware store in Lahore, which still runs on it.",
+        "sourceRef": "https://github.com/ayesha-dev/ledgerlite"
+      },
+      {
+        "kind": "metric",
+        "text": "Handles 3 years of transactions for 2 shops with sub-50ms queries on a $5 VPS",
+        "sourceRef": "https://github.com/ayesha-dev/ledgerlite"
+      },
+      {
+        "kind": "skill",
+        "text": "Written in Go with PostgreSQL and sqlc",
+        "sourceRef": "https://github.com/ayesha-dev/ledgerlite"
+      },
+      {
+        "kind": "metric",
+        "text": "Scaled LedgerLite to 10,000 shops across Pakistan",
+        "sourceRef": "https://github.com/ayesha-dev/ledgerlite"
+      },
+      {
+        "kind": "project",
+        "text": "This fork fixes a span leak in tracing-subscriber when spans are dropped across await points.",
+        "sourceRef": "https://github.com/ayesha-dev/tokio-tracing-fix"
+      },
+      {
+        "kind": "metric",
+        "text": "Cut span memory in our worker from 1.2 GB to 140 MB over a day of traffic.",
+        "sourceRef": "https://github.com/ayesha-dev/tokio-tracing-fix"
+      }
+    ]
+  }
+}

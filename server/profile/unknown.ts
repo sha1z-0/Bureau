@@ -6,7 +6,7 @@ import type { PipelineState } from '../contracts/campaign.ts';
 import { all, get, logEvent, now, run } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { emit } from '../services/bus.ts';
-import { upsertAnswer } from './answers.ts';
+import { answerFor, upsertAnswer } from './answers.ts';
 import { normalizeQuestion } from './questions.ts';
 import { parseJson } from './text.ts';
 
@@ -122,14 +122,26 @@ export interface AnsweredUnknown {
   requeued: string[];
 }
 
-/** The owner answered: save to the bank, close this and every same-meaning open question, re-queue their jobs. */
-export function answerUnknown(id: string, input: z.input<typeof AnswerUnknownInput>): AnsweredUnknown {
+/**
+ * The owner answered: save to the bank, close this question and every open one
+ * the new answer now resolves (same wording or, through the same matcher the
+ * form engine uses, the same meaning), and re-queue their jobs.
+ */
+export async function answerUnknown(id: string, input: z.input<typeof AnswerUnknownInput>): Promise<AnsweredUnknown> {
   const v = AnswerUnknownInput.parse(input);
   const q = getUnknown(id);
   if (!q) throw new AppError(404, 'NOT_FOUND', 'No such question');
-  if (q.status === 'ignored') run("UPDATE unknown_questions SET status = 'open' WHERE id = ?", id);
   const entry = upsertAnswer({ question: v.question ?? q.questionRaw, answer: v.answer, scope: v.scope }, 'owner');
-  const siblings = all<Row>("SELECT * FROM unknown_questions WHERE (question_norm = ? AND status = 'open') OR id = ?", q.questionNorm, id);
+  const siblings: Row[] = [get<Row>('SELECT * FROM unknown_questions WHERE id = ?', id)!];
+  for (const other of all<Row>("SELECT * FROM unknown_questions WHERE status = 'open' AND id <> ?", id)) {
+    if (other.question_norm === q.questionNorm) {
+      siblings.push(other);
+      continue;
+    }
+    const options = parseJson<string[]>(other.options, []);
+    const a = await answerFor(other.question_raw, { jobId: other.job_id ?? undefined, options: options.length ? options : undefined });
+    if (a?.key === entry.id) siblings.push(other);
+  }
   for (const s of siblings) run("UPDATE unknown_questions SET status = 'answered' WHERE id = ?", s.id);
   const requeued: string[] = [];
   for (const s of siblings) {

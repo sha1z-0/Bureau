@@ -124,3 +124,7 @@ async function run(opts: SyncOptions): Promise<SyncReport> {
   emit({ type: 'activity', message: summary, level: errors.length ? 'warn' : 'info' });
   return report;
 }
+
+export function syncRunning(): boolean {
+  return inflight !== null;
+}

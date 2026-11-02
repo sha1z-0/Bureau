@@ -34,8 +34,8 @@ export function factsFromProfile(p: Profile, cvRef: string): IncomingFact[] {
   for (const pr of p.projects) {
     const ctx = `project:${pr.name}`.toLowerCase();
     const where = `projects › ${pr.name}`;
-    out.push({ kind: 'project', text: pr.description ? `${pr.name}: ${pr.description}` : pr.name, sourceRef: pr.link || ref(where), context: ctx });
-    for (const h of pr.highlights) out.push({ kind: HAS_NUMBER.test(h) ? 'metric' : 'project', text: h, sourceRef: pr.link || ref(where), context: ctx });
+    out.push({ kind: 'project', text: pr.description ? `${pr.name}: ${pr.description}` : pr.name, sourceRef: ref(where), context: ctx });
+    for (const h of pr.highlights) out.push({ kind: HAS_NUMBER.test(h) ? 'metric' : 'project', text: h, sourceRef: ref(where), context: ctx });
     if (pr.link) out.push({ kind: 'link', text: `${pr.name}: ${pr.link}`, sourceRef: ref(where), context: ctx });
   }
 
