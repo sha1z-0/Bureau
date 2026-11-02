@@ -17,6 +17,7 @@ import { bus, type BusEvent } from '../services/bus.ts';
 import { smtpSettings, verifySmtp } from '../services/mailer.ts';
 import { currentScan, runScan, scanSettings } from '../services/scanner.ts';
 import { loadProfile } from '../services/profileStore.ts';
+import { sourceHealth } from '../scout/index.ts';
 import { body, json } from './util.ts';
 
 const token = z.string().regex(/^[a-z0-9][a-z0-9-_.]{0,80}$/i, 'Board tokens are letters, digits, dashes');
@@ -126,6 +127,8 @@ export async function systemRoutes(app: FastifyInstance) {
         enabled: s.enabled[c.id],
         jobs: counts[c.id] ?? 0,
       })),
+      // Live per-source health from the scout (status, last error, counts, timing).
+      health: Object.fromEntries(sourceHealth().map((h) => [h.id, h])),
       boards: s.boards,
       defaultBoards: DEFAULT_BOARDS,
       extraKeywords: s.extraKeywords,

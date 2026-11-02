@@ -375,3 +375,10 @@ async function pipeline(id: string, startedAt: string, t0: number, opts: ScoutOp
   emit({ type: 'jobs-changed' });
   return result;
 }
+
+/** Weekly company discovery for the autopilot (A08 looks this up by name): `site:` searches shaped by the campaign. */
+export async function discoverCompanies(opts: { campaignId?: string; force?: boolean } = {}) {
+  const { weeklyDiscovery } = await import('./discovery.ts');
+  const cfg = runConfig(opts.campaignId);
+  return weeklyDiscovery({ categories: cfg.categories, roles: cfg.roles, force: opts.force });
+}

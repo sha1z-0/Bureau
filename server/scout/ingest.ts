@@ -446,8 +446,8 @@ function insertRow(c: Cand, opts: IngestOptions, profile: Profile | null, signal
   run(
     `INSERT INTO jobs (id, fingerprint, source, external_id, url, title, company, location, remote, category,
        description_html, description_text, salary_min, salary_max, salary_currency, tags, posted_at, found_at,
-       prefilter_score, apply_email, updated_at, apply_url_canonical, ats, company_id, legitimacy, sources, priority)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       prefilter_score, apply_email, updated_at, apply_url_canonical, ats, company_id, legitimacy, sources, priority, legitimacy_reasons)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     c.fingerprint,
     c.job.source,
@@ -475,6 +475,7 @@ function insertRow(c: Cand, opts: IngestOptions, profile: Profile | null, signal
     verdict.legitimacy,
     JSON.stringify(c.refs),
     priority,
+    JSON.stringify(verdict.reasons),
   );
   return id;
 }
