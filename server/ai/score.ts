@@ -1,8 +1,20 @@
 import { z } from 'zod/v4';
-import { all, now, run } from '../db.ts';
-import { profileForPrompt, type Profile } from '../services/profileStore.ts';
-import { structured } from './claude.ts';
-import { emailInText, fence, SCORING_RUBRIC } from './prompts.ts';
+import type { Profile } from '../services/profileStore.ts';
+import { runMatch } from '../match/engine.ts';
+import { matchProfileFrom } from '../match/profile.ts';
+import { defaultMatchConfig } from '../match/settings.ts';
+
+/**
+ * v1 scoring entry points, kept for the v1 scanner, hunt and jobs routes.
+ *
+ * `scoreJobs` now runs the v2 matcher (server/match): the new rubric, whose
+ * score means "chance of passing the screen", deterministic code-side scoring,
+ * and both `jobs.match` and the v1 `ai_*` columns filled. It does not move the
+ * campaign pipeline or apply hard filters; campaigns call `matchJobs` instead.
+ *
+ * `JobAssessment`, `BatchResult` and `computeScore` are the v1 shapes and
+ * formula, kept unchanged for code that still holds a v1 assessment.
+ */
 
 const Level = z.enum(['high', 'medium', 'low']);
 
@@ -43,23 +55,6 @@ export type Assessment = z.infer<typeof JobAssessment> & {
   breakdown: { requirements: number; dimensions: number; prefilter: number };
   decision: 'apply' | 'consider' | 'research' | 'skip';
 };
-
-interface JobRow {
-  id: string;
-  title: string;
-  company: string;
-  location: string | null;
-  remote: number;
-  description_text: string | null;
-  salary_min: number | null;
-  salary_max: number | null;
-  salary_currency: string | null;
-  prefilter_score: number;
-  url: string;
-}
-
-const MAX_DESCRIPTION = 9000;
-const BATCH = 6;
 
 const clamp5 = (n: number) => Math.max(0, Math.min(5, Math.round(n)));
 
@@ -103,61 +98,17 @@ export function computeScore(a: z.infer<typeof JobAssessment>, prefilter: number
   };
 }
 
-function renderJob(j: JobRow): string {
-  const desc = (j.description_text ?? '').slice(0, MAX_DESCRIPTION);
-  const salary = j.salary_min || j.salary_max ? `${j.salary_min ?? '?'}–${j.salary_max ?? '?'} ${j.salary_currency ?? ''}` : 'not stated';
-  return `<job_posting id="${j.id}">
-Title: ${fence(j.title)}
-Company: ${fence(j.company)}
-Location: ${j.location || 'not stated'}${j.remote ? ' (remote)' : ''}
-Salary: ${salary}
-URL: ${j.url}
-
-${fence(desc)}${(j.description_text ?? '').length > MAX_DESCRIPTION ? '\n[posting continues — trimmed for length]' : ''}
-</job_posting>`;
-}
-
+/** Score jobs with Claude (v2 matcher, metered as the v1 `score` task). Returns how many were scored. */
 export async function scoreJobs(ids: string[], profile: Profile, onProgress?: (done: number) => void): Promise<number> {
   if (!ids.length) return 0;
-  const placeholders = ids.map(() => '?').join(',');
-  const rows = all<JobRow>(
-    `SELECT id, title, company, location, remote, description_text, salary_min, salary_max, salary_currency, prefilter_score, url
-     FROM jobs WHERE id IN (${placeholders})`,
-    ...ids,
-  );
-  const system = [
-    { type: 'text' as const, text: SCORING_RUBRIC },
-    { type: 'text' as const, text: profileForPrompt(profile), cache_control: { type: 'ephemeral' as const } },
-  ];
-  let scored = 0;
-  for (let i = 0; i < rows.length; i += BATCH) {
-    const batch = rows.slice(i, i + BATCH);
-    const out = await structured({
-      task: 'score',
-      system,
-      content: `Assess these ${batch.length} job(s) for the candidate.\n\n${batch.map(renderJob).join('\n\n')}`,
-      schema: BatchResult,
-      maxTokens: 24000,
-    });
-    for (const a of out.results) {
-      const row = batch.find((b) => b.id === a.id);
-      if (!row) continue;
-      const { score, grade, decision, breakdown } = computeScore(a, row.prefilter_score);
-      const assessment: Assessment = { ...a, breakdown, decision };
-      run(
-        `UPDATE jobs SET ai_score = ?, ai_grade = ?, ai_analysis = ?, scored_at = ?, updated_at = ?,
-           apply_email = COALESCE(NULLIF(?, ''), apply_email) WHERE id = ?`,
-        score,
-        grade,
-        JSON.stringify(assessment),
-        now(),
-        now(),
-        emailInText(a.applyEmail, `${row.title}\n${row.description_text ?? ''}`) ?? '',
-        a.id,
-      );
-      scored++;
-    }
-    onProgress?.(scored);
-  }
-  return scored;
+  const mp = matchProfileFrom(profile);
+  const run = await runMatch(ids, defaultMatchConfig(mp), {
+    profile: mp,
+    task: 'score',
+    movePipeline: false,
+    skipFilters: true,
+    assessLimit: ids.length,
+    onProgress,
+  });
+  return run.results.filter((r) => !r.explain.filter).length;
 }
