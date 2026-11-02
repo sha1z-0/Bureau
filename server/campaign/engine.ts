@@ -543,7 +543,9 @@ export class Engine {
 
   private async maybeDigest(c: Campaign, now: number, s: AutopilotSettings) {
     const tz = c.config.activeHours.tz;
-    const at = localTimeOnDay(now, tz, c.config.activeHours.end) + s.digestDelayMinutes * MIN;
+    // Round-the-clock campaigns report just before midnight; others just after their window closes.
+    const end = c.config.activeHours.start === c.config.activeHours.end ? '23:30' : c.config.activeHours.end;
+    const at = Math.min(localTimeOnDay(now, tz, end) + s.digestDelayMinutes * MIN, startOfLocalDay(now, tz) + 24 * HOUR - MIN);
     if (now < at) return;
     const date = localParts(now, tz).date;
     const firstActive = campaignMeta(c.id).firstActiveAt;

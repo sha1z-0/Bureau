@@ -72,7 +72,16 @@ export function listCampaigns(status?: CampaignStatus): Campaign[] {
   const rows = status
     ? all<Row>('SELECT * FROM campaigns WHERE status = ? ORDER BY created_at ASC', status)
     : all<Row>('SELECT * FROM campaigns ORDER BY created_at ASC');
-  return rows.map(toCampaign);
+  // One unreadable row must not stop the autopilot for every other campaign.
+  const out: Campaign[] = [];
+  for (const r of rows) {
+    try {
+      out.push(toCampaign(r));
+    } catch {
+      /* skipped; requireCampaign still reports it */
+    }
+  }
+  return out;
 }
 
 export function getCampaign(id: string): Campaign | null {
