@@ -908,4 +908,19 @@ export const mailBridgeStage: Stage<E2EContext> = {
   },
 };
 
-export const STAGES: Stage<E2EContext>[] = [seed, profile, campaign, scout, jobs, match, write, rehearse, submit, mailBridgeStage, inbox, alert, digest, crash, killSwitch, external];
+export const uiSmoke: Stage<E2EContext> = {
+  id: 'ui-smoke',
+  title: 'UI smoke (A10 steps, A11 wiring): onboarding, campaign, kill switch, questions',
+  run: async (ctx, s) => {
+    const p = spawnTs('scripts/ui-smoke.ts', ctx.headful ? ['--headful'] : [], { BUREAU_E2E_DEBUG: process.env.BUREAU_E2E_DEBUG ?? '' }, { echo: !!process.env.BUREAU_E2E_DEBUG, label: 'ui-smoke' });
+    const code = await p.exited;
+    const line = p.output.find((l) => l.startsWith('E2E-UI '));
+    const res = line ? (JSON.parse(line.slice(7)) as { passed: number; failed: number; pending: string }) : null;
+    if (!res) throw new Error(`ui-smoke gave no result (exit ${code}): ${p.output.slice(-3).join(' | ')}`);
+    if (res.pending) return s.pending(res.pending);
+    assert.equal(res.failed, 0, `${res.failed} UI step(s) failed: ${p.output.filter((l) => l.includes('✗')).slice(0, 3).join(' | ')}`);
+    s.note(`${res.passed} UI steps passed`);
+  },
+};
+
+export const STAGES: Stage<E2EContext>[] = [seed, profile, campaign, scout, jobs, match, write, rehearse, submit, mailBridgeStage, inbox, alert, digest, crash, killSwitch, external, uiSmoke];
