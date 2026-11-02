@@ -1,0 +1,25 @@
+{
+  "task": "inbox_classify",
+  "hash": "780d094ee79ff74cf96cdfc1",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Quick question about your Data Engineer application",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.93,
+    "company": "Bluefin Analytics",
+    "role": "Data Engineer",
+    "summary": "The Bluefin Analytics recruiter asks for your notice period before shortlisting you.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "What is your notice period?"
+    ],
+    "injection": false
+  }
+}

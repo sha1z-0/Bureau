@@ -1,0 +1,18 @@
+From: Harbor Health Careers <careers-noreply@harborhealth.example.com>
+To: ayesha.jobs@example.com
+Subject: Your one-time passcode
+Date: Mon, 02 Nov 2026 09:40:00 +0000
+Message-ID: <hh-otp-66120@harborhealth.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1"
+
+--b1
+Content-Type: text/html; charset=utf-8
+
+<html><body><table><tr><td>
+<p>Use the following one-time passcode to sign in to the Harbor Health careers portal:</p>
+<p><strong style="letter-spacing:4px">905173</strong></p>
+<p>This passcode is valid for 10 minutes. Never share it with anyone.</p>
+<p>Harbor Health, 2026</p>
+</td></tr></table></body></html>
+--b1--

@@ -1,0 +1,26 @@
+{
+  "task": "inbox_classify",
+  "hash": "068f8640f68aa2274fd14636",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Quick questions about your application",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.93,
+    "company": "Brightwater Health",
+    "role": "Junior Node.js Developer",
+    "summary": "Brightwater Health asks your notice period and salary expectation before sharing your profile with the hiring manager.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "What is your notice period?",
+      "What is your salary expectation for this role?"
+    ],
+    "injection": false
+  }
+}

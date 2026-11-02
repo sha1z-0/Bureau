@@ -1,0 +1,25 @@
+{
+  "task": "inbox_classify",
+  "hash": "614256f0f2517d76d002df06",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Node.js role at a Series B fintech – quick chat?",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.84,
+    "company": "Cobalt Search Partners",
+    "role": null,
+    "summary": "An agency sourcer at Cobalt Search Partners asks if you are open to a 15-minute call about a remote Node.js role at a client.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "Are you open to a quick call about a Node.js role at a Series B fintech?"
+    ],
+    "injection": false
+  }
+}

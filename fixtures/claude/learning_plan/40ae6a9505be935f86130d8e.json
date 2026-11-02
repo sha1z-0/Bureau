@@ -1,0 +1,111 @@
+{
+  "task": "learning_plan",
+  "hash": "40ae6a9505be935f86130d8e",
+  "model": "claude-opus-5-5",
+  "case": "a09-e2e: Lumen Ledger crash plan (hand-written from the e2e request dump; re-record if the e2e profile, posting or match changes)",
+  "usage": {
+    "input_tokens": 3600,
+    "output_tokens": 2100,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "days": [
+      {
+        "day": 1,
+        "focus": "AWS basics for a Node.js service: IAM, RDS and ECS",
+        "tasks": [
+          "Create a free-tier AWS account with MFA on the root user and an IAM user for daily work",
+          "Read how RDS for PostgreSQL differs from your self-managed PostgreSQL: backups, parameter groups, connections",
+          "Sketch how Lumen Ledger might run its bank-feed importer on ECS Fargate with RDS behind it"
+        ],
+        "resources": [
+          {
+            "title": "AWS Getting Started resource center",
+            "url": "https://aws.amazon.com/getting-started/",
+            "free": true
+          },
+          {
+            "title": "Amazon RDS for PostgreSQL user guide",
+            "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html",
+            "free": true
+          },
+          {
+            "title": "AWS Certified Developer prep course",
+            "url": "https://www.udemy.com/course/aws-certified-developer-associate/",
+            "free": false
+          }
+        ],
+        "miniProject": null
+      },
+      {
+        "day": 2,
+        "focus": "Ship ledger-lite to AWS",
+        "tasks": [
+          "Push the ledger-lite Docker image to ECR and run it on ECS Fargate against a free-tier RDS PostgreSQL",
+          "Add a health check and read the logs in CloudWatch",
+          "Write the teardown steps so nothing keeps billing"
+        ],
+        "resources": [
+          {
+            "title": "Amazon ECS developer guide: getting started with Fargate",
+            "url": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/getting-started-fargate.html",
+            "free": true
+          }
+        ],
+        "miniProject": "ledger-lite on AWS: the TypeScript ledger API running on ECS Fargate with RDS PostgreSQL, deployed from a documented script and torn down after."
+      },
+      {
+        "day": 3,
+        "focus": "Payments and reconciliation domain",
+        "tasks": [
+          "Read how bank statement lines, payouts and invoices relate, and where matching usually breaks (partial payments, fees, FX)",
+          "Write three matching rules for bank lines to invoices and test them against a small CSV",
+          "Prepare a 2-minute story on cutting the reconciliation job from 41 minutes to 6"
+        ],
+        "resources": [
+          {
+            "title": "Stripe docs: payouts and reconciliation",
+            "url": "https://docs.stripe.com/payouts/reconciliation",
+            "free": true
+          },
+          {
+            "title": "PostgreSQL docs: partial indexes",
+            "url": "https://www.postgresql.org/docs/current/indexes-partial.html",
+            "free": true
+          }
+        ],
+        "miniProject": "bank-match: a small TypeScript CLI that matches a bank CSV to open invoices in PostgreSQL, with tests for fees and partial payments."
+      },
+      {
+        "day": 4,
+        "focus": "Review and mock interview",
+        "tasks": [
+          "Answer the likely questions out loud, timed",
+          "Walk through ledger-lite and the reconciliation speed-up as if to Marco",
+          "Prepare two questions about how Lumen Ledger handles bank-feed failures"
+        ],
+        "resources": [],
+        "miniProject": null
+      }
+    ],
+    "likelyQuestions": [
+      "Tell us about the nightly reconciliation job: how did you find the slow part, and how did you prove the fix was correct?",
+      "How would you match bank transactions to invoices when amounts differ by a fee?",
+      "How does ledger-lite guarantee that every journal entry balances?",
+      "What would you check first if an importer started creating duplicate transactions?",
+      "How do you write a PostgreSQL migration that is safe to run on a busy table?",
+      "What have you deployed on AWS, and what would you watch out for moving a service to ECS and RDS?",
+      "How do you make a small change safe to ship several times a week?",
+      "Describe a code review comment you disagreed with and what happened.",
+      "Why Lumen Ledger, and why finance tooling?"
+    ],
+    "talkingPoints": [
+      "Built and maintain the invoicing service at Tessellate Labs (Node.js, TypeScript, PostgreSQL) that issues about 9,000 invoices a month: the same stack and a neighbouring problem to Lumen Ledger.",
+      "Cut the nightly reconciliation job from 41 minutes to 6 with set-based SQL and two partial indexes: direct evidence for tuning the matching engine.",
+      "ledger-lite enforces balanced journal entries with a database constraint and reached 140 GitHub stars: shows care for accounting correctness.",
+      "Moved four services to Docker Compose with health checks and wrote the on-call runbook: ready for the support rotation.",
+      "AWS is new to me: I deployed ledger-lite on ECS and RDS this week to learn it, and can walk through what I set up."
+    ]
+  }
+}

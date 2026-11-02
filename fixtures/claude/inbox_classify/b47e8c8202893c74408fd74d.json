@@ -1,0 +1,23 @@
+{
+  "task": "inbox_classify",
+  "hash": "b47e8c8202893c74408fd74d",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Action required: verify your candidate account within 24 hours",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "other",
+    "confidence": 0.93,
+    "company": null,
+    "role": null,
+    "summary": "Phishing: a fake Workday security notice from a lookalike domain urging you to sign in through an http link.",
+    "deadline": null,
+    "dates": [],
+    "questions": [],
+    "injection": true
+  }
+}

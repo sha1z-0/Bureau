@@ -1,0 +1,178 @@
+{
+  "task": "learning_plan",
+  "hash": "d501707a24e5d3a3f30aff1c",
+  "model": "claude-opus-5-5",
+  "case": "a09: Lumen Pay learning plan",
+  "usage": {
+    "input_tokens": 3900,
+    "output_tokens": 2600,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "days": [
+      {
+        "day": 1,
+        "focus": "Kafka fundamentals",
+        "tasks": [
+          "Run the Kafka quickstart locally in Docker: create a topic, produce and consume from the CLI",
+          "Read how partitions, consumer groups and offsets work, and write a one-page summary in your own words",
+          "Sketch how LedgerLite would publish a \"ledger entry posted\" event and who would consume it"
+        ],
+        "resources": [
+          {
+            "title": "Apache Kafka quickstart",
+            "url": "https://kafka.apache.org/quickstart",
+            "free": true
+          },
+          {
+            "title": "Kafka documentation: design",
+            "url": "https://kafka.apache.org/documentation/#design",
+            "free": true
+          },
+          {
+            "title": "Kafka masterclass (video course)",
+            "url": "https://www.udemy.com/course/apache-kafka/",
+            "free": false
+          }
+        ],
+        "miniProject": null
+      },
+      {
+        "day": 2,
+        "focus": "Kafka from Go",
+        "tasks": [
+          "Write a Go producer and a consumer with a Go Kafka client, with a consumer group and manual offset commits",
+          "Make the consumer idempotent: store processed event ids in PostgreSQL so a replay never double-posts",
+          "Kill the consumer mid-batch and confirm nothing is lost or posted twice"
+        ],
+        "resources": [
+          {
+            "title": "Kafka consumer configuration",
+            "url": "https://kafka.apache.org/documentation/#consumerconfigs",
+            "free": true
+          },
+          {
+            "title": "Go by Example: goroutines and channels",
+            "url": "http://gobyexample.com/channels",
+            "free": true
+          }
+        ],
+        "miniProject": "ledger-events: a Go service that consumes \"payment captured\" events from Kafka and posts balanced double-entry rows to PostgreSQL exactly once."
+      },
+      {
+        "day": 3,
+        "focus": "gRPC service design",
+        "tasks": [
+          "Do the gRPC Go quick start and the basics tutorial",
+          "Design a small LedgerService proto: PostEntry, GetBalance, and a server-streaming ListEntries",
+          "Add deadlines and proper status codes (InvalidArgument, NotFound, FailedPrecondition) to the handlers"
+        ],
+        "resources": [
+          {
+            "title": "gRPC Go quick start",
+            "url": "https://grpc.io/docs/languages/go/quickstart/",
+            "free": true
+          },
+          {
+            "title": "Protocol Buffers language guide (proto3)",
+            "url": "https://protobuf.dev/programming-guides/proto3/",
+            "free": true
+          }
+        ],
+        "miniProject": "ledger-grpc: LedgerLite's core operations exposed over gRPC with a streaming endpoint and a Go client."
+      },
+      {
+        "day": 4,
+        "focus": "Kubernetes basics for deploying services",
+        "tasks": [
+          "Work through the Kubernetes Basics tutorial on a local kind or minikube cluster",
+          "Write a Deployment, Service and ConfigMap for the ledger-grpc service, with readiness and liveness probes",
+          "Roll out a new image version and roll it back"
+        ],
+        "resources": [
+          {
+            "title": "Kubernetes Basics tutorial",
+            "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+            "free": true
+          },
+          {
+            "title": "kind quick start",
+            "url": "https://kind.sigs.k8s.io/docs/user/quick-start/",
+            "free": true
+          }
+        ],
+        "miniProject": "Deploy ledger-grpc and PostgreSQL to a local kind cluster from plain manifests, documented in the README."
+      },
+      {
+        "day": 5,
+        "focus": "Observability with Prometheus and OpenTelemetry",
+        "tasks": [
+          "Add request metrics to ledger-grpc with the Prometheus Go client and scrape them locally",
+          "Add OpenTelemetry tracing across the Kafka consumer and the gRPC handler",
+          "Write down how your span-leak fix in tracing-subscriber maps to tracing in Go"
+        ],
+        "resources": [
+          {
+            "title": "OpenTelemetry Go getting started",
+            "url": "https://opentelemetry.io/docs/languages/go/getting-started/",
+            "free": true
+          },
+          {
+            "title": "Prometheus: instrumenting a Go application",
+            "url": "https://prometheus.io/docs/guides/go-application/",
+            "free": true
+          }
+        ],
+        "miniProject": "A Grafana-free dashboard: one Prometheus query per golden signal for ledger-grpc, screenshotted in the README."
+      },
+      {
+        "day": 6,
+        "focus": "Lumen Pay's stack: PostgreSQL logical replication and ledgers",
+        "tasks": [
+          "Read the PostgreSQL logical replication chapter and set up a publisher and subscriber locally",
+          "Prepare a 3-minute walkthrough of LedgerLite's double-entry design and how you keep balances consistent",
+          "Practise a ledger design question: idempotent payouts with retries"
+        ],
+        "resources": [
+          {
+            "title": "PostgreSQL docs: logical replication",
+            "url": "https://www.postgresql.org/docs/current/logical-replication.html",
+            "free": true
+          }
+        ],
+        "miniProject": null
+      },
+      {
+        "day": 7,
+        "focus": "Review and mock interview",
+        "tasks": [
+          "Answer the likely questions out loud, timed",
+          "Rebuild the day 2 consumer from memory in 45 minutes",
+          "Prepare three questions for Sara about the payments team"
+        ],
+        "resources": [],
+        "miniProject": null
+      }
+    ],
+    "likelyQuestions": [
+      "Walk us through LedgerLite: how do you guarantee every entry balances?",
+      "How would you make a payout endpoint idempotent when the client retries?",
+      "What happens in Kafka when a consumer in a group dies mid-batch?",
+      "How do you choose a partition key for ledger events, and what ordering does it give you?",
+      "When would you pick gRPC over REST for an internal service?",
+      "How would you design a GetBalance API that stays fast as entries grow?",
+      "Describe how you would roll out a schema change to a busy PostgreSQL table.",
+      "How do you find the cause of a memory leak in a long-running service?",
+      "Tell us about a time you learned a new technology quickly to ship something.",
+      "Why Lumen Pay, and why payments?"
+    ],
+    "talkingPoints": [
+      "Built Khan Hardware's bookkeeping API in Go and PostgreSQL: the same double-entry ledger problem Lumen Pay solves for its merchants.",
+      "Cut month-end closing from 3 days to 2 hours: shows care for correctness and reconciliation, which payouts depend on.",
+      "LedgerLite runs two shops with sub-50ms queries on a $5 VPS: evidence of pragmatic PostgreSQL performance work.",
+      "Fixed a span leak in tracing-subscriber that cut memory from 1.2 GB to 140 MB: debugging depth that transfers to running services in production.",
+      "Kafka and Kubernetes are new to me; I am learning Kubernetes now and built a Kafka consumer into LedgerLite this week to prepare."
+    ]
+  }
+}

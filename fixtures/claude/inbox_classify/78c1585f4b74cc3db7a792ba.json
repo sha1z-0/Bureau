@@ -1,0 +1,26 @@
+{
+  "task": "inbox_classify",
+  "hash": "78c1585f4b74cc3db7a792ba",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Your application for ML Engineer at Mosaic Robotics",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.91,
+    "company": "Mosaic Robotics",
+    "role": "ML Engineer",
+    "summary": "The Mosaic Robotics recruiter asks for your notice period and whether you would relocate to Berlin.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "What is your notice period?",
+      "Are you open to relocating to Berlin?"
+    ],
+    "injection": false
+  }
+}

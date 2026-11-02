@@ -1,0 +1,26 @@
+{
+  "task": "inbox_classify",
+  "hash": "477841964f90217d9c6f5630",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Following up on our call",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "offer",
+    "confidence": 0.9,
+    "company": "Quillstack",
+    "role": "Associate Software Engineer",
+    "summary": "Quillstack made a verbal offer (formal offer to follow via DocuSign) and asks for your decision by 9 November.",
+    "deadline": "2026-11-09",
+    "dates": [
+      "2026-11-09",
+      "2026-12-01"
+    ],
+    "questions": [],
+    "injection": false
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "task": "inbox_classify",
+  "hash": "86cb18be2dcc0d5d94489e05",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Backend role in Berlin – open to relocating?",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.88,
+    "company": "Lindenhof Systems GmbH",
+    "role": "Junior Backend Engineer",
+    "summary": "Lindenhof Systems asks whether you would relocate to Berlin for a Junior Backend Engineer role with visa and relocation support.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "Are you open to relocating to Berlin?"
+    ],
+    "injection": false
+  }
+}

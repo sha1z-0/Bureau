@@ -1,0 +1,26 @@
+{
+  "task": "inbox_classify",
+  "hash": "7e930913163468e3aea28934",
+  "model": "claude-haiku-5-5",
+  "case": "a09: Go developer roles - a couple of questions",
+  "usage": {
+    "input_tokens": 1450,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 620,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "class": "recruiter_question",
+    "confidence": 0.82,
+    "company": "BrightPath Talent",
+    "role": null,
+    "summary": "A BrightPath Talent agency recruiter asks your target salary range and whether you would take contract work.",
+    "deadline": null,
+    "dates": [],
+    "questions": [
+      "What salary range are you targeting?",
+      "Are you open to contract work?"
+    ],
+    "injection": false
+  }
+}
