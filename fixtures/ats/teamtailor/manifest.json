@@ -1,0 +1,45 @@
+{
+  "forms": [
+    {
+      "id": "teamtailor-careersite",
+      "ats": "teamtailor",
+      "title": "Teamtailor career site application (Rails/Stimulus, Dropzone direct-to-S3 CV upload)",
+      "route": "/saffronstudio.teamtailor.com/jobs/4471203-full-stack-developer-early-career/applications/new",
+      "file": "teamtailor/apply.html",
+      "confirmationFile": "teamtailor/confirmation.html",
+      "confirmationText": "Thank you for your application!",
+      "required": ["candidate[first_name]", "candidate[last_name]", "candidate[email]", "candidate[phone]", "candidate[resume_remote_url]", "candidate[answers_attributes][1][boolean]", "candidate[answers_attributes][2][boolean]"],
+      "expect": {
+        "candidate[first_name]": "profile:firstName",
+        "candidate[last_name]": "profile:lastName",
+        "candidate[email]": "profile:email",
+        "candidate[phone]": "profile:phone",
+        "candidate[resume_remote_url]": "file:cv",
+        "candidate[pitch]": "nonempty",
+        "candidate[answers_attributes][0][question_id]": "=5712001",
+        "candidate[answers_attributes][0][number]": "profile:yearsExperience",
+        "candidate[answers_attributes][1][boolean]": "=true",
+        "candidate[answers_attributes][2][boolean]": "=true",
+        "candidate[answers_attributes][3][text]": "nonempty",
+        "candidate[answers_attributes][4][choices][]": "=2",
+        "candidate[consent_given]": "true",
+        "candidate[consent_given_future_jobs]": "false",
+        "candidate[consent_given_sms]": "false",
+        "candidate[linkedin_uid]": "empty"
+      },
+      "quirks": [
+        "qualifying questions come BEFORE the contact fields",
+        "questions carry hidden question_id + picked_question_id; boolean answers are radios valued true/false",
+        "number question (type=number, pattern=[0-9]*)",
+        "multiple choice rendered as a button + role=menu of menuitemcheckbox buttons mirroring hidden choices[] checkboxes",
+        "'Apply with LinkedIn' button and hidden candidate[linkedin_*] fields that must stay empty",
+        "intl-tel-input phone (default GB +44, separate dial code); the full international number is written into the input at submit time",
+        "Dropzone 'Drop your file or upload': its hidden input.dz-hidden-input is appended to <body>, outside the form; the file goes straight to an S3 POST and only candidate[resume_remote_url] is submitted",
+        "Rails hidden \"0\" twins before every consent checkbox; only the privacy consent is required",
+        "email typo 'Did you mean ...?' suggestion",
+        "rails-ujs remote form: multipart FormData via fetch to /applications with X-CSRF-Token, then redirect"
+      ],
+      "reference": "Live career.teamtailor.com/jobs/<id>-<slug>/applications/new markup (form#job-application-form, Stimulus controllers, upload translations), studied read-only"
+    }
+  ]
+}

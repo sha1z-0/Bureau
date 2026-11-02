@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: cross-origin embedded application (route /widgets/cross-origin-iframe,
+  form widget-cross-origin-iframe). THIS page is the employer's careers page on
+  origin A. The application form is NOT in this document: it lives in an iframe
+  served from origin B ({{ORIGIN_B}}/widgets/cross-origin-iframe/embed), like a
+  Greenhouse/Jobvite/iCIMS embed. Scripts on this page cannot read the form, and a
+  filler that only scans the top document finds no fields at all.
+  Inside the B frame, the "Upload resume" widget is a further, same-origin (B)
+  iframe. Submission and confirmation happen inside the B frame; the B
+  confirmation page postMessages this host, which then shows the thank-you banner.
+  The frame also posts its height so this page can size it (no inner scrollbar).
+  Messages are accepted only from {{ORIGIN_B}}.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dispatch Systems Engineer | Careers at Halcyon Freight</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: Georgia, "Times New Roman", serif; color: #1f2a33; background: #eef2f4; }
+    .topbar { background: #0f3b57; color: #fff; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif; }
+    .topbar nav a { color: #cfe3ef; margin-left: 18px; text-decoration: none; font-size: 14px; }
+    .hero { background: linear-gradient(120deg, #0f3b57, #1d6a8f); color: #fff; padding: 40px; }
+    .hero h1 { margin: 0 0 8px; font-size: 34px; }
+    .hero p { margin: 0; font-family: Arial, sans-serif; opacity: .9; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 60px; }
+    .job { background: #fff; padding: 24px 28px; border-radius: 4px; font-family: Arial, sans-serif; line-height: 1.55; }
+    .job h2 { font-family: Georgia, serif; }
+    #apply { margin-top: 28px; background: #fff; border-radius: 4px; padding: 8px 0 0; }
+    #apply > h2 { font-family: Georgia, serif; padding: 0 28px; }
+    #hf-apply-frame { display: block; width: 100%; border: 0; height: 900px; }
+    #thanks { display: none; margin-top: 28px; padding: 22px 28px; border-left: 6px solid #2f9e6b; background: #eaf7f0; font-family: Arial, sans-serif; }
+    #thanks h2 { margin: 0 0 6px; font-family: Georgia, serif; }
+    footer { text-align: center; color: #6b7c88; font: 12px Arial, sans-serif; padding: 20px; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <strong>HALCYON FREIGHT</strong>
+  <nav><a href="#">About</a><a href="#">Network</a><a href="#">Careers</a><a href="#">Contact</a></nav>
+</div>
+<div class="hero">
+  <h1>Dispatch Systems Engineer</h1>
+  <p>Rotterdam or remote (CET +/- 5h) &middot; Engineering &middot; Full-time</p>
+</div>
+<div class="wrap">
+  <section class="job">
+    <h2>About the role</h2>
+    <p>Halcyon Freight moves refrigerated containers between 40 ports. Our dispatch platform assigns trucks, slots and cold-chain checks in real time, and it has to keep working when a terminal's API goes quiet for an hour.</p>
+    <ul>
+      <li>Build and operate Node.js/TypeScript services behind the dispatch board</li>
+      <li>Model schedules and capacity in PostgreSQL</li>
+      <li>Join the on-call rotation once you're settled (paid, one week in six)</li>
+    </ul>
+    <p>Applications are handled by our recruiting partner; the form below is provided by them.</p>
+  </section>
+
+  <section id="apply">
+    <h2>Apply now</h2>
+    <iframe id="hf-apply-frame" title="Job application form" src="{{ORIGIN_B}}/widgets/cross-origin-iframe/embed?for=halcyon-freight&amp;job=DSE-2291" scrolling="no" allow="clipboard-write"></iframe>
+  </section>
+
+  <section id="thanks" role="status" aria-live="polite"></section>
+</div>
+<footer>&copy; Halcyon Freight B.V. &middot; Privacy &middot; Cookie settings</footer>
+
+<script>
+(function () {
+  'use strict';
+  var EMBED_ORIGIN = '{{ORIGIN_B}}';
+  var frame = document.getElementById('hf-apply-frame');
+  window.addEventListener('message', function (e) {
+    if (e.origin !== EMBED_ORIGIN || !e.data || e.data.type !== 'hf-embed') return;
+    if (e.data.event === 'resize' && e.data.height > 200) {
+      frame.style.height = Math.ceil(e.data.height) + 'px';
+    } else if (e.data.event === 'submitted') {
+      var box = document.getElementById('thanks');
+      var h = document.createElement('h2');
+      h.textContent = 'Thanks for applying to ' + 'Halcyon Freight';
+      var p = document.createElement('p');
+      p.textContent = 'Your application reference is HF-' + String(e.data.ref || '') + '. Our recruiting team will be in touch within two weeks.';
+      box.appendChild(h);
+      box.appendChild(p);
+      box.style.display = 'block';
+      box.scrollIntoView();
+    }
+  });
+})();
+</script>
+</body>
+</html>

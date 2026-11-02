@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "id": 5280117,
+      "shortcode": "3F9A2C71B4",
+      "title": "Junior Node.js Developer",
+      "remote": true,
+      "location": {
+        "city": "",
+        "country": "United Kingdom",
+        "countryCode": "GB",
+        "region": null
+      },
+      "locations": [
+        {
+          "city": "",
+          "country": "United Kingdom",
+          "countryCode": "GB",
+          "hidden": true,
+          "region": null
+        }
+      ],
+      "state": "published",
+      "isInternal": false,
+      "code": "BWH-ENG-07",
+      "published": "2026-10-31T00:00:00.000Z",
+      "type": "full",
+      "language": "en",
+      "department": [
+        "Engineering"
+      ],
+      "accountUid": "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "approvalStatus": "approved",
+      "workplace": "remote"
+    }
+  ],
+  "total": 1
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "6f1c2e9a8b7d",
+    "friendly_id": "6f1c2e9a8b7d-junior-software-developer",
+    "name": "Junior Software Developer",
+    "url": "{{ORIGIN_A}}/pebble-analytics.breezy.hr/p/6f1c2e9a8b7d-junior-software-developer/apply",
+    "published_date": "2026-10-31T16:45:00.000Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "Pakistan",
+        "id": "PK"
+      },
+      "city": "",
+      "primary": true,
+      "is_remote": true,
+      "name": "Remote"
+    },
+    "department": "Engineering",
+    "salary": "$28,000 - $35,000 / yr",
+    "company": {
+      "name": "Pebble Analytics",
+      "logo_url": null,
+      "friendly_id": "pebble-analytics",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "Pakistan",
+          "id": "PK"
+        },
+        "city": "",
+        "primary": true,
+        "is_remote": true,
+        "name": "Remote",
+        "id": "a41c09e7b2f3"
+      }
+    ]
+  }
+]

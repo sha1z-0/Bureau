@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+  Mock of hCaptcha's static/hcaptcha.html, served from origin B at a path containing
+  "hcaptcha.com". The same document serves both frames, chosen by the hash:
+    #frame=checkbox&id=...&host=<origin>&sitekey=...   the "I am human" checkbox
+    #frame=challenge&id=...&host=<origin>&sitekey=...  the image-grid challenge
+  The checkbox reacts only to trusted clicks; the challenge (captcha/challenge.js) mints
+  a "human-..." token only for a trusted, human-paced, correct solve.
+  Local fixture: no hCaptcha code, assets or network.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hCaptcha</title>
+  <style>
+    html, body { margin: 0; overflow: hidden; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    #anchor { width: 300px; height: 74px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fafafa; display: flex; align-items: center; position: relative; box-sizing: border-box; }
+    #anchor-wr { display: flex; align-items: center; padding-left: 14px; gap: 12px; }
+    #checkbox { width: 28px; height: 28px; border: 1px solid #a0a0a0; border-radius: 4px; background: #fff; cursor: pointer; position: relative; outline: none; }
+    #checkbox:focus { border-color: #0074bf; box-shadow: 0 0 0 2px rgba(0,116,191,.25); }
+    #checkbox.loading::after { content: ""; position: absolute; left: 5px; top: 5px; width: 14px; height: 14px; border: 3px solid #0074bf; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+    #checkbox[aria-checked=true] { border-color: #00838f; }
+    #checkbox[aria-checked=true]::after { content: ""; position: absolute; left: 9px; top: 3px; width: 7px; height: 15px; border: solid #00838f; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #label { font-size: 14px; color: #333; }
+    .logo { position: absolute; right: 10px; top: 12px; text-align: center; font-size: 9px; color: #555; }
+    .logo .mark { width: 30px; height: 30px; margin: 0 auto 2px; border-radius: 6px; background: linear-gradient(135deg, #0074bf, #00c2a8); }
+    .challenge-container { width: 400px; box-sizing: border-box; padding: 10px; }
+    .challenge-header { background: #0074bf; color: #fff; padding: 18px 14px; border-radius: 4px; font-size: 15px; }
+    .challenge-header strong { display: block; font-size: 22px; margin-top: 2px; }
+    .task-grid { border-spacing: 6px; margin: 4px auto; }
+    .task-image { padding: 0; width: 118px; height: 118px; cursor: pointer; border-radius: 4px; overflow: hidden; position: relative; }
+    .task-image canvas { width: 118px; height: 118px; display: block; }
+    .task-image.selected { outline: 3px solid #0074bf; }
+    .task-image.selected::after { content: "\2713"; position: absolute; right: 4px; top: 4px; background: #0074bf; color: #fff; border-radius: 50%; width: 20px; height: 20px; text-align: center; font-size: 13px; line-height: 20px; }
+    .error-text { color: #c62828; font-size: 13px; padding: 4px; }
+    .interface-challenge { display: flex; align-items: center; gap: 8px; padding: 8px 4px 0; border-top: 1px solid #eee; }
+    .refresh, .language { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #eee; cursor: pointer; }
+    .button-submit { margin-left: auto; background: #0074bf; color: #fff; border: 0; border-radius: 4px; padding: 9px 20px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="/ats/_widgets/captcha/challenge.js"></script>
+<script>
+(function () {
+  'use strict';
+  var params = new URLSearchParams(location.hash.replace(/^#/, ''));
+  var mode = params.get('frame') || 'checkbox';
+  var root = document.getElementById('root');
+  var host = FXChallenge.hostOrigin();
+
+  if (mode === 'checkbox') {
+    document.title = 'Widget containing checkbox for hCaptcha security challenge';
+    root.innerHTML =
+      '<div id="anchor" aria-hidden="false"><div id="anchor-wr">' +
+      '<div id="checkbox" role="checkbox" tabindex="0" aria-live="assertive" aria-checked="false" aria-labelledby="a11y-label"></div>' +
+      '<div id="label" aria-hidden="true">I am human</div>' +
+      '<span id="a11y-label" style="position:absolute;left:-10000px">hCaptcha checkbox. Select in order to trigger the challenge, or to bypass it if you have an accessibility cookie.</span>' +
+      '</div><div class="logo" aria-hidden="true"><div class="mark"></div>hCaptcha<br>Privacy - Terms</div></div>';
+    var cb = document.getElementById('checkbox');
+    var go = function (e) {
+      if (!e.isTrusted) return;
+      if (cb.getAttribute('aria-checked') === 'true' || cb.classList.contains('loading')) return;
+      cb.classList.add('loading');
+      setTimeout(function () { FXChallenge.post({ kind: 'open' }); }, 500);
+    };
+    cb.addEventListener('click', go);
+    cb.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); go(e); } });
+    window.addEventListener('message', function (e) {
+      if (host !== '*' && e.origin !== host) return;
+      var d = e.data || {};
+      if (d.source !== 'fx-captcha-host') return;
+      cb.classList.remove('loading');
+      cb.setAttribute('aria-checked', d.kind === 'checked' ? 'true' : 'false');
+    });
+  } else {
+    document.title = 'Main content of the hCaptcha challenge';
+    root.innerHTML = '<div class="challenge-container" role="dialog" aria-label="hCaptcha challenge"><div class="challenge" id="challenge"></div></div>';
+    FXChallenge.mount(document.getElementById('challenge'), {
+      tileSize: 118,
+      verifyText: 'Verify',
+      errorText: 'Please try again.',
+      classes: { prompt: 'challenge-header', table: 'task-grid', tile: 'task-image', selected: 'selected', error: 'error-text', footer: 'interface-challenge', verify: 'button-submit' },
+      promptHtml: function (target) {
+        return '<h2 class="prompt-text" style="font-size:15px;font-weight:normal;margin:0">Please click each image containing <strong>' + target + '</strong></h2>';
+      },
+      extraButtons: function (footer) {
+        var r = document.createElement('button');
+        r.type = 'button';
+        r.className = 'refresh button';
+        r.setAttribute('aria-label', 'Refresh challenge');
+        r.textContent = '↻';
+        footer.appendChild(r);
+      },
+      onSolved: function (token) { FXChallenge.post({ kind: 'token', token: token }); },
+    });
+  }
+})();
+</script>
+</body>
+</html>

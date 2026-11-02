@@ -47,6 +47,130 @@
         "multipart POST, server redirect to confirmation"
       ],
       "reference": "Public boards.greenhouse.io job pages (legacy Rails board markup)"
+    },
+    {
+      "id": "greenhouse-jobboards",
+      "ats": "greenhouse",
+      "title": "Greenhouse job-boards app (job-boards.greenhouse.io), react-select widgets",
+      "route": "/job-boards.greenhouse.io/harborpine/jobs/7034511",
+      "file": "greenhouse/jobboards.html",
+      "extraRoutes": [
+        {
+          "route": "/job-boards.greenhouse.io/harborpine/jobs/7034511/confirmation",
+          "file": "greenhouse/jobboards-confirmation.html"
+        }
+      ],
+      "confirmationFile": "greenhouse/jobboards-confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "required": [
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "candidate_location",
+        "resume",
+        "question_41208815002",
+        "question_41208817002",
+        "question_41208818002",
+        "question_41208820002"
+      ],
+      "expect": {
+        "first_name": "profile:firstName",
+        "last_name": "profile:lastName",
+        "preferred_name": "profile:preferredName",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "candidate_location": "contains:Lahore",
+        "latitude": "nonempty",
+        "resume": "file:cv",
+        "cover_letter": "file:letter",
+        "question_41208813002": "profile:linkedin",
+        "question_41208814002": "profile:github",
+        "question_41208815002": "=287104102002",
+        "question_41208816002[]": "=287104201002",
+        "question_41208817002": "=1",
+        "question_41208818002": "nonempty",
+        "question_41208819002": "=287104303002",
+        "question_41208820002": "=0",
+        "gender": "=3",
+        "hispanic_ethnicity": "decline",
+        "veteran_status": "=3",
+        "disability_status": "=3"
+      },
+      "quirks": [
+        "page rendered from window.__remixContext jobPost.questions (Remix SSR + hydrate)",
+        "react-select v5 comboboxes: select__control/select__menu/select__option, aria-activedescendant, wrap-around arrows, Enter/Tab select, Escape",
+        "required react-select renders an opacity:0 required input, so native validation blocks submit until chosen",
+        "react-select multi-select with removable chips (question_<id>[])",
+        "phone fieldset: react-select country picker (#country) + tel input; number sent with dial code",
+        "async location react-select (#candidate-location) with Loading... notice and Locate me; lat/long only after a pick",
+        "file-upload groups: Attach (hidden #resume input), Dropbox, Google Drive, Enter manually (#resume_text)",
+        "EEOC: race question appears only when Hispanic/Latino = No",
+        "inflated posting: Entry level yet 5+ years required; years-of-experience select must be answered truthfully (1-2 years)",
+        "multipart FormData via fetch, then redirect; confirmation URL rewritten to /<board>/jobs/<id>/confirmation"
+      ],
+      "reference": "Public job-boards.greenhouse.io job pages (gitlab, discord, figma, airtable, robinhood boards): SSR markup and __remixContext jobPost JSON, plus the /confirmation page"
+    },
+    {
+      "id": "greenhouse-embed",
+      "ats": "greenhouse",
+      "title": "Greenhouse iframe embed on a company careers page (cross-origin)",
+      "route": "/orchardrobotics.example.com/careers/junior-full-stack-developer",
+      "file": "greenhouse/embed-careers.html",
+      "origin": "a",
+      "extraRoutes": [
+        {
+          "route": "/boards.greenhouse.io/embed/job_board/js",
+          "file": "greenhouse/embed-loader.js"
+        },
+        {
+          "route": "/job-boards.greenhouse.io/embed/job_app",
+          "file": "greenhouse/embed-job-app.html"
+        },
+        {
+          "route": "/job-boards.greenhouse.io/embed/job_app/confirmation",
+          "file": "greenhouse/embed-confirmation.html"
+        }
+      ],
+      "confirmationFile": "greenhouse/embed-confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "required": [
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "resume",
+        "question_52990419008",
+        "question_52990420008",
+        "question_52990421008",
+        "question_52990423008"
+      ],
+      "expect": {
+        "first_name": "profile:firstName",
+        "last_name": "profile:lastName",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "resume": "file:cv",
+        "cover_letter": "file:letter",
+        "question_52990417008": "profile:linkedin",
+        "question_52990418008": "profile:portfolio",
+        "question_52990419008": "=1",
+        "question_52990420008": "=1",
+        "question_52990421008": "=301556006008",
+        "question_52990422008": "oneOf:USD 30,000 per year|30000|USD 30000|$30,000|30,000 USD|30000 USD",
+        "question_52990423008": "nonempty",
+        "gender": "=3",
+        "hispanic_ethnicity": "decline",
+        "veteran_status": "=3",
+        "disability_status": "=3"
+      },
+      "quirks": [
+        "form lives in a cross-origin iframe (#grnhse_iframe, scrolling=no) injected by the Grnhse embed loader from origin B",
+        "iframe height driven by postMessage(height) from the frame; parent forwards window resize as 'resize'",
+        "same job-boards React app inside (embedded=true): react-select dropdowns, phone country picker, Attach/Enter manually uploads, EEOC",
+        "multipart FormData via fetch from inside the frame; confirmation renders inside the iframe"
+      ],
+      "reference": "boards.greenhouse.io/embed/job_board/js loader (public) and job-boards.greenhouse.io/embed/job_app pages"
     }
   ]
 }

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Remote Game Jobs</title>
+    <description>Find Remote Jobs in the Game Industry</description>
+    <link>https://remotegamejobs.com/</link>
+    <language>en</language>
+    <atom:link rel="self" type="application/rss+xml" href="https://remotegamejobs.com/feed.rss"/>
+    <item>
+      <title>Dionic Software is hiring Trailer Editor / Video Creator (Remote Job)</title>
+      <link>https://remotegamejobs.com/jobs/dionic-software-trailer-editor-video-creator-remote-job</link>
+      <pubDate>Thu, 15 Oct 2026 15:46:36 +0000</pubDate>
+      <guid>https://remotegamejobs.com/jobs/dionic-software-trailer-editor-video-creator-remote-job</guid>
+      <description>For our new sandbox town building game, HavenCraft, we are looking for an experienced trailer editor and video generalist.
+The main project is our Early Access Launch trailer, but we’d love to find a long term freelance partner who can help us with general video work like:
+• The launch trailer
+• Smaller trailers for game updates and feature showcases
+• Re-cutting the material for social media and short form content</description>
+    </item>
+    <item>
+      <title>Skymap Games is hiring Multiplayer Engineer- Unity (Remote Job)</title>
+      <link>https://remotegamejobs.com/jobs/skymap-games-multiplayer-engineer-unity-remote-job</link>
+      <pubDate>Thu, 15 Oct 2026 12:24:00 +0000</pubDate>
+      <guid>https://remotegamejobs.com/jobs/skymap-games-multiplayer-engineer-unity-remote-job</guid>
+      <description>Multiplayer Engineer (Unity)
+ 
+Skymap Games is hiring a Multiplayer Engineer to help deliver a mobile multiplayer game. This is a full-time, fully remote role on a mobile title currently in development in Unity. You'll work primarily on the game's multiplayer functionality, from technical architecture and requirements through implementation, optimization, and code review.
+ 
+You'll partner with art, design, and production to turn the game vision into networked features that perform well on mobile hardware, while keeping the project on budget and on schedule. We're looking for a proactive engineer with hands-on experience designing and optimizing networked multiplayer systems in Unity, who has shipped on mobile and looks for ways to make the whole team more efficient. Experience with rhythm games is a bonus, but not required.
+ 
+Compensation: $80,000–$120,000 CAD per year
+ 
+Employment type: Full-time
+ 
+Location: Montreal, QC, Canada (fully remote). We welcome applicants residing anywhere in Quebec. Applicants must be legally authorized to work in Canada.
+ 
+Responsibilities
+ 
+• Design, develop, and maintain high-quality game software in C#, with a focus on multiplayer functionality.
+• Create performance-driven multiplayer code suited to mobile devices and network conditions.
+• Establish technical architecture and process decisions for projects.
+• Identify the technical requirements needed to deliver on the game vision.
+• Identify and manage technical dependencies and risks.
+• Review code, enforce coding guidelines, and ensure software is clean and secure.
+• Collaborate closely with art and design to integrate gameplay features.
+• Collaborate with production to ensure budget and timeline requirements are met.
+• Improve team efficiency by identifying bottlenecks and proposing solutions.</description>
+    </item>
+    <item>
+      <title>Kiagu Studios is hiring Animation Programmer - Dark Fantasy ARPG (Remote Job)</title>
+      <link>https://remotegamejobs.com/jobs/kiagu-studios-animation-programmer-dark-fantasy-arpg-remote-job</link>
+      <pubDate>Fri, 09 Oct 2026 06:57:15 +0000</pubDate>
+      <guid>https://remotegamejobs.com/jobs/kiagu-studios-animation-programmer-dark-fantasy-arpg-remote-job</guid>
+      <description>To help us process your application efficiently, please start your email subject line with [KCTA].</description>
+    </item>
+    <item>
+      <title>Lunacy Studios is hiring Unreal 5 Programmer (Gameplay/Generalist) (Remote Job)</title>
+      <link>https://remotegamejobs.com/jobs/lunacy-studios-unreal-5-programmer-gameplay-ui-remote-job-05acfa70-8995-4c1e-ac62-0e7f7e55b99d</link>
+      <pubDate>Tue, 06 Oct 2026 21:39:33 +0000</pubDate>
+      <guid>https://remotegamejobs.com/jobs/lunacy-studios-unreal-5-programmer-gameplay-ui-remote-job-05acfa70-8995-4c1e-ac62-0e7f7e55b99d</guid>
+      <description>Unannounced Project | Lunacy Studios | Remote | Full-time </description>
+    </item>
+    <item>
+      <title>Triplo Z is hiring Senior Gameplay Programmer — Unreal Engine (Multiplayer FPS/TPS) (Remote Job)</title>
+      <link>https://remotegamejobs.com/jobs/triplo-z-senior-gameplay-programmer-unreal-engine-multiplayer-fps-tps-remote-job</link>
+      <pubDate>Fri, 18 Sep 2026 19:59:00 +0000</pubDate>
+      <guid>https://remotegamejobs.com/jobs/triplo-z-senior-gameplay-programmer-unreal-engine-multiplayer-fps-tps-remote-job</guid>
+      <description>Senior Gameplay Programmer — Unreal Engine (Multiplayer FPS/TPS)</description>
+    </item>
+  </channel>
+</rss>

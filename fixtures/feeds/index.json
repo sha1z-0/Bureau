@@ -1,0 +1,713 @@
+{
+  "_comment": "Feed fixtures for Bureau v2. \"recorded\" = real public payloads fetched once on 2026-11-02 and trimmed (parser tests). \"e2e\" = fictional payloads in the same shapes for the end-to-end scout; {{ORIGIN_A}} must be replaced with the fixture-server origin. url is either the exact URL the connector requests or a regex prefixed with \"re:\" (anchored, JS syntax, match against the full URL). POST entries carry requestBody as an example; match on method + URL. Replica routes follow the pattern {{ORIGIN_A}}/<real-host><real-path>, so a connector-built real ATS URL (Personio, Workable v3, BambooHR list, Workday externalPath) maps to its replica by inserting the origin: https://kranich.jobs.personio.de/job/1458822 -> {{ORIGIN_A}}/kranich.jobs.personio.de/job/1458822.",
+  "recorded": [
+    {
+      "connector": "greenhouse",
+      "method": "GET",
+      "url": "https://boards-api.greenhouse.io/v1/boards/tailscale/jobs?content=true&pay_transparency=true",
+      "file": "recorded/greenhouse-tailscale.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:08.000Z",
+      "notes": "Board token tailscale (from boards.ts). 5 of 58 jobs, one with pay_input_ranges. content is HTML-entity-escaped as Greenhouse returns it. Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "lever",
+      "method": "GET",
+      "url": "https://api.lever.co/v0/postings/sysdig?mode=json&limit=100&skip=0",
+      "file": "recorded/lever-sysdig.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:10.000Z",
+      "notes": "Company sysdig (boards.ts). 5 of 31 postings. Fewer than 100 items, so the connector stops after skip=0."
+    },
+    {
+      "connector": "ashby",
+      "method": "GET",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/resend?includeCompensation=true",
+      "file": "recorded/ashby-resend.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:14.000Z",
+      "notes": "Org resend (boards.ts). 5 of 14 jobs; this board publishes no compensation (summaryComponents empty). Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "remotive",
+      "method": "GET",
+      "url": "https://remotive.com/api/remote-jobs?category=software-development",
+      "file": "recorded/remotive.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:14.000Z",
+      "notes": "5 of 12 jobs. Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "remoteok",
+      "method": "GET",
+      "url": "https://remoteok.com/api",
+      "file": "recorded/remoteok.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:16.000Z",
+      "notes": "Element 0 is the legal notice object (connector filters it out via j.legal), then 5 of 99 jobs."
+    },
+    {
+      "connector": "weworkremotely",
+      "method": "GET",
+      "url": "re:^https://weworkremotely\\.com/categories/remote-[a-z-]+-jobs\\.rss$",
+      "file": "recorded/weworkremotely-programming.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:19.000Z",
+      "notes": "Recorded from remote-programming-jobs.rss (5 of 25 items, channel header kept). The connector reads 5 category feeds; the regex serves this one file for all of them, so expect the same items 5 times (dedupe by guid)."
+    },
+    {
+      "connector": "himalayas",
+      "method": "GET",
+      "url": "https://himalayas.app/jobs/api?limit=20",
+      "file": "recorded/himalayas-latest.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:20.000Z",
+      "notes": "5 of 20 jobs. nextCursor is kept, so the connector will request &cursor=...; that URL is not recorded, the connector catches the failure and stops paging. Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "himalayas",
+      "method": "GET",
+      "url": "re:^https://himalayas\\.app/jobs/api/search\\?q=[^&]+&page=\\d+$",
+      "file": "recorded/himalayas-search.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:21.000Z",
+      "notes": "Recorded from search?q=software%20engineer&page=1 (4 of 20). Query depends on ctx.categories (HIMALAYAS_QUERIES) and the connector asks pages 1 and 2, so match by regex."
+    },
+    {
+      "connector": "workingnomads",
+      "method": "GET",
+      "url": "https://www.workingnomads.com/api/exposed_jobs/",
+      "file": "recorded/workingnomads.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:23.000Z",
+      "notes": "5 of 35 jobs."
+    },
+    {
+      "connector": "nichefeeds",
+      "method": "GET",
+      "url": "https://jobspresso.co/?feed=job_feed",
+      "file": "recorded/jobspresso.rss",
+      "contentType": "application/rss+xml; charset=UTF-8",
+      "recordedAt": "2026-11-02T09:10:25.000Z",
+      "notes": "Jobspresso RSS, 4 of 10 items, channel header kept. Uses job_listing:* namespace fields.",
+      "source": "jobspresso"
+    },
+    {
+      "connector": "nichefeeds",
+      "method": "GET",
+      "url": "https://larajobs.com/feed",
+      "file": "recorded/larajobs.rss",
+      "contentType": "application/xml",
+      "recordedAt": "2026-11-02T09:10:26.000Z",
+      "notes": "Larajobs RSS, 4 of 5 items. Uses job:* namespace fields (company, location, salary, tags).",
+      "source": "larajobs"
+    },
+    {
+      "connector": "gamedev",
+      "method": "GET",
+      "url": "https://workwithindies.com/careers/rss.xml",
+      "file": "recorded/workwithindies.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:28.000Z",
+      "notes": "Work With Indies RSS, 5 of 100 items (\"X is hiring a Y to work from Z\" titles). Note: the live feed redirects to www.workwithindies.com.",
+      "source": "workwithindies"
+    },
+    {
+      "connector": "gamedev",
+      "method": "GET",
+      "url": "https://remotegamejobs.com/feed.rss",
+      "file": "recorded/remotegamejobs.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:29.000Z",
+      "notes": "Remote Game Jobs RSS, 5 of 34 items.",
+      "source": "remotegamejobs"
+    },
+    {
+      "connector": "jobicy",
+      "method": "GET",
+      "url": "re:^https://jobicy\\.com/api/v2/remote-jobs\\?count=50&(tag|industry)=[^&]+$",
+      "file": "recorded/jobicy.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:31.000Z",
+      "notes": "Recorded from ?count=50&tag=developer (5 of 19). Tags depend on ctx.categories (JOBICY_TAGS), plus &industry=cybersecurity when security is on, so match by regex. Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "arbeitnow",
+      "method": "GET",
+      "url": "re:^https://www\\.arbeitnow\\.com/api/job-board-api\\?page=[123]$",
+      "file": "recorded/arbeitnow-page1.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:32.000Z",
+      "notes": "Recorded from page=1 (5 of 100). Connector asks pages 1-3; the regex serves page 1 for all three (duplicates by slug)."
+    },
+    {
+      "connector": "themuse",
+      "method": "GET",
+      "url": "re:^https://www\\.themuse\\.com/api/public/jobs\\?category=[^&]+&page=[12]$",
+      "file": "recorded/themuse-software.json",
+      "contentType": "application/json; charset=UTF-8",
+      "recordedAt": "2026-11-02T09:10:45.000Z",
+      "notes": "Recorded from category=Software%20Engineering&page=1 (5 of 20). Connector asks 3 categories x 2 pages."
+    },
+    {
+      "connector": "hackernews",
+      "method": "GET",
+      "url": "https://hn.algolia.com/api/v1/search_by_date?tags=story,author_whoishiring&hitsPerPage=10",
+      "file": "recorded/hackernews-stories.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:10:47.000Z",
+      "notes": "First 4 of 10 hits: \"Who is hiring? (October 2026)\" objectID 49922569 first, then \"Who wants to be hired?\". The November 2026 thread was not up yet at record time."
+    },
+    {
+      "connector": "hackernews",
+      "method": "GET",
+      "url": "https://hn.algolia.com/api/v1/search?tags=comment,story_49922569&hitsPerPage=500&page=0",
+      "file": "recorded/hackernews-comments.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:13:46.000Z",
+      "notes": "Story 49922569 comments page 0: 5 top-level comments (parent_id == story id) plus 1 reply (filtered out by the connector). Pages 1 and 2 are not recorded; the connector pool() tolerates the failures."
+    },
+    {
+      "connector": "reddit",
+      "method": "GET",
+      "url": "re:^https://www\\.reddit\\.com/r/[A-Za-z]+/new/\\.rss$",
+      "file": "recorded/reddit-forhire.atom.xml",
+      "contentType": "application/atom+xml; charset=UTF-8",
+      "recordedAt": "2026-11-02T09:11:48.000Z",
+      "notes": "Atom feed of r/forhire (6 of 25 entries: 2 [Hiring], 4 [For Hire]; the connector keeps only hiring posts). Fetched with the connector UA. Other subreddits are served the same file via regex."
+    },
+    {
+      "connector": "simplify",
+      "method": "GET",
+      "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json",
+      "file": "recorded/simplify-listings.json",
+      "contentType": "text/plain; charset=utf-8",
+      "recordedAt": "2026-11-02T09:10:48.000Z",
+      "notes": "listings.json is ~13 MB; the one-shot download hit the 60 s timeout at 12.8 MB, so entries were taken from the complete part: the 4 newest active+visible software rows plus 1 inactive row. 4-space indented like the source."
+    },
+    {
+      "connector": "smartrecruiters",
+      "method": "GET",
+      "url": "https://api.smartrecruiters.com/v1/companies/BoschGroup/postings",
+      "file": "recorded/smartrecruiters-boschgroup.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:12:12.000Z",
+      "notes": "Company BoschGroup, 5 of 100 (totalFound 4994). List has no description; follow content[].ref for details. creator.name redacted (real person). Trimmed to a handful of items; wrapper/pagination fields kept as returned (counts are the live values, not the trimmed length)."
+    },
+    {
+      "connector": "smartrecruiters",
+      "method": "GET",
+      "url": "https://api.smartrecruiters.com/v1/companies/BoschGroup/postings/744000159074300",
+      "file": "recorded/smartrecruiters-boschgroup-detail.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:15:42.000Z",
+      "notes": "Posting detail (the list item ref): jobAd.sections.* carry the description; postingUrl/applyUrl present. creator.name redacted."
+    },
+    {
+      "connector": "recruitee",
+      "method": "GET",
+      "url": "https://bunq.recruitee.com/api/offers/",
+      "file": "recorded/recruitee-bunq.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:12:13.000Z",
+      "notes": "Company bunq, 4 of 25 offers. Each offer carries full description, requirements, careers_url and careers_apply_url."
+    },
+    {
+      "connector": "personio",
+      "method": "GET",
+      "url": "https://tado.jobs.personio.de/xml",
+      "file": "recorded/personio-tado.xml",
+      "contentType": "text/xml",
+      "recordedAt": "2026-11-02T09:13:44.000Z",
+      "notes": "Company tado, full response (4 positions). No URL field: the job URL is https://tado.jobs.personio.de/job/<id>. ?language=en is also accepted. Note personio.jobs.personio.de/xml (Personio itself) returned an empty <workzag-jobs/>."
+    },
+    {
+      "connector": "workable",
+      "method": "POST",
+      "url": "https://apply.workable.com/api/v3/accounts/huggingface/jobs",
+      "file": "recorded/workable-huggingface-v3.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:12:18.000Z",
+      "notes": "POST with a JSON body. Account huggingface, 4 of 6 results. No description and no URL in the list; URL is https://apply.workable.com/<account>/j/<shortcode>/. Pagination uses a nextPage token when there are more results.",
+      "requestBody": {
+        "query": "",
+        "location": [],
+        "department": [],
+        "worktype": [],
+        "remote": []
+      }
+    },
+    {
+      "connector": "workable",
+      "method": "GET",
+      "url": "https://apply.workable.com/api/v2/accounts/huggingface/jobs/DB4D7C0EC8",
+      "file": "recorded/workable-huggingface-detail.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:15:43.000Z",
+      "notes": "Job detail (GET): description, requirements, benefits HTML."
+    },
+    {
+      "connector": "workable",
+      "method": "GET",
+      "url": "https://apply.workable.com/api/v1/widget/accounts/huggingface",
+      "file": "recorded/workable-huggingface-widget.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:13:45.000Z",
+      "notes": "Widget API (GET, no auth), 4 of 6 jobs, has url/application_url but no description (?details=true adds it)."
+    },
+    {
+      "connector": "teamtailor",
+      "method": "GET",
+      "url": "https://career.teamtailor.com/jobs.rss",
+      "file": "recorded/teamtailor-career.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T09:12:19.000Z",
+      "notes": "Teamtailor's own career site (career.teamtailor.com) RSS, 4 of 17 items. The Teamtailor JSON API needs a key; the public RSS at <host>/jobs.rss does not. Items carry description (escaped HTML), link, remoteStatus and tt:locations."
+    },
+    {
+      "connector": "bamboohr",
+      "method": "GET",
+      "url": "https://unitedsmarttech.bamboohr.com/careers/list",
+      "file": "recorded/bamboohr-unitedsmarttech.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:13:42.000Z",
+      "notes": "Company unitedsmarttech (found via aggregator apply links), 5 of 26. List has no description; details at /careers/<id>/detail. Several guessed tokens 302-redirect to bamboohr.com when the company does not exist."
+    },
+    {
+      "connector": "bamboohr",
+      "method": "GET",
+      "url": "https://unitedsmarttech.bamboohr.com/careers/23/detail",
+      "file": "recorded/bamboohr-unitedsmarttech-detail.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:15:42.000Z",
+      "notes": "Detail for id 23: jobOpening.description (HTML), compensation, datePosted, jobOpeningShareUrl, plus the application formFields."
+    },
+    {
+      "connector": "breezy",
+      "method": "GET",
+      "url": "https://nucleusteq.breezy.hr/json",
+      "file": "recorded/breezy-nucleusteq.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:13:43.000Z",
+      "notes": "Company nucleusteq (found via aggregator apply links), 5 of 28. No description in the plain list."
+    },
+    {
+      "connector": "breezy",
+      "method": "GET",
+      "url": "https://nucleusteq.breezy.hr/json?verbose=true",
+      "file": "recorded/breezy-nucleusteq-verbose.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T09:18:00.000Z",
+      "notes": "Same 5 positions with ?verbose=true, which adds description (HTML). recordedAt approximate (response headers not saved)."
+    },
+    {
+      "connector": "workday",
+      "method": "POST",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs",
+      "file": "recorded/workday-nvidia.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:12:22.000Z",
+      "notes": "Workday CXS search (POST, JSON body as below, limit 5) for tenant nvidia / wd5 / site NVIDIAExternalCareerSite. Full response, facets kept. List items have externalPath only; postedOn is relative text (\"Posted Today\").",
+      "requestBody": {
+        "appliedFacets": {},
+        "limit": 5,
+        "offset": 0,
+        "searchText": ""
+      }
+    },
+    {
+      "connector": "workday",
+      "method": "GET",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/job/Israel-Tel-Aviv/Software-Engineer--AI-Infrastructure_JR2028826",
+      "file": "recorded/workday-nvidia-detail.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T09:15:40.000Z",
+      "notes": "CXS job detail: GET <cxs site base> + externalPath, needs accept: application/json (without it Workday answers 406). jobPostingInfo.jobDescription is HTML; externalUrl is the public page."
+    }
+  ],
+  "e2e": [
+    {
+      "connector": "greenhouse",
+      "method": "GET",
+      "url": "https://boards-api.greenhouse.io/v1/boards/lumenledger/jobs?content=true&pay_transparency=true",
+      "file": "e2e/greenhouse-lumenledger.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Lumen Ledger, Junior Backend Engineer, id 4012345. Strong match. One leg of the dedupe triple (the canonical, richest record)."
+    },
+    {
+      "connector": "greenhouse",
+      "method": "GET",
+      "url": "https://boards-api.greenhouse.io/v1/boards/harborpine/jobs?content=true&pay_transparency=true",
+      "file": "e2e/greenhouse-harborpine.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Harbor & Pine, Software Engineer I, Platform, id 7034511. Inflated entry-level post: says \"entry level\" and \"5+ years ... required\". job-boards.greenhouse.io replica."
+    },
+    {
+      "connector": "greenhouse",
+      "method": "GET",
+      "url": "https://boards-api.greenhouse.io/v1/boards/orchardrobotics/jobs?content=true&pay_transparency=true",
+      "file": "e2e/greenhouse-orchardrobotics.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Orchard Robotics, Junior Full-Stack Developer, id 5011223. absolute_url is the company site (embedded Greenhouse board)."
+    },
+    {
+      "connector": "greenhouse",
+      "method": "GET",
+      "url": "https://boards-api.greenhouse.io/v1/boards/sentineldefense/jobs?content=true&pay_transparency=true",
+      "file": "e2e/greenhouse-sentineldefense.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Sentinel Defense Systems, Junior Software Engineer, id 6600123. TRUE blocker: active US Secret clearance + US citizenship + on-site Huntsville. No replica; matcher must skip it."
+    },
+    {
+      "connector": "lever",
+      "method": "GET",
+      "url": "https://api.lever.co/v0/postings/northwind-labs?mode=json&limit=100&skip=0",
+      "file": "e2e/lever-northwind-labs.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Northwind Labs, Backend Engineer (Junior). hostedUrl and applyUrl (/apply) point at the replica."
+    },
+    {
+      "connector": "ashby",
+      "method": "GET",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/quillstack?includeCompensation=true",
+      "file": "e2e/ashby-quillstack.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Quillstack, Associate Software Engineer. jobUrl and applyUrl (/application) point at the replica. Compensation USD 32k-40k in summaryComponents."
+    },
+    {
+      "connector": "workable",
+      "method": "POST",
+      "url": "https://apply.workable.com/api/v3/accounts/brightwater-health/jobs",
+      "file": "e2e/workable-brightwater-health-v3.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Brightwater Health, Junior Node.js Developer, shortcode 3F9A2C71B4. v3 list has no URL field: the connector builds https://apply.workable.com/brightwater-health/j/3F9A2C71B4/ (see the URL rewrite note).",
+      "requestBody": {
+        "query": "",
+        "location": [],
+        "department": [],
+        "worktype": [],
+        "remote": []
+      }
+    },
+    {
+      "connector": "workable",
+      "method": "GET",
+      "url": "https://apply.workable.com/api/v2/accounts/brightwater-health/jobs/3F9A2C71B4",
+      "file": "e2e/workable-brightwater-health-detail.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Detail with description/requirements/benefits."
+    },
+    {
+      "connector": "workable",
+      "method": "GET",
+      "url": "re:^https://apply\\.workable\\.com/api/v1/widget/accounts/brightwater-health(\\?.*)?$",
+      "file": "e2e/workable-brightwater-health-widget.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Widget API alternative; url/application_url point at the replica; includes description as ?details=true would."
+    },
+    {
+      "connector": "smartrecruiters",
+      "method": "GET",
+      "url": "re:^https://api\\.smartrecruiters\\.com/v1/companies/MeridianFreight/postings(\\?.*)?$",
+      "file": "e2e/smartrecruiters-meridianfreight.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Meridian Freight, Graduate Software Engineer, posting id 744000160123456, uuid d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71. Regex allows ?limit/&offset."
+    },
+    {
+      "connector": "smartrecruiters",
+      "method": "GET",
+      "url": "https://api.smartrecruiters.com/v1/companies/MeridianFreight/postings/744000160123456",
+      "file": "e2e/smartrecruiters-meridianfreight-detail.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Detail (the list ref). applyUrl = replica oneclick-ui/company/MeridianFreight/publication/<uuid>."
+    },
+    {
+      "connector": "recruitee",
+      "method": "GET",
+      "url": "re:^https://tulipandtern\\.recruitee\\.com/api/offers/?(\\?.*)?$",
+      "file": "e2e/recruitee-tulipandtern.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Tulip & Tern, Junior Web Developer. careers_apply_url = replica /o/junior-web-developer/c/new."
+    },
+    {
+      "connector": "personio",
+      "method": "GET",
+      "url": "re:^https://kranich\\.jobs\\.personio\\.de/xml(\\?.*)?$",
+      "file": "e2e/personio-kranich.xml",
+      "contentType": "text/xml",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Kranich Software GmbH, Junior Backend Developer (m/w/d), id 1458822. No URL field: the connector builds https://kranich.jobs.personio.de/job/1458822 (see the URL rewrite note)."
+    },
+    {
+      "connector": "teamtailor",
+      "method": "GET",
+      "url": "re:^https://saffronstudio\\.teamtailor\\.com/jobs\\.rss(\\?.*)?$",
+      "file": "e2e/teamtailor-saffronstudio.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Saffron Studio, Full-Stack Developer, Early Career, id 4471203. <link> is the replica applications/new route."
+    },
+    {
+      "connector": "bamboohr",
+      "method": "GET",
+      "url": "https://copperline.bamboohr.com/careers/list",
+      "file": "e2e/bamboohr-copperline.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Copperline Payments, Software Engineer I, id 88. List has no URL: https://copperline.bamboohr.com/careers/88."
+    },
+    {
+      "connector": "bamboohr",
+      "method": "GET",
+      "url": "https://copperline.bamboohr.com/careers/88/detail",
+      "file": "e2e/bamboohr-copperline-detail.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Detail; jobOpeningShareUrl points at the replica."
+    },
+    {
+      "connector": "breezy",
+      "method": "GET",
+      "url": "https://pebble-analytics.breezy.hr/json",
+      "file": "e2e/breezy-pebble-analytics.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Pebble Analytics, Junior Software Developer, id 6f1c2e9a8b7d. url = replica /apply route."
+    },
+    {
+      "connector": "breezy",
+      "method": "GET",
+      "url": "https://pebble-analytics.breezy.hr/json?verbose=true",
+      "file": "e2e/breezy-pebble-analytics-verbose.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Same with description."
+    },
+    {
+      "connector": "workday",
+      "method": "POST",
+      "url": "https://atlasmutual.wd5.myworkdayjobs.com/wday/cxs/atlasmutual/AtlasCareers/jobs",
+      "file": "e2e/workday-atlasmutual.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Atlas Mutual, Associate Software Engineer, R-104233, Remote - Pakistan. Body offset/limit may differ from the example; match on method+URL.",
+      "requestBody": {
+        "appliedFacets": {},
+        "limit": 5,
+        "offset": 0,
+        "searchText": ""
+      }
+    },
+    {
+      "connector": "workday",
+      "method": "GET",
+      "url": "https://atlasmutual.wd5.myworkdayjobs.com/wday/cxs/atlasmutual/AtlasCareers/job/Remote---Pakistan/Associate-Software-Engineer_R-104233",
+      "file": "e2e/workday-atlasmutual-detail.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Detail; externalUrl = replica /en-US/AtlasCareers/job/... route."
+    },
+    {
+      "connector": "remotive",
+      "method": "GET",
+      "url": "https://remotive.com/api/remote-jobs?category=software-development",
+      "file": "e2e/remotive.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Lumen Ledger \"Junior Backend Engineer (Remote)\" (dedupe leg; url is a remotive.com page) + SCAM posting from GlobalTech Recruit Solutions (registration fee, gmail contact, USDT pay)."
+    },
+    {
+      "connector": "himalayas",
+      "method": "GET",
+      "url": "https://himalayas.app/jobs/api?limit=20",
+      "file": "e2e/himalayas.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Lumen Ledger \"Junior Backend Engineer\" (dedupe leg; applicationLink = the greenhouse replica URL) + STALE posting (Fernhill Logistics, pubDate 2026-08-04, expiryDate passed). No nextCursor, so paging stops."
+    },
+    {
+      "connector": "himalayas",
+      "method": "GET",
+      "url": "re:^https://himalayas\\.app/jobs/api/search\\?q=[^&]+&page=\\d+$",
+      "file": "e2e/himalayas-search-empty.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty search results for every category query."
+    },
+    {
+      "connector": "remoteok",
+      "method": "GET",
+      "url": "https://remoteok.com/api",
+      "file": "e2e/empty/remoteok.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Legal notice only, no jobs."
+    },
+    {
+      "connector": "weworkremotely",
+      "method": "GET",
+      "url": "re:^https://weworkremotely\\.com/categories/remote-[a-z-]+-jobs\\.rss$",
+      "file": "e2e/empty/weworkremotely.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty channel."
+    },
+    {
+      "connector": "workingnomads",
+      "method": "GET",
+      "url": "https://www.workingnomads.com/api/exposed_jobs/",
+      "file": "e2e/empty/workingnomads.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty array."
+    },
+    {
+      "connector": "nichefeeds",
+      "method": "GET",
+      "url": "https://jobspresso.co/?feed=job_feed",
+      "file": "e2e/empty/jobspresso.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty channel.",
+      "source": "jobspresso"
+    },
+    {
+      "connector": "nichefeeds",
+      "method": "GET",
+      "url": "https://larajobs.com/feed",
+      "file": "e2e/empty/larajobs.rss",
+      "contentType": "application/xml",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty channel.",
+      "source": "larajobs"
+    },
+    {
+      "connector": "gamedev",
+      "method": "GET",
+      "url": "https://workwithindies.com/careers/rss.xml",
+      "file": "e2e/empty/workwithindies.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty channel.",
+      "source": "workwithindies"
+    },
+    {
+      "connector": "gamedev",
+      "method": "GET",
+      "url": "https://remotegamejobs.com/feed.rss",
+      "file": "e2e/empty/remotegamejobs.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty channel.",
+      "source": "remotegamejobs"
+    },
+    {
+      "connector": "jobicy",
+      "method": "GET",
+      "url": "re:^https://jobicy\\.com/api/v2/remote-jobs\\?count=50&(tag|industry)=[^&]+$",
+      "file": "e2e/empty/jobicy.json",
+      "contentType": "application/json; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "No jobs."
+    },
+    {
+      "connector": "arbeitnow",
+      "method": "GET",
+      "url": "re:^https://www\\.arbeitnow\\.com/api/job-board-api\\?page=[123]$",
+      "file": "e2e/empty/arbeitnow.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "No jobs."
+    },
+    {
+      "connector": "themuse",
+      "method": "GET",
+      "url": "re:^https://www\\.themuse\\.com/api/public/jobs\\?category=[^&]+&page=[12]$",
+      "file": "e2e/empty/themuse.json",
+      "contentType": "application/json; charset=UTF-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "No jobs."
+    },
+    {
+      "connector": "hackernews",
+      "method": "GET",
+      "url": "https://hn.algolia.com/api/v1/search_by_date?tags=story,author_whoishiring&hitsPerPage=10",
+      "file": "e2e/empty/hackernews-stories.json",
+      "contentType": "application/json",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "No stories, so the connector logs \"no current thread\" and returns [] without requesting comments."
+    },
+    {
+      "connector": "reddit",
+      "method": "GET",
+      "url": "re:^https://www\\.reddit\\.com/r/[A-Za-z]+/new/\\.rss$",
+      "file": "e2e/empty/reddit.atom.xml",
+      "contentType": "application/atom+xml; charset=UTF-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty Atom feed. Note the connector sleeps 11 s between subreddits; e2e should disable reddit or stub timers."
+    },
+    {
+      "connector": "simplify",
+      "method": "GET",
+      "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json",
+      "file": "e2e/empty/simplify.json",
+      "contentType": "text/plain; charset=utf-8",
+      "recordedAt": "2026-11-02T00:00:00.000Z",
+      "notes": "Empty array (connector is off by default)."
+    }
+  ],
+  "dedupe": {
+    "company": "Lumen Ledger",
+    "title": "Junior Backend Engineer",
+    "sources": [
+      "greenhouse",
+      "remotive",
+      "himalayas"
+    ],
+    "files": [
+      "e2e/greenhouse-lumenledger.json",
+      "e2e/remotive.json",
+      "e2e/himalayas.json"
+    ],
+    "canonicalUrl": "{{ORIGIN_A}}/boards.greenhouse.io/lumenledger/jobs/4012345",
+    "notes": "Remotive title has a \" (Remote)\" suffix and a remotive.com url; Himalayas applicationLink equals the Greenhouse absolute_url. Descriptions are lightly reworded copies."
+  },
+  "traps": [
+    {
+      "kind": "blocker",
+      "file": "e2e/greenhouse-sentineldefense.json",
+      "company": "Sentinel Defense Systems",
+      "why": "Active US Secret clearance + US citizenship required; on-site Huntsville."
+    },
+    {
+      "kind": "inflated_seniority",
+      "file": "e2e/greenhouse-harborpine.json",
+      "company": "Harbor & Pine",
+      "why": "\"entry level\" title/text but 5+ years required, on-call from month one."
+    },
+    {
+      "kind": "scam",
+      "file": "e2e/remotive.json",
+      "company": "GlobalTech Recruit Solutions",
+      "why": "Registration fee, personal gmail contact, pay in USDT, no interview."
+    },
+    {
+      "kind": "stale",
+      "file": "e2e/himalayas.json",
+      "company": "Fernhill Logistics",
+      "why": "pubDate 2026-08-04 (90 days before 2026-11-02), expiryDate passed."
+    }
+  ]
+}

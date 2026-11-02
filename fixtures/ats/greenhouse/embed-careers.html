@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+  Fixture: a company careers page that embeds a Greenhouse application with the
+  standard embed snippet: <div id="grnhse_app"></div> plus
+  <script src="https://boards.greenhouse.io/embed/job_board/js?for=<board>">, then
+  Grnhse.Iframe.load(<job id>). The loader (served from origin B, like
+  boards.greenhouse.io) injects <iframe id="grnhse_iframe" scrolling="no"> pointing
+  at origin B's /job-boards.greenhouse.io/embed/job_app?for=orchardrobotics&token=5011223,
+  so the whole form lives in a cross-origin frame whose height is driven by
+  postMessage. The confirmation also renders inside the frame.
+  Fictional employer (Orchard Robotics). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Junior Full-Stack Developer · Careers · Orchard Robotics</title>
+  <style>
+    body { margin: 0; font-family: Georgia, "Times New Roman", serif; color: #2b2b2b; background: #fbf8f2; }
+    .site-header { background: #2e4a2b; color: #f3efe4; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .site-header a { color: #f3efe4; text-decoration: none; margin-left: 20px; font-family: system-ui, sans-serif; font-size: 14px; }
+    .brand { font-size: 22px; font-weight: bold; letter-spacing: .03em; }
+    .hero { padding: 48px 32px 24px; max-width: 960px; margin: 0 auto; }
+    .hero .eyebrow { font-family: system-ui, sans-serif; text-transform: uppercase; font-size: 12px; letter-spacing: .12em; color: #7a6a4f; }
+    .hero h1 { font-size: 40px; margin: 8px 0; }
+    .meta { font-family: system-ui, sans-serif; color: #555; font-size: 14px; }
+    .content { max-width: 960px; margin: 0 auto; padding: 0 32px; line-height: 1.6; }
+    .perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; font-family: system-ui, sans-serif; font-size: 14px; }
+    .perks div { background: #fff; border: 1px solid #e6dfcf; border-radius: 8px; padding: 14px; }
+    #apply { max-width: 960px; margin: 32px auto 64px; padding: 0 32px; }
+    #apply h2 { font-size: 26px; }
+    #grnhse_app iframe { display: block; border: 0; background: #fff; border-radius: 8px; }
+    .site-footer { background: #2e4a2b; color: #cfc8b4; text-align: center; padding: 24px; font-family: system-ui, sans-serif; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <span class="brand">Orchard Robotics</span>
+    <nav><a href="/orchardrobotics.example.com/">Home</a><a href="/orchardrobotics.example.com/technology">Technology</a><a href="/orchardrobotics.example.com/careers">Careers</a></nav>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Engineering · Grower Experience</div>
+    <h1>Junior Full-Stack Developer</h1>
+    <div class="meta">Remote (EMEA, South Asia) · Full-time</div>
+  </section>
+
+  <section class="content">
+    <p>Every night our robots pick, prune and scan thousands of trees. Every morning a grower opens our dashboard to see what happened. You'll help make that morning better: clearer yield reports, faster planning and fewer surprises.</p>
+    <div class="perks">
+      <div><strong>Remote-first</strong><br>Work from anywhere in EMEA or South Asia, with a yearly team week on a farm.</div>
+      <div><strong>Mentorship</strong><br>A dedicated senior buddy for your first six months.</div>
+      <div><strong>Learning budget</strong><br>USD 1,000 a year for courses, books and conferences.</div>
+    </div>
+    <p>The full job description and application form are below.</p>
+  </section>
+
+  <section id="apply">
+    <h2>Apply for this role</h2>
+    <div id="grnhse_app"></div>
+  </section>
+
+  <footer class="site-footer">© 2026 Orchard Robotics · Careers powered by Greenhouse</footer>
+
+  <script src="{{ORIGIN_B}}/boards.greenhouse.io/embed/job_board/js?for=orchardrobotics"></script>
+  <script>Grnhse.Iframe.load(5011223);</script>
+</body>
+</html>

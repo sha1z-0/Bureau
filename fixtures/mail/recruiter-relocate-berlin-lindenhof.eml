@@ -1,0 +1,57 @@
+Return-Path: <katrin.weiss@lindenhof-systems.example.com>
+From: Katrin Weiss <katrin.weiss@lindenhof-systems.example.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: =?UTF-8?B?QmFja2VuZCByb2xlIGluIEJlcmxpbiDigJMgb3BlbiB0byByZWxvY2F0?=
+ =?UTF-8?B?aW5nPw==?=
+Date: Tue, 27 Oct 2026 08:55:03 +0100
+Message-ID: <CALh6w1Kw9-berlin@mail.lindenhof-systems.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0022_fixture.tnwnvu"
+
+------=_Part_0022_fixture.tnwnvu
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello Rania,
+
+I came across your ledger-lite project on GitHub and was impressed by how y=
+ou enforce balanced journal entries in the database.
+
+We're hiring a Junior Backend Engineer (Node.js, PostgreSQL) for our team i=
+n Berlin. The role is on-site three days a week, and we offer full visa spo=
+nsorship and relocation support (flights, temporary housing for one month, =
+and help with the Blue Card).
+
+Are you open to relocating to Berlin? If so, I'd be happy to send over the =
+full job description.
+
+Viele Gr=C3=BC=C3=9Fe,
+Katrin Weiss
+Talent Acquisition, Lindenhof Systems GmbH
+
+------=_Part_0022_fixture.tnwnvu
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html>
+<head><meta charset=3D"utf-8"><meta name=3D"viewport" content=3D"width=3Dde=
+vice-width"></head>
+<body style=3D"font-family: Helvetica, Arial, sans-serif; font-size: 14px; =
+color: #222;">
+<p>Hello Rania,</p>
+<p>I came across your ledger-lite project on GitHub and was impressed by ho=
+w you enforce balanced journal entries in the database.</p>
+<p>We're hiring a Junior Backend Engineer (Node.js, PostgreSQL) for our tea=
+m in Berlin. The role is on-site three days a week, and we offer full visa =
+sponsorship and relocation support (flights, temporary housing for one mont=
+h, and help with the Blue Card).</p>
+<p>Are you open to relocating to Berlin? If so, I'd be happy to send over t=
+he full job description.</p>
+<p>Viele Gr=C3=BC=C3=9Fe,<br>
+Katrin Weiss<br>
+Talent Acquisition, Lindenhof Systems GmbH</p>
+</body>
+</html>
+
+------=_Part_0022_fixture.tnwnvu--

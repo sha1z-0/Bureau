@@ -1,0 +1,2 @@
+# Raw RFC 822 fixtures keep their CRLF line endings byte-for-byte.
+*.eml -text

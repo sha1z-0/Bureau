@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!--
+  Mock of the reCAPTCHA v2 challenge frame (www.google.com/recaptcha/api2/bframe), origin B.
+  rc-imageselect DOM with a 3x3 canvas grid (captcha/challenge.js). Only a trusted,
+  human-paced, correct solve mints a "human-..." token, posted to the host page.
+  Audio challenge is "unavailable" (no bypass). Local fixture only.
+-->
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>reCAPTCHA challenge</title>
+  <style>
+    html, body { margin: 0; font-family: Roboto, helvetica, arial, sans-serif; background: #fff; }
+    .rc-imageselect { width: 400px; padding: 7px; box-sizing: border-box; }
+    .rc-imageselect-desc-wrapper { background: #1a73e8; color: #fff; padding: 24px 16px; font-size: 16px; }
+    .rc-imageselect-desc-no-canonical strong { display: block; font-size: 26px; }
+    .rc-imageselect-table-33 { border-collapse: separate; border-spacing: 4px; margin: 4px auto; }
+    .rc-imageselect-tile { padding: 0; cursor: pointer; position: relative; width: 120px; height: 120px; }
+    .rc-imageselect-tile canvas { display: block; width: 120px; height: 120px; transition: transform .1s; }
+    .rc-imageselect-tileselected canvas { transform: scale(.8); }
+    .rc-imageselect-tileselected::after { content: "\2713"; position: absolute; left: 2px; top: 2px; width: 22px; height: 22px; border-radius: 50%; background: #1a73e8; color: #fff; text-align: center; line-height: 22px; font-size: 14px; }
+    .rc-imageselect-incorrect-response { color: #d93025; font-size: 13px; padding: 4px 10px; }
+    .rc-footer { display: flex; align-items: center; gap: 8px; border-top: 1px solid #dfdfdf; padding: 10px 8px 4px; }
+    .rc-button { width: 28px; height: 28px; border: 0; background: #eee; border-radius: 50%; cursor: pointer; font-size: 13px; }
+    .rc-button-default { margin-left: auto; background: #1a73e8; color: #fff; border: 0; border-radius: 2px; padding: 10px 22px; font-weight: 600; text-transform: uppercase; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div id="rc-imageselect" class="rc-imageselect" aria-modal="true" role="dialog" aria-label="recaptcha challenge">
+  <div class="rc-imageselect-response-field"></div>
+  <div class="rc-imageselect-payload" id="payload"></div>
+</div>
+<script src="/ats/_widgets/captcha/challenge.js"></script>
+<script>
+(function () {
+  'use strict';
+  var payload = document.getElementById('payload');
+  FXChallenge.mount(payload, {
+    tileSize: 120,
+    verifyId: 'recaptcha-verify-button',
+    verifyText: 'Verify',
+    errorText: 'Please try again.',
+    classes: {
+      prompt: 'rc-imageselect-instructions',
+      table: 'rc-imageselect-table-33',
+      tile: 'rc-imageselect-tile',
+      selected: 'rc-imageselect-tileselected',
+      error: 'rc-imageselect-incorrect-response',
+      footer: 'rc-footer',
+      verify: 'rc-button-default goog-inline-block',
+    },
+    promptHtml: function (target) {
+      return '<div class="rc-imageselect-desc-wrapper"><div class="rc-imageselect-desc-no-canonical">Select all images with <strong></strong>If there are none, click skip</div></div>'
+        .replace('<strong></strong>', '<strong>' + target + '</strong>');
+    },
+    extraButtons: function (footer) {
+      [['recaptcha-reload-button', 'Get a new challenge', '↻'], ['recaptcha-audio-button', 'Get an audio challenge', '♪'], ['recaptcha-help-button', 'Help', '?']].forEach(function (b) {
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.id = b[0];
+        el.className = 'rc-button goog-inline-block';
+        el.title = b[1];
+        el.setAttribute('aria-label', b[1]);
+        el.textContent = b[2];
+        footer.appendChild(el);
+      });
+    },
+    onSolved: function (token) {
+      FXChallenge.post({ kind: 'token', token: token });
+    },
+  });
+  document.getElementById('recaptcha-reload-button').addEventListener('click', function () { location.reload(); });
+  document.getElementById('recaptcha-audio-button').addEventListener('click', function () {
+    var err = document.querySelector('.rc-imageselect-incorrect-response');
+    err.textContent = 'Audio challenges are not available right now. Please solve the image challenge.';
+    err.style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "jobPostingInfo": {
+    "id": "0d64307cf9c7101794f76d5b1f490000",
+    "title": "Software Engineer, AI Infrastructure",
+    "jobDescription": "<p>AI factories are only as good as the software that runs them. NVIDIA’s DSX OS turns GPU infrastructure into a shared, multi-tenant platform for AI teams, providing scheduling, orchestration, serving, and observability for AI workloads at data-center scale—from training and inference to reinforcement learning and agentic AI.The DSX OS Platform Software group builds that layer through projects such as KAI-Scheduler, Snapshot, Grove, and Run:ai. Our work ships as open source and upstream contributions across the cloud-native and AI serving ecosystems. We focus on performance, reliability at scale, and giving users the insight they need to understand and improve how their workloads run.</p><p>We are looking for highly skilled software engineers to help shape the future of AI infrastructure. As a Software Engineer in the team, you will design and build scalable, high-performance systems, tackle complex distributed-systems problems, and collaborate with experts across NVIDIA and the broader community to support the next generation of AI workloads.</p><p></p><p><b>What you’ll be doing:</b></p><ul><li>Designing and developing open source platform components with a strong focus on performance, reliability, and scalability.</li><li>Building and optimizing Kubernetes-native systems: controllers, operators, schedulers, and APIs that orchestrate GPU workloads at scale.</li><li>Contributing upstream — designing in public, writing proposals, reviewing community code, and engaging with users and maintainers of the projects we work on.</li><li>Collaborating closely with architects, product managers, and partner teams across NVIDIA to deliver impactful solutions.</li><li>Writing clean, maintainable, and testable code in Go.</li><li>Conducting code and design reviews to uphold high-quality standards.</li></ul><p></p><p><b>What we need to see:</b></p><ul><li>B.Sc. in Computer Science or a related field or equivalent experience.</li><li>2&#43; years of experience in backend software development, including system design and architecture.</li><li>Proficiency in at least one backend programming language.</li><li>Deep familiarity with Kubernetes and the cloud-native ecosystem.</li><li>Demonstrated ability to solve complex technical challenges and deliver high-quality solutions.</li></ul><p></p><p><b>Ways to stand out from the crowd:</b></p><ul><li>Expertise in Kubernetes internals and advanced cloud-native technologies.</li><li>Maintain or contribute to OSS projects, and experience working in a public development process.</li><li>Familiarity with AI inference workloads, serving frameworks, and performance optimization.</li><li>Proficiency in Linux, with knowledge in networking, security, storage, and virtualization.</li></ul><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p>",
+    "location": "Israel, Tel Aviv",
+    "postedOn": "Posted Today",
+    "startDate": "2026-11-02",
+    "timeType": "Full time",
+    "jobReqId": "JR2028826",
+    "jobPostingId": "Software-Engineer--AI-Infrastructure_JR2028826",
+    "jobPostingSiteId": "NVIDIAExternalCareerSite",
+    "country": {
+      "descriptor": "Israel",
+      "id": "084562884af243748dad7c84c304d89a"
+    },
+    "canApply": true,
+    "posted": true,
+    "includeResumeParsing": true,
+    "jobRequisitionLocation": {
+      "descriptor": "Israel, Tel Aviv",
+      "country": {
+        "descriptor": "Israel",
+        "id": "084562884af243748dad7c84c304d89a",
+        "alpha2Code": "IL"
+      }
+    },
+    "externalUrl": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/Israel-Tel-Aviv/Software-Engineer--AI-Infrastructure_JR2028826",
+    "questionnaireId": "2f2764b3a82910064296831695150000"
+  },
+  "hiringOrganization": {
+    "name": "IL00 Mellanox Technologies, Ltd.",
+    "url": ""
+  },
+  "similarJobs": [],
+  "userAuthenticated": false
+}

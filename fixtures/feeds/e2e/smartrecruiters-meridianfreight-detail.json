@@ -1,0 +1,77 @@
+{
+  "id": "744000160123456",
+  "name": "Graduate Software Engineer",
+  "uuid": "d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71",
+  "jobId": "f0e1d2c3-b4a5-4968-8776-655443322110",
+  "jobAdId": "a8e2f4c6-1b3d-4f5a-8c7e-2d4f6a8b0c1e",
+  "defaultJobAd": true,
+  "refNumber": "MF-GRAD-2026-04",
+  "company": {
+    "name": "Meridian Freight",
+    "identifier": "MeridianFreight"
+  },
+  "location": {
+    "city": "Lahore",
+    "region": "Punjab",
+    "country": "pk",
+    "remote": true,
+    "hybrid": false,
+    "fullLocation": "Lahore, Punjab, Pakistan"
+  },
+  "customField": [],
+  "releasedDate": "2026-11-01T11:30:00.000Z",
+  "creator": {
+    "name": "Talent Team (fictional)",
+    "avatarUrl": ""
+  },
+  "postingUrl": "{{ORIGIN_A}}/jobs.smartrecruiters.com/MeridianFreight/744000160123456-graduate-software-engineer",
+  "applyUrl": "{{ORIGIN_A}}/jobs.smartrecruiters.com/oneclick-ui/company/MeridianFreight/publication/d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71",
+  "referralUrl": "https://jobs.smartrecruiters.com/external-referrals/company/MeridianFreight/publication/d3b1a7e2-5c4f-4e8a-9b6d-2f1e0c9a8b71?dcr_ci=MeridianFreight",
+  "jobAd": {
+    "sections": {
+      "companyDescription": {
+        "title": "Company Description",
+        "text": "<p>Meridian Freight is a digital freight forwarder connecting shippers in South Asia and the Gulf with ocean and air carriers. Our platform quotes, books and tracks around 18,000 shipments a year for 900 customers.</p>"
+      },
+      "jobDescription": {
+        "title": "Job Description",
+        "text": "<p>Our Graduate Software Engineer programme is a 12-month placement on one of our product teams, with a structured curriculum, a dedicated mentor and a permanent role at the end.</p><ul><li>Build features in our TypeScript and Node.js booking platform and its React front end.</li><li>Work with PostgreSQL and integrate with carrier APIs and EDI messages.</li><li>Write automated tests and take part in sprint planning and code review.</li><li>Rotate through the Tracking and Quotes teams during the year.</li></ul>"
+      },
+      "qualifications": {
+        "title": "Qualifications",
+        "text": "<ul><li>A bachelor's degree in Computer Science, Software Engineering or a related field, completed between 2023 and 2026.</li><li>Project or internship experience with JavaScript or TypeScript.</li><li>Basic SQL.</li><li>Fluent English.</li></ul><p><strong>Nice to have:</strong> React, Docker, or any exposure to logistics.</p>"
+      },
+      "additionalInformation": {
+        "title": "Additional Information",
+        "text": "<p>Hybrid in Lahore or Dubai, or fully remote within Pakistan. Salary PKR 220,000-280,000 per month (Lahore) or AED 9,000-11,000 per month (Dubai). Medical cover for you and your family, and a laptop of your choice.</p>"
+      }
+    }
+  },
+  "active": true,
+  "visibility": "PUBLIC",
+  "industry": {
+    "id": "logistics_and_supply_chain",
+    "label": "Logistics and Supply Chain"
+  },
+  "department": {
+    "id": "2114307",
+    "label": "Engineering"
+  },
+  "function": {
+    "id": "engineering",
+    "label": "Engineering"
+  },
+  "experienceLevel": {
+    "id": "entry_level",
+    "label": "Entry Level"
+  },
+  "typeOfEmployment": {
+    "id": "permanent",
+    "label": "Full-time"
+  },
+  "language": {
+    "code": "en",
+    "label": "English",
+    "labelNative": "English (US)"
+  }
+}

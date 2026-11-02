@@ -1,0 +1,48 @@
+[
+  {
+    "additionalPlain": "Remote anywhere between UTC-1 and UTC+6. Salary USD 30,000-38,000 per year, plus 25 days of paid leave and a USD 1,000 equipment budget. In countries where we have no entity we hire through an employer-of-record partner.",
+    "additional": "<div>Remote anywhere between UTC-1 and UTC+6. Salary USD 30,000-38,000 per year, plus 25 days of paid leave and a USD 1,000 equipment budget. In countries where we have no entity we hire through an employer-of-record partner.</div>",
+    "categories": {
+      "commitment": "Full-time",
+      "department": "Engineering",
+      "location": "Remote",
+      "team": "Core API",
+      "allLocations": [
+        "Remote"
+      ]
+    },
+    "createdAt": 1793542788000,
+    "descriptionPlain": "Northwind Labs builds the scheduling and dispatch API that home-services businesses (plumbers, electricians, cleaners) plug into their own apps. Our API handles about 3 million bookings a month for 400 customers. We are a remote team of 22, and we are looking for a junior backend engineer to join our four-person Core API squad.",
+    "description": "<div>Northwind Labs builds the scheduling and dispatch API that home-services businesses (plumbers, electricians, cleaners) plug into their own apps. Our API handles about 3 million bookings a month for 400 customers. We are a remote team of 22, and we are looking for a junior backend engineer to join our four-person Core API squad.</div>",
+    "id": "3c1f7a52-9d4e-4b8a-a1f0-6e2d8c9b7a10",
+    "lists": [
+      {
+        "text": "What you'll do",
+        "content": "<li>Build and maintain endpoints in our Node.js and TypeScript API (NestJS).</li><li>Model scheduling data in PostgreSQL and write migrations that run safely on large tables.</li><li>Improve our test suite and help keep p95 latency under 150 ms.</li><li>Answer integration questions from customer developers on our support rota, one week in six.</li>"
+      },
+      {
+        "text": "What we're looking for",
+        "content": "<li>1+ years of professional experience with Node.js and TypeScript.</li><li>Solid SQL skills and experience with PostgreSQL or MySQL.</li><li>You write clear pull-request descriptions and ask questions early.</li>"
+      },
+      {
+        "text": "Nice to have",
+        "content": "<li>NestJS, Redis, or message queues (BullMQ, SQS).</li><li>Docker.</li><li>Experience designing public APIs and webhooks.</li>"
+      }
+    ],
+    "text": "Backend Engineer (Junior)",
+    "country": "PK",
+    "workplaceType": "remote",
+    "opening": "",
+    "openingPlain": "",
+    "descriptionBody": "<div>Northwind Labs builds the scheduling and dispatch API that home-services businesses (plumbers, electricians, cleaners) plug into their own apps. Our API handles about 3 million bookings a month for 400 customers. We are a remote team of 22, and we are looking for a junior backend engineer to join our four-person Core API squad.</div>",
+    "descriptionBodyPlain": "Northwind Labs builds the scheduling and dispatch API that home-services businesses (plumbers, electricians, cleaners) plug into their own apps. Our API handles about 3 million bookings a month for 400 customers. We are a remote team of 22, and we are looking for a junior backend engineer to join our four-person Core API squad.",
+    "salaryRange": {
+      "currency": "USD",
+      "interval": "per-year-salary",
+      "min": 30000,
+      "max": 38000
+    },
+    "hostedUrl": "{{ORIGIN_A}}/jobs.lever.co/northwind-labs/3c1f7a52-9d4e-4b8a-a1f0-6e2d8c9b7a10",
+    "applyUrl": "{{ORIGIN_A}}/jobs.lever.co/northwind-labs/3c1f7a52-9d4e-4b8a-a1f0-6e2d8c9b7a10/apply"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "name": "Brightwater Health",
+  "description": "Brightwater Health makes appointment and prescription-reminder software for community pharmacies in the UK and Ireland.",
+  "jobs": [
+    {
+      "title": "Junior Node.js Developer",
+      "shortcode": "3F9A2C71B4",
+      "code": "BWH-ENG-07",
+      "employment_type": "Full-time",
+      "telecommuting": true,
+      "department": "Engineering",
+      "url": "{{ORIGIN_A}}/apply.workable.com/brightwater-health/j/3F9A2C71B4/",
+      "shortlink": "{{ORIGIN_A}}/apply.workable.com/brightwater-health/j/3F9A2C71B4/",
+      "application_url": "{{ORIGIN_A}}/apply.workable.com/brightwater-health/j/3F9A2C71B4/",
+      "published_on": "2026-10-31",
+      "created_at": "2026-10-30",
+      "country": "United Kingdom",
+      "city": "",
+      "state": "",
+      "education": "",
+      "experience": "Entry level",
+      "function": "Engineering",
+      "industry": "Health Care",
+      "locations": [
+        {
+          "country": "United Kingdom",
+          "countryCode": "GB",
+          "city": "",
+          "region": "",
+          "hidden": false
+        }
+      ],
+      "description": "<p>Brightwater Health makes appointment and prescription-reminder software used by 300 community pharmacies in the UK and Ireland. Our engineering team of nine builds everything from the pharmacist dashboard to the SMS reminder pipeline.</p><p>We are hiring a Junior Node.js Developer to work on the services that send reminders, handle patient replies and sync with pharmacy systems.</p><p><strong>What you'll do</strong></p><ul><li>Build and maintain Node.js (TypeScript) services and REST APIs.</li><li>Work with PostgreSQL and Redis-backed job queues.</li><li>Integrate with SMS and email providers and handle delivery webhooks.</li><li>Write tests and help us keep patient data safe.</li></ul><ul><li>1+ year of commercial experience with Node.js.</li><li>Good knowledge of JavaScript or TypeScript, and of SQL.</li><li>An understanding of REST API design and basic web security (authentication, input validation).</li><li>Excellent written English.</li></ul><p><strong>Nice to have</strong></p><ul><li>Experience in healthcare or another regulated industry (GDPR, NHS DSPT).</li><li>Docker and AWS.</li></ul><ul><li>GBP 26,000-32,000 per year (contractor rate available outside the UK).</li><li>Fully remote with UK-hours overlap (10:00-15:00 GMT).</li><li>28 days of holiday and a GBP 500 learning budget.</li></ul>"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Workday Recruiting candidate experience ("CX", *.myworkdayjobs.com),
+  tenant atlasmutual on wd5, external site AtlasCareers. Fictional employer.
+
+  Like the real thing this is a single-page app: the server returns this shell
+  for every URL under /en-US/AtlasCareers/... and the script renders the job
+  posting, the "Start Your Application" dialog, Create Account / Sign In /
+  Verify, the Autofill with Resume upload, the six-step application wizard and
+  the candidate home, switching views without page loads. Job data, sessions,
+  uploads, resume parsing and drafts come from the fixture's JSON endpoints
+  (scripts/e2e/fixture-routes/workday.ts). Widgets follow Workday's DOM
+  conventions: data-automation-id everywhere, button + listbox dropdowns,
+  search "prompts" with pills, segmented date spinbuttons, panel sets with
+  Add / Delete, and click_filter overlays on the auth submit buttons.
+  Local fixture only; no external resources.
+-->
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Atlas Mutual Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/atlasmutual.wd5.myworkdayjobs.com/wday/asset/candidate-experience/wd-cx.css">
+  <script>
+    window.WD_CONFIG = {
+      formId: '{{FORM_ID}}',
+      tenant: 'atlasmutual',
+      dataCenter: 'wd5',
+      site: 'AtlasCareers',
+      locale: 'en-US',
+      jobPath: 'Remote---Pakistan/Associate-Software-Engineer_R-104233',
+      jobReqId: 'R-104233'
+    };
+  </script>
+  <script src="/ats/_shared/fixture.js"></script>
+  <script src="/atlasmutual.wd5.myworkdayjobs.com/wday/asset/candidate-experience/wd-cx.js" defer></script>
+</head>
+<body>
+  <div id="root" data-automation-id="root">
+    <noscript>Workday requires JavaScript. Enable JavaScript in your browser settings and reload the page.</noscript>
+    <div class="wd-loading" data-automation-id="loadingSpinner" aria-live="polite">Loading</div>
+  </div>
+  <div id="wd-popups" data-automation-id="popupLayer"></div>
+</body>
+</html>

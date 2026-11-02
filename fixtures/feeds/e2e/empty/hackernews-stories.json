@@ -1,0 +1,17 @@
+{
+  "exhaustive": {
+    "nbHits": true,
+    "typo": true
+  },
+  "exhaustiveNbHits": true,
+  "exhaustiveTypo": true,
+  "hits": [],
+  "hitsPerPage": 10,
+  "nbHits": 0,
+  "nbPages": 0,
+  "page": 0,
+  "params": "tags=story%2Cauthor_whoishiring&hitsPerPage=10",
+  "processingTimeMS": 1,
+  "query": "",
+  "serverTimeMS": 1
+}

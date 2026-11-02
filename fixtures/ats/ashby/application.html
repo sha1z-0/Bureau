@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Ashby hosted job board application tab
+  (jobs.ashbyhq.com/<org>/<posting uuid>/application). Like the real page the
+  HTML is an empty #root plus window.__appData; the SPA (/ats/ashby/app.js)
+  "fetches" the application form definition (here: a short delay over the
+  embedded ApiJobPosting-shaped JSON) and renders it client-side:
+  Overview / Application tabs, the left pane of posting facts, the
+  "Autofill from resume" pane, then .ashby-application-form-field-entry blocks
+  keyed by field path: _systemfield_name, _systemfield_email, a Phone field keyed
+  by uuid, _systemfield_location (location autocomplete combobox),
+  _systemfield_resume (drop zone with "Upload File" and drag-and-drop),
+  String / LongText / File fields keyed by uuid, Boolean questions as Yes / No
+  toggle buttons (not radios), a MultiValueSelect checkbox group, a
+  ValueSelect radio group, and the EEOC survey with Select... comboboxes.
+  There is no <form> element: "Submit Application" posts JSON with fetch
+  (files inline as base64) and swaps the form for the "Thank you for applying"
+  success view. Fictional employer (Quillstack). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Associate Software Engineer @ Quillstack</title>
+  <link rel="stylesheet" href="/ats/ashby/app.css">
+</head>
+<body>
+<div id="root"></div>
+<script>
+window.__FX_FORM_ID = '{{FORM_ID}}';
+window.__appData = {
+  "environment": "production",
+  "organization": { "name": "Quillstack", "hostedJobsPageSlug": "quillstack", "publicWebsite": "https://quillstack.example.com", "theme": { "colors": { "colorPrimary600": "#5b4bd5", "colorPrimary900": "#2e2480" } } },
+  "posting": {
+    "id": "6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68",
+    "title": "Associate Software Engineer",
+    "departmentName": "Engineering",
+    "locationName": "Remote (Pakistan)",
+    "workplaceType": "Remote",
+    "employmentType": "FullTime",
+    "compensationTierSummary": "PKR 3.6M – 4.8M per year",
+    "descriptionHtml": "<p>Quillstack makes the writing tools legal and policy teams use to draft, review and version long documents together. Think Google Docs with clause libraries, redlines that survive copy-paste, and an audit trail regulators actually accept.</p><h2>About the role</h2><p>Associate Software Engineers join a product squad of five and ship to production in their first week. You will work across our TypeScript stack: a React editor, Node.js services and PostgreSQL.</p><h2>You will</h2><ul><li>Build features in the editor and the APIs behind it</li><li>Write tests and fix the bugs you find along the way</li><li>Take part in code review and our weekly architecture forum</li></ul><h2>You might be a fit if you</h2><ul><li>Have 1–2 years of professional experience, or an equivalent portfolio</li><li>Write clear TypeScript and are comfortable with SQL</li><li>Care about the details users notice</li></ul><h2>Benefits</h2><ul><li>Remote within Pakistan, with quarterly team meetups in Lahore</li><li>Health cover for you and your family</li><li>Annual learning budget</li></ul>",
+    "applicationForm": {
+      "id": "b7f3d0c2-5e61-4a9b-8c4d-2e1f0a9b8c7d",
+      "sections": [
+        {
+          "title": null,
+          "fieldEntries": [
+            { "id": "f5c1d2e3-0001-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "1f0e2d3c-0001-4b5a-8c9d-0e1f2a3b4c5d", "path": "_systemfield_name", "humanReadablePath": "Name", "title": "Name", "type": "String", "__autoSerializationID": "StringField" } },
+            { "id": "f5c1d2e3-0002-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "1f0e2d3c-0002-4b5a-8c9d-0e1f2a3b4c5d", "path": "_systemfield_email", "humanReadablePath": "Email", "title": "Email", "type": "Email", "__autoSerializationID": "EmailField" } },
+            { "id": "f5c1d2e3-0003-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "9a2b7c4d-3e5f-4061-8b7a-c9d0e1f2a3b4", "path": "9a2b7c4d-3e5f-4061-8b7a-c9d0e1f2a3b4", "humanReadablePath": "", "title": "Phone", "type": "Phone", "__autoSerializationID": "PhoneField" } },
+            { "id": "f5c1d2e3-0004-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "1f0e2d3c-0004-4b5a-8c9d-0e1f2a3b4c5d", "path": "_systemfield_location", "humanReadablePath": "Location", "title": "Location", "type": "Location", "locationTypes": ["City", "Region", "Country"], "__autoSerializationID": "LocationField" } },
+            { "id": "f5c1d2e3-0005-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "1f0e2d3c-0005-4b5a-8c9d-0e1f2a3b4c5d", "path": "_systemfield_resume", "humanReadablePath": "Resume", "title": "Resume", "type": "File", "__autoSerializationID": "FileField" } },
+            { "id": "f5c1d2e3-0006-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "descriptionHtml": null, "field": { "id": "3d4e5f60-7a8b-4c9d-8e0f-1a2b3c4d5e6f", "path": "3d4e5f60-7a8b-4c9d-8e0f-1a2b3c4d5e6f", "humanReadablePath": "", "title": "LinkedIn Profile", "type": "String", "__autoSerializationID": "StringField" } },
+            { "id": "f5c1d2e3-0007-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "descriptionHtml": null, "field": { "id": "4e5f6071-8b9c-4dae-9f10-2b3c4d5e6f70", "path": "4e5f6071-8b9c-4dae-9f10-2b3c4d5e6f70", "humanReadablePath": "", "title": "GitHub Profile", "type": "String", "__autoSerializationID": "StringField" } },
+            { "id": "f5c1d2e3-0008-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "descriptionHtml": "<p>Optional. PDF preferred.</p>", "field": { "id": "5f607182-9cad-4ebf-8021-3c4d5e6f7081", "path": "5f607182-9cad-4ebf-8021-3c4d5e6f7081", "humanReadablePath": "", "title": "Cover Letter", "type": "File", "__autoSerializationID": "FileField" } }
+          ]
+        },
+        {
+          "title": null,
+          "fieldEntries": [
+            { "id": "f5c1d2e3-0009-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "a1c3e5f7-0b2d-4f6a-8c1e-3a5c7e9b1d2f", "path": "a1c3e5f7-0b2d-4f6a-8c1e-3a5c7e9b1d2f", "humanReadablePath": "", "title": "Will you now or in the future require Quillstack to sponsor a work visa for you?", "type": "Boolean", "__autoSerializationID": "BooleanField" } },
+            { "id": "f5c1d2e3-0010-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": null, "field": { "id": "b2d4f6a8-1c3e-4a7b-9d2f-4b6d8f0c2e3a", "path": "b2d4f6a8-1c3e-4a7b-9d2f-4b6d8f0c2e3a", "humanReadablePath": "", "title": "Have you previously worked at Quillstack?", "type": "Boolean", "__autoSerializationID": "BooleanField" } },
+            { "id": "f5c1d2e3-0011-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "descriptionHtml": null, "field": { "id": "c3e5a7b9-2d4f-4b8c-ae30-5c7e9a1d3f4b", "path": "c3e5a7b9-2d4f-4b8c-ae30-5c7e9a1d3f4b", "humanReadablePath": "", "title": "Which of these have you used professionally? (select all that apply)", "type": "MultiValueSelect", "selectableValues": [ { "label": "TypeScript", "value": "TypeScript" }, { "label": "Node.js", "value": "Node.js" }, { "label": "React", "value": "React" }, { "label": "PostgreSQL", "value": "PostgreSQL" }, { "label": "Python", "value": "Python" }, { "label": "Kubernetes", "value": "Kubernetes" } ], "__autoSerializationID": "MultiValueSelectField" } },
+            { "id": "f5c1d2e3-0012-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "descriptionHtml": null, "field": { "id": "d4f6b8ca-3e5a-4c9d-bf41-6d8f0b2e4a5c", "path": "d4f6b8ca-3e5a-4c9d-bf41-6d8f0b2e4a5c", "humanReadablePath": "", "title": "How did you hear about this role?", "type": "ValueSelect", "selectableValues": [ { "label": "LinkedIn", "value": "LinkedIn" }, { "label": "Job board", "value": "Job board" }, { "label": "Quillstack blog", "value": "Quillstack blog" }, { "label": "Referral", "value": "Referral" }, { "label": "Other", "value": "Other" } ], "__autoSerializationID": "ValueSelectField" } },
+            { "id": "f5c1d2e3-0013-4a1b-9c2d-3e4f5a6b7c80", "isRequired": true, "descriptionHtml": "<p>A few sentences is plenty.</p>", "field": { "id": "e5a7c9db-4f6b-4dae-8c52-7e9a1c3f5b6d", "path": "e5a7c9db-4f6b-4dae-8c52-7e9a1c3f5b6d", "humanReadablePath": "", "title": "Why Quillstack? What would you like to work on in your first six months?", "type": "LongText", "__autoSerializationID": "LongTextField" } }
+          ]
+        }
+      ]
+    },
+    "surveyForms": [
+      {
+        "id": "0c9b8a7d-6e5f-4a3b-9c2d-1e0f9a8b7c6d",
+        "title": "U.S. Equal Employment Opportunity Information",
+        "descriptionHtml": "<p>We are an equal opportunity employer. Submitting this information is voluntary and will not affect your application. Responses are kept separate from your application and used only for aggregate reporting.</p>",
+        "sections": [
+          {
+            "title": null,
+            "fieldEntries": [
+              { "id": "f5c1d2e3-0101-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "field": { "id": "fbdcc6c7-fc72-4eb2-b7d5-7e149f79dda0", "path": "_systemfield_eeoc_gender", "humanReadablePath": "Gender", "title": "Gender", "type": "ValueSelect", "selectableValues": [ { "label": "Male", "value": "male" }, { "label": "Female", "value": "female" }, { "label": "Decline to self-identify", "value": "decline_to_self_identify" } ] } },
+              { "id": "f5c1d2e3-0102-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "field": { "id": "b33298aa-dca9-4f59-bc40-c673e60ec7a2", "path": "_systemfield_eeoc_race", "humanReadablePath": "Race", "title": "Race", "type": "ValueSelect", "selectableValues": [ { "label": "Hispanic or Latino", "value": "hispanic_or_latino" }, { "label": "White (Not Hispanic or Latino)", "value": "white" }, { "label": "Black or African American (Not Hispanic or Latino)", "value": "black_or_african_american" }, { "label": "Native Hawaiian or Other Pacific Islander (Not Hispanic or Latino)", "value": "native_hawaiian_or_other_pacific_islander" }, { "label": "Asian (Not Hispanic or Latino)", "value": "asian" }, { "label": "American Indian or Alaska Native (Not Hispanic or Latino)", "value": "american_indian_or_alaska_native" }, { "label": "Two or More Races (Not Hispanic or Latino)", "value": "two_or_more_races" }, { "label": "Decline to self-identify", "value": "decline_to_self_identify" } ] } },
+              { "id": "f5c1d2e3-0103-4a1b-9c2d-3e4f5a6b7c80", "isRequired": false, "field": { "id": "6c5975cb-a5d8-476a-9ddf-d92a99475904", "path": "_systemfield_eeoc_veteran_status", "humanReadablePath": "Veteran Status", "title": "Veteran Status", "type": "ValueSelect", "selectableValues": [ { "label": "I identify as one or more of the classifications of protected veteran listed above", "value": "protected_veteran" }, { "label": "I am not a protected veteran", "value": "non_protected_veteran" }, { "label": "I decline to self-identify for protected veteran status", "value": "decline_to_self_identify" } ] } }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "routerPrefix": "/jobs.ashbyhq.com"
+};
+</script>
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/ashby/app.js"></script>
+</body>
+</html>

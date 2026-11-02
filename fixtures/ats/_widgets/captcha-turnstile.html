@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: application form protected by a VISIBLE Cloudflare Turnstile widget (mock).
+  Reproduced:
+   - div.cf-turnstile[data-sitekey] rendered by a "turnstile api.js" stand-in into
+     <div><iframe title="Widget containing a Cloudflare security challenge" style="width: 300px; height: 65px"
+     src="{{ORIGIN_B}}/widgets/captcha/challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile/if/ov2/normal?k=..&co=..#cf-chl-widget-.."></iframe>
+     <input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-.._response"></div>;
+   - the frame is CROSS-ORIGIN (origin B), like challenges.cloudflare.com is for a real site;
+   - "Verifying..." first, then the interactive "Verify you are human" checkbox; a trusted click
+     grows the widget (resize message) into an image-grid challenge inside the frame;
+   - the grid (captcha/challenge.js) mints a "human-..." token only for a trusted, human-paced,
+     correct solve, never under navigator.webdriver.
+  Server: manifest captcha=true (token must start with "human-").
+  Client: submit without a token shows "Please complete the CAPTCHA" and posts nothing.
+  Expected outcome for an automated filler: needs_you.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Backend Engineer, Payments - Orchard Payments Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin: 0; color: #1f2933; background: #f5f7fa; }
+    header { background: #14532d; color: #fff; padding: 18px 32px; }
+    header .brand { font-weight: 700; letter-spacing: .3px; }
+    main { max-width: 720px; margin: 24px auto; background: #fff; padding: 28px 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h1 { font-size: 24px; margin: 0 0 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .req { color: #c53030; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #cbd2d9; border-radius: 4px; font-size: 15px; }
+    input[aria-invalid=true] { border-color: #c53030; }
+    .field-error { color: #c53030; font-size: 13px; margin-top: 4px; }
+    .hint { color: #7b8794; font-size: 12px; }
+    .captcha-row { margin: 22px 0 8px; }
+    .captcha-error { display: none; color: #c53030; font-weight: 600; margin-top: 6px; }
+    .summary { display: none; color: #c53030; margin: 8px 0; }
+    button[type=submit] { background: #15803d; color: #fff; border: 0; padding: 11px 26px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+    button[disabled] { opacity: .6; }
+  </style>
+</head>
+<body>
+<header><span class="brand">Orchard Payments</span> &middot; Careers</header>
+<main>
+  <h1>Backend Engineer, Payments</h1>
+  <div class="meta">Remote &middot; Full-time &middot; Engineering</div>
+  <p>Orchard Payments runs card acquiring for independent grocers. You will work on our settlement and payout services (TypeScript, PostgreSQL) and help keep money moving correctly.</p>
+
+  <h2>Apply for this job</h2>
+  <form id="application" action="/__submit/{{FORM_ID}}" method="post" enctype="multipart/form-data">
+    <div class="field"><label for="first_name">First name <span class="req">*</span></label><input type="text" id="first_name" name="first_name" autocomplete="given-name" required></div>
+    <div class="field"><label for="last_name">Last name <span class="req">*</span></label><input type="text" id="last_name" name="last_name" autocomplete="family-name" required></div>
+    <div class="field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" autocomplete="email" required></div>
+    <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" autocomplete="tel"></div>
+    <div class="field"><label for="linkedin">LinkedIn profile</label><input type="url" id="linkedin" name="linkedin"></div>
+    <div class="field"><label for="resume">Resume/CV</label><input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx"><div class="hint">PDF or Word, max 10 MB</div></div>
+
+    <div class="captcha-row">
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAAFixtureOrchardPay" data-theme="light" id="turnstile"></div>
+      <div class="captcha-error" id="captcha_error" role="alert"></div>
+    </div>
+    <div class="summary" id="summary" role="alert"></div>
+    <button type="submit" id="submit_app">Submit application</button>
+  </form>
+</main>
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/_widgets/captcha/host.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FRAME_ORIGIN = '{{ORIGIN_B}}';
+  var holder = document.getElementById('turnstile');
+  var key = holder.getAttribute('data-sitekey');
+  var wid = 'cf-chl-widget-' + Math.random().toString(36).slice(2, 7);
+  var co = btoa(location.origin).replace(/=+$/, '');
+  holder.innerHTML =
+    '<div><iframe src="' + FRAME_ORIGIN + '/widgets/captcha/challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile/if/ov2/normal?k=' + key + '&co=' + co + '#' + wid + '"' +
+    ' allow="cross-origin-isolated; fullscreen; autoplay" sandbox="allow-same-origin allow-scripts allow-popups" id="' + wid + '" tabindex="0"' +
+    ' title="Widget containing a Cloudflare security challenge" style="border: none; overflow: hidden; width: 300px; height: 65px;"></iframe>' +
+    '<input type="hidden" name="cf-turnstile-response" id="' + wid + '_response"></div>';
+  var anchor = holder.querySelector('iframe');
+  var token = holder.querySelector('[name=cf-turnstile-response]');
+
+  FXCaptchaHost.attach({ frameOrigin: FRAME_ORIGIN, anchor: anchor, tokenInputs: [token] });
+
+  FXCaptchaHost.form(document.getElementById('application'), '{{FORM_ID}}', {
+    tokenInputs: [token],
+    captchaError: document.getElementById('captcha_error'),
+    errorBox: document.getElementById('summary'),
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: application form protected by a VISIBLE reCAPTCHA v2 checkbox (mock).
+  Reproduced:
+   - .g-recaptcha[data-sitekey] rendered by an "api.js" stand-in into
+     <div style="width:304px;height:78px"><div><iframe title="reCAPTCHA" width=304 height=78
+     src="{{ORIGIN_B}}/widgets/captcha/recaptcha/api2/anchor?ar=1&k=...&co=<b64 origin>&hl=en&v=..&size=normal"></iframe></div>
+     <textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response" style="display:none"></textarea></div>
+   - the anchor frame is CROSS-ORIGIN (origin B), like www.google.com is for a real site;
+   - clicking "I'm not a robot" (trusted click only) opens the bframe challenge popup
+     (iframe title "recaptcha challenge expires in two minutes", src .../api2/bframe) over a
+     near-transparent full-page overlay; clicking the overlay dismisses it;
+   - the image-grid challenge (captcha/challenge.js) mints a token "human-..." only for a
+     trusted, human-paced, correct solve, and never under navigator.webdriver.
+  Server: manifest captcha=true, so a POST without a human- token is invalid (captcha_missing).
+  Client: submit without a token shows "Please complete the CAPTCHA" and posts nothing.
+  Expected outcome for an automated filler: needs_you (fill everything, stop at the CAPTCHA).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Backend Engineer, Payments - Orchard Payments Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin: 0; color: #1f2933; background: #f5f7fa; }
+    header { background: #14532d; color: #fff; padding: 18px 32px; }
+    header .brand { font-weight: 700; letter-spacing: .3px; }
+    main { max-width: 720px; margin: 24px auto; background: #fff; padding: 28px 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h1 { font-size: 24px; margin: 0 0 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .req { color: #c53030; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #cbd2d9; border-radius: 4px; font-size: 15px; }
+    input[aria-invalid=true] { border-color: #c53030; }
+    .field-error { color: #c53030; font-size: 13px; margin-top: 4px; }
+    .hint { color: #7b8794; font-size: 12px; }
+    .captcha-row { margin: 22px 0 8px; }
+    .captcha-error { display: none; color: #c53030; font-weight: 600; margin-top: 6px; }
+    .summary { display: none; color: #c53030; margin: 8px 0; }
+    button[type=submit] { background: #15803d; color: #fff; border: 0; padding: 11px 26px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+    button[disabled] { opacity: .6; }
+  </style>
+</head>
+<body>
+<header><span class="brand">Orchard Payments</span> &middot; Careers</header>
+<main>
+  <h1>Backend Engineer, Payments</h1>
+  <div class="meta">Remote &middot; Full-time &middot; Engineering</div>
+  <p>Orchard Payments runs card acquiring for independent grocers. You will work on our settlement and payout services (TypeScript, PostgreSQL) and help keep money moving correctly.</p>
+
+  <h2>Apply for this job</h2>
+  <form id="application" action="/__submit/{{FORM_ID}}" method="post" enctype="multipart/form-data">
+    <div class="field"><label for="first_name">First name <span class="req">*</span></label><input type="text" id="first_name" name="first_name" autocomplete="given-name" required></div>
+    <div class="field"><label for="last_name">Last name <span class="req">*</span></label><input type="text" id="last_name" name="last_name" autocomplete="family-name" required></div>
+    <div class="field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" autocomplete="email" required></div>
+    <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" autocomplete="tel"></div>
+    <div class="field"><label for="linkedin">LinkedIn profile</label><input type="url" id="linkedin" name="linkedin"></div>
+    <div class="field"><label for="resume">Resume/CV</label><input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx"><div class="hint">PDF or Word, max 10 MB</div></div>
+
+    <div class="captcha-row">
+      <div class="g-recaptcha" data-sitekey="6LfXfixtureSiteKeyOrchardPay0000000000AA" id="recaptcha"></div>
+      <div class="captcha-error" id="captcha_error" role="alert"></div>
+    </div>
+    <div class="summary" id="summary" role="alert"></div>
+    <button type="submit" id="submit_app">Submit application</button>
+  </form>
+</main>
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/_widgets/captcha/host.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FRAME_ORIGIN = '{{ORIGIN_B}}';
+  var holder = document.getElementById('recaptcha');
+  var key = holder.getAttribute('data-sitekey');
+  var co = btoa(location.origin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') + '.';
+  var cb = Math.random().toString(36).slice(2, 12);
+
+  // What api.js renders into .g-recaptcha.
+  holder.innerHTML =
+    '<div style="width: 304px; height: 78px;"><div>' +
+    '<iframe title="reCAPTCHA" width="304" height="78" role="presentation" name="a-' + cb + '" frameborder="0" scrolling="no"' +
+    ' sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"' +
+    ' src="' + FRAME_ORIGIN + '/widgets/captcha/recaptcha/api2/anchor?ar=1&k=' + key + '&co=' + co + '&hl=en&v=fxv2&size=normal&cb=' + cb + '"></iframe>' +
+    '</div><textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response"' +
+    ' style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea></div>';
+  var anchor = holder.querySelector('iframe');
+  var token = document.getElementById('g-recaptcha-response');
+
+  FXCaptchaHost.attach({
+    frameOrigin: FRAME_ORIGIN,
+    anchor: anchor,
+    tokenInputs: [token],
+    challenge: {
+      build: function () {
+        var d = document.createElement('div');
+        d.style.cssText = 'visibility: hidden; position: absolute; width: 400px; top: -10000px; left: 0; z-index: 2000000000;';
+        d.innerHTML =
+          '<div data-fx-overlay style="width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; z-index: 2000000000; background-color: rgb(255, 255, 255); opacity: 0.05;"></div>' +
+          '<div data-fx-bubble style="position: absolute; z-index: 2000000000; width: 400px; height: 580px; border: 1px solid rgb(204, 204, 204); box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 3px; background: #fff;">' +
+          '<iframe title="recaptcha challenge expires in two minutes" name="c-' + cb + '" frameborder="0" scrolling="no"' +
+          ' sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"' +
+          ' src="' + FRAME_ORIGIN + '/widgets/captcha/recaptcha/api2/bframe?hl=en&v=fxv2&k=' + key + '&co=' + co + '" style="width: 400px; height: 580px;"></iframe></div>';
+        // The real popup is absolutely positioned at the page level.
+        d.style.top = '0px';
+        return d;
+      },
+    },
+  });
+
+  FXCaptchaHost.form(document.getElementById('application'), '{{FORM_ID}}', {
+    tokenInputs: [token],
+    captchaError: document.getElementById('captcha_error'),
+    errorBox: document.getElementById('summary'),
+  });
+})();
+</script>
+</body>
+</html>

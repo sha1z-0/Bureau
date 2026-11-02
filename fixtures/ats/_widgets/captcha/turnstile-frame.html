@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+  Mock of the Cloudflare Turnstile widget frame (challenges.cloudflare.com/cdn-cgi/challenge-platform/.../turnstile/if/ov2/...),
+  served from origin B. States: "Verifying..." -> interactive "Verify you are human" checkbox ->
+  (trusted click only) the widget grows (resize message to the host) into an image-grid
+  challenge -> "Success!" once a "human-..." token is minted by captcha/challenge.js.
+  Local fixture: no Cloudflare code, assets or network.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Just a moment...</title>
+  <style>
+    html, body { margin: 0; overflow: hidden; font-family: -apple-system, system-ui, "Segoe UI", Roboto, Arial, sans-serif; }
+    #content { width: 298px; height: 63px; border: 1px solid #e0e0e0; background: #fafafa; display: flex; align-items: center; position: relative; box-sizing: content-box; }
+    .main-wrapper { display: flex; align-items: center; padding-left: 16px; gap: 10px; font-size: 14px; color: #232323; }
+    .spinner { width: 24px; height: 24px; border: 3px solid #f38020; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cb-lb { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .cb-lb input { width: 24px; height: 24px; margin: 0; cursor: pointer; accent-color: #f38020; }
+    .success-mark { width: 24px; height: 24px; border-radius: 50%; background: #2a9d4b; color: #fff; text-align: center; line-height: 24px; }
+    .branding { position: absolute; right: 10px; top: 10px; text-align: right; font-size: 9px; color: #555; }
+    .branding .logo { font-weight: 700; font-size: 11px; color: #f38020; }
+    #challenge-stage { display: none; padding: 10px; width: 330px; box-sizing: border-box; background: #fff; }
+    .ctp-prompt { font-size: 14px; margin-bottom: 6px; }
+    .ctp-prompt strong { font-size: 18px; display: block; }
+    .ctp-grid { border-spacing: 4px; }
+    .ctp-tile { padding: 0; width: 96px; height: 96px; cursor: pointer; position: relative; }
+    .ctp-tile canvas { width: 96px; height: 96px; display: block; }
+    .ctp-tile.ctp-selected { outline: 3px solid #f38020; }
+    .ctp-error { color: #c62828; font-size: 13px; }
+    .ctp-footer { display: flex; justify-content: flex-end; padding-top: 6px; }
+    .ctp-button { background: #f38020; color: #fff; border: 0; border-radius: 4px; padding: 8px 18px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div id="content" role="alert" aria-live="polite">
+  <div class="main-wrapper" id="state"></div>
+  <div class="branding" aria-hidden="true"><div class="logo">CLOUDFLARE</div>Privacy &middot; Terms</div>
+</div>
+<div id="challenge-stage" role="dialog" aria-label="Cloudflare interactive challenge"></div>
+<script src="/ats/_widgets/captcha/challenge.js"></script>
+<script>
+(function () {
+  'use strict';
+  var state = document.getElementById('state');
+  var stage = document.getElementById('challenge-stage');
+  var content = document.getElementById('content');
+
+  function verifying() {
+    state.innerHTML = '<div class="spinner" aria-hidden="true"></div><span id="verifying-text">Verifying...</span>';
+  }
+  function interactive() {
+    state.innerHTML = '<label class="cb-lb"><input type="checkbox" id="cf-checkbox"><span class="cb-i"></span><span class="cb-lb-t">Verify you are human</span></label>';
+    var cb = document.getElementById('cf-checkbox');
+    cb.addEventListener('click', function (e) {
+      if (!e.isTrusted) { e.preventDefault(); return; }
+      e.preventDefault(); // stays unticked until the challenge is solved
+      content.style.display = 'none';
+      stage.style.display = 'block';
+      FXChallenge.post({ kind: 'resize', height: 470, width: 332 });
+    });
+  }
+  function success() {
+    stage.style.display = 'none';
+    content.style.display = 'flex';
+    state.innerHTML = '<div class="success-mark" aria-hidden="true">&#10003;</div><span id="success-text">Success!</span>';
+    FXChallenge.post({ kind: 'resize', height: 65, width: 300 });
+  }
+
+  FXChallenge.mount(stage, {
+    tileSize: 96,
+    verifyText: 'Verify',
+    errorText: 'Verification failed. Please try again.',
+    classes: { prompt: 'ctp-prompt', table: 'ctp-grid', tile: 'ctp-tile', selected: 'ctp-selected', error: 'ctp-error', footer: 'ctp-footer', verify: 'ctp-button' },
+    promptHtml: function (target) {
+      return 'Select every image with <strong>' + target + '</strong>';
+    },
+    onSolved: function (token) {
+      success();
+      FXChallenge.post({ kind: 'token', token: token });
+    },
+  });
+
+  verifying();
+  setTimeout(interactive, 700);
+})();
+</script>
+</body>
+</html>
