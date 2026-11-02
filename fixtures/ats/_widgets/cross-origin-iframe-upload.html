@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--
+  Widget torture: nested resume-upload iframe for widget-cross-origin-iframe.
+  Same origin (B) as the embedded form that contains it. A drop zone with an
+  "Upload resume" button over a hidden, unnamed <input type=file>. Drag-and-drop
+  also works. The chosen File is postMessage'd to the parent frame, which owns
+  the submission; nothing is posted from here.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Resume upload</title>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #24323c; }
+    .drop { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #f7fafb; }
+    .drop.over { background: #e3f1f8; }
+    .drop button { background: #fff; border: 1px solid #0f3b57; color: #0f3b57; padding: 7px 16px; border-radius: 3px; cursor: pointer; font-size: 13px; }
+    .hint { color: #7c8b95; font-size: 11px; }
+    .chosen { display: none; align-items: center; gap: 10px; }
+    .chosen .name { font-weight: bold; }
+    .chosen a { color: #c0392b; cursor: pointer; }
+    input[type=file] { position: absolute; left: -9999px; }
+  </style>
+</head>
+<body>
+<div class="drop" id="drop">
+  <div class="pick">
+    <button type="button" id="pick">Upload resume</button>
+    <span class="hint">or drag and drop here &middot; PDF, DOC, DOCX up to 10 MB</span>
+  </div>
+  <div class="chosen" id="chosen"><span class="name" id="fname"></span><a role="button" tabindex="0" id="remove">Remove</a></div>
+</div>
+<input type="file" id="file" accept=".pdf,.doc,.docx,application/pdf" aria-label="Resume file">
+<script>
+(function () {
+  'use strict';
+  var input = document.getElementById('file');
+  var drop = document.getElementById('drop');
+  function send(msg) { window.parent.postMessage(Object.assign({ type: 'tb-upload' }, msg), location.origin); }
+  function accept(file) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { alert('File is too large'); return; }
+    document.getElementById('fname').textContent = file.name;
+    document.querySelector('.pick').style.display = 'none';
+    document.getElementById('chosen').style.display = 'flex';
+    send({ event: 'selected', file: file });
+  }
+  document.getElementById('pick').addEventListener('click', function () { input.click(); });
+  input.addEventListener('change', function () { accept(input.files[0]); });
+  document.getElementById('remove').addEventListener('click', function () {
+    input.value = '';
+    document.querySelector('.pick').style.display = '';
+    document.getElementById('chosen').style.display = 'none';
+    send({ event: 'removed' });
+  });
+  drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', function () { drop.classList.remove('over'); });
+  drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('over'); accept(e.dataTransfer.files[0]); });
+})();
+</script>
+</body>
+</html>

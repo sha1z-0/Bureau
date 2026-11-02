@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+  Mock of the reCAPTCHA v2 anchor frame (www.google.com/recaptcha/api2/anchor), served
+  from fixture origin B. Same class names and ARIA as the real anchor. A click opens the
+  challenge only when it is trusted (event.isTrusted); synthetic clicks/keypresses do
+  nothing. The checkbox is ticked only after the host relays a solved challenge.
+  Local fixture: no Google code, logos or network.
+-->
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>reCAPTCHA</title>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; font-family: Roboto, helvetica, arial, sans-serif; }
+    .rc-anchor { width: 300px; height: 74px; border: 1px solid #d3d3d3; border-radius: 3px; background: #f9f9f9; box-shadow: 0 0 4px 1px rgba(0,0,0,.08); position: relative; box-sizing: content-box; }
+    .rc-anchor-content { position: absolute; left: 12px; top: 0; height: 74px; display: flex; align-items: center; gap: 12px; }
+    .recaptcha-checkbox { display: inline-block; width: 28px; height: 28px; cursor: pointer; position: relative; outline: none; }
+    .recaptcha-checkbox-border { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; background: #fff; }
+    .recaptcha-checkbox:focus .recaptcha-checkbox-border { border-color: #4d90fe; }
+    .recaptcha-checkbox-spinner { display: none; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; border: 3px solid #4a90e2; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+    .recaptcha-checkbox-checkmark { display: none; position: absolute; left: 8px; top: -2px; width: 10px; height: 22px; border: solid #009e55; border-width: 0 4px 4px 0; transform: rotate(45deg); }
+    .recaptcha-checkbox-loading .recaptcha-checkbox-border { display: none; }
+    .recaptcha-checkbox-loading .recaptcha-checkbox-spinner { display: block; }
+    .recaptcha-checkbox-checked .recaptcha-checkbox-border { display: none; }
+    .recaptcha-checkbox-checked .recaptcha-checkbox-checkmark { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .rc-anchor-checkbox-label { font-size: 14px; color: #000; cursor: default; }
+    .rc-anchor-normal-footer { position: absolute; right: 8px; top: 10px; width: 70px; text-align: center; }
+    .rc-anchor-logo-img { width: 32px; height: 32px; margin: 0 auto; border-radius: 50%; background: conic-gradient(#1c3aa9 0 33%, #4285f4 0 66%, #ababab 0); }
+    .rc-anchor-logo-text { font-size: 10px; color: #555; margin-top: 2px; }
+    .rc-anchor-pt { font-size: 8px; color: #555; }
+    .rc-anchor-pt a { color: #555; text-decoration: none; }
+    .rc-anchor-aria-status { position: absolute; left: -10000px; }
+  </style>
+</head>
+<body>
+<div id="rc-anchor-alert" class="rc-anchor-alert"></div>
+<div id="rc-anchor-container" class="rc-anchor rc-anchor-normal rc-anchor-light">
+  <div id="recaptcha-accessible-status" class="rc-anchor-aria-status" aria-hidden="true">Recaptcha requires verification.</div>
+  <div class="rc-anchor-content">
+    <span class="recaptcha-checkbox goog-inline-block recaptcha-checkbox-unchecked rc-anchor-checkbox" role="checkbox" aria-checked="false" id="recaptcha-anchor" tabindex="0" dir="ltr" aria-labelledby="recaptcha-anchor-label">
+      <div class="recaptcha-checkbox-border" role="presentation"></div>
+      <div class="recaptcha-checkbox-borderAnimation" role="presentation"></div>
+      <div class="recaptcha-checkbox-spinner" role="presentation"></div>
+      <div class="recaptcha-checkbox-checkmark" role="presentation"></div>
+    </span>
+    <label class="rc-anchor-center-item rc-anchor-checkbox-label" aria-hidden="true" role="presentation" id="recaptcha-anchor-label">I'm not a robot</label>
+  </div>
+  <div class="rc-anchor-normal-footer">
+    <div class="rc-anchor-logo-portrait" aria-hidden="true" role="presentation"><div class="rc-anchor-logo-img rc-anchor-logo-img-portrait"></div><div class="rc-anchor-logo-text">reCAPTCHA</div></div>
+    <div class="rc-anchor-pt"><a href="#" target="_blank">Privacy</a><span aria-hidden="true" role="presentation"> - </span><a href="#" target="_blank">Terms</a></div>
+  </div>
+</div>
+<script src="/ats/_widgets/captcha/challenge.js"></script>
+<script>
+(function () {
+  'use strict';
+  var box = document.getElementById('recaptcha-anchor');
+  var status = document.getElementById('recaptcha-accessible-status');
+  var host = FXChallenge.hostOrigin();
+  function setState(s) {
+    box.classList.remove('recaptcha-checkbox-unchecked', 'recaptcha-checkbox-loading', 'recaptcha-checkbox-checked');
+    box.classList.add('recaptcha-checkbox-' + s);
+    box.setAttribute('aria-checked', s === 'checked' ? 'true' : 'false');
+    status.textContent = s === 'checked' ? 'You are verified' : 'Recaptcha requires verification.';
+  }
+  function activate(e) {
+    if (!e.isTrusted) return; // synthetic events are ignored outright
+    if (box.classList.contains('recaptcha-checkbox-checked') || box.classList.contains('recaptcha-checkbox-loading')) return;
+    setState('loading');
+    setTimeout(function () {
+      FXChallenge.post({ kind: 'open' });
+    }, 600);
+  }
+  box.addEventListener('click', activate);
+  box.addEventListener('keydown', function (e) {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); activate(e); }
+  });
+  window.addEventListener('message', function (e) {
+    if (host !== '*' && e.origin !== host) return;
+    var d = e.data || {};
+    if (d.source !== 'fx-captcha-host') return;
+    if (d.kind === 'checked') setState('checked');
+    if (d.kind === 'reset') setState('unchecked');
+  });
+})();
+</script>
+</body>
+</html>

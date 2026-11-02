@@ -1,0 +1,50 @@
+{
+  "total": 1,
+  "jobPostings": [
+    {
+      "title": "Associate Software Engineer",
+      "externalPath": "/job/Remote---Pakistan/Associate-Software-Engineer_R-104233",
+      "locationsText": "Remote - Pakistan",
+      "postedOn": "Posted 2 Days Ago",
+      "bulletFields": [
+        "R-104233"
+      ]
+    }
+  ],
+  "facets": [
+    {
+      "facetParameter": "jobFamilyGroup",
+      "descriptor": "Job Category",
+      "values": [
+        {
+          "descriptor": "Information Technology",
+          "id": "5d1f3a7c9e0b4c2d8f6a1b3c5d7e9f01",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "facetParameter": "locations",
+      "descriptor": "Locations",
+      "values": [
+        {
+          "descriptor": "Remote - Pakistan",
+          "id": "8b2d4f6a1c3e4a5b9c7d0e2f4a6b8c01",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "facetParameter": "timeType",
+      "descriptor": "Time Type",
+      "values": [
+        {
+          "descriptor": "Full time",
+          "id": "1a3c5e7b9d0f4e2a8c6b4d2f0e8a6c01",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "userAuthenticated": false
+}

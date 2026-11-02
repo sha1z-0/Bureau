@@ -1,0 +1,10 @@
+{
+  "page": 1,
+  "page_count": 0,
+  "items_per_page": 20,
+  "took": 3,
+  "timed_out": false,
+  "total": 0,
+  "results": [],
+  "aggregations": {}
+}

@@ -81,7 +81,8 @@ export const AnswerResponse = z.object({
 export const RecipeQuery = z.object({ url: z.string().url() });
 export const RecipeResponse = z.object({ recipe: RecipeSchema.nullable() });
 
-export const TraceSubmitRequest = TraceSchema;
+/** The server stamps `origin` from the key; agents may leave it out. */
+export const TraceSubmitRequest = TraceSchema.extend({ origin: z.string().optional() });
 export const TraceSubmitResponse = z.object({ traceId: z.string(), queued: z.boolean() });
 
 export const SubmittedRequest = z.object({

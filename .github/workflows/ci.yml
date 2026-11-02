@@ -1,0 +1,88 @@
+# Typecheck, selfcheck and the offline e2e on every push: natively on Ubuntu
+# and Windows, and inside the production Docker image on Linux.
+# Pending stages (modules still being built) don't fail the run until the
+# repository variable BUREAU_STRICT is set to 1 (the lead flips it at integration).
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  BUREAU_STRICT: ${{ vars.BUREAU_STRICT || '0' }}
+  NPM_CONFIG_FUND: 'false'
+  NPM_CONFIG_AUDIT: 'false'
+
+jobs:
+  native:
+    name: ${{ matrix.os }} · typecheck, selfcheck, e2e
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      # GitHub's Ubuntu and Windows runners ship Google Chrome, which playwright-core uses via channel "chrome".
+      - run: npm run selfcheck
+      - run: npm run e2e -- --report e2e-report.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ matrix.os }}
+          path: e2e-report.json
+          if-no-files-found: ignore
+
+  docker:
+    name: docker · build image, selfcheck + e2e inside it
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: bureau:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: selfcheck in the container
+        run: docker run --rm --shm-size=1g -e BUREAU_STRICT bureau:ci npm run selfcheck
+      - name: e2e in the container
+        run: |
+          mkdir -p out && chmod 777 out
+          docker run --rm --shm-size=1g -e BUREAU_STRICT -v "$PWD/out:/out" bureau:ci npm run e2e -- --report /out/e2e-report.json
+      - name: the image boots and answers its health check
+        run: |
+          docker run -d --name bureau-smoke --network host -e BUREAU_MASTER_KEY="$(openssl rand -base64 32)" bureau:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4317/api/health >/dev/null; then echo "healthy"; exit 0; fi
+            sleep 2
+          done
+          docker logs bureau-smoke
+          exit 1
+      - if: always()
+        run: docker rm -f bureau-smoke || true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-docker
+          path: out/e2e-report.json
+          if-no-files-found: ignore

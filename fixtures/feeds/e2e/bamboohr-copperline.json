@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "totalCount": 1
+  },
+  "result": [
+    {
+      "id": "88",
+      "jobOpeningName": "Software Engineer I",
+      "departmentId": "20417",
+      "departmentLabel": "Engineering",
+      "employmentStatusLabel": "Full-Time",
+      "employmentType": null,
+      "location": {
+        "city": null,
+        "state": null
+      },
+      "atsLocation": {
+        "country": null,
+        "state": null,
+        "province": null,
+        "city": null
+      },
+      "isRemote": true,
+      "locationType": "1"
+    }
+  ]
+}

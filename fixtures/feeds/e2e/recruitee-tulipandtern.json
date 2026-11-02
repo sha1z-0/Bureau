@@ -1,0 +1,104 @@
+{
+  "offers": [
+    {
+      "education_code": "bachelor_degree",
+      "position": 3,
+      "postal_code": "1015 CJ",
+      "country_code": "NL",
+      "sharing_description": "Tulip & Tern is hiring a Junior Web Developer to build fast, accessible sites and booking tools for independent hotels.",
+      "careers_url": "{{ORIGIN_A}}/tulipandtern.recruitee.com/o/junior-web-developer",
+      "cover_image": null,
+      "requirements": "<ul><li>1+ year of experience building websites with HTML, CSS and JavaScript or TypeScript.</li><li>Experience with React.</li><li>You care about accessibility and performance.</li></ul><p><strong>Nice to have</strong></p><ul><li>Node.js, PostgreSQL, or a headless CMS such as Sanity or Strapi.</li><li>Dutch is a plus, not a requirement.</li></ul><p>Remote within UTC-1 to UTC+5, or at our Amsterdam studio. EUR 2,800-3,400 per month for EU employees; contractor rates elsewhere.</p>",
+      "sharing_image": null,
+      "translations": {
+        "en": {
+          "description": "<p>Tulip &amp; Tern is a small Amsterdam studio that designs and builds websites and booking tools for independent hotels and B&amp;Bs. We are 14 people: designers, developers and one very patient project manager.</p><p>We're looking for a Junior Web Developer to help build fast, accessible sites and the small React apps our clients use to manage rooms and bookings.</p><h3>What you'll do</h3><ul><li>Turn Figma designs into accessible, responsive pages.</li><li>Build React and TypeScript components and connect them to our Node.js booking API.</li><li>Fix bugs, write tests and keep client sites fast.</li></ul>",
+          "title": "Junior Web Developer",
+          "highlight": null,
+          "requirements": "<ul><li>1+ year of experience building websites with HTML, CSS and JavaScript or TypeScript.</li><li>Experience with React.</li><li>You care about accessibility and performance.</li></ul><p><strong>Nice to have</strong></p><ul><li>Node.js, PostgreSQL, or a headless CMS such as Sanity or Strapi.</li><li>Dutch is a plus, not a requirement.</li></ul><p>Remote within UTC-1 to UTC+5, or at our Amsterdam studio. EUR 2,800-3,400 per month for EU employees; contractor rates elsewhere.</p>",
+          "sharing_image": null,
+          "sharing_title": "Junior Web Developer",
+          "sharing_description": "Tulip & Tern is hiring a Junior Web Developer to build fast, accessible sites and booking tools for independent hotels.",
+          "locations_question": "What is your preferred work location?"
+        }
+      },
+      "location_question_visible": false,
+      "city": "Amsterdam",
+      "open_questions": [],
+      "locations_question": "What is your preferred work location?",
+      "employment_type_code": "fulltime_permanent",
+      "updated_at": "2026-10-31 09:41:02 UTC",
+      "max_hours_per_week": "40",
+      "state_code": "NH",
+      "close_at": null,
+      "company_name": "Tulip & Tern",
+      "locations": [
+        {
+          "id": 51870,
+          "name": "Amsterdam (or remote)",
+          "state": "Noord-Holland",
+          "country": "Netherlands",
+          "city": "Amsterdam",
+          "translations": {
+            "en": {
+              "name": "Amsterdam (or remote)",
+              "city": "Amsterdam",
+              "postal_code": "1015 CJ",
+              "street": "Prinsengracht 210",
+              "note": null
+            }
+          },
+          "country_code": "NL",
+          "state_code": "NH",
+          "postal_code": "1015 CJ",
+          "street": "Prinsengracht 210",
+          "note": null
+        }
+      ],
+      "max_hours": 40,
+      "highlight": null,
+      "category_code": "it",
+      "hybrid": false,
+      "options_cv": "required",
+      "options_phone": "optional",
+      "department": "Development",
+      "tags": [
+        "react",
+        "typescript",
+        "junior"
+      ],
+      "published_at": "2026-10-31 09:40:12 UTC",
+      "experience_code": "entry_level",
+      "options_photo": "off",
+      "country": "Netherlands",
+      "careers_apply_url": "{{ORIGIN_A}}/tulipandtern.recruitee.com/o/junior-web-developer/c/new",
+      "guid": "tt4kq",
+      "title": "Junior Web Developer",
+      "dynamic_fields": [],
+      "created_at": "2026-10-30 15:02:44 UTC",
+      "description": "<p>Tulip &amp; Tern is a small Amsterdam studio that designs and builds websites and booking tools for independent hotels and B&amp;Bs. We are 14 people: designers, developers and one very patient project manager.</p><p>We're looking for a Junior Web Developer to help build fast, accessible sites and the small React apps our clients use to manage rooms and bookings.</p><h3>What you'll do</h3><ul><li>Turn Figma designs into accessible, responsive pages.</li><li>Build React and TypeScript components and connect them to our Node.js booking API.</li><li>Fix bugs, write tests and keep client sites fast.</li></ul>",
+      "mailbox_email": "job.tt4kq@tulipandtern.recruitee.com",
+      "on_site": false,
+      "min_hours_per_week": "32",
+      "remote": true,
+      "salary": {
+        "max": "3400",
+        "min": "2800",
+        "period": "month",
+        "currency": "EUR"
+      },
+      "sharing_title": "Junior Web Developer",
+      "slug": "junior-web-developer",
+      "min_hours": 32,
+      "id": 2914406,
+      "options_title": "off",
+      "state_name": "Noord-Holland",
+      "locations_question_type": "single_choice",
+      "options_salutation": "off",
+      "locations_question_required": false,
+      "options_cover_letter": "optional",
+      "status": "published",
+      "location": "Amsterdam, Noord-Holland, Netherlands"
+    }
+  ]
+}

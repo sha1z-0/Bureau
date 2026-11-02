@@ -33,17 +33,53 @@ const agent = new Agent({
 export const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 Bureau/1.0';
 
-interface SafeFetchOptions {
+export interface SafeFetchOptions {
   maxBytes?: number;
   timeoutMs?: number;
   accept?: string;
   headers?: Record<string, string>;
+  /** GET by default. A POST never follows redirects (a 3xx is an error). */
+  method?: 'GET' | 'POST';
+  /** Request body for POST; JSON unless a content-type header says otherwise. */
+  body?: string;
+  /** Treat any redirect as an error (API calls that must hit exactly this URL). */
+  noRedirect?: boolean;
+  signal?: AbortSignal;
 }
 
-export async function safeFetch(rawUrl: string, opts: SafeFetchOptions = {}) {
-  const { maxBytes = 4 * 1024 * 1024, timeoutMs = 25_000, accept = '*/*', headers = {} } = opts;
+export interface SafeResponse {
+  ok: boolean;
+  status: number;
+  url: string;
+  contentType: string;
+  text: () => string;
+  json: <T = unknown>() => T;
+}
+
+/**
+ * Offline replay for tests and the e2e: when set, every safeFetch is answered by
+ * the resolver (recorded feeds) and nothing touches the network. A miss is an error.
+ */
+export type FetchResolver = (
+  url: string,
+  req: { method: 'GET' | 'POST'; body?: string },
+) => { status: number; url: string; contentType: string; body: Buffer } | null;
+let replay: FetchResolver | null = null;
+export function setFetchReplay(resolver: FetchResolver | null) {
+  replay = resolver;
+}
+
+export async function safeFetch(rawUrl: string, opts: SafeFetchOptions = {}): Promise<SafeResponse> {
+  const { maxBytes = 4 * 1024 * 1024, timeoutMs = 25_000, accept = '*/*', headers = {}, method = 'GET', body: reqBody } = opts;
   let url = parseUrl(rawUrl);
-  const deadline = AbortSignal.timeout(timeoutMs);
+  if (replay) {
+    const hit = replay(url.toString(), { method, body: reqBody });
+    if (!hit) throw new AppError(503, 'REPLAY_FETCH_MISSING', `No feed fixture for ${method} ${url}`);
+    return { ok: hit.status < 400, status: hit.status, url: hit.url, contentType: hit.contentType, text: () => hit.body.toString('utf8'), json: <T>() => JSON.parse(hit.body.toString('utf8')) as T };
+  }
+  const deadline = opts.signal ? AbortSignal.any([AbortSignal.timeout(timeoutMs), opts.signal]) : AbortSignal.timeout(timeoutMs);
+  const sendHeaders: Record<string, string> = { 'user-agent': USER_AGENT, accept, ...headers };
+  if (reqBody !== undefined && !Object.keys(sendHeaders).some((h) => h.toLowerCase() === 'content-type')) sendHeaders['content-type'] = 'application/json';
 
   for (let hop = 0; hop < 5; hop++) {
     const literal = url.hostname.replace(/^\[|\]$/g, '');
@@ -56,15 +92,22 @@ export async function safeFetch(rawUrl: string, opts: SafeFetchOptions = {}) {
         dispatcher: agent,
         redirect: 'manual',
         signal: deadline,
-        headers: { 'user-agent': USER_AGENT, accept, ...headers },
+        method,
+        body: method === 'POST' ? reqBody : undefined,
+        headers: sendHeaders,
       });
     } catch (err) {
       const cause = (err as { cause?: unknown }).cause;
       if (cause instanceof AppError) throw cause;
       if ((err as Error).name === 'TimeoutError') throw new AppError(504, 'FETCH_TIMEOUT', `${url.hostname} took too long to answer`);
+      if ((err as Error).name === 'AbortError') throw new AppError(499, 'FETCH_ABORTED', `Request to ${url.hostname} was cancelled`);
       throw new AppError(502, 'FETCH_FAILED', `Could not reach ${url.hostname}`);
     }
     if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
+      if (method === 'POST' || opts.noRedirect) {
+        await res.body?.cancel();
+        throw new AppError(502, 'UNEXPECTED_REDIRECT', `${url.hostname} redirected a request that must not be redirected`);
+      }
       url = parseUrl(new URL(res.headers.get('location')!, url).toString());
       await res.body?.cancel();
       continue;

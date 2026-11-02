@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+  Confirmation for widget-cross-origin-iframe, served at /__confirm/{{FORM_ID}} on
+  origin B, i.e. INSIDE the embedded frame. It tells the host page (origin A) that
+  the application went through; the host renders the thank-you banner. Only the
+  host's banner is visible in the top document.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Application received</title>
+  <style>body{font-family:Arial,Helvetica,sans-serif;color:#24323c;padding:16px 28px;margin:0}h2{margin:0 0 6px;font-size:18px}</style>
+</head>
+<body>
+  <h2>Application received</h2>
+  <p>We've passed your application to the hiring team. You can close this page.</p>
+<script>
+(function () {
+  var ref = new URLSearchParams(location.search).get('ref') || '';
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'hf-embed', event: 'submitted', ref: ref }, '{{ORIGIN_A}}');
+    window.parent.postMessage({ type: 'hf-embed', event: 'resize', height: document.documentElement.scrollHeight + 8 }, '{{ORIGIN_A}}');
+  }
+})();
+</script>
+</body>
+</html>

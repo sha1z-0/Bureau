@@ -1,0 +1,36 @@
+Return-Path: <no-reply@teamtailor.com>
+From: Saffron Studio <no-reply@teamtailor.com>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: Your application to Saffron Studio
+Date: Mon, 02 Nov 2026 08:02:13 +0100
+Message-ID: <6723a0b1c2d3e4f5.rejection-4471203@teamtailor.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0010_fixture.tnumk6"
+
+------=_Part_0010_fixture.tnumk6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Rania,
+
+Thank you for applying for Full-Stack Developer, Early Career. We have decided not to proceed with your application.
+
+Regards,
+Saffron Studio
+
+------=_Part_0010_fixture.tnumk6
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Hi Rania,</p>
+<p>Thank you for applying for Full-Stack Developer, Early Career. We have decided not to proceed with your application.</p>
+<p>Regards,<br>
+Saffron Studio</p>
+</body>
+</html>
+
+------=_Part_0010_fixture.tnumk6--

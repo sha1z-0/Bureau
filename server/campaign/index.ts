@@ -144,3 +144,14 @@ export function startAutopilot(): void {
     console.error(`  ! Autopilot did not start: ${redact((err as Error).message)}`);
   }
 }
+
+/**
+ * Build and store (without sending) the digest for one campaign's day. `date`
+ * is any ISO time inside that day; defaults to now. Used by tests and previews.
+ */
+export async function buildCampaignDigest(campaignId: string, date?: string): Promise<{ id: string; content: unknown }> {
+  const { requireCampaign } = await import('./campaigns.ts');
+  const { buildDigest: build, saveDigest } = await import('./digest.ts');
+  const content = build(requireCampaign(campaignId), date ? Date.parse(date) : Date.now());
+  return { id: saveDigest(content), content };
+}

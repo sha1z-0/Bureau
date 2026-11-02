@@ -1,6 +1,6 @@
-import { fetch as undiciFetch } from 'undici';
 import { getSetting, setSetting } from '../db.ts';
 import { AppError, redact } from '../errors.ts';
+import { safeFetch } from '../security/safeFetch.ts';
 import { telegramCredentials } from './settings.ts';
 
 /**
@@ -23,15 +23,9 @@ export const offline = () => process.env.BUREAU_REPLAY === '1' || process.env.BU
 
 const realHttp: TelegramHttp = async (token, method, body, { timeoutMs, signal }) => {
   if (offline()) throw new AppError(503, 'OFFLINE', 'Telegram is disabled in offline mode.');
-  const timeout = AbortSignal.timeout(timeoutMs);
   try {
-    const res = await undiciFetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-    });
-    const text = await res.text();
+    const res = await safeFetch(`https://api.telegram.org/bot${token}/${method}`, { method: 'POST', body: JSON.stringify(body), timeoutMs, signal, noRedirect: true, accept: 'application/json' });
+    const text = res.text();
     try {
       return JSON.parse(text) as TgResponse;
     } catch {
@@ -39,8 +33,8 @@ const realHttp: TelegramHttp = async (token, method, body, { timeoutMs, signal }
     }
   } catch (err) {
     // Never echo the URL: it carries the token.
-    if ((err as Error).name === 'AbortError' && signal?.aborted) throw err;
-    throw new AppError(502, 'TELEGRAM_UNREACHABLE', (err as Error).name === 'TimeoutError' ? 'Telegram took too long to answer' : 'Could not reach Telegram');
+    if (signal?.aborted) throw err;
+    throw new AppError(502, 'TELEGRAM_UNREACHABLE', (err as AppError).code === 'FETCH_TIMEOUT' ? 'Telegram took too long to answer' : 'Could not reach Telegram');
   }
 };
 

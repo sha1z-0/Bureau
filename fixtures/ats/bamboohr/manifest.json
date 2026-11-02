@@ -1,0 +1,44 @@
+{
+  "forms": [
+    {
+      "id": "bamboohr-careers",
+      "ats": "bamboohr",
+      "title": "BambooHR careers (fab- components, portal menus, dependent state list, pre-uploaded file ids)",
+      "route": "/copperline.bamboohr.com/careers/88",
+      "file": "bamboohr/careers.html",
+      "confirmationFile": "bamboohr/confirmation.html",
+      "confirmationText": "Thanks for applying",
+      "required": ["firstName", "lastName", "email", "phone", "streetAddress", "city", "state", "zip", "country", "resumeFileId", "dateAvailable", "customQuestions[1043]", "customQuestions[1044]"],
+      "expect": {
+        "firstName": "profile:firstName",
+        "lastName": "profile:lastName",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "streetAddress": "profile:addressLine1",
+        "city": "profile:city",
+        "state": "=2541",
+        "zip": "profile:postalCode",
+        "country": "=167",
+        "resumeFileId": "file:cv",
+        "coverLetterFileId": "file:letter",
+        "dateAvailable": "answer:startDate",
+        "desiredPay": "oneOf:30000|30,000|USD 30,000|USD 30000|USD 30,000 per year|$30,000|30000 USD|$30,000/year",
+        "websiteUrl": "profile:portfolio",
+        "linkedinUrl": "profile:linkedin",
+        "referredBy": "empty",
+        "customQuestions[1043]": "=Yes",
+        "customQuestions[1044]": "nonempty"
+      },
+      "quirks": [
+        "form hidden behind 'Apply for This Job' on the job page (pushState ?apply)",
+        "fab-SelectToggle buttons over hidden inputs with numeric ids; menus render in a body-level portal (div.fab-MenuVessel) with a search box for long lists",
+        "State/Province options depend on the selected Country (default United States) and reset when it changes",
+        "fab-DatePicker: mm/dd/yyyy text input + calendar popover in the portal; submitted as yyyy-mm-dd",
+        "'Upload File' buttons over hidden file inputs; files upload immediately and only resumeFileId / coverLetterFileId are submitted",
+        "'Who referred you' must stay empty for a non-referral",
+        "inline fab-FormNote--error + aria-invalid; JSON XHR submit, then navigation to the confirmation"
+      ],
+      "reference": "Public <company>.bamboohr.com/careers pages (React careers app, Fabric fab-* component class names) as remembered; no live job could be fetched for this run"
+    }
+  ]
+}

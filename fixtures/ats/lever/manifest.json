@@ -1,0 +1,62 @@
+{
+  "forms": [
+    {
+      "id": "lever",
+      "ats": "lever",
+      "title": "Lever hosted application (jobs.lever.co/<company>/<uuid>/apply)",
+      "route": "/jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38/apply",
+      "file": "lever/apply.html",
+      "extraRoutes": [
+        { "route": "/jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38/thanks", "file": "lever/thanks.html" }
+      ],
+      "confirmationFile": "lever/thanks.html",
+      "confirmationText": "Application submitted!",
+      "required": [
+        "name",
+        "email",
+        "phone",
+        "location",
+        "org",
+        "resume",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field0]",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field1]",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field2]"
+      ],
+      "expect": {
+        "name": "profile:fullName",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "location": "contains:Lahore",
+        "selectedLocation": "contains:Lahore",
+        "org": "profile:currentCompany",
+        "urls[LinkedIn]": "profile:linkedin",
+        "urls[GitHub]": "profile:github",
+        "urls[Portfolio]": "profile:portfolio",
+        "resume": "file:cv",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field0]": "answer:authorizedToWorkPakistan",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field1]": "=1-2 years",
+        "cards[d4e8a1f2-6b3c-4a9d-8e7f-0c2b5a9d1e43][field2]": "nonempty",
+        "comments": "nonempty",
+        "eeo[gender]": "decline",
+        "eeo[race]": "decline",
+        "eeo[veteran]": "decline",
+        "consent[store]": "true",
+        "consent[marketing]": "false"
+      },
+      "quirks": [
+        "single Full name field (name) instead of first/last",
+        "resume: transparent file input over an ATTACH RESUME/CV button inside a <label>, Analyzing resume... then Success! with the filename",
+        "location typeahead (#location-input) filling hidden selectedLocation JSON only when a suggestion is picked",
+        "urls[LinkedIn]/urls[GitHub]/urls[Portfolio]/urls[Other] link fields",
+        "posting card cards[<uuid>][fieldN] with hidden baseTemplate JSON: radio multiple-choice, native dropdown, textarea",
+        "pronoun checkboxes with Custom text field",
+        "Additional information textarea (comments) as the cover-letter slot",
+        "U.S. EEO selects eeo[gender]/eeo[race]/eeo[veteran]",
+        "consent checkboxes with hidden 0 companions (consent[store] required, consent[marketing] opt-in)",
+        "invisible hCaptcha (data-size=invisible) executed on submit, never a visible challenge; token not required by the server",
+        "button#btn-submit type=button triggers hidden submit button: native constraint validation, classic multipart POST, 303 to /thanks"
+      ],
+      "reference": "Public jobs.lever.co/<company>/<uuid>/apply pages (spotify, palantir): server-rendered form markup, card JSON, consent section and the hCaptcha submit script"
+    }
+  ]
+}

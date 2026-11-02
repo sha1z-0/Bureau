@@ -1,0 +1,135 @@
+{
+  "task": "evidence",
+  "hash": "1e2cf66191a9eb1b2ad1c94e",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2400,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3600
+  },
+  "output": {
+    "priorities": [
+      "Keep a double-entry ledger correct as payment volume grows",
+      "Ship Go services that move money safely: idempotent posting and reconciliation",
+      "Run on AWS today and on the new Kubernetes platform",
+      "Instrument services from day one"
+    ],
+    "mustWins": [
+      "Go services in production",
+      "Ledger correctness: idempotent posting and reconciliation",
+      "PostgreSQL in production"
+    ],
+    "tone": "Plain and practical; a small team that writes design docs before code",
+    "seniority": "Mid-level on paper (2+ years), open to someone who already understands ledgers",
+    "hooks": [
+      {
+        "text": "Engineering post: moved the ledger to PostgreSQL logical replication so reconciliation reads never block posting",
+        "sourceUrl": "https://daftarpay.example.net/blog/logical-replication"
+      },
+      {
+        "text": "Mission line: \"Every rupee accounted for\"",
+        "sourceUrl": "https://daftarpay.example.net/about"
+      },
+      {
+        "text": "Named one of Asia’s top fintechs by a trade magazine",
+        "sourceUrl": "https://example.org/top-fintechs"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "Go",
+        "importance": "critical",
+        "factIds": [
+          "cv_46f890ceee0904cd",
+          "cv_1c61b1bf4bed2a71",
+          "cv_0000000000000000"
+        ],
+        "evidence": "Built the store's bookkeeping API and LedgerLite in Go",
+        "framing": "direct",
+        "phrasing": "Go services in production: the bookkeeping API that runs both branches of the store"
+      },
+      {
+        "requirement": "PostgreSQL in production",
+        "importance": "critical",
+        "factIds": [
+          "cv_8f7f14f9678d7ca8",
+          "cv_93cc14c721ad8759"
+        ],
+        "evidence": "LedgerLite on PostgreSQL: about 400 ledger entries a day, sub-50ms queries",
+        "framing": "direct",
+        "phrasing": "PostgreSQL in production behind a double-entry ledger"
+      },
+      {
+        "requirement": "Experience with payments, accounting or ledgers",
+        "importance": "important",
+        "factIds": [
+          "cv_a4c30272eb9cfda6",
+          "cv_671b026a506987e8"
+        ],
+        "evidence": "Double-entry bookkeeping API; automated reconciliation cut month-end closing from 3 days to 2 hours",
+        "framing": "direct",
+        "phrasing": "Double-entry ledger and automated reconciliation (month-end close from 3 days to 2 hours)"
+      },
+      {
+        "requirement": "2+ years of backend experience",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "AWS",
+        "importance": "important",
+        "factIds": [
+          "learn-aws"
+        ],
+        "evidence": "On the learning list: AWS Developer Associate course",
+        "framing": "learning",
+        "phrasing": "Learning AWS now, working through the AWS Developer Associate course"
+      },
+      {
+        "requirement": "Kubernetes",
+        "importance": "important",
+        "factIds": [
+          "learn-k8s"
+        ],
+        "evidence": "On the learning list: k3s cluster at home",
+        "framing": "learning",
+        "phrasing": "Learning Kubernetes on a k3s cluster that runs the LedgerLite staging copy"
+      },
+      {
+        "requirement": "Instrumentation with OpenTelemetry and Prometheus",
+        "importance": "important",
+        "factIds": [
+          "cv_a0c356f6f917ef7c",
+          "cv_c0ad2634ad72ac0c"
+        ],
+        "evidence": "Found and fixed a span leak in Rust tracing-subscriber; span memory from 1.2 GB to 140 MB",
+        "framing": "transferable",
+        "phrasing": "Debugged tracing span lifecycles in Rust, the same span model your OpenTelemetry instrumentation uses"
+      },
+      {
+        "requirement": "Clear design docs",
+        "importance": "nice",
+        "factIds": [
+          "cv_a0c356f6f917ef7c"
+        ],
+        "evidence": "Took an upstream fix through maintainer review",
+        "framing": "transferable",
+        "phrasing": "Explained a subtle fix well enough to get it merged upstream"
+      },
+      {
+        "requirement": "Kafka",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "AWS and Kubernetes in production",
+    "fastLearning": "vb-learned-fast"
+  }
+}

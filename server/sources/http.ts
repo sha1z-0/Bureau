@@ -1,7 +1,4 @@
-import dns from 'node:dns';
-import { Agent, fetch as undiciFetch } from 'undici';
 import { AppError } from '../errors.ts';
-import { isBlockedIp } from '../security/ip.ts';
 import { safeFetch, USER_AGENT } from '../security/safeFetch.ts';
 
 /**
@@ -12,10 +9,8 @@ import { safeFetch, USER_AGENT } from '../security/safeFetch.ts';
  *  - tests can swap the transport for recorded payloads (fixtures/feeds/),
  *    which keeps selfcheck fully offline.
  *
- * GETs use the shared SSRF-guarded `safeFetch`. `safeFetch` has no POST yet
- * (requested in docs/build/requests/A01.md), so POSTs (Workday's CXS search)
- * use a local adapter with the same connect-time private-address guard and no
- * redirects.
+ * Every request, GET or POST (Workday's CXS search), goes through the shared
+ * SSRF-guarded `safeFetch`; POSTs never follow redirects.
  */
 
 export interface HttpOptions {
@@ -60,62 +55,17 @@ export class HttpError extends Error {
 
 // ── Transport ────────────────────────────────────────────────────────────
 
-const guardedLookup = ((hostname: string, options: dns.LookupOptions, callback: Function) => {
-  dns.lookup(hostname, { ...options, all: true }, (err, addresses) => {
-    if (err) return callback(err);
-    const list = addresses as dns.LookupAddress[];
-    if (list.length === 0 || list.some((a) => isBlockedIp(a.address))) {
-      return callback(new AppError(400, 'BLOCKED_HOST', `Refusing to connect to a private address for ${hostname}`));
-    }
-    if (options.all) return callback(null, list);
-    callback(null, list[0].address, list[0].family);
-  });
-}) as unknown as typeof dns.lookup;
-
-const postAgent = new Agent({ connect: { lookup: guardedLookup, timeout: 10_000 }, headersTimeout: 20_000, bodyTimeout: 30_000 });
-
+/** Workday's CXS search (and a few others) are POSTs: same guards as every GET, through safeFetch. */
 async function guardedPost(url: string, opts: HttpOptions): Promise<HttpResponse> {
-  const u = new URL(url);
-  if (u.protocol !== 'https:') throw new AppError(400, 'BAD_URL', 'POST is only allowed over https');
-  if (/^(localhost|.*\.(localhost|local|internal|lan|home\.arpa))$/i.test(u.hostname)) throw new AppError(400, 'BLOCKED_HOST', 'Refusing a local address');
-  const maxBytes = opts.maxBytes ?? 8 * 1024 * 1024;
-  const res = await undiciFetch(u, {
+  if (new URL(url).protocol !== 'https:') throw new AppError(400, 'BAD_URL', 'POST is only allowed over https');
+  return safeFetch(url, {
     method: 'POST',
-    dispatcher: postAgent,
-    redirect: 'error',
-    signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
-    headers: { 'user-agent': USER_AGENT, accept: opts.accept ?? 'application/json', 'content-type': 'application/json', ...opts.headers },
     body: typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body ?? {}),
-  }).catch((err: unknown) => {
-    const cause = (err as { cause?: unknown }).cause;
-    if (cause instanceof AppError) throw cause;
-    if ((err as Error).name === 'TimeoutError') throw new AppError(504, 'FETCH_TIMEOUT', `${u.hostname} took too long to answer`);
-    throw new AppError(502, 'FETCH_FAILED', `Could not reach ${u.hostname}`);
+    accept: opts.accept ?? 'application/json',
+    headers: opts.headers,
+    maxBytes: opts.maxBytes ?? 8 * 1024 * 1024,
+    timeoutMs: opts.timeoutMs ?? 30_000,
   });
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  const reader = res.body?.getReader();
-  if (reader) {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > maxBytes) {
-        await reader.cancel();
-        throw new AppError(413, 'TOO_LARGE', `Response from ${u.hostname} exceeded ${maxBytes} bytes`);
-      }
-      chunks.push(value);
-    }
-  }
-  const body = Buffer.concat(chunks);
-  return {
-    ok: res.ok,
-    status: res.status,
-    url,
-    contentType: res.headers.get('content-type') ?? '',
-    text: () => body.toString('utf8'),
-    json: <T>() => JSON.parse(body.toString('utf8')) as T,
-  };
 }
 
 const liveTransport: Transport = async (url, opts) => {

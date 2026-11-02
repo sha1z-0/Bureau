@@ -1,0 +1,51 @@
+{
+  "forms": [
+    {
+      "id": "workable",
+      "ats": "workable",
+      "title": "Workable hosted application (apply.workable.com/<account>/j/<shortcode>/apply/)",
+      "route": "/apply.workable.com/brightwater-health/j/3F9A2C71B4/apply/",
+      "file": "workable/apply.html",
+      "confirmationFile": "workable/confirmation.html",
+      "confirmationText": "Your application was submitted",
+      "required": ["firstname", "lastname", "email", "phone", "resume", "QA_9102341", "QA_9102342", "gdpr"],
+      "expect": {
+        "firstname": "profile:firstName",
+        "lastname": "profile:lastName",
+        "email": "profile:email",
+        "headline": "contains:Software Engineer",
+        "phone": "profile:phone",
+        "address": "contains:Lahore",
+        "education[0][school]": "profile:school",
+        "education[0][degree]": "profile:degree",
+        "education[0][field_of_study]": "profile:fieldOfStudy",
+        "education[0][end_date]": "contains:2023",
+        "experience[0][title]": "profile:currentTitle",
+        "experience[0][company]": "profile:currentCompany",
+        "experience[0][start_date]": "contains:2023",
+        "experience[0][current]": "true",
+        "summary": "nonempty",
+        "resume": "file:cv",
+        "cover_letter": "nonempty",
+        "CA_18811": "=139529",
+        "QA_9102341": "=true",
+        "QA_9102342": "nonempty",
+        "gdpr": "true"
+      },
+      "quirks": [
+        "data-ui hooks on every field wrapper; ids follow Workable's form API (firstname, lastname, headline, address, avatar, QA_<id>, CA_<id>)",
+        "phone input with flag/dial-code country dropdown defaulting to United States; a typed +<code> switches country; value sent as E.164",
+        "Education and Experience '+ Add' open inline sub-forms that must be saved into cards (MM/YYYY masks, 'I currently work here' disables End date)",
+        "optional photo picker (avatar)",
+        "resume drop zone 'Upload a file or drag and drop here' over a hidden file input",
+        "cover letter as a textarea, not a file",
+        "Yes/No question as a radio group sending true/false",
+        "custom listbox dropdown (CA_18811) whose values are option ids and whose labels carry leading spaces (' 2 weeks')",
+        "inline 'This field is required' errors with aria-invalid and a summary banner; unsaved sub-form blocks submit",
+        "GDPR privacy-notice checkbox required",
+        "multipart FormData via XMLHttpRequest, success panel, then redirect"
+      ],
+      "reference": "Workable public form definitions (apply.workable.com/api/v1/jobs/<shortcode>/form) for hosted job pages, plus the hosted apply page layout"
+    }
+  ]
+}

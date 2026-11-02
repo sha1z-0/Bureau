@@ -1,0 +1,76 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "{{ORIGIN_A}}/boards.greenhouse.io/lumenledger/jobs/4012345",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 4008811,
+      "location": {
+        "name": "Remote (EMEA / South Asia)"
+      },
+      "metadata": [
+        {
+          "id": 4912346,
+          "name": "Employment Type",
+          "value": "Full-time",
+          "value_type": "single_select"
+        },
+        {
+          "id": 4912347,
+          "name": "Location Type",
+          "value": "Remote",
+          "value_type": "single_select"
+        }
+      ],
+      "id": 4012345,
+      "updated_at": "2026-11-01T09:20:12-04:00",
+      "requisition_id": "ENG-112",
+      "title": "Junior Backend Engineer",
+      "pay_input_ranges": [
+        {
+          "min_cents": 2800000,
+          "max_cents": 3600000,
+          "currency_type": "USD",
+          "title": "Annual base salary",
+          "blurb": ""
+        }
+      ],
+      "company_name": "Lumen Ledger",
+      "first_published": "2026-11-01T09:15:00-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;p&gt;Lumen Ledger builds reconciliation and month-end close software for small finance teams. Our customers are accountants at 20-to-200-person companies who are tired of matching bank lines in spreadsheets. We are a remote team of 34 spread across EMEA and South Asia, and we are hiring our second junior backend engineer.&lt;/p&gt;\n&lt;h3&gt;What you will do&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Build and maintain Node.js and TypeScript services that import bank feeds and match transactions to invoices.&lt;/li&gt;&lt;li&gt;Write PostgreSQL migrations and tune the queries behind our matching engine.&lt;/li&gt;&lt;li&gt;Ship small, well-tested changes to production several times a week, with review from a senior engineer.&lt;/li&gt;&lt;li&gt;Join a light, daytime-only support rotation once you are settled in.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Must have&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;At least 1 year of professional experience writing backend code in Node.js with TypeScript.&lt;/li&gt;&lt;li&gt;Comfort with SQL and relational data modelling, ideally PostgreSQL.&lt;/li&gt;&lt;li&gt;Clear written English; most of our collaboration is asynchronous.&lt;/li&gt;&lt;li&gt;At least four hours of overlap with 09:00-17:00 CET.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Nice to have&lt;/h3&gt;\n&lt;ul&gt;&lt;li&gt;Docker and Docker Compose.&lt;/li&gt;&lt;li&gt;Some AWS exposure (RDS, ECS or Lambda).&lt;/li&gt;&lt;li&gt;An interest in accounting or payments.&lt;/li&gt;&lt;/ul&gt;\n&lt;h3&gt;Compensation and location&lt;/h3&gt;\n&lt;p&gt;Fully remote within EMEA and South Asia (UTC-1 to UTC+6). Salary USD 28,000-36,000 per year depending on location and experience, paid monthly through our employer-of-record partner, plus a USD 600 yearly learning budget and a home-office stipend.&lt;/p&gt;",
+      "departments": [
+        {
+          "id": 4812346,
+          "name": "Engineering",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "offices": [
+        {
+          "id": 4712346,
+          "name": "Remote (EMEA / South Asia)",
+          "location": "Remote",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": null,
+      "ai_opt_out_request_url": null
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

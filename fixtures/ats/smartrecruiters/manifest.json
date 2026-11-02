@@ -1,0 +1,60 @@
+{
+  "forms": [
+    {
+      "id": "smartrecruiters-oneclick",
+      "ats": "smartrecruiters",
+      "title": "SmartRecruiters OneClick apply UI (spl-* web components, open shadow DOM, 2 pages)",
+      "route": "/jobs.smartrecruiters.com/oneclick-ui/company/MeridianFreight/publication/3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937",
+      "file": "smartrecruiters/oneclick.html",
+      "extraRoutes": [
+        { "route": "/jobs.smartrecruiters.com/oneclick-ui/company/MeridianFreight/publication/3f6e2a8c-9b14-4d7e-a0c5-81f2d6b4e937/screening", "file": "smartrecruiters/oneclick.html" }
+      ],
+      "confirmationFile": "smartrecruiters/confirmation.html",
+      "confirmationText": "Application submitted",
+      "steps": 2,
+      "required": ["firstName", "lastName", "email", "phoneNumber", "location[city]", "resume", "consent[privacyPolicy]"],
+      "expect": {
+        "firstName": "profile:firstName",
+        "lastName": "profile:lastName",
+        "email": "profile:email",
+        "phoneNumber": "profile:phone",
+        "location[city]": "profile:city",
+        "location[country]": "profile:country",
+        "web[linkedIn]": "profile:linkedin",
+        "web[website]": "profile:portfolio",
+        "experience[title]": "profile:currentTitle",
+        "experience[company]": "profile:currentCompany",
+        "experience[startDate]": "=2023-07",
+        "experience[current]": "true",
+        "education[institution]": "profile:school",
+        "education[major]": "profile:fieldOfStudy",
+        "education[degree]": "oneOf:Bachelor of Science|BS|BSc|Bachelor of Science (BS)|Bachelor of Science in Computer Science",
+        "education[endDate]": "=2023-06",
+        "resume": "file:cv",
+        "hiringManagerMessage": "nonempty",
+        "screeningAnswers[5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a01]": "=b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a03",
+        "screeningAnswers[5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a02]": "=c4e2a9d0-61b3-47f2-9d8a-5e6f7a8b9c01",
+        "screeningAnswers[5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a03]": "=d7a1c3e5-2b4d-46f8-8a0c-1e3f5a7b9d01",
+        "screeningAnswers[5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a04]": "answer:salaryNumber",
+        "screeningAnswers[5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a05]": "nonempty",
+        "consent[privacyPolicy]": "true"
+      },
+      "quirks": [
+        "every control is a spl-* custom element with an OPEN shadow root; inputs live inside shadow DOM (nested spl-internal-form-field shadow host)",
+        "host id === inner input id; <label for> only resolves inside the shadow tree",
+        "inner change events are not composed; only input + custom spl-change reach the light DOM",
+        "Confirm your email must match Email (\"Provided emails do not match.\")",
+        "location autocomplete: minQueryLength 3, async 'Loading...', listbox inside shadow, typing alone does not select",
+        "phone field with country-code combobox (defaults to US) that switches country when a +<code> number is typed",
+        "Experience / Education entries via 'Add' -> inline edit form (MM/YYYY dates, current checkbox) -> Save collapses to an entry card",
+        "resume spl-dropzone (Choose a file / or drop it here); upload triggers a resume parse that prefills EMPTY name/email fields and shows a banner",
+        "'Apply with LinkedIn' provider button that must be ignored",
+        "page 1 Next saves step-1 JSON and history.pushState()s to .../screening (SPA, same document)",
+        "screening: spl-select (button combobox + listbox, option values are uuids), spl-radio-group whose spl-radio hosts are role=radio with aria-checked (no native radios), free text",
+        "privacy consent spl-checkbox with slotted label-content link",
+        "final JSON POST, resume as {filename,mime,contentBase64}"
+      ],
+      "reference": "Public OneClick bundles at js-www.smartrecruiters.com/oneclick-ui/static (oc-* component consts/data-test attributes, spl-core-components Lit templates) and /oneclick-ui/i18n English strings, studied read-only"
+    }
+  ]
+}

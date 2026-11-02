@@ -1,0 +1,40 @@
+Return-Path: <security@myworkday.verify-candidate.example>
+From: Workday Candidate Security <security@myworkday.verify-candidate.example>
+To: Rania Haroon <rania.haroon.jobs@example.com>
+Subject: Action required: verify your candidate account within 24 hours
+Date: Sun, 01 Nov 2026 02:47:19 +0000
+Message-ID: <9981723.secure@myworkday.verify-candidate.example>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_0028_fixture.tnxojo"
+
+------=_Part_0028_fixture.tnxojo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Dear Candidate,
+
+We detected unusual sign-in activity on your Workday candidate account (ref 774120). To keep your job applications active, you must verify your account within 24 hours.
+
+Verify now: http://myworkday.com.account-verify.example/candidate/login
+
+If you do not verify, all your submitted applications, including Atlas Mutual, will be permanently deleted.
+
+Workday Security Team
+
+------=_Part_0028_fixture.tnxojo
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #222;">
+<p>Dear Candidate,</p>
+<p>We detected unusual sign-in activity on your Workday candidate account (ref 774120). To keep your job applications active, you must verify your account within 24 hours.</p>
+<p>Verify now: <a href="http://myworkday.com.account-verify.example/candidate/login">http://myworkday.com.account-verify.example/candidate/login</a></p>
+<p>If you do not verify, all your submitted applications, including Atlas Mutual, will be permanently deleted.</p>
+<p>Workday Security Team</p>
+</body>
+</html>
+
+------=_Part_0028_fixture.tnxojo--

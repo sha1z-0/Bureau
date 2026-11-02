@@ -1,0 +1,195 @@
+{
+  "page": 1,
+  "page_count": 4666,
+  "items_per_page": 20,
+  "took": 9,
+  "timed_out": false,
+  "total": 93304,
+  "results": [
+    {
+      "contents": "<div><p>SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today SpaceX is actively developing the technologies to make this possible, with the ultimate goal of&nbsp;enabling human life on Mars.</p></div>\n\n<div>\n<div>\n<p><strong>SR. EMBEDDED SOFTWARE ENGINEER, OS/PLATFORM (STARLINK)</strong></p>\n<p>At SpaceX, we’re leveraging our experience in building rockets and spacecraft to deploy Starlink, the world’s most advanced broadband internet system. Starlink is the world’s largest satellite constellation and is providing fast, reliable internet to millions of users worldwide. We design, build, test, and operate all parts of the system – thousands of satellites, consumer receivers that allow users to connect within minutes of unboxing, and the software that brings it all together. We’ve only begun to scratch the surface of Starlink’s potential global impact and are looking for best-in-class engineers to help maximize Starlink’s utility for communities and businesses around the globe.</p>\n<p>As a Sr. Embedded Software Engineer on the Starlink program, you will be solving challenges underpinning every aspect of the program’s growth. The areas you could have an impact on could include, but are not limited to:</p>\n<ul>\n<li>Bringing up next generation space grade silicon, including in house designed system on chip and peripherals.</li>\n<li>Develop software from the early stage boot loaders to business logic with an emphasis on deterministic, secure, and performant platform for all of SpaceX Linux based spacecraft and grounds-based components.</li>\n<li>Infrastructure and tools to enable rapid development and testing of new features for all OS/platform features.</li>\n</ul>\n<p>Our software engineers are responsible for the complete lifecycle of the software they create, including development, testing, and support.</p>\n<p><strong>RESPONSIBILITIES:</strong></p>\n<ul>\n<li>Maintain and update in house branches of OSS software such as Linux, Buildroot, and u-boot</li>\n<li>Support secureboot and runtime security of all Linux based satellite components</li>\n<li>Maintain the spacecraft Ethernet network and connectivity</li>\n<li>Develop, deploy and test spacecraft software update process</li>\n<li>Support in-house System on Chip and peripheral through the life-cycle of the part</li>\n<li>Support OS/Platform specific test infrastructure</li>\n<li>Development and support device drivers for third party and in-house components</li>\n<li>Be the first software team to receive new satellite components</li>\n<li>Interface with Silicon, Electrical, and Application Software Engineers to bring hardware from prototype stage to on on-orbit operations</li>\n</ul>\n<p><strong>BASIC QUALIFICATIONS:</strong></p>\n<ul>\n<li>Bachelor’s degree in computer science, engineering, math, or a STEM discipline and 5+ years of professional experience in software engineering; OR 7+ years of professional experience in software development in lieu of a degree</li>\n<li>Development experience in C, C++, python and/or rust</li>\n</ul>\n<p><strong>PREFERRED SKILLS AND EXPERIENCE:</strong></p>\n<ul>\n<li>Linux Kernel Up streamed patches preferred</li>\n<li>Knowledge of networking and Linux networking stack&nbsp;</li>\n<li>Good knowledge of computer architecture and modern secure boot flows&nbsp;</li>\n<li>Experience with ARM embedded system</li>\n<li>Deep understanding of testing, continuous integration, build, deployment &amp; continuous monitoring</li>\n<li>Creative approach to problem solving, exceptional analytical skills and engineering fundamentals</li>\n<li>Strong skills in debugging, performance optimization, and unit testing</li>\n<li>Excellent communication skills both written and verbal</li>\n<li>Ability to work effectively in a dynamic environment with changing needs and requirements</li>\n</ul>\n<p><strong>ADDITIONAL REQUIREMENTS:</strong></p>\n<ul>\n<li>Must be willing to work extended hours and weekends as needed</li>\n</ul>\n</div>\n</div>\n\n<div><p><strong>ITAR REQUIREMENTS:</strong></p>\n<ul>\n<li>To conform to U.S. Government export regulations, applicant must be a (i) U.S. citizen or national, (ii) U.S. lawful, permanent resident (aka green card holder), (iii) Refugee under 8 U.S.C. § 1157, or (iv) Asylee under 8 U.S.C. § 1158, or be eligible to obtain the required authorizations from the U.S. Department of State. Learn more about the ITAR <a href=\"https://www.pmddtc.state.gov/?id=ddtc_kb_article_page&amp;sys_id=24d528fddbfc930044f9ff621f961987\" rel=\"noopener noreferrer\">here</a>. &nbsp;</li>\n</ul>\n<p>SpaceX is an Equal Opportunity Employer; employment with SpaceX is governed on the basis of merit, competence and qualifications and will not be influenced in any manner by race, color, religion, gender, national origin/ethnicity, veteran status, disability status, age, sexual orientation, gender identity, marital status, mental or physical disability or any other legally protected status.</p>\n<p>Applicants wishing to view a copy of SpaceX’s Affirmative Action Plan for veterans and individuals with disabilities, or applicants requiring reasonable accommodation to the application/interview process should reach out to&nbsp;<a href=\"mailto:EEOCompliance@spacex.com\" rel=\"noopener noreferrer\">EEOCompliance@spacex.com</a><em>.&nbsp;</em></p></div>",
+      "name": "Sr. Embedded Software Engineer, OS/Platform (Starlink)",
+      "type": "external",
+      "publication_date": "2026-06-26T18:34:36Z",
+      "short_name": "sr-embedded-software-engineer-osplatform-starlink",
+      "model_type": "jobs",
+      "id": 21825761,
+      "locations": [
+        {
+          "name": "Lockhart, TX"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Software Engineering"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Senior Level",
+          "short_name": "senior"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/spacex/sr-embedded-software-engineer-osplatform-starlink"
+      },
+      "company": {
+        "id": 15000190,
+        "short_name": "spacex",
+        "name": "SpaceX"
+      }
+    },
+    {
+      "contents": "<div><p>SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today SpaceX is actively developing the technologies to make this possible, with the ultimate goal of&nbsp;enabling human life on Mars.</p></div>\n\n<p><strong>PRINCIPAL ELECTRICAL ENGINEER (STARLINK)</strong></p>\n\n<p>SpaceX is leveraging its experience in building rockets and spacecraft to deploy Starlink, the world’s most advanced broadband internet system. Starlink is the world’s largest satellite constellation and is providing fast, reliable internet to millions of users worldwide. We design, build, test, and operate all parts of the system – thousands of satellites, consumer receivers that allow users to connect within minutes of unboxing, and the software that brings it all together. We’ve only begun to scratch the surface of Starlink’s potential global impact. As we continue to upgrade and expand the constellation, we’re looking for best-in-class engineers to join the team.</p>\n\n<p>As a Principal Electrical Design Engineer on Starlink, you’ll have ownership over the entire life-cycle of the hardware that enables this connectivity, and sits at the intersection of electrical, mechanical, thermal analysis, software, and antenna/RF engineering. Challenges range from high-speed digital communications, analog, network system integration, power electronics, and RF devices. Your work will include everything from system design and schematic capture to PCB layout oversight; as well as hardware troubleshooting to driving requirements for the underlying silicon and complete product production and test. This also includes driving successful business outcomes across interdisciplinary subsystems of the satellite, inclusive of mechanical and software engineering peers among other engineering disciplines. Sub-teams include:</p>\n\n<ul>\n<li><u>Avionics</u>: The backbone of Starlink satellites are the bus avionics systems which control the vehicle, convert and distribute kilowatts of power, route high-speed vehicle and user traffic, and connect satellites to each other via our state-of-the-art Space Lasers! The team is responsible for the design, development, and ultimate success of these avionics systems from concept to grave.</li>\n<li><u>Payload</u>: Starlink satellites employ industry leading phased arrays, parabolic antennas, and fully custom compute + modem electronics in order to deliver this connectivity to our customers. The Payload team is responsible for the design, development, and ultimate success of this hardware from concept to grave.</li>\n</ul>\n\n<p><em>Your placement on these teams will be determined throughout the interviewing process after factoring in technical fit, expertise, and your personal preference</em></p>\n\n<p><strong>RESPONSIBILITIES:</strong></p>\n\n<ul>\n<li>Design, develop, and test highly reliable electronics for communicating with our satellites</li>\n<li>Evaluate third party electrical and design integration solutions for reliable operation of Starlink&nbsp;</li>\n<li>Partner with software, mechanical, thermal, manufacturing teams, and production test teams</li>\n<li>Drive system trades, requirements capture, component selection, analysis, schematic capture, PCB layout, prototyping, hardware bring-up, debugging, documentation, manufacturing, and test of complex electrical designs</li>\n<li>Get hands-on and support hardware through production, satellite integration, and flight</li>\n<li>Work closely with engineers from adjacent disciplines (mechanical, thermal, software, test engineering, supply chain, silicon design, etc.) to deliver tightly integrated, high-performance hardware</li>\n<li>Drive continual improvements to our designs by building physical and digital tools to analyze data collected on orbit and in the lab</li>\n<li>Challenge assumptions and work to find simple solutions to complex problems</li>\n</ul>\n\n<p><strong>BASIC QUALIFICATIONS:</strong></p>\n\n<ul>\n<li>Bachelor’s degree in electrical engineering or computer engineering</li>\n<li>8+ years of experience designing circuits, electronic products, or hardware (internship and project team experience is applicable)</li>\n</ul>\n\n<p><strong>PREFERRED SKILLS AND EXPERIENCE:</strong></p>\n\n<ul>\n<li>Master’s degree in electrical engineering, computer engineering, or similar engineering degree</li>\n<li>2+ years of professional experience rapidly designing and delivering highly reliable products</li>\n<li>2+ years of electronic product experience designing hardware from concept through production; strong emphasis on full life cycle development of new hardware products and not small incremental updates to legacy hardware</li>\n<li>2+ years of experience designing and implementing mixed-signal circuit boards from concept through production using processors, FPGAs, Ethernet, multi-GHz Serdes, DRAM interfaces (DDR4), I2C, SPI, operational amplifiers, analog to digital and digital to analog converters, and power supply components</li>\n<li>2+ years of professional experience testing, troubleshooting, and debugging electronics</li>\n<li>Strong understanding of computers and programming languages (Python, C/C++)</li>\n<li>Demonstrated ability to work in a highly cross-functional role</li>\n<li>2+ years working on aerospace systems</li>\n</ul>\n\n<p><strong>ADDITIONAL REQUIREMENTS:</strong></p>\n\n<ul>\n<li>Ability to work extended hours or weekends as needed for mission critical deadlines</li>\n</ul>\n\n<p><strong>COMPENSATION AND BENEFITS:</strong><br><br><br/>\nPay Range:<br><br/>\nLevel 3: $190,000.00 - $290,000.00<br><br><br/>\n<p>Your actual level and base salary will be determined on a case-by-case basis and may vary based on the following considerations: job-related knowledge and skills, education, and experience.</p><br/>\n<p>Base salary is just one part of your total rewards package at SpaceX. You may also be eligible for long-term incentives, in the form of company stock or long-term cash awards, as well as potential discretionary bonuses and the ability to purchase additional stock at a discount through an Employee Stock Purchase Plan. You will also receive access to comprehensive medical, vision, and dental coverage, access to a 401(k) retirement plan, short and long-term disability insurance, life insurance, paid parental leave, and various other discounts and perks. You may also accrue 3 weeks of paid vacation and will be eligible for 10 or more paid holidays per year. Employees in Washington State accrue paid sick time in compliance with state and federal law. Company shuttles are offered to employees for roundtrip travel from select Seattle locations to the SpaceX Redmond office Monday to Friday.</p><div><p><strong>ITAR REQUIREMENTS:</strong></p><br/>\n<ul><br/>\n<li>To conform to U.S. Government export regulations, applicant must be a (i) U.S. citizen or national, (ii) U.S. lawful, permanent resident (aka green card holder), (iii) Refugee under 8 U.S.C. § 1157, or (iv) Asylee under 8 U.S.C. § 1158, or be eligible to obtain the required authorizations from the U.S. Department of State. Learn more about the ITAR <a href=\"https://www.pmddtc.state.gov/?id=ddtc_kb_article_page&amp;sys_id=24d528fddbfc930044f9ff621f961987\" rel=\"noopener noreferrer\">here</a>. &nbsp;</li><br/>\n</ul><br/>\n<p>SpaceX is an Equal Opportunity Employer; employment with SpaceX is governed on the basis of merit, competence and qualifications and will not be influenced in any manner by race, color, religion, gender, national origin/ethnicity, veteran status, disability status, age, sexual orientation, gender identity, marital status, mental or physical disability or any other legally protected status.</p><br/>\n<p>Applicants wishing to view a copy of SpaceX’s Affirmative Action Plan for veterans and individuals with disabilities, or applicants requiring reasonable accommodation to the application/interview process should reach out to&nbsp;<a href=\"mailto:EEOCompliance@spacex.com\" rel=\"noopener noreferrer\">EEOCompliance@spacex.com</a><em>.&nbsp;</em></p></div></p>",
+      "name": "Principal Electrical Engineer, Satellites (Starlink)",
+      "type": "external",
+      "publication_date": "2026-08-14T18:55:59Z",
+      "short_name": "principal-electrical-engineer-satellites-starlink-ee8f9f",
+      "model_type": "jobs",
+      "id": 22062639,
+      "locations": [
+        {
+          "name": "Redmond, WA"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Software Engineering"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Senior Level",
+          "short_name": "senior"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/spacex/principal-electrical-engineer-satellites-starlink-ee8f9f"
+      },
+      "company": {
+        "id": 15000190,
+        "short_name": "spacex",
+        "name": "SpaceX"
+      }
+    },
+    {
+      "contents": "<p>We started Modern Animal in 2018 with a simple mission to build next-generation veterinary care by leveraging technology to improve the lives of pets, the people who love them, and the healthcare partners who take care of them. We’re rethinking systems and processes to improve the efficiency of the veterinary clinic in meaningful ways, giving the veterinarian not only the time, support, and tools s/he needs to practice the best medicine possible, but making it easier for the client to access the care their pet needs, when they need it.&nbsp;&nbsp;</p>\n\n<p>At Modern Animal, we put innovative veterinary thinkers and brilliant software engineers in the same room and asked them to build a new kind of veterinary experience from the ground up. The result? A job that will rekindle your love affair with veterinary medicine. Come join a group of highly-skilled individuals who are reinventing the people's experience in veterinary medicine, both for clients and clinicians.</p>\n\n<p><br>As Modern Animal expands our physical footprint, we’re looking for a talented team of Relief Veterinarians to support our current hospital teams in&nbsp;<em><strong>Santa Monica, Playa Vista, Culver City, and West LA.&nbsp;</strong></em><br><br></p>\n\n<p><strong>What a Relief Veterinarian does:</strong></p>\n\n<ul>\n<li>Delivers the highest standard of medical care to all Modern Animal patients</li>\n<li>Sees Modern Animal patients for scheduled and same-day, next-day appointments only, no surgery or dentistry</li>\n<li>Works alongside a hospital team that is empowered and trained to deliver an unparalleled client experience, both in-clinic and virtually</li>\n<li>Lives and models the Modern Animal cultural vision by encouraging work/life balance, self-compassion, and a blame- and judgment-free work environment</li>\n</ul>\n\n<p><strong><br>Requirements of a Relief Veterinarian:</strong></p>\n\n<ul>\n<li>Must have active license to practice veterinary medicine in California at the start of relief shifts with Modern Animal</li>\n<li>License must be in good standing with no malpractice or disciplinary actions</li>\n<li>Must hold personal DEA license</li>\n<li>Must maintain personal liability insurance&nbsp;</li>\n<li>A paid training shift is required before scheduling any relief shifts. This structured onboarding shift ensures that relief doctors are well-prepared to navigate our EMR system and understand general clinic workflows for a successful start.</li>\n</ul>\n\n<p>The pay range for this position is $1,300 - $1,400 per 10 hour shift; however, base pay offered may vary depending on job-related knowledge, skills, and experience. A full range of medical, financial, and/or other benefits may be offered dependent on the position offered. This information is provided per the California Pay Transparency Act. Base pay information is based on geographic location.</p>\n\n<div><p>We believe an equitable and inclusive work environment and a diverse, empowered team are key to achieving our mission. We’re not looking for candidates who are “culture fits.” We’re looking for candidates who can expand our culture and challenge business as usual. We strive to foster an environment where all staff can bring their whole selves to work, by their own definition, and we strive to provide all candidates with an equitable and accessible recruitment process.</p>\n<p>We provide equal employment opportunities to all employees and applicants for employment without regard to race, color, religion, sex, national origin, age, disability, sexual orientation, gender identity or expression, veteran status, or genetics.</p>\n<p>In addition to federal law requirements, we comply with applicable state and local laws governing nondiscrimination in employment in every location in which the company has facilities.</p>\n<p>This policy applies to all terms and conditions of employment, including recruiting, hiring, placement, promotion, termination, layoff, recall, transfer, leaves of absence, compensation and training.</p>\n<p>If we can offer accommodations for you in the recruitment process, or if you have feedback on how to make our recruiting more equitable or accessible, please let us know!</p></div>",
+      "name": "Relief Weekend or Weekday Veterinarians - Westside",
+      "type": "external",
+      "publication_date": "2026-09-14T19:05:56Z",
+      "short_name": "relief-weekend-or-weekday-veterinarians-westside",
+      "model_type": "jobs",
+      "id": 17173600,
+      "locations": [
+        {
+          "name": "Culver City, CA"
+        },
+        {
+          "name": "Los Angeles, CA"
+        },
+        {
+          "name": "Playa Vista, CA"
+        },
+        {
+          "name": "Santa Monica, CA"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Software Engineering"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Mid Level",
+          "short_name": "mid"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/modernanimalinc/relief-weekend-or-weekday-veterinarians-westside"
+      },
+      "company": {
+        "id": 15000208,
+        "short_name": "modernanimalinc",
+        "name": "Modern Animal, Inc."
+      }
+    },
+    {
+      "contents": "<p><b>Job Description:</b><br><br>At Bank of America, we are guided by a common purpose to help make financial lives better through the power of every connection. We do this by driving Responsible Growth and delivering for our clients, teammates, communities and shareholders every day. Being a Great Place to Work and providing a culture of caring is core to how we drive Responsible Growth. We are intentional about fostering an inclusive workplace where every teammate has the opportunity to succeed, build a career and contribute to our shared success. This includes attracting and developing exceptional talent, recognizing and rewarding performance, and supporting our teammates' physical, emotional, and financial wellness through affordable, competitive and flexible benefits. We value the unique perspectives individuals bring from all backgrounds and career paths - whether shaped by military service, community college education, or a wide range of work and life experiences. These journeys foster resilience, leadership and innovation, strengthening our workforce and positively impact the communities we serve. Bank of America is committed to an in-office culture that supports collaboration, engagement, and career development. Our approach includes clear in-office expectations, while providing an appropriate level of flexibility based on role-specific responsibilities and business needs. At Bank of America, you can build a successful career with opportunities to learn, grow, and make an impact. Join us!<br><br><b>Job Description:</b><br>This job is responsible for answering detailed questions about products, accounts, and financial services offered. Key responsibilities include educating clients about value-added opportunities, identifying the need for deeper financial conversations, and referring clients to specialists across the bank. Jobs expectations include ensuring client needs are met in a timely fashion while adhering to procedures and guidelines.<br><br>This role will be a part of the Life Services team, which focuses on guiding beneficiaries through the transition of deceased account assets. <b>Life Services Financial Services Representative</b> (Transition Specialists) are owners of the wealth transition process for the team. Their day-to-day includes a combination of taking inbound calls, pre-filling and processing documents, and preparing accounts for distribution to heirs. In any one 8-hour shift, you may speak with beneficiaries, executors, attorneys, advisors, or state officials. Your responsibilities will include taking initial notification calls, assisting with required documentation, and helping guide beneficiaries through the logistics of the transition process.<br><br><b>Responsibilities:</b><br><br><ul><li>Delivers exceptional customer service by resolving escalated and complex inquiries and requests pertaining to accounts with care and in a timely manner</li><li>Triages client requests and makes referrals to appropriate internal specialists</li><li>Applies knowledge of financial products, financial planning, and banking services to educate clients on value-added opportunities</li><li>Drive the wealth transition process forward through a combination of inbound and outbound calls, document processing, and distribution processing</li><li>Provide excellent client service to build value and identify opportunities for deepening conversations with our licensed FSAs</li><li>Build relationships with clients through proactive outreach and client-focused call flow</li><li>De-escalate client concerns by empathizing, taking ownership, and providing clear next steps and time frames</li><li>Responsible for executing on client disposition instructions for both simple and complex scenarios, including multiple beneficiary scenarios</li><li></li></ul><br><b>Required Qualifications:</b><br><br><ul><li>Delivers solutions and experiences that improve clients' financial lives</li><li>Applies learnings and adapts new information to identify appropriate client solutions</li><li>Builds strong client relationships through effective communication and collaboration</li><li>Displays a proactive and ambitious mindset and effective time management</li><li>Demonstrates a results-driven mindset and prioritizes client interests</li><li>Demonstrates a willingness to establish a career in the financial services industry</li><li>Strong computer application skills, including Microsoft Office</li></ul><br><b>Desired Qualifications:</b><br><br><ul><li>Ability to take 15-20 calls per day</li><li>Coachable</li><li>Desire to provide white-glove service</li><li>Careful attention to detail</li><li>Excellent verbal &amp; written communication skills</li><li>Problem solving skills</li><li>Bachelor's degree and/or minimum of one year of experience in a performance-based environment</li></ul><br><b>Skills:</b><br><br><ul><li>Active Listening</li><li>Attention to Detail</li><li>Critical Thinking</li><li>Customer and Client Focus</li><li>Oral Communications</li><li>Account Management</li><li>Client Experience Branding</li><li>Decision Making</li><li>Emotional Intelligence</li><li>Result Orientation</li><li>Adaptability</li><li>Coaching</li><li>Prioritization</li><li>Referral Identification</li><li>Written Communications</li></ul><br><b>Shift:</b><br>1st shift (United States of America)<br><br><b>Hours Per Week: </b><br>40<br><br><b>Pay Transparency details</b><br><br>US - NJ - Pennington - 1400 American Blvd - Hopewell Bldg 4 (NJ2140)<br><br>Pay and benefits information<br><br>Pay range<br><br>$25.00 - $27.00 hourly pay, offers to be determined based on experience, education and skill set.<br><br>Predictable pay<br><br>This role is compensated with a base salary and is not incentive eligible.<br><br>Benefits<br><br>This role is currently benefits eligible. We provide industry-leading benefits, access to paid time off, resources and support to our employees so they can make a genuine impact and contribute to the sustainable growth of our business and the communities we serve.</p>",
+      "name": "Life Services Financial Services Representative",
+      "type": "external",
+      "publication_date": "2026-10-09T20:52:26Z",
+      "short_name": "life-services-financial-services-representative-25d6e3",
+      "model_type": "jobs",
+      "id": 22103203,
+      "locations": [
+        {
+          "name": "Pennington, NJ"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Software Engineering"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Mid Level",
+          "short_name": "mid"
+        }
+      ],
+      "tags": [
+        {
+          "name": "Fortune 1000",
+          "short_name": "fortune-1000-companies"
+        }
+      ],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/bankofamerica/life-services-financial-services-representative-25d6e3"
+      },
+      "company": {
+        "id": 12145,
+        "short_name": "bankofamerica",
+        "name": "Bank of America"
+      }
+    },
+    {
+      "contents": "<div><p>SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today SpaceX is actively developing the technologies to make this possible, with the ultimate goal of&nbsp;enabling human life on Mars.</p></div>\n\n<p><strong>PROCESS SAFETY ENGINEER (POWER PLANT)</strong></p>\n\n<p>The Memphis Environmental Health &amp; Safety team is seeking a highly driven engineer to establish process safety parameters across power generation systems and supporting utilities. A successful engineer in this role will thrive in a high-paced collaborative environment and serve as a process safety SME with operations, engineering, and construction stakeholders at our Memphis power plant and related facilities.</p>\n\n<p><strong>RESPONSIBILITIES:</strong></p>\n\n<ul>\n<li>Conduct Process Hazard Analyses (PHAs) of power generation systems, fuel gas, steam, and chemical utilities, and recommend controls to manage risks as low as reasonably practicable</li>\n<li>Evaluate equipment overpressure/overtemperature scenarios, including boilers, heat recovery systems, turbines, pressure vessels, and relief systems</li>\n<li>Perform/oversee Factory Acceptance Testing (FAT), Site Acceptance Testing (SAT), risk assessments, and hazard analyses on complex process and power plant equipment</li>\n<li>Implement and field-validate safety-critical instruments and interlocks during Pre-Startup Safety Reviews (PSSRs) as new generating units and supporting systems come online</li>\n<li>Implement a Process Safety Management (PSM) program and ensure compliance with all applicable pillars of PSM</li>\n<li>Support commissioning and startup of new power generation facilities and major capital projects in Memphis</li>\n<li>Partner with operations, maintenance, and construction teams to identify and mitigate process safety risks during both ongoing operations and facility build-out</li>\n<li>Utilization of quality and risk tools such as root cause analysis and corrective action, HAZOP, LOPA, FMEA/PFMEA, control plans, and structured problem-solving</li>\n<li>Utilization of process modeling tools such as Aspen Plus, Aspen HYSYS, and/or Aspen Dynamics</li>\n</ul>\n\n<p><strong>BASIC QUALIFICATIONS:</strong></p>\n\n<ul>\n<li>Bachelor’s degree in process safety, chemical engineering, mechanical engineering, or an engineering discipline</li>\n<li>3+ years of experience with design, commissioning, or process safety of power generation, utilities, or high-hazard process systems</li>\n</ul>\n\n<p><strong>PREFERRED SKILLS AND EXPERIENCE:</strong></p>\n\n<ul>\n<li>Master’s degree in chemical engineering</li>\n<li>Master’s degree in chemical or mechanical engineering</li>\n<li>Ability to read and interpret P&amp;IDs, single-line diagrams, equipment datasheets, and instrumentation diagrams</li>\n<li>Experience with reviewing safety control circuits and calculating safety performance levels (SIL/SIS)</li>\n<li>Experience with design, commissioning, or PHA of power plant systems such as fuel gas, boilers/HRSGs, steam turbines, high-energy piping, hydrogen, ammonia, water treatment, and bulk chemical storage</li>\n<li>Advanced understanding of industry codes, standards, and practices such as ASME, NFPA, ANSI, IBC/IFC, RAGAGEP, and applicable OSHA PSM / EPA RMP requirements</li>\n<li>Strong interpersonal and collaborative skills</li>\n<li>Enthusiasm for supporting high-reliability power generation that enables mission-critical operations</li>\n</ul>\n\n<p><strong>ADDITIONAL REQUIREMENTS:</strong></p>\n\n<ul>\n<li>This is not a remote or hybrid position and will require relocation if not already local to the Memphis, TN area</li>\n<li>Position occasionally requires the ability to work extended hours and weekends when needed, including during outages, commissioning, and facility startups</li>\n</ul>\n\n<div><p><strong>ITAR REQUIREMENTS:</strong></p>\n<ul>\n<li>To conform to U.S. Government export regulations, applicant must be a (i) U.S. citizen or national, (ii) U.S. lawful, permanent resident (aka green card holder), (iii) Refugee under 8 U.S.C. § 1157, or (iv) Asylee under 8 U.S.C. § 1158, or be eligible to obtain the required authorizations from the U.S. Department of State. Learn more about the ITAR <a href=\"https://www.pmddtc.state.gov/?id=ddtc_kb_article_page&amp;sys_id=24d528fddbfc930044f9ff621f961987\" rel=\"noopener noreferrer\">here</a>. &nbsp;</li>\n</ul>\n<p>SpaceX is an Equal Opportunity Employer; employment with SpaceX is governed on the basis of merit, competence and qualifications and will not be influenced in any manner by race, color, religion, gender, national origin/ethnicity, veteran status, disability status, age, sexual orientation, gender identity, marital status, mental or physical disability or any other legally protected status.</p>\n<p>Applicants wishing to view a copy of SpaceX’s Affirmative Action Plan for veterans and individuals with disabilities, or applicants requiring reasonable accommodation to the application/interview process should reach out to&nbsp;<a href=\"mailto:EEOCompliance@spacex.com\" rel=\"noopener noreferrer\">EEOCompliance@spacex.com</a><em>.&nbsp;</em></p></div>",
+      "name": "Process Safety Engineer (Power Plant)",
+      "type": "external",
+      "publication_date": "2026-10-30T18:39:33Z",
+      "short_name": "process-safety-engineer-power-plant",
+      "model_type": "jobs",
+      "id": 22225989,
+      "locations": [
+        {
+          "name": "Memphis, TN"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Software Engineering"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Mid Level",
+          "short_name": "mid"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/spacex/process-safety-engineer-power-plant"
+      },
+      "company": {
+        "id": 15000190,
+        "short_name": "spacex",
+        "name": "SpaceX"
+      }
+    }
+  ],
+  "aggregations": {}
+}

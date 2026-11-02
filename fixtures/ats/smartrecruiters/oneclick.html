@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<!--
+  Fixture: SmartRecruiters OneClick apply UI
+  (jobs.smartrecruiters.com/oneclick-ui/company/<company>/publication/<uuid>).
+  Reproduces the Angular app shell (<oc-app-root>, light-DOM oc-* components with
+  the real data-test attributes: personal-info-first-name-input, personal-info-email-confirm-input,
+  location-autocomplete, resume-upload, web-profiles-linkedin, add-experience, footer-next, ...)
+  built from spl-* design-system web components with OPEN shadow roots
+  (see spl.js: the real <input>s live inside spl-input > shadow > spl-internal-form-field).
+  Field labels, help and validation strings are the real English i18n strings
+  ("Confirm your email", "Location (City)", "Please enter at least 3 characters",
+  "Choose a file / or drop it here", "Message to the Hiring Team", "Provided emails do not match.").
+  Flow: page 1 (personal info, experience/education "Add" entries, resume dropzone that
+  triggers a resume parse + prefill banner, profiles, message) -> Next (saves step-1 and
+  pushState()s to .../screening) -> "Preliminary questions" (spl-select, spl-radio groups
+  without native radios, free text) + privacy consent -> Submit posts JSON
+  (resume as {filename,mime,contentBase64}). Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Graduate Software Engineer | Meridian Freight</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; background: #f4f5f4; font-family: Arial, Helvetica, sans-serif; color: #383c38; }
+    oc-app-root, oc-oneclick-form-root, oc-oneclick-form, oc-personal-information, oc-experience, oc-education,
+    oc-resume-upload, oc-web, oc-hiring-manager-message, oc-screening-questions-form, oc-consent, oc-footer,
+    oc-input, oc-phone-number, oc-location-autocomplete, oc-textarea, oc-checkbox, oc-company-policy, oc-powered-by,
+    oc-external-providers, oc-validation-summary, oc-prefill-success-banner, oc-experience-entry, oc-education-entry,
+    oc-experience-edit-form, oc-education-edit-form, oc-nav-first-page, oc-nav-screening-questions { display: block; }
+    .oc-header { background: #fff; border-bottom: 1px solid #e0e2e0; }
+    .oc-header-inner { max-width: 760px; margin: 0 auto; padding: 20px 16px; display: flex; gap: 16px; align-items: center; }
+    .oc-logo { width: 56px; height: 56px; border-radius: 8px; background: #12355b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .oc-job-title { font-size: 22px; margin: 0; }
+    .oc-job-meta { color: #6a6e6a; font-size: 14px; margin-top: 4px; }
+    .oc-container { max-width: 760px; margin: 0 auto; padding: 16px; }
+    .form-section { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .form-section--clean { box-shadow: none; }
+    spl-typography-title { display: block; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    spl-typography-body { display: block; font-size: 14px; }
+    .spl-my-1 { margin: 8px 0; } .spl-mb-2 { margin-bottom: 16px; } .spl-mt-1 { margin-top: 8px; } .spl-mt-2 { margin-top: 16px; } .spl-pt-3 { padding-top: 24px; }
+    .spl-text-red-60 { color: #cf1500; }
+    .spl-flex { display: flex; } .spl-flex-col { flex-direction: column; } .spl-w-full { width: 100%; }
+    .spl-justify-between { justify-content: space-between; } .spl-items-center { align-items: center; } .spl-justify-center { justify-content: center; } .spl-justify-end { justify-content: flex-end; }
+    @media (min-width: 640px) { .sm\:spl-flex-row { flex-direction: row; } .sm\:spl-gap-3 { gap: 24px; } .sm\:spl-grid { display: grid; } .sm\:spl-grid-cols-2 { grid-template-columns: 1fr 1fr; } .sm\:spl-gap-x-3 { column-gap: 24px; } }
+    .job-ad { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 16px; line-height: 1.5; font-size: 14px; }
+    .job-ad h2 { font-size: 16px; margin: 16px 0 4px; }
+    .oc-entry { border: 1px solid #e0e2e0; border-radius: 6px; padding: 12px 16px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .oc-entry-title { font-weight: 700; }
+    .oc-entry-sub { color: #6a6e6a; font-size: 13px; }
+    .oc-edit-form { border: 1px solid #c4c8c4; border-radius: 6px; padding: 16px; margin-top: 12px; }
+    .oc-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .oc-banner { border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; }
+    .oc-banner--success { background: #e6f4ea; border: 1px solid #5ba66f; }
+    .oc-banner--error { background: #fdecea; border: 1px solid #cf1500; }
+    .oc-external { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .oc-footer-bar { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 0 32px; }
+    .policy-link { color: #0b66e4; font-size: 13px; margin: 0 8px; }
+    .oc-powered { text-align: center; color: #6a6e6a; font-size: 12px; padding-bottom: 32px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<oc-app-root ng-version="19.2.14">
+  <header class="oc-header">
+    <div class="oc-header-inner">
+      <div class="oc-logo" aria-hidden="true">MF</div>
+      <div>
+        <h1 class="oc-job-title" data-test="job-title">Graduate Software Engineer</h1>
+        <div class="oc-job-meta" data-test="job-details">Meridian Freight · Hamburg, Germany · Remote (EMEA/South Asia) · Full-time</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="oc-container">
+    <section class="job-ad" aria-label="Job description">
+      <p><strong>Company Description</strong></p>
+      <p>Meridian Freight is a digital freight forwarder moving ocean and air cargo between Europe and South Asia. Our platform books, tracks and documents 40,000 shipments a year for 1,200 shippers.</p>
+      <h2>Job Description</h2>
+      <p>As a Graduate Software Engineer in our Shipment Visibility team you will build the services that turn carrier events into the live timeline our customers rely on.</p>
+      <ul>
+        <li>Build and maintain TypeScript/Node.js services and PostgreSQL schemas behind shipment tracking</li>
+        <li>Write integration tests against carrier APIs and our event pipeline</li>
+        <li>Ship small features end to end with a senior engineer as your buddy</li>
+      </ul>
+      <h2>Qualifications</h2>
+      <ul>
+        <li>Degree in Computer Science or similar, or equivalent experience</li>
+        <li>1-2 years building web services (internships count)</li>
+        <li>Solid SQL; Docker and a cloud provider are a plus</li>
+      </ul>
+      <h2>Additional Information</h2>
+      <p>Remote within UTC+0 to UTC+5, with three hours of overlap with Hamburg. 28 days of paid leave, home-office budget, learning budget.</p>
+    </section>
+
+    <oc-oneclick-form-root>
+      <oc-prefill-success-banner hidden>
+        <div class="oc-banner oc-banner--success" role="status" data-test="prefill-success-banner">Your application has been prefilled using data from resume</div>
+      </oc-prefill-success-banner>
+      <oc-validation-summary data-test="validation-summary" hidden>
+        <div class="oc-banner oc-banner--error" role="alert" data-test="validation-summary-message"></div>
+      </oc-validation-summary>
+
+      <!-- ============================== page 1 ============================== -->
+      <oc-oneclick-form id="oc-page-application">
+        <oc-external-providers>
+          <div class="form-section" data-test="easy-apply-container">
+            <spl-typography-title>Apply faster</spl-typography-title>
+            <div class="oc-external">
+              <div data-test="apply-with-linkedin-container"><spl-button type="secondary" id="apply-with-linkedin">Apply with LinkedIn</spl-button></div>
+              <div data-test="apply-with-resume-container"><spl-button type="secondary" id="apply-with-resume">Apply with resume</spl-button></div>
+            </div>
+          </div>
+        </oc-external-providers>
+
+        <oc-personal-information>
+          <div data-test="personal-information" class="form-section">
+            <spl-typography-title data-test="section-title" variant="lg">Personal information</spl-typography-title>
+            <spl-typography-body class="spl-my-1" variant="md">Fields marked with * are required.</spl-typography-body>
+            <div class="spl-flex spl-flex-col sm:spl-flex-row sm:spl-gap-3">
+              <div data-test="personal-info-first-name" class="spl-w-full">
+                <oc-input formcontrolname="firstName"><spl-input id="first-name-input" label="First name" required autocomplete="given-name" data-test="personal-info-first-name-input" reserveerrormsgspacing="true" data-msg="Please provide your first name"></spl-input></oc-input>
+              </div>
+              <div data-test="personal-info-last-name" class="spl-w-full">
+                <oc-input formcontrolname="lastName"><spl-input id="last-name-input" label="Last name" required autocomplete="family-name" data-test="personal-info-last-name-input" reserveerrormsgspacing="true" data-msg="Please provide your last name"></spl-input></oc-input>
+              </div>
+            </div>
+            <div class="spl-flex spl-flex-col sm:spl-flex-row sm:spl-gap-3">
+              <div data-test="personal-info-email" class="spl-w-full">
+                <oc-input formcontrolname="email"><spl-input id="email-input" type="email" label="Email" required autocomplete="email" data-test="personal-info-email-input" reserveerrormsgspacing="true" data-msg="Please provide a valid email address"></spl-input></oc-input>
+              </div>
+              <div data-test="personal-info-email-confirm" class="spl-w-full">
+                <oc-input formcontrolname="emailConfirmation"><spl-input id="confirm-email-input" type="email" label="Confirm your email" required autocomplete="email" data-test="personal-info-email-confirm-input" reserveerrormsgspacing="true" data-msg="Please provide a valid email address"></spl-input></oc-input>
+              </div>
+            </div>
+            <div class="spl-flex spl-flex-col sm:spl-flex-row sm:spl-gap-3">
+              <div data-test="personal-info-location" class="spl-w-full">
+                <oc-location-autocomplete>
+                  <spl-autocomplete id="location-autocomplete-input" min-query-length="3" data-test="location-autocomplete" data-sr-id="location-autocomplete-search" reserveerrormsgspacing="true" label="Location (City)" required placeholder="Start typing city name" description="Please enter at least 3 characters" no-matches-label="No results found" data-msg="Please provide a valid location"></spl-autocomplete>
+                </oc-location-autocomplete>
+              </div>
+              <div data-test="personal-info-phone" class="spl-w-full">
+                <oc-phone-number><spl-phone-field id="phone-number-input" label="Phone number" required autocomplete="tel" default-country="US" reserveerrormsgspacing="true" data-msg="Please provide a valid phone number"></spl-phone-field></oc-phone-number>
+              </div>
+            </div>
+          </div>
+        </oc-personal-information>
+
+        <oc-experience>
+          <div data-test="experience" class="form-section">
+            <div class="spl-flex flex-row spl-justify-between spl-items-center">
+              <spl-typography-title data-test="section-title" variant="lg">Experience</spl-typography-title>
+              <spl-button type="secondary" data-test="add-experience" attr-aria-label="Add experience entry" attr-aria-expanded="false" id="add-experience">+ Add</spl-button>
+            </div>
+            <div id="experience-entries"></div>
+          </div>
+        </oc-experience>
+
+        <oc-education>
+          <div data-test="education" class="form-section">
+            <div class="spl-flex flex-row spl-justify-between spl-items-center">
+              <spl-typography-title data-test="section-title" variant="lg">Education</spl-typography-title>
+              <spl-button type="secondary" data-test="add-education" attr-aria-label="Add education entry" attr-aria-expanded="false" id="add-education">+ Add</spl-button>
+            </div>
+            <div id="education-entries"></div>
+          </div>
+        </oc-education>
+
+        <oc-resume-upload>
+          <div data-test="resume-upload-container" class="form-section">
+            <spl-typography-title variant="lg" data-test="section-title" class="spl-mb-2">Resume<span data-test="section-required-mark" class="spl-text-red-60">*</span></spl-typography-title>
+            <spl-internal-form-field id="resume-form-field">
+              <spl-dropzone data-test="resume-upload" allowed-extensions="pdf,doc,docx,odt,rtf" allowed-size="10485760" aria-label="Upload resume"></spl-dropzone>
+            </spl-internal-form-field>
+          </div>
+        </oc-resume-upload>
+
+        <oc-web>
+          <div data-test="web" class="form-section">
+            <spl-typography-title variant="lg">Your Profiles</spl-typography-title>
+            <div class="spl-flex spl-flex-col sm:spl-gap-x-3 sm:spl-grid sm:spl-grid-cols-2 spl-mt-2">
+              <oc-input formcontrolname="linkedIn"><spl-input id="linkedin-input" label="LinkedIn" type="url" data-test="web-profiles-linkedin" reserveerrormsgspacing="true"></spl-input></oc-input>
+              <oc-input formcontrolname="facebook"><spl-input id="facebook-input" label="Facebook" type="url" data-test="web-profiles-facebook" reserveerrormsgspacing="true"></spl-input></oc-input>
+              <oc-input formcontrolname="twitter"><spl-input id="twitter-input" label="X (fka Twitter)" data-test="web-profiles-twitter" reserveerrormsgspacing="true"></spl-input></oc-input>
+              <oc-input formcontrolname="website"><spl-input id="website-input" label="Website" type="url" data-test="web-profiles-website" reserveerrormsgspacing="true"></spl-input></oc-input>
+            </div>
+          </div>
+        </oc-web>
+
+        <oc-hiring-manager-message>
+          <div data-test="hiring-manager-message" class="form-section">
+            <spl-typography-title variant="lg">Message to the Hiring Team</spl-typography-title>
+            <spl-typography-body class="spl-my-1" variant="md">Let the company know about your interest working there</spl-typography-body>
+            <oc-textarea><spl-textarea id="hiring-manager-message-input" rows="6" maxlength="5000" data-test="hiring-manager-message-input"></spl-textarea></oc-textarea>
+          </div>
+        </oc-hiring-manager-message>
+
+        <oc-nav-first-page>
+          <oc-footer>
+            <div class="oc-footer-bar" data-test="footer">
+              <spl-button type="primary" data-test="footer-next" id="footer-next">Next</spl-button>
+            </div>
+          </oc-footer>
+        </oc-nav-first-page>
+      </oc-oneclick-form>
+
+      <!-- ============================== page 2 ============================== -->
+      <oc-nav-screening-questions id="oc-page-screening" hidden>
+        <oc-screening-questions-form>
+          <div data-test="screening-questions-form" class="form-section">
+            <spl-typography-title variant="lg" data-test="section-title">Preliminary questions</spl-typography-title>
+            <spl-typography-body class="spl-my-1" variant="md">Fields marked with * are required.</spl-typography-body>
+
+            <div class="spl-pt-3" data-test="question" data-question-id="5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a01">
+              <spl-select id="question-5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a01" label="How did you hear about this job?" required placeholder="Select">
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a01" label="LinkedIn"></spl-select-option>
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a02" label="Company website"></spl-select-option>
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a03" label="Job board"></spl-select-option>
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a04" label="Referral by a Meridian Freight employee"></spl-select-option>
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a05" label="University career service"></spl-select-option>
+                <spl-select-option value="b1d7e0c2-0f4a-4f8e-8f61-1c2d3e4f5a06" label="Other"></spl-select-option>
+              </spl-select>
+            </div>
+
+            <div class="spl-pt-3" data-test="question" data-question-id="5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a02">
+              <spl-radio-group id="question-5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a02" label="Will you now or in the future require visa sponsorship to work for Meridian Freight?" required>
+                <spl-radio value="c4e2a9d0-61b3-47f2-9d8a-5e6f7a8b9c01" label="Yes"></spl-radio>
+                <spl-radio value="c4e2a9d0-61b3-47f2-9d8a-5e6f7a8b9c02" label="No"></spl-radio>
+              </spl-radio-group>
+            </div>
+
+            <div class="spl-pt-3" data-test="question" data-question-id="5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a03">
+              <spl-radio-group id="question-5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a03" label="Are you at least 18 years of age?" required>
+                <spl-radio value="d7a1c3e5-2b4d-46f8-8a0c-1e3f5a7b9d01" label="Yes"></spl-radio>
+                <spl-radio value="d7a1c3e5-2b4d-46f8-8a0c-1e3f5a7b9d02" label="No"></spl-radio>
+              </spl-radio-group>
+            </div>
+
+            <div class="spl-pt-3" data-test="question" data-question-id="5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a04">
+              <spl-input id="question-5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a04" type="number" label="What are your annual gross salary expectations (USD)?" required data-msg="Please fill in this field."></spl-input>
+            </div>
+
+            <div class="spl-pt-3" data-test="question" data-question-id="5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a05">
+              <spl-textarea id="question-5f3c9a1e-7d2b-4c61-9a0e-2b8f6d4e1a05" label="Why would you like to join Meridian Freight?" required rows="5" data-msg="Please fill in this field."></spl-textarea>
+            </div>
+          </div>
+
+          <oc-consent>
+            <div data-test="consent" class="form-section form-section--clean">
+              <div class="spl-flex spl-flex-col">
+                <oc-checkbox>
+                  <spl-checkbox id="consent-privacy-policy" required data-msg="Please fill in this field.">
+                    <span slot="label-content"><span data-test="checkbox-label">I have read and accept the <a href="#privacy" data-test="privacy-policy-link">Meridian Freight Privacy Notice</a> and agree that my data is processed to evaluate my application.</span></span>
+                  </spl-checkbox>
+                </oc-checkbox>
+              </div>
+            </div>
+          </oc-consent>
+        </oc-screening-questions-form>
+
+        <oc-footer>
+          <div class="oc-footer-bar" data-test="footer">
+            <spl-button type="tertiary" data-test="footer-back" id="footer-back">Back</spl-button>
+            <spl-button type="primary" data-test="footer-submit" id="footer-submit">Submit</spl-button>
+          </div>
+        </oc-footer>
+      </oc-nav-screening-questions>
+    </oc-oneclick-form-root>
+
+    <oc-company-policy>
+      <div class="spl-flex flex-row spl-justify-center spl-items-center spl-my-2">
+        <a target="_blank" data-test="privacy-policy-link" class="policy-link" href="#privacy" aria-label="Privacy Notice, opens in new tab">Privacy Notice</a>
+        <a target="_blank" data-test="imprint-link" class="policy-link" href="#imprint">Imprint</a>
+      </div>
+    </oc-company-policy>
+    <oc-powered-by><div class="oc-powered">Powered by SmartRecruiters</div></oc-powered-by>
+  </main>
+</oc-app-root>
+
+<template id="tpl-experience-form">
+  <oc-experience-edit-form>
+    <div class="oc-edit-form" data-test="experience-edit-form">
+      <oc-input><spl-input data-field="title" label="Title" required data-test="job-title-autocomplete" data-msg="Please provide title"></spl-input></oc-input>
+      <oc-input><spl-input data-field="company" label="Company" data-test="company-autocomplete"></spl-input></oc-input>
+      <oc-input><spl-input data-field="location" label="Office location" data-test="experience-form-location"></spl-input></oc-input>
+      <oc-textarea><spl-textarea data-field="description" label="Description" rows="4" data-test="experience-description"></spl-textarea></oc-textarea>
+      <oc-checkbox><spl-checkbox data-field="current" label="I currently work here" data-test="experience-current"></spl-checkbox></oc-checkbox>
+      <div class="oc-two">
+        <spl-input data-field="startDate" label="From" placeholder="MM/YYYY" data-test="experience-date-from" data-msg="Please provide a valid date (MM/YYYY)"></spl-input>
+        <spl-input data-field="endDate" label="To" placeholder="MM/YYYY" data-test="experience-date-to" data-msg="Please provide a valid date (MM/YYYY)"></spl-input>
+      </div>
+      <div class="oc-footer-bar">
+        <spl-button type="tertiary" data-test="experience-cancel" data-action="cancel" attr-aria-label="Cancel adding experience entry">Cancel</spl-button>
+        <spl-button type="primary" data-test="experience-save" data-action="save" attr-aria-label="Save experience entry">Save</spl-button>
+      </div>
+    </div>
+  </oc-experience-edit-form>
+</template>
+
+<template id="tpl-education-form">
+  <oc-education-edit-form>
+    <div class="oc-edit-form" data-test="education-edit-form">
+      <oc-input><spl-input data-field="institution" label="Institution" required data-test="institution-autocomplete" data-msg="Please provide institution"></spl-input></oc-input>
+      <oc-input><spl-input data-field="major" label="Major" data-test="education-major"></spl-input></oc-input>
+      <oc-input><spl-input data-field="degree" label="Degree" data-test="education-degree"></spl-input></oc-input>
+      <oc-input><spl-input data-field="location" label="School location" data-test="education-form-location"></spl-input></oc-input>
+      <oc-textarea><spl-textarea data-field="description" label="Description" rows="4" data-test="education-description"></spl-textarea></oc-textarea>
+      <oc-checkbox><spl-checkbox data-field="current" label="I currently attend" data-test="education-current"></spl-checkbox></oc-checkbox>
+      <div class="oc-two">
+        <spl-input data-field="startDate" label="From" placeholder="MM/YYYY" data-test="education-date-from" data-msg="Please provide a valid date (MM/YYYY)"></spl-input>
+        <spl-input data-field="endDate" label="To" placeholder="MM/YYYY" data-test="education-date-to" data-msg="Please provide a valid date (MM/YYYY)"></spl-input>
+      </div>
+      <div class="oc-footer-bar">
+        <spl-button type="tertiary" data-test="education-cancel" data-action="cancel" attr-aria-label="Cancel adding education entry">Cancel</spl-button>
+        <spl-button type="primary" data-test="education-save" data-action="save" attr-aria-label="Save education entry">Save</spl-button>
+      </div>
+    </div>
+  </oc-education-edit-form>
+</template>
+
+<script src="/ats/_shared/fixture.js"></script>
+<script src="/ats/smartrecruiters/spl.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var BASE = location.pathname.replace(/\/(screening|success)\/?$/, '');
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  var LOCATIONS = [
+    { city: 'Lahore', region: 'Punjab', country: 'Pakistan', countryCode: 'pk', lat: 31.5204, lng: 74.3587 },
+    { city: 'Lahore Cantonment', region: 'Punjab', country: 'Pakistan', countryCode: 'pk', lat: 31.5165, lng: 74.3712 },
+    { city: 'Karachi', region: 'Sindh', country: 'Pakistan', countryCode: 'pk', lat: 24.8607, lng: 67.0011 },
+    { city: 'Islamabad', region: 'Islamabad Capital Territory', country: 'Pakistan', countryCode: 'pk', lat: 33.6844, lng: 73.0479 },
+    { city: 'Lagos', region: 'Lagos', country: 'Nigeria', countryCode: 'ng', lat: 6.5244, lng: 3.3792 },
+    { city: 'Lahaina', region: 'Hawaii', country: 'United States', countryCode: 'us', lat: 20.8783, lng: -156.6825 },
+    { city: 'Hamburg', region: 'Hamburg', country: 'Germany', countryCode: 'de', lat: 53.5511, lng: 9.9937 },
+    { city: 'Berlin', region: 'Berlin', country: 'Germany', countryCode: 'de', lat: 52.52, lng: 13.405 },
+    { city: 'London', region: 'England', country: 'United Kingdom', countryCode: 'gb', lat: 51.5072, lng: -0.1276 },
+    { city: 'Rotterdam', region: 'South Holland', country: 'Netherlands', countryCode: 'nl', lat: 51.9244, lng: 4.4777 },
+    { city: 'Dubai', region: 'Dubai', country: 'United Arab Emirates', countryCode: 'ae', lat: 25.2048, lng: 55.2708 }
+  ];
+
+  customElements.whenDefined('spl-autocomplete').then(function () {
+    var loc = $('#location-autocomplete-input');
+    loc.searchMethod = function (q) {
+      q = q.toLowerCase();
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve(LOCATIONS.filter(function (l) { return (l.city + ' ' + l.region + ' ' + l.country).toLowerCase().indexOf(q) !== -1; })
+            .slice(0, 6).map(function (l) { return { value: l.city + '|' + l.countryCode, label: l.city + ', ' + l.region + ', ' + l.country, place: l }; }));
+        }, 200);
+      });
+    };
+  });
+
+  // ---- "Apply with ..." providers are out of scope locally --------------------
+  ['#apply-with-linkedin', '#apply-with-resume'].forEach(function (s) {
+    $(s).addEventListener('click', function () {
+      if (s === '#apply-with-resume') { $('spl-dropzone[data-test=resume-upload]').scrollIntoView({ block: 'center' }); return; }
+      alert('Sign-in with external providers is not available.');
+    });
+  });
+
+  // ---- resume dropzone: parse + prefill, like /oneclick-ui/api/company/<id>/resume/parse
+  var resumeFile = null;
+  var dz = $('spl-dropzone[data-test=resume-upload]');
+  dz.addEventListener('spl-upload', function (e) {
+    resumeFile = e.detail.files[0];
+    $('#resume-form-field').errorMsg = '';
+    setTimeout(function () {
+      var parsed = { 'first-name-input': 'Rania', 'last-name-input': 'Haroon', 'email-input': 'rania.haroon.jobs@example.com' };
+      var filled = 0;
+      Object.keys(parsed).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && !el.value.trim()) { el.value = parsed[id]; filled++; }
+      });
+      if (filled) $('oc-prefill-success-banner').hidden = false;
+    }, 700);
+  });
+  dz.addEventListener('spl-delete', function () { resumeFile = null; });
+  dz.addEventListener('spl-rejected', function () { $('#resume-form-field').errorMsg = 'Only PDF, DOC, DOCX, ODT and RTF files up to 10 MB are supported.'; });
+
+  // ---- Experience / Education "Add" entries -----------------------------------
+  var entries = { experience: [], education: [] };
+  var MMYYYY = /^(0[1-9]|1[0-2])\/(19|20)\d{2}$/;
+  function isoMonth(v) { var m = MMYYYY.exec(v || ''); return m ? v.slice(3) + '-' + v.slice(0, 2) : ''; }
+  function setupSection(kind) {
+    var addBtn = $('#add-' + kind);
+    var list = $('#' + kind + '-entries');
+    function draw() {
+      $$('oc-' + kind + '-entry', list).forEach(function (n) { n.remove(); });
+      entries[kind].forEach(function (en, i) {
+        var host = document.createElement('oc-' + kind + '-entry');
+        host.setAttribute('data-test', kind === 'experience' ? 'experience-entry' : 'education-entry');
+        var title = kind === 'experience' ? en.title : en.institution;
+        var sub = kind === 'experience' ? en.company : [en.degree, en.major].filter(Boolean).join(', ');
+        host.innerHTML = '<div class="oc-entry"><div><div class="oc-entry-title"></div><div class="oc-entry-sub"></div><div class="oc-entry-sub oc-dates"></div></div>' +
+          '<div><spl-button type="tertiary" data-act="edit"></spl-button><spl-button type="tertiary" data-act="delete"></spl-button></div></div>';
+        host.querySelector('.oc-entry-title').textContent = title;
+        host.querySelector('.oc-entry-sub').textContent = sub || '';
+        host.querySelector('.oc-dates').textContent = (en.startDate || '') + ' – ' + (en.current ? 'Present' : (en.endDate || ''));
+        var ed = host.querySelector('[data-act=edit]');
+        ed.textContent = 'Edit';
+        ed.setAttribute('attr-aria-label', (kind === 'experience' ? 'Edit experience ' : 'Edit education ') + title);
+        ed.addEventListener('click', function () { openForm(i); });
+        var del = host.querySelector('[data-act=delete]');
+        del.textContent = 'Delete';
+        del.setAttribute('attr-aria-label', (kind === 'experience' ? 'Delete experience ' : 'Delete education ') + title);
+        del.addEventListener('click', function () { entries[kind].splice(i, 1); draw(); });
+        list.appendChild(host);
+      });
+    }
+    function openForm(index) {
+      if ($('oc-' + kind + '-edit-form', list)) return;
+      var frag = document.getElementById('tpl-' + kind + '-form').content.cloneNode(true);
+      var form = frag.firstElementChild;
+      list.appendChild(frag);
+      form = list.lastElementChild;
+      addBtn.setAttribute('attr-aria-expanded', 'true');
+      if (addBtn.button) addBtn.button.setAttribute('aria-expanded', 'true');
+      var existing = index != null ? entries[kind][index] : null;
+      customElements.whenDefined('spl-input').then(function () {
+        if (existing) $$('[data-field]', form).forEach(function (f) {
+          var k = f.getAttribute('data-field');
+          if (k === 'current') f.checked = !!existing.current;
+          else if (k === 'startDate' || k === 'endDate') f.value = existing[k + 'Raw'] || '';
+          else f.value = existing[k] || '';
+        });
+        var first = $('spl-input', form);
+        if (first && first.input) first.input.focus();
+      });
+      function close() { form.remove(); addBtn.setAttribute('attr-aria-expanded', 'false'); if (addBtn.button) addBtn.button.setAttribute('aria-expanded', 'false'); }
+      $('[data-action=cancel]', form).addEventListener('click', close);
+      $('[data-action=save]', form).addEventListener('click', function () {
+        var data = {};
+        var bad = false;
+        $$('[data-field]', form).forEach(function (f) {
+          var k = f.getAttribute('data-field');
+          var v = k === 'current' ? f.checked : String(f.value || '').trim();
+          var msg = '';
+          if (f.required && !v) msg = f.getAttribute('data-msg');
+          if ((k === 'startDate' || (k === 'endDate' && !data.current)) && v && !MMYYYY.test(v)) msg = f.getAttribute('data-msg');
+          if (f.tagName !== 'SPL-CHECKBOX') f.errorMsg = msg;
+          if (msg) bad = true;
+          if (k === 'startDate' || k === 'endDate') { data[k + 'Raw'] = v; data[k] = isoMonth(v); } else data[k] = v;
+        });
+        if (data.current) { data.endDate = ''; data.endDateRaw = ''; }
+        if (bad) return;
+        if (existing) entries[kind][index] = data; else entries[kind].push(data);
+        close();
+        draw();
+      });
+    }
+    addBtn.addEventListener('click', function () { openForm(null); });
+  }
+  setupSection('experience');
+  setupSection('education');
+
+  // ---- validation ------------------------------------------------------------
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function summary(msgs) {
+    var box = $('oc-validation-summary');
+    box.hidden = !msgs.length;
+    $('[data-test=validation-summary-message]', box).textContent = msgs.length ? 'Please correct the highlighted fields: ' + msgs.join(' ') : '';
+    if (msgs.length) window.scrollTo(0, 0);
+  }
+  function check(el, bad, msg) {
+    el.errorMsg = bad ? (msg || el.getAttribute('data-msg') || 'Please fill in this field.') : '';
+    return bad ? [el.errorMsg] : [];
+  }
+  function validatePage1() {
+    var errs = [];
+    errs = errs.concat(check($('#first-name-input'), !$('#first-name-input').value.trim()));
+    errs = errs.concat(check($('#last-name-input'), !$('#last-name-input').value.trim()));
+    var em = $('#email-input').value.trim();
+    errs = errs.concat(check($('#email-input'), !EMAIL.test(em), 'Please provide a valid email address'));
+    var em2 = $('#confirm-email-input').value.trim();
+    errs = errs.concat(check($('#confirm-email-input'), !EMAIL.test(em2) || em2.toLowerCase() !== em.toLowerCase(), EMAIL.test(em2) ? 'Provided emails do not match.' : 'Please provide a valid email address'));
+    errs = errs.concat(check($('#location-autocomplete-input'), !$('#location-autocomplete-input').value));
+    var ph = $('#phone-number-input');
+    var digits = ph.value.replace(/\D/g, '');
+    errs = errs.concat(check(ph, !digits, 'Please provide a valid phone number'));
+    if (digits && (ph.nationalDigits.length < 6 || digits.length > 15)) errs = errs.concat(check(ph, true, 'Please ensure a valid phone number is entered for this country/region.'));
+    var li = $('#linkedin-input').value.trim();
+    errs = errs.concat(check($('#linkedin-input'), !!li && !/linkedin\.com\//i.test(li), 'Please enter a valid LinkedIn profile URL.'));
+    var ws = $('#website-input').value.trim();
+    errs = errs.concat(check($('#website-input'), !!ws && !/^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(ws), 'Please enter a valid website URL.'));
+    var rf = $('#resume-form-field');
+    rf.errorMsg = resumeFile ? '' : 'Please attach your resume to complete this application';
+    if (!resumeFile) errs.push(rf.errorMsg);
+    if ($('oc-experience-edit-form') || $('oc-education-edit-form')) errs.push('Please save or cancel the entry you are editing.');
+    return errs;
+  }
+  function validatePage2() {
+    var errs = [];
+    $$('[data-test=question] [id^=question-]').forEach(function (q) {
+      var v = q.value;
+      errs = errs.concat(check(q, q.required && !String(v || '').trim()));
+    });
+    var c = $('#consent-privacy-policy');
+    errs = errs.concat(check(c, !c.checked));
+    return errs;
+  }
+
+  // ---- payloads ----------------------------------------------------------------
+  function page1Payload() {
+    var loc = $('#location-autocomplete-input').value;
+    var strip = function (e) { var o = {}; Object.keys(e).forEach(function (k) { if (!/Raw$/.test(k)) o[k] = e[k]; }); return o; };
+    return {
+      firstName: $('#first-name-input').value.trim(),
+      lastName: $('#last-name-input').value.trim(),
+      email: $('#email-input').value.trim(),
+      phoneNumber: $('#phone-number-input').value,
+      location: loc ? loc.place : null,
+      web: { linkedIn: $('#linkedin-input').value.trim(), facebook: $('#facebook-input').value.trim(), twitter: $('#twitter-input').value.trim(), website: $('#website-input').value.trim() },
+      experience: entries.experience.map(strip),
+      education: entries.education.map(strip),
+      hiringManagerMessage: $('#hiring-manager-message-input').value,
+      sourceTypeId: 'oneclick-ui',
+      publicationUuid: BASE.split('/').pop()
+    };
+  }
+
+  function showPage(which, push) {
+    $('#oc-page-application').hidden = which !== 'application';
+    $('#oc-page-screening').hidden = which !== 'screening';
+    $('oc-validation-summary').hidden = true;
+    document.title = (which === 'screening' ? 'Preliminary questions - ' : '') + 'Graduate Software Engineer | Meridian Freight';
+    if (push) history.pushState({ page: which }, '', BASE + (which === 'screening' ? '/screening' : ''));
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('popstate', function () { showPage(/\/screening$/.test(location.pathname) ? 'screening' : 'application', false); });
+  if (/\/screening$/.test(location.pathname)) history.replaceState({}, '', BASE); // deep link: start over, like the real app
+
+  $('#footer-next').addEventListener('click', function () {
+    var errs = validatePage1();
+    summary(errs);
+    if (errs.length) return;
+    var btn = $('#footer-next');
+    btn.disabled = true;
+    FX.postJson(FORM_ID, Object.assign(page1Payload(), { resume: { filename: resumeFile.name, size: resumeFile.size } }), 'step-1').then(function () {
+      btn.disabled = false;
+      showPage('screening', true);
+    });
+  });
+  $('#footer-back').addEventListener('click', function () { history.back(); });
+
+  $('#footer-submit').addEventListener('click', function () {
+    var errs = validatePage2();
+    if (errs.length) { summary(['Please make sure that you answered all questions marked as required.']); return; }
+    summary([]);
+    var btn = $('#footer-submit');
+    btn.disabled = true;
+    var answers = {};
+    $$('[data-test=question]').forEach(function (q) {
+      var el = $('[id^=question-]', q);
+      answers[q.getAttribute('data-question-id')] = String(el.value || '').trim();
+    });
+    FX.fileToJson(resumeFile).then(function (resume) {
+      var body = Object.assign(page1Payload(), {
+        resume: resume,
+        screeningAnswers: answers,
+        consent: { privacyPolicy: $('#consent-privacy-policy').checked }
+      });
+      return FX.postJson(FORM_ID, body);
+    }).then(function (res) {
+      if (!FX.finish(res)) {
+        btn.disabled = false;
+        summary([(res && res.errors && res.errors.join('; ')) || 'Something went wrong. Please try again.']);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

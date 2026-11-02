@@ -1,0 +1,45 @@
+[
+  {
+    "id": "6f1c2e9a8b7d",
+    "friendly_id": "6f1c2e9a8b7d-junior-software-developer",
+    "name": "Junior Software Developer",
+    "url": "{{ORIGIN_A}}/pebble-analytics.breezy.hr/p/6f1c2e9a8b7d-junior-software-developer/apply",
+    "published_date": "2026-10-31T16:45:00.000Z",
+    "type": {
+      "id": "fullTime",
+      "name": "Full-Time"
+    },
+    "location": {
+      "country": {
+        "name": "Pakistan",
+        "id": "PK"
+      },
+      "city": "",
+      "primary": true,
+      "is_remote": true,
+      "name": "Remote"
+    },
+    "department": "Engineering",
+    "salary": "$28,000 - $35,000 / yr",
+    "company": {
+      "name": "Pebble Analytics",
+      "logo_url": null,
+      "friendly_id": "pebble-analytics",
+      "isMultipleLocationsEnabled": false
+    },
+    "locations": [
+      {
+        "country": {
+          "name": "Pakistan",
+          "id": "PK"
+        },
+        "city": "",
+        "primary": true,
+        "is_remote": true,
+        "name": "Remote",
+        "id": "a41c09e7b2f3"
+      }
+    ],
+    "description": "<p>Pebble Analytics is a product-analytics tool for small mobile-game studios. Studios drop in our SDK and get retention, funnel and revenue dashboards without hiring a data team. We are a remote team of 11, and we publish the salary range for every role we open.</p><p><strong>What you'll do</strong></p><ul><li>Build dashboard features in React and TypeScript.</li><li>Extend our Node.js ingestion API and the jobs that roll up events into daily metrics.</li><li>Write SQL against PostgreSQL and ClickHouse and make slow queries fast.</li><li>Help studios debug their SDK integration.</li></ul><p><strong>Requirements</strong></p><ul><li>1+ year of professional experience with JavaScript or TypeScript.</li><li>Experience building web APIs (Node.js preferred).</li><li>Good SQL skills.</li></ul><p><strong>Nice to have</strong></p><ul><li>Python for data scripts.</li><li>ClickHouse or another column store.</li><li>You play mobile games and have opinions about their onboarding.</li></ul><p><strong>Compensation</strong></p><p>USD 28,000-35,000 per year, fully remote within EMEA and South Asia. Flexible hours with a daily overlap window of 11:00-15:00 UTC.</p>"
+  }
+]

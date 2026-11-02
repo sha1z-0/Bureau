@@ -90,6 +90,11 @@ export const ApplicationPacketSchema = z.object({
   shortAnswers: z.record(z.string(), z.string()),
   outreach: z.string(),
   followUp: z.string().default(''),
+  /** letter_variants.id of the chosen letter (also applications.variant_id). */
+  variantId: z.string().optional(),
+  strategy: LetterStrategy.optional(),
+  /** Measured on the rendered PDF. */
+  cvPages: z.number().int().optional(),
   quality: z.object({ critic: CriticResultSchema, lint: LintResultSchema, truth: TruthResultSchema }),
 });
 export type ApplicationPacket = z.infer<typeof ApplicationPacketSchema>;

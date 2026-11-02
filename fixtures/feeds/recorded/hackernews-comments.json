@@ -1,0 +1,247 @@
+{
+  "exhaustive": {
+    "nbHits": true,
+    "typo": true
+  },
+  "exhaustiveNbHits": true,
+  "exhaustiveTypo": true,
+  "hits": [
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "onnimonni"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Treat Health | Full-stack Engineer (Elixir, Phoenix LiveView, React) | Helsinki, Finland | ONSITE | Full-time | Compensation in the link below<p>Treat Health is building healthcare where the right care takes minutes, not days. You describe your concern in your own words, our smart intake asks the follow-up questions a doctor would ask, and a licensed doctor reviews the whole picture and decides on the care. Prescriptions and records go straight to Kanta, Finland's national health archive.<p>Right now, agentic frontend engineering and agentic mobile app development matter most to us. We expect you to work across the whole stack, with our assistance and tooling.<p>Stack: Elixir, Phoenix LiveView, React, TypeScript, Tailwind, GCP, Cloudflare and Rust, with Swift and Kotlin for our native mobile apps. Claude is part of everyday work, from planning and coding to review. We care about how well you direct coding agents, not how fast you type.<p>Small team, high trust: you own problems end to end, with real influence on what we build. Health data stays in the EU, every sign-in uses strong identification, and patient data never ends up in logs.<p>For now, working on site in Helsinki is a must, and we can't offer relocation or visa support, so you need to already be able to work in Finland. We may hire remotely in the future, so check back later.<p>Compensation, details and how to apply: <a href=\"https://treat.health/en/careers/full-stack-engineer/\" rel=\"nofollow\">https://treat.health/en/careers/full-stack-engineer/</a>"
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_onnimonni",
+        "story_49922569"
+      ],
+      "author": "onnimonni",
+      "children": [
+        50116161,
+        50171877
+      ],
+      "comment_text": "Treat Health | Full-stack Engineer (Elixir, Phoenix LiveView, React) | Helsinki, Finland | ONSITE | Full-time | Compensation in the link below<p>Treat Health is building healthcare where the right care takes minutes, not days. You describe your concern in your own words, our smart intake asks the follow-up questions a doctor would ask, and a licensed doctor reviews the whole picture and decides on the care. Prescriptions and records go straight to Kanta, Finland&#x27;s national health archive.<p>Right now, agentic frontend engineering and agentic mobile app development matter most to us. We expect you to work across the whole stack, with our assistance and tooling.<p>Stack: Elixir, Phoenix LiveView, React, TypeScript, Tailwind, GCP, Cloudflare and Rust, with Swift and Kotlin for our native mobile apps. Claude is part of everyday work, from planning and coding to review. We care about how well you direct coding agents, not how fast you type.<p>Small team, high trust: you own problems end to end, with real influence on what we build. Health data stays in the EU, every sign-in uses strong identification, and patient data never ends up in logs.<p>For now, working on site in Helsinki is a must, and we can&#x27;t offer relocation or visa support, so you need to already be able to work in Finland. We may hire remotely in the future, so check back later.<p>Compensation, details and how to apply: <a href=\"https:&#x2F;&#x2F;treat.health&#x2F;en&#x2F;careers&#x2F;full-stack-engineer&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;treat.health&#x2F;en&#x2F;careers&#x2F;full-stack-engineer&#x2F;</a>",
+      "created_at": "2026-10-15T14:30:58Z",
+      "created_at_i": 1792074658,
+      "objectID": "50104234",
+      "parent_id": 49922569,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-20T20:04:02Z"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "kscan1992"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "NeuralFrame | Senior Backend Engineer, Medical Data Pipeline (Python + Rust) | REMOTE (US only, US time zones; no visa sponsorship) | Full-time | $170k–$210k + 0.1%–0.25% equity<p>We build software that hospitals, cancer registries and researchers use. You'd own the pipeline that pulls data from hospital systems and transforms it for analytics and research.<p>Where Rust fits: part of our hospital data acquisition layer, the code that talks to hospital systems, is written in Rust. You'd work on both sides: Rust where performance and correctness matter most, async Python for the rest of the pipeline. Rust experience is a strong plus. Whether you learned it at work or on your own, we want to hear what you built with it.<p>Stack: Rust, async Python (mypy, pytest, ruff, uv), PostgreSQL and MongoDB, Dagster, Terraform/OpenTofu, AWS (ECS/Fargate, RDS, Lambda, S3), GitHub Actions.<p>You'll need 5+ years building backend services or data pipelines in production (retries, idempotency, schema design and migrations, well-tested and typed code) and strong Python and SQL. No healthcare background needed.<p>Apply: <a href=\"https://wellfound.com/jobs/4829721-senior-backend-software-engineer-medical-data-pipeline\" rel=\"nofollow\">https://wellfound.com/jobs/4829721-senior-backend-software-e...</a>. In your note, tell us in a few sentences about one pipeline failure you traced (what broke, how you found it, what you changed) and, if you've written Rust, what you built with it."
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_kscan1992",
+        "story_49922569"
+      ],
+      "author": "kscan1992",
+      "children": [
+        50197639
+      ],
+      "comment_text": "NeuralFrame | Senior Backend Engineer, Medical Data Pipeline (Python + Rust) | REMOTE (US only, US time zones; no visa sponsorship) | Full-time | $170k–$210k + 0.1%–0.25% equity<p>We build software that hospitals, cancer registries and researchers use. You&#x27;d own the pipeline that pulls data from hospital systems and transforms it for analytics and research.<p>Where Rust fits: part of our hospital data acquisition layer, the code that talks to hospital systems, is written in Rust. You&#x27;d work on both sides: Rust where performance and correctness matter most, async Python for the rest of the pipeline. Rust experience is a strong plus. Whether you learned it at work or on your own, we want to hear what you built with it.<p>Stack: Rust, async Python (mypy, pytest, ruff, uv), PostgreSQL and MongoDB, Dagster, Terraform&#x2F;OpenTofu, AWS (ECS&#x2F;Fargate, RDS, Lambda, S3), GitHub Actions.<p>You&#x27;ll need 5+ years building backend services or data pipelines in production (retries, idempotency, schema design and migrations, well-tested and typed code) and strong Python and SQL. No healthcare background needed.<p>Apply: <a href=\"https:&#x2F;&#x2F;wellfound.com&#x2F;jobs&#x2F;4829721-senior-backend-software-engineer-medical-data-pipeline\" rel=\"nofollow\">https:&#x2F;&#x2F;wellfound.com&#x2F;jobs&#x2F;4829721-senior-backend-software-e...</a>. In your note, tell us in a few sentences about one pipeline failure you traced (what broke, how you found it, what you changed) and, if you&#x27;ve written Rust, what you built with it.",
+      "created_at": "2026-10-14T21:53:28Z",
+      "created_at_i": 1792014808,
+      "objectID": "50095921",
+      "parent_id": 49922569,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-22T16:30:53Z"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "jkulick21"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "3Gimbals | <a href=\"https://www.linkedin.com/jobs/view/4477632187\" rel=\"nofollow\">https://www.linkedin.com/jobs/view/4477632187</a> (US/Remote)<p>Hiring entry / mid-level full stack swe's with strong experience with Python, React/TypeScript, CSS, REST APIs, SQL/PostgreSQL, and experience with LLMs, RAG, prompt engineering, and AWS cloud.<p>We are a small team doing a cool mix of application dev on our webapp OMEN, etl stuff, and harness engineering. If interested apply!<p>Requirement: US Citizenship, Ability to obtain government clearance<p>Salary: $120k-$160k depending on experience"
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_jkulick21",
+        "story_49922569"
+      ],
+      "author": "jkulick21",
+      "children": [
+        50171919
+      ],
+      "comment_text": "3Gimbals | <a href=\"https:&#x2F;&#x2F;www.linkedin.com&#x2F;jobs&#x2F;view&#x2F;4477632187\" rel=\"nofollow\">https:&#x2F;&#x2F;www.linkedin.com&#x2F;jobs&#x2F;view&#x2F;4477632187</a> (US&#x2F;Remote)<p>Hiring entry &#x2F; mid-level full stack swe&#x27;s with strong experience with Python, React&#x2F;TypeScript, CSS, REST APIs, SQL&#x2F;PostgreSQL, and experience with LLMs, RAG, prompt engineering, and AWS cloud.<p>We are a small team doing a cool mix of application dev on our webapp OMEN, etl stuff, and harness engineering. If interested apply!<p>Requirement: US Citizenship, Ability to obtain government clearance<p>Salary: $120k-$160k depending on experience",
+      "created_at": "2026-10-14T21:05:06Z",
+      "created_at_i": 1792011906,
+      "objectID": "50095249",
+      "parent_id": 49922569,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-20T20:06:16Z"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "lorepieri"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "exLabora AI (General Purpose Robot Workforce) | <a href=\"https://exlabora.com/open-roles.html\" rel=\"nofollow\">https://exlabora.com/open-roles.html</a> | Founding Robotic Engineer (Software, Mechatronics, AI)"
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_lorepieri",
+        "story_49922569"
+      ],
+      "author": "lorepieri",
+      "comment_text": "exLabora AI (General Purpose Robot Workforce) | <a href=\"https:&#x2F;&#x2F;exlabora.com&#x2F;open-roles.html\" rel=\"nofollow\">https:&#x2F;&#x2F;exlabora.com&#x2F;open-roles.html</a> | Founding Robotic Engineer (Software, Mechatronics, AI)",
+      "created_at": "2026-10-14T17:28:12Z",
+      "created_at_i": 1791998892,
+      "objectID": "50091446",
+      "parent_id": 49922569,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-14T17:29:14Z"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "GOVSTAR"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "GovStar | <a href=\"https://govstar.us\" rel=\"nofollow\">https://govstar.us</a> | Remote (U.S. Eastern/Central Time) | Senior Full Stack Python Developer | U.S. Citizenship Required<p>GovStar is hiring a Senior Full Stack Python Developer to build secure, production-grade AI applications supporting U.S. national security initiatives.<p>This is a hands-on role for an experienced engineer who wants to stay close to the code, spending the majority of their time developing software.<p>We’re looking for strong experience with Python, React/TypeScript, CSS, REST APIs, SQL/PostgreSQL and NoSQL databases, plus experience with LLMs, RAG, prompt engineering, and cloud platforms such as Azure or AWS.<p>Relevant technologies: Python, React, TypeScript, Azure OpenAI, PostgreSQL, CosmosDB, Docker, Kubernetes, GitLab CI/CD, LLMs, and RAG.<p>Requirements: U.S. citizenship • U.S. resident • Reside in Eastern or Central Time Zone • Ability to obtain government clearance • BA/BS + 15 years relevant experience (experience may substitute for education).<p>Compensation varies by experience and demonstrated technical capability. We’re happy to discuss compensation expectations early in the process so neither side wastes time.<p>GovStar benefits include medical, dental, and vision coverage; 401(k) matching; paid time off; and an employee shares program.<p>To apply, email your resume and GitHub profile to nicholas.hanson@govstar.us<p>Please mention “Hacker News” and “Senior Full Stack Python Developer” in the subject line."
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_GOVSTAR",
+        "story_49922569"
+      ],
+      "author": "GOVSTAR",
+      "comment_text": "GovStar | <a href=\"https:&#x2F;&#x2F;govstar.us\" rel=\"nofollow\">https:&#x2F;&#x2F;govstar.us</a> | Remote (U.S. Eastern&#x2F;Central Time) | Senior Full Stack Python Developer | U.S. Citizenship Required<p>GovStar is hiring a Senior Full Stack Python Developer to build secure, production-grade AI applications supporting U.S. national security initiatives.<p>This is a hands-on role for an experienced engineer who wants to stay close to the code, spending the majority of their time developing software.<p>We’re looking for strong experience with Python, React&#x2F;TypeScript, CSS, REST APIs, SQL&#x2F;PostgreSQL and NoSQL databases, plus experience with LLMs, RAG, prompt engineering, and cloud platforms such as Azure or AWS.<p>Relevant technologies: Python, React, TypeScript, Azure OpenAI, PostgreSQL, CosmosDB, Docker, Kubernetes, GitLab CI&#x2F;CD, LLMs, and RAG.<p>Requirements: U.S. citizenship • U.S. resident • Reside in Eastern or Central Time Zone • Ability to obtain government clearance • BA&#x2F;BS + 15 years relevant experience (experience may substitute for education).<p>Compensation varies by experience and demonstrated technical capability. We’re happy to discuss compensation expectations early in the process so neither side wastes time.<p>GovStar benefits include medical, dental, and vision coverage; 401(k) matching; paid time off; and an employee shares program.<p>To apply, email your resume and GitHub profile to nicholas.hanson@govstar.us<p>Please mention “Hacker News” and “Senior Full Stack Python Developer” in the subject line.",
+      "created_at": "2026-10-14T16:26:28Z",
+      "created_at_i": 1791995188,
+      "objectID": "50090302",
+      "parent_id": 49922569,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-22T17:06:54Z"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "noorhazemh"
+        },
+        "comment_text": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Hi"
+        },
+        "story_title": {
+          "matchLevel": "none",
+          "matchedWords": [],
+          "value": "Ask HN: Who is hiring? (October 2026)"
+        }
+      },
+      "_tags": [
+        "comment",
+        "author_noorhazemh",
+        "story_49922569"
+      ],
+      "author": "noorhazemh",
+      "comment_text": "Hi",
+      "created_at": "2026-10-22T16:30:02Z",
+      "created_at_i": 1792686602,
+      "objectID": "50197639",
+      "parent_id": 50095921,
+      "story_id": 49922569,
+      "story_title": "Ask HN: Who is hiring? (October 2026)",
+      "updated_at": "2026-10-22T16:33:54Z"
+    }
+  ],
+  "hitsPerPage": 500,
+  "nbHits": 391,
+  "nbPages": 1,
+  "page": 0,
+  "params": "tags=comment%2Cstory_49922569&hitsPerPage=500&page=0&advancedSyntax=true&analyticsTags=backend",
+  "processingTimeMS": 3,
+  "processingTimingsMS": {
+    "_request": {
+      "queue": 1,
+      "roundTrip": 14
+    },
+    "afterFetch": {
+      "format": {
+        "highlighting": 17,
+        "total": 21
+      },
+      "merge": {
+        "mergeLoop": {
+          "prepareNextHit": 1,
+          "total": 2
+        },
+        "total": 2
+      },
+      "total": 2
+    },
+    "total": 3
+  },
+  "query": "",
+  "serverTimeMS": 27
+}

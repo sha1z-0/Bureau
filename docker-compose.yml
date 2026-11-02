@@ -1,0 +1,79 @@
+# Bureau on a Linux VPS. Read docs/DEPLOY.md first: the first start is a
+# one-time unlock over an SSH tunnel, then Caddy serves it over HTTPS.
+#
+#   write .env next to this file (see docs/DEPLOY.md for the variables)
+#   docker compose up -d                     # Bureau only (loopback on the host)
+#   docker compose --profile proxy up -d     # plus Caddy with automatic HTTPS
+#
+# Host networking on purpose: Bureau binds 127.0.0.1 on the VPS, so nothing
+# reaches it except through Caddy (or your SSH tunnel), and its loopback-only
+# rules keep holding until a passphrase is set.
+
+name: bureau
+
+services:
+  bureau:
+    build: .
+    image: bureau:latest
+    restart: unless-stopped
+    network_mode: host
+    init: true
+    shm_size: 1gb # Chromium needs more than Docker's 64 MB /dev/shm
+    environment:
+      BUREAU_HOST: 127.0.0.1
+      BUREAU_PORT: ${BUREAU_PORT:-4317}
+      BUREAU_DATA_DIR: /data
+      # 32 random bytes, base64 (openssl rand -base64 32). Keep it in .env or a secret manager; losing it loses the vault.
+      BUREAU_MASTER_KEY: ${BUREAU_MASTER_KEY:?set BUREAU_MASTER_KEY in .env (openssl rand -base64 32)}
+      # Empty until the passphrase is set (step 3 in docs/DEPLOY.md); then https://your.domain.
+      BUREAU_ALLOWED_ORIGINS: ${BUREAU_ALLOWED_ORIGINS:-}
+      BUREAU_COOKIE_SECURE: ${BUREAU_COOKIE_SECURE:-0}
+      BUREAU_LOG: ${BUREAU_LOG:-warn}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - bureau-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:'+(process.env.BUREAU_PORT||4317)+'/api/health').then(r=>process.exit(r.status<500?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  # Automatic HTTPS in front of Bureau. Needs DNS for BUREAU_DOMAIN pointing at the VPS and ports 80/443 open.
+  caddy:
+    image: caddy:2.8
+    profiles: ["proxy"]
+    restart: unless-stopped
+    network_mode: host
+    depends_on: [bureau]
+    environment:
+      BUREAU_DOMAIN: ${BUREAU_DOMAIN:?set BUREAU_DOMAIN in .env to use the proxy profile}
+      BUREAU_PORT: ${BUREAU_PORT:-4317}
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+
+configs:
+  caddyfile:
+    content: |
+      {$$BUREAU_DOMAIN} {
+        encode zstd gzip
+        header {
+          Strict-Transport-Security "max-age=31536000; includeSubDomains"
+          -Server
+        }
+        reverse_proxy 127.0.0.1:{$$BUREAU_PORT}
+      }
+
+volumes:
+  bureau-data:
+  caddy-data:
+  caddy-config:
