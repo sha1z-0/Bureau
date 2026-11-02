@@ -204,7 +204,8 @@ export async function plantFormsInbox(dataDir: string, opts: { shot?: Buffer; co
           { skill: 'Rust', count: 4, weighted: 2.2, typicalDepth: 'Reads and patches services', suggestedProject: 'Port one hot path of a CLI to Rust' },
         ],
       }),
-      iso(H),
+      // Newest, so it wins over any report a running campaign built a moment ago.
+      new Date(now + 1000).toISOString(),
     );
 
     // ── Inbox messages, as the A09 pipeline stores them (never a verification code).
