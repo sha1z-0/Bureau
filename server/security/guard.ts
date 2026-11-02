@@ -4,6 +4,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { ALLOWED_HOSTS, ALLOWED_ORIGINS, COOKIE_SECURE, IS_LOOPBACK } from '../config.ts';
 import { getSetting, setSetting } from '../db.ts';
 import { AppError } from '../errors.ts';
+import { authenticateExternal } from '../api/auth.ts';
 
 /**
  * Request guard for a single-user app that may one day leave localhost.
@@ -143,6 +144,15 @@ export function registerGuard(app: FastifyInstance) {
     // Fail closed: guard anything whose decoded path *or* matched route is under /api.
     const path = canonicalPath(req.url);
     const route = req.routeOptions?.url ?? '';
+
+    // The external agent API and MCP endpoint use their own key auth (server/api/auth.ts), never the UI session.
+    const under = (p: string) => path === p || path.startsWith(`${p}/`) || route === p || route.startsWith(`${p}/`);
+    if (under('/api/v1') || under('/mcp')) {
+      if (req.url.split('?')[0] !== path && !route) throw new AppError(404, 'NOT_FOUND', 'No such endpoint');
+      await authenticateExternal(req);
+      return;
+    }
+
     const isApi = path === '/api' || path.startsWith('/api/') || route.startsWith('/api/');
     if (!isApi) return;
     if (req.url.split('?')[0] !== path && !route) {

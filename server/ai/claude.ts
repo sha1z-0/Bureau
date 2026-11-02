@@ -1,6 +1,10 @@
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import type { z } from 'zod/v4';
+import { ROOT } from '../config.ts';
 import { get, getSetting, now, run } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { getSecret } from '../security/vault.ts';
@@ -10,7 +14,32 @@ import { getSecret } from '../security/vault.ts';
  * choice per task, refusal handling, server-side fallback, and cost metering.
  */
 
-export const TASKS = ['profile', 'score', 'tailor', 'audit', 'scan', 'capture', 'apply'] as const;
+export const TASKS = [
+  // v1
+  'profile',
+  'score',
+  'tailor',
+  'audit',
+  'scan',
+  'capture',
+  'apply',
+  // v2
+  'profile_sync',
+  'research',
+  'match',
+  'evidence',
+  'write_cv',
+  'write_letter',
+  'critic',
+  'humanize',
+  'form_map',
+  'agent_step',
+  'recipe_compile',
+  'inbox_classify',
+  'learning_plan',
+  'gap_report',
+  'answer_q',
+] as const;
 export type Task = (typeof TASKS)[number];
 type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
@@ -22,6 +51,8 @@ export const MODEL_CHOICES = [
 ] as const;
 
 const DEFAULT_MODEL = 'claude-opus-5-5';
+const SONNET = 'claude-sonnet-5-5';
+const HAIKU = 'claude-haiku-5-5';
 
 /**
  * Scoring is the high-volume task (dozens of roles per hunt round), so it runs
@@ -31,12 +62,28 @@ const DEFAULT_MODEL = 'claude-opus-5-5';
  */
 export const DEFAULT_MODELS: Record<Task, string> = {
   profile: DEFAULT_MODEL,
-  score: 'claude-haiku-5-5',
+  score: HAIKU,
   tailor: DEFAULT_MODEL,
   audit: DEFAULT_MODEL,
   scan: DEFAULT_MODEL,
   capture: DEFAULT_MODEL,
   apply: DEFAULT_MODEL,
+  // v2: anything a hiring manager reads is written on Opus; classification and scoring run on Haiku.
+  profile_sync: SONNET,
+  research: SONNET,
+  match: HAIKU,
+  evidence: DEFAULT_MODEL,
+  write_cv: DEFAULT_MODEL,
+  write_letter: DEFAULT_MODEL,
+  critic: DEFAULT_MODEL,
+  humanize: DEFAULT_MODEL,
+  form_map: HAIKU,
+  agent_step: SONNET,
+  recipe_compile: SONNET,
+  inbox_classify: HAIKU,
+  learning_plan: DEFAULT_MODEL,
+  gap_report: SONNET,
+  answer_q: DEFAULT_MODEL,
 };
 const DEFAULT_EFFORT: Record<Task, Effort> = {
   profile: 'medium',
@@ -46,7 +93,65 @@ const DEFAULT_EFFORT: Record<Task, Effort> = {
   scan: 'medium',
   capture: 'low',
   apply: 'medium',
+  profile_sync: 'low',
+  research: 'medium',
+  match: 'low',
+  evidence: 'medium',
+  write_cv: 'high',
+  write_letter: 'high',
+  critic: 'medium',
+  humanize: 'medium',
+  form_map: 'low',
+  agent_step: 'low',
+  recipe_compile: 'low',
+  inbox_classify: 'low',
+  learning_plan: 'medium',
+  gap_report: 'low',
+  answer_q: 'medium',
 };
+
+/**
+ * Replay mode (BUREAU_REPLAY=1) serves recorded responses from
+ * fixtures/claude/<task>/<hash>.json so tests make no API calls; a missing
+ * recording fails loudly with its task and hash. BUREAU_RECORD=1 records live
+ * responses there. The hash covers the task, system prompt and user content.
+ */
+export const REPLAY = process.env.BUREAU_REPLAY === '1';
+const RECORD = process.env.BUREAU_RECORD === '1';
+export const FIXTURES_DIR = path.resolve(process.env.BUREAU_FIXTURES_DIR ?? path.join(ROOT, 'fixtures'));
+
+interface Recording {
+  task: string;
+  hash: string;
+  model: string;
+  usage: Usage;
+  output?: unknown;
+  text?: string;
+  sources?: { url: string; title: string }[];
+}
+
+export function replayHash(task: string, system: SystemBlocks, content: UserContent): string {
+  const body = JSON.stringify({ task, system: system.map((b) => b.text), content });
+  return crypto.createHash('sha256').update(body).digest('hex').slice(0, 24);
+}
+
+function recordingPath(task: string, hash: string) {
+  return path.join(FIXTURES_DIR, 'claude', task, `${hash}.json`);
+}
+
+function loadRecording(task: string, hash: string): Recording {
+  const file = recordingPath(task, hash);
+  if (!fs.existsSync(file)) {
+    throw new AppError(500, 'REPLAY_MISSING', `No recorded Claude response for task "${task}" (hash ${hash}). Record it with BUREAU_RECORD=1 or add ${path.relative(ROOT, file)}.`);
+  }
+  return JSON.parse(fs.readFileSync(file, 'utf8')) as Recording;
+}
+
+function saveRecording(rec: Recording) {
+  const file = recordingPath(rec.task, rec.hash);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(rec, null, 2));
+}
 
 export interface AiSettings {
   models: Partial<Record<Task, string>>;
@@ -65,6 +170,7 @@ export function modelFor(task: Task): string {
 let cached: { key: string; client: Anthropic } | null = null;
 
 export function apiKey(): string | null {
+  if (process.env.BUREAU_REPLAY === '1') return 'replay';
   return getSecret('anthropic_api_key') ?? process.env.ANTHROPIC_API_KEY ?? null;
 }
 
@@ -154,6 +260,12 @@ export async function structured<S extends z.ZodType>(opts: {
 }): Promise<z.infer<S>> {
   guardBudget();
   const model = modelFor(opts.task);
+  const hash = REPLAY || RECORD ? replayHash(opts.task, opts.system, opts.content) : '';
+  if (REPLAY) {
+    const rec = loadRecording(opts.task, hash);
+    meter(opts.task, rec.model, rec.usage);
+    return opts.schema.parse(rec.output) as z.infer<S>;
+  }
   try {
     const res = await client().beta.messages.parse({
       model,
@@ -170,6 +282,7 @@ export async function structured<S extends z.ZodType>(opts: {
     }
     if (res.stop_reason === 'max_tokens') throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
     if (!res.parsed_output) throw new AppError(502, 'AI_PARSE', 'Claude returned something Bureau could not read.');
+    if (RECORD) saveRecording({ task: opts.task, hash, model: res.model ?? model, usage: res.usage, output: res.parsed_output });
     return res.parsed_output as z.infer<S>;
   } catch (err) {
     translate(err);
@@ -189,6 +302,13 @@ export async function research(opts: {
   const messages: Anthropic.Beta.BetaMessageParam[] = [{ role: 'user', content: opts.prompt }];
   const sources = new Map<string, string>();
   let text = '';
+  const hash = REPLAY || RECORD ? replayHash(opts.task, opts.system, opts.prompt) : '';
+  if (REPLAY) {
+    const rec = loadRecording(opts.task, hash);
+    meter(opts.task, rec.model, rec.usage);
+    return { text: rec.text ?? '', sources: rec.sources ?? [] };
+  }
+  const total: Usage = { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 };
   try {
     for (let turn = 0; turn < 5; turn++) {
       const stream = client().beta.messages.stream({
@@ -210,6 +330,8 @@ export async function research(opts: {
       });
       const res = await stream.finalMessage();
       meter(opts.task, res.model ?? model, res.usage);
+      total.input_tokens += res.usage.input_tokens;
+      total.output_tokens += res.usage.output_tokens;
       for (const block of res.content) {
         if (block.type === 'text') text += block.text;
         if (block.type === 'web_search_tool_result' && Array.isArray(block.content)) {
@@ -223,7 +345,9 @@ export async function research(opts: {
   } catch (err) {
     translate(err);
   }
-  return { text, sources: [...sources].map(([url, title]) => ({ url, title })) };
+  const out = { text, sources: [...sources].map(([url, title]) => ({ url, title })) };
+  if (RECORD) saveRecording({ task: opts.task, hash, model, usage: total, ...out });
+  return out;
 }
 
 /** Cheapest possible round-trip to prove a key works. */

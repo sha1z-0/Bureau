@@ -21,7 +21,28 @@ const ASSUMED: Partial<Record<Task, Shape>> = {
   apply: { input: 4_000, cacheRead: 5_000, output: 2_000 },
   scan: { input: 60_000, cacheRead: 0, output: 6_000 },
   capture: { input: 8_000, cacheRead: 0, output: 2_500 },
+  // v2
+  profile_sync: { input: 12_000, cacheRead: 0, output: 3_000 },
+  research: { input: 30_000, cacheRead: 0, output: 3_000 },
+  match: { input: 14_000, cacheRead: 6_000, output: 5_000 },
+  evidence: { input: 6_000, cacheRead: 6_000, output: 3_000 },
+  write_cv: { input: 5_000, cacheRead: 6_000, output: 5_000 },
+  write_letter: { input: 6_000, cacheRead: 6_000, output: 4_000 },
+  critic: { input: 5_000, cacheRead: 0, output: 1_500 },
+  humanize: { input: 2_500, cacheRead: 0, output: 1_200 },
+  form_map: { input: 3_000, cacheRead: 2_000, output: 600 },
+  agent_step: { input: 6_000, cacheRead: 3_000, output: 300 },
+  recipe_compile: { input: 8_000, cacheRead: 0, output: 2_000 },
+  inbox_classify: { input: 2_500, cacheRead: 1_000, output: 300 },
+  learning_plan: { input: 6_000, cacheRead: 0, output: 4_000 },
+  gap_report: { input: 10_000, cacheRead: 0, output: 2_500 },
+  answer_q: { input: 3_000, cacheRead: 6_000, output: 600 },
 };
+
+/** Estimated (or measured) cost of one call of any task on its current model. */
+export function taskCost(task: Task): { usd: number; measured: boolean } {
+  return perCall(task);
+}
 
 const SCORE_BATCH = 6;
 

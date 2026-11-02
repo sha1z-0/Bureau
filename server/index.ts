@@ -17,6 +17,18 @@ import { profileRoutes } from './routes/profile.ts';
 import { systemRoutes } from './routes/system.ts';
 import { huntSettings, startHuntTimer } from './services/hunt.ts';
 import { startScheduler } from './services/scanner.ts';
+import { apiV1Routes } from './api/index.ts';
+import { startAutopilot } from './campaign/index.ts';
+import { scoutRoutes } from './scout/routes.ts';
+import { matchRoutes } from './match/routes.ts';
+import { masterProfileRoutes } from './profile/routes.ts';
+import { researchRoutes } from './research/routes.ts';
+import { writerRoutes } from './writer/routes.ts';
+import { formsRoutes } from './forms/routes.ts';
+import { agentRoutes } from './agent/routes.ts';
+import { campaignRoutes } from './campaign/routes.ts';
+import { inboxRoutes } from './inbox/routes.ts';
+import { learningRoutes } from './learning/routes.ts';
 
 initVault();
 
@@ -75,6 +87,18 @@ await app.register(systemRoutes);
 await app.register(jobRoutes);
 await app.register(applicationRoutes);
 await app.register(profileRoutes);
+// v2 modules each own their UI-facing routes; /api/v1 and /mcp are the external agent surface.
+await app.register(scoutRoutes);
+await app.register(matchRoutes);
+await app.register(masterProfileRoutes);
+await app.register(researchRoutes);
+await app.register(writerRoutes);
+await app.register(formsRoutes);
+await app.register(agentRoutes);
+await app.register(campaignRoutes);
+await app.register(inboxRoutes);
+await app.register(learningRoutes);
+await app.register(apiV1Routes);
 
 if (fs.existsSync(path.join(WEB_DIST, 'index.html'))) {
   await app.register(fastifyStatic, {
@@ -102,6 +126,7 @@ try {
 }
 startScheduler(() => huntSettings().enabled);
 startHuntTimer();
+startAutopilot();
 
 const url = `http://${HOST === '::1' ? '[::1]' : HOST}:${PORT}`;
 console.log(`\n  ⟡ Bureau is listening on ${url}\n`);

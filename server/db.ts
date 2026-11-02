@@ -137,6 +137,252 @@ addColumn('applications', 'auto', 'INTEGER NOT NULL DEFAULT 0');
 addColumn('applications', 'shot', 'TEXT');
 addColumn('applications', 'answers', "TEXT NOT NULL DEFAULT '[]'");
 
+// ── v2 ────────────────────────────────────────────────────────────────────────
+addColumn('applications', 'campaign_id', 'TEXT');
+addColumn('applications', 'variant_id', 'TEXT');
+addColumn('applications', 'stage', "TEXT NOT NULL DEFAULT 'applied'");
+addColumn('applications', 'origin', "TEXT NOT NULL DEFAULT 'internal'");
+addColumn('jobs', 'apply_url_canonical', 'TEXT');
+addColumn('jobs', 'ats', 'TEXT');
+addColumn('jobs', 'company_id', 'TEXT');
+addColumn('jobs', 'legitimacy', 'TEXT');
+addColumn('jobs', 'sources', "TEXT NOT NULL DEFAULT '[]'");
+addColumn('jobs', 'priority', 'INTEGER NOT NULL DEFAULT 0');
+addColumn('jobs', 'match', 'TEXT');
+
+db.exec(`
+  CREATE INDEX IF NOT EXISTS jobs_canonical ON jobs(apply_url_canonical);
+  CREATE INDEX IF NOT EXISTS jobs_company ON jobs(company_id);
+
+  CREATE TABLE IF NOT EXISTS campaigns (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','active','paused','ended')),
+    starts_at  TEXT NOT NULL,
+    ends_at    TEXT NOT NULL,
+    config     TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS pipeline (
+    job_id         TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
+    campaign_id    TEXT,
+    state          TEXT NOT NULL,
+    attempts       INTEGER NOT NULL DEFAULT 0,
+    next_action_at TEXT,
+    last_error     TEXT,
+    updated_at     TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS pipeline_state ON pipeline(state, next_action_at);
+  CREATE INDEX IF NOT EXISTS pipeline_campaign ON pipeline(campaign_id, state);
+
+  CREATE TABLE IF NOT EXISTS pipeline_log (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id   TEXT NOT NULL,
+    ts       TEXT NOT NULL,
+    from_state TEXT,
+    to_state TEXT NOT NULL,
+    reason   TEXT
+  );
+  CREATE INDEX IF NOT EXISTS pipeline_log_job ON pipeline_log(job_id, id);
+
+  CREATE TABLE IF NOT EXISTS claims (
+    job_id     TEXT PRIMARY KEY,
+    holder     TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS companies (
+    id              TEXT PRIMARY KEY,
+    name            TEXT NOT NULL,
+    domain          TEXT,
+    ats             TEXT,
+    ats_token       TEXT,
+    careers_url     TEXT,
+    discovered_via  TEXT,
+    status          TEXT NOT NULL DEFAULT 'active',
+    last_checked_at TEXT,
+    open_roles      INTEGER,
+    prev_open_roles INTEGER,
+    signals         TEXT NOT NULL DEFAULT '[]'
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS companies_ats_token ON companies(ats, ats_token);
+  CREATE INDEX IF NOT EXISTS companies_domain ON companies(domain);
+
+  CREATE TABLE IF NOT EXISTS job_embeddings (
+    job_id TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
+    model  TEXT NOT NULL,
+    vector BLOB NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS profile_facts (
+    id         TEXT PRIMARY KEY,
+    kind       TEXT NOT NULL,
+    text       TEXT NOT NULL,
+    source     TEXT NOT NULL CHECK (source IN ('cv','github','portfolio','manual','linkedin')),
+    source_ref TEXT NOT NULL DEFAULT '',
+    added_at   TEXT NOT NULL,
+    active     INTEGER NOT NULL DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS voice_bank (
+    id         TEXT PRIMARY KEY,
+    prompt     TEXT NOT NULL,
+    text       TEXT NOT NULL,
+    tags       TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS answer_bank (
+    id            TEXT PRIMARY KEY,
+    question_norm TEXT NOT NULL,
+    question_raw  TEXT NOT NULL,
+    answer        TEXT NOT NULL,
+    scope         TEXT NOT NULL DEFAULT '{}',
+    source        TEXT NOT NULL DEFAULT 'owner' CHECK (source IN ('owner','derived')),
+    created_at    TEXT NOT NULL,
+    updated_at    TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS answer_bank_q ON answer_bank(question_norm);
+
+  CREATE TABLE IF NOT EXISTS unknown_questions (
+    id            TEXT PRIMARY KEY,
+    question_raw  TEXT NOT NULL,
+    question_norm TEXT NOT NULL,
+    job_id        TEXT,
+    field_kind    TEXT NOT NULL,
+    options       TEXT NOT NULL DEFAULT '[]',
+    status        TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','answered','ignored')),
+    created_at    TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS learning_list (
+    id         TEXT PRIMARY KEY,
+    skill      TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('learning','queued','done')),
+    started_at TEXT,
+    notes      TEXT NOT NULL DEFAULT ''
+  );
+
+  CREATE TABLE IF NOT EXISTS research_briefs (
+    company_key TEXT PRIMARY KEY,
+    brief       TEXT NOT NULL,
+    fetched_at  TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS letter_variants (
+    id             TEXT PRIMARY KEY,
+    application_id TEXT NOT NULL,
+    variant        TEXT NOT NULL,
+    text           TEXT NOT NULL DEFAULT '',
+    style_tags     TEXT NOT NULL DEFAULT '[]',
+    passages_used  TEXT NOT NULL DEFAULT '[]',
+    critic         TEXT,
+    lint           TEXT,
+    chosen         INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE INDEX IF NOT EXISTS letter_variants_app ON letter_variants(application_id);
+
+  CREATE TABLE IF NOT EXISTS form_recipes (
+    id         TEXT PRIMARY KEY,
+    ats        TEXT NOT NULL,
+    scope      TEXT NOT NULL CHECK (scope IN ('ats','company','url')),
+    scope_key  TEXT NOT NULL,
+    version    INTEGER NOT NULL DEFAULT 1,
+    recipe     TEXT NOT NULL,
+    status     TEXT NOT NULL DEFAULT 'candidate' CHECK (status IN ('candidate','shadow','active','demoted')),
+    successes  INTEGER NOT NULL DEFAULT 0,
+    failures   INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS form_recipes_scope ON form_recipes(scope, scope_key, status);
+
+  CREATE TABLE IF NOT EXISTS agent_traces (
+    id             TEXT PRIMARY KEY,
+    job_id         TEXT,
+    application_id TEXT,
+    origin         TEXT NOT NULL,
+    url            TEXT NOT NULL,
+    ats            TEXT,
+    trace          TEXT NOT NULL,
+    outcome        TEXT NOT NULL,
+    created_at     TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS site_accounts (
+    id          TEXT PRIMARY KEY,
+    domain      TEXT NOT NULL UNIQUE,
+    username    TEXT NOT NULL,
+    secret_name TEXT NOT NULL,
+    created_at  TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS api_keys (
+    id           TEXT PRIMARY KEY,
+    name         TEXT NOT NULL,
+    prefix       TEXT NOT NULL UNIQUE,
+    hash         TEXT NOT NULL,
+    scopes       TEXT NOT NULL,
+    created_at   TEXT NOT NULL,
+    last_used_at TEXT,
+    revoked_at   TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS api_audit (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    key_id TEXT,
+    ts     TEXT NOT NULL,
+    route  TEXT NOT NULL,
+    status INTEGER NOT NULL,
+    detail TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS inbox_messages (
+    id             TEXT PRIMARY KEY,
+    message_id     TEXT NOT NULL UNIQUE,
+    from_addr      TEXT NOT NULL,
+    subject        TEXT NOT NULL,
+    received_at    TEXT NOT NULL,
+    class          TEXT NOT NULL,
+    application_id TEXT,
+    data           TEXT NOT NULL DEFAULT '{}',
+    handled        INTEGER NOT NULL DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS learning_plans (
+    id             TEXT PRIMARY KEY,
+    application_id TEXT,
+    company        TEXT NOT NULL,
+    plan           TEXT NOT NULL,
+    created_at     TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS gap_reports (
+    id         TEXT PRIMARY KEY,
+    period     TEXT NOT NULL,
+    report     TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS digests (
+    id          TEXT PRIMARY KEY,
+    campaign_id TEXT,
+    date        TEXT NOT NULL,
+    content     TEXT NOT NULL,
+    sent_via    TEXT NOT NULL DEFAULT '[]'
+  );
+
+  CREATE TABLE IF NOT EXISTS outcomes (
+    application_id TEXT PRIMARY KEY,
+    replied        INTEGER NOT NULL DEFAULT 0,
+    reply_class    TEXT,
+    days_to_reply  REAL,
+    updated_at     TEXT NOT NULL
+  );
+`);
+
 export const now = () => new Date().toISOString();
 
 type Row = Record<string, SQLInputValue>;
