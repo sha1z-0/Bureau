@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: an unknown form with a visible CAPTCHA widget mock. The agent must
+  never touch it: it stops with "blocked" so the job goes to needs_you.
+  Fictional employer. Local only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Engineer - Fernhill Robotics</title>
+</head>
+<body>
+  <h1>Junior Engineer</h1>
+  <form id="app" novalidate>
+    <label for="fh-name">Full name *</label><input id="fh-name" name="name" required>
+    <div class="g-recaptcha" data-sitekey="fixture-only" style="width:304px;height:78px;border:1px solid #ccc;background:#f9f9f9">I'm not a robot</div>
+    <button type="submit">Submit application</button>
+  </form>
+</body>
+</html>

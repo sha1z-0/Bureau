@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: every field sits in a collapsed accordion section ("1. About you",
+  "2. Your documents"), so the page shows no form until the sections are opened.
+  Labels are worded the company's own way; the submit button sits in the last
+  section. Fictional employer. Local only (window.__posted).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Software Engineer - Brightwater Health Tech</title>
+  <style>
+    body { font-family: Verdana, sans-serif; max-width: 680px; margin: 24px auto; }
+    .acc { border: 1px solid #cbd5e1; border-radius: 6px; margin: 10px 0; }
+    .acc > button { width: 100%; text-align: left; padding: 10px; background: #f1f5f9; border: 0; font-size: 16px; cursor: pointer; }
+    .panel { padding: 10px 14px; }
+    .field { margin: 12px 0; } label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input[type=text], input[type=email], input[type=tel], textarea { width: 100%; padding: 6px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <h1>Junior Software Engineer</h1>
+  <p>Brightwater Health Tech builds appointment software for community clinics.</p>
+  <form id="app" novalidate>
+    <div class="acc">
+      <button type="button" id="h1" aria-expanded="false" aria-controls="s1">1. About you</button>
+      <div class="panel" id="s1" hidden>
+        <div class="field"><label for="bw-name">Your full name *</label><input id="bw-name" name="name" type="text" required></div>
+        <div class="field"><label for="bw-mail">Email address *</label><input id="bw-mail" name="mail" type="email" required></div>
+        <div class="field"><label for="bw-tel">Mobile number *</label><input id="bw-tel" name="tel" type="tel" required></div>
+        <div class="field"><label for="bw-where">Where are you based? *</label><input id="bw-where" name="where" type="text" required></div>
+      </div>
+    </div>
+    <div class="acc">
+      <button type="button" id="h2" aria-expanded="false" aria-controls="s2">2. Your documents</button>
+      <div class="panel" id="s2" hidden>
+        <div class="field"><label for="bw-cv">CV (PDF) *</label><input id="bw-cv" name="cv" type="file" required></div>
+        <div class="field"><label for="bw-letter">Cover letter (PDF)</label><input id="bw-letter" name="letter" type="file"></div>
+        <p class="err" id="err" hidden></p>
+        <button type="submit">Submit application</button>
+      </div>
+    </div>
+  </form>
+  <div id="done" hidden><h2>Thank you for applying!</h2></div>
+  <script>
+    (function () {
+      ['h1', 'h2'].forEach(function (id) {
+        var b = document.getElementById(id);
+        b.addEventListener('click', function () {
+          var p = document.getElementById(b.getAttribute('aria-controls'));
+          p.hidden = !p.hidden;
+          b.setAttribute('aria-expanded', p.hidden ? 'false' : 'true');
+        });
+      });
+      document.getElementById('app').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var missing = Array.prototype.filter.call(this.querySelectorAll('[required]'), function (el) { return !el.value; });
+        if (missing.length) { var er = document.getElementById('err'); er.hidden = false; er.textContent = 'Please complete every required field.'; return; }
+        window.__posted = (window.__posted || 0) + 1;
+        this.hidden = true;
+        document.getElementById('done').hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

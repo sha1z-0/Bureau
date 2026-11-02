@@ -160,7 +160,7 @@ async function decideTurn(decide: (r: DecideRequest) => Promise<AgentAction>, re
   }
 }
 
-async function claudeDecide(req: DecideRequest): Promise<AgentAction> {
+export async function claudeDecide(req: DecideRequest): Promise<AgentAction> {
   return structured({ task: 'agent_step', system: req.system, content: req.content, schema: AgentActionSchema, maxTokens: 1200 });
 }
 

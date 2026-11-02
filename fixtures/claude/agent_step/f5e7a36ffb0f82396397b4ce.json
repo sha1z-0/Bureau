@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "f5e7a36ffb0f82396397b4ce",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1852,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b5",
+    "valueKey": "profile:linkedin",
+    "file": "",
+    "question": "",
+    "reason": "\"LinkedIn profile\" takes profile:linkedin.",
+    "action": "fill"
+  }
+}

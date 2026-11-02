@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "e4c2e665f1b61ef8ad048d0f",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1833,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b4",
+    "valueKey": "profile:phone",
+    "file": "",
+    "question": "",
+    "reason": "\"Phone\" takes profile:phone.",
+    "action": "fill"
+  }
+}

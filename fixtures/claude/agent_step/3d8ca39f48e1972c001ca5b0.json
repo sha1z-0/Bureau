@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "3d8ca39f48e1972c001ca5b0",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1771,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b0",
+    "valueKey": "file:cv",
+    "file": "cv",
+    "question": "",
+    "reason": "Upload the CV to \"CV (PDF)\".",
+    "action": "upload"
+  }
+}

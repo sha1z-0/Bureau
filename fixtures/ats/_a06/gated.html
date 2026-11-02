@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: a form no adapter knows, hidden behind a custom "Let's get started"
+  control (a div with role=button, not an Apply link), so the form engine finds no
+  form and hands the page to the browser agent. Fictional employer. Local only:
+  the submit is recorded in window.__posted and shown as a confirmation.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Backend Engineer - Quillfeather Labs</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 680px; margin: 24px auto; color: #1f2937; }
+    .cta { display: inline-block; background: #4338ca; color: #fff; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
+    .field { margin: 12px 0; } label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input[type=text], input[type=email], input[type=tel], input[type=url] { width: 100%; padding: 6px; box-sizing: border-box; }
+    .err { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>Junior Backend Engineer</h1>
+  <p>Quillfeather Labs builds bookkeeping tools for independent bookshops. You will work on our TypeScript and PostgreSQL services with a small, friendly team. Remote within UTC+0 to UTC+6.</p>
+  <div class="cta" role="button" tabindex="0" id="begin">Let's get started</div>
+
+  <form id="app" hidden novalidate>
+    <h2>Your application</h2>
+    <div class="field"><label for="qf-first">First name *</label><input id="qf-first" name="first" type="text" required></div>
+    <div class="field"><label for="qf-last">Last name *</label><input id="qf-last" name="last" type="text" required></div>
+    <div class="field"><label for="qf-email">Email *</label><input id="qf-email" name="email" type="email" required></div>
+    <div class="field"><label for="qf-phone">Phone *</label><input id="qf-phone" name="phone" type="tel" required></div>
+    <div class="field"><label for="qf-li">LinkedIn profile</label><input id="qf-li" name="linkedin" type="url"></div>
+    <div class="field"><label for="qf-cv">Resume/CV *</label><input id="qf-cv" name="cv" type="file" required></div>
+    <div class="field"><label><input id="qf-privacy" name="privacy" type="checkbox" required> I agree to the privacy notice *</label></div>
+    <p class="err" id="err" hidden></p>
+    <button type="submit">Submit application</button>
+  </form>
+  <div id="done" hidden><h2>Thank you for applying!</h2><p>We have received your application.</p></div>
+  <script>
+    (function () {
+      var begin = document.getElementById('begin');
+      function open() { document.getElementById('app').hidden = false; begin.style.display = 'none'; }
+      begin.addEventListener('click', open);
+      begin.addEventListener('keydown', function (e) { if (e.key === 'Enter') open(); });
+      document.getElementById('app').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var missing = Array.prototype.filter.call(this.querySelectorAll('[required]'), function (el) { return el.type === 'checkbox' ? !el.checked : !el.value; });
+        if (missing.length) { var er = document.getElementById('err'); er.hidden = false; er.textContent = 'Please complete every required field.'; return; }
+        window.__posted = (window.__posted || 0) + 1;
+        this.hidden = true;
+        document.getElementById('done').hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

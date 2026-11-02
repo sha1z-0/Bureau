@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "3354d4c20129a98fa5609da2",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1703,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b3",
+    "valueKey": "profile:email",
+    "file": "",
+    "question": "",
+    "reason": "\"Email address\" takes profile:email.",
+    "action": "fill"
+  }
+}

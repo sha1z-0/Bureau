@@ -1,0 +1,19 @@
+{
+  "task": "agent_step",
+  "hash": "7d061a0119ebf07789459cb5",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 1750,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "b5",
+    "valueKey": "profile:location",
+    "file": "",
+    "question": "",
+    "reason": "\"Where are you based?\" takes profile:location.",
+    "action": "fill"
+  }
+}
