@@ -518,6 +518,34 @@ export default async function a11({ check, section, pending, sharedBrowser }: Ha
     assert.ok(!cols.some((c) => /pass/i.test(c)), 'site passwords must be vault references, not a column');
   });
 
+  section('A11 · Linux readiness');
+  await check('Windows-only code stays in autostart, the vault DPAPI branch and the cross-platform "open browser" switch', () => {
+    const allowed = new Set([path.join('server', 'services', 'autostart.ts'), path.join('server', 'security', 'vault.ts'), path.join('server', 'index.ts')]);
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walk(p);
+        else if (e.name.endsWith('.ts') && !allowed.has(path.relative(ROOT, p))) {
+          const t = fs.readFileSync(p, 'utf8');
+          if (/process\.platform\s*===?\s*['"]win32['"]|powershell(\.exe)?['"]|['"]cmd(\.exe)?['"]|wscript|SetThreadExecutionState|['"][A-Za-z]:\\\\/.test(t)) {
+            // A08's keep-awake helper is allowed when it is a no-op off Windows.
+            if (/SetThreadExecutionState/.test(t) && /process\.platform\s*!==?\s*['"]win32['"]/.test(t)) continue;
+            offenders.push(path.relative(ROOT, p));
+          }
+        }
+      }
+    };
+    walk(path.join(ROOT, 'server'));
+    assert.deepEqual(offenders, []);
+  });
+  await check('the container image is headless-ready (Chromium path, non-root user, data volume, health check)', () => {
+    const df = fs.readFileSync(path.join(ROOT, 'Dockerfile'), 'utf8');
+    for (const must of ['chromium', 'BUREAU_CHROME_PATH', '/opt/google/chrome/chrome', 'USER bureau', 'VOLUME ["/data"]', 'HEALTHCHECK', 'tini']) assert.ok(df.includes(must), must);
+    const dc = fs.readFileSync(path.join(ROOT, 'docker-compose.yml'), 'utf8');
+    for (const must of ['BUREAU_MASTER_KEY', 'BUREAU_ALLOWED_ORIGINS', 'BUREAU_COOKIE_SECURE', 'BUREAU_HOST: 127.0.0.1', 'shm_size']) assert.ok(dc.includes(must), must);
+  });
+
   // Surfaces that land with A07/A08/A09/A03. Each lights up when its export exists.
   const exists = (rel: string) => fs.existsSync(path.join(ROOT, rel));
   const optional = async (cands: [string, string][]) => {

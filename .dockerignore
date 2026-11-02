@@ -1,0 +1,16 @@
+# Keep the build context small and free of secrets and local state.
+.git
+.github
+node_modules
+dist
+data
+.env
+.env.*
+*.log
+sidecars/jobspy/.venv
+**/__pycache__
+design/shots
+docs/Bureau-Design-Book.pdf
+Dockerfile
+docker-compose.yml
+.dockerignore
