@@ -48,8 +48,11 @@ function eqLoose(a: string, b: string): boolean {
   const na = norm(a);
   const nb = norm(b);
   if (na === nb) return true;
-  // Phones: accept the national number with or without the country code.
-  if (/^\d{7,}$/.test(na) && /^\d{7,}$/.test(nb)) return na.endsWith(nb) || nb.endsWith(na);
+  // Phones: accept the national number with or without the country code or the trunk 0.
+  if (/^\d{7,}$/.test(na) && /^\d{7,}$/.test(nb)) {
+    const [a, b] = [na.replace(/^0+/, ''), nb.replace(/^0+/, '')];
+    return a.endsWith(b) || b.endsWith(a);
+  }
   return false;
 }
 

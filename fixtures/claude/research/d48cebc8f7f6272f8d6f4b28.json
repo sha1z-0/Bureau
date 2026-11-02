@@ -1,0 +1,19 @@
+{
+  "task": "research",
+  "hash": "d48cebc8f7f6272f8d6f4b28",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 2100,
+    "output_tokens": 380,
+    "server_tool_use": {
+      "web_search_requests": 2
+    }
+  },
+  "text": "Lumen Ledger sells a double-entry ledger API for small online businesses. Its October changelog announced multi-currency journals.",
+  "sources": [
+    {
+      "url": "https://lumenledger.example.com/changelog",
+      "title": "Lumen Ledger changelog"
+    }
+  ]
+}
