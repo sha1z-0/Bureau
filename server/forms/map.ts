@@ -35,6 +35,8 @@ export interface JobInfo {
   source: string;
   url: string;
   ats: string | null;
+  /** The posting's text (when known): its keywords rank the candidate's skills. */
+  description?: string | null;
 }
 
 export interface MapDeps {
@@ -102,11 +104,28 @@ async function realAnswerQuestion(jobId: string, question: string, opts: { maxCh
 }
 
 export function jobInfo(jobId: string): JobInfo | null {
-  const j = get<{ id: string; title: string; company: string; source: string; url: string; apply_url_canonical: string | null; ats: string | null }>(
-    'SELECT id, title, company, source, url, apply_url_canonical, ats FROM jobs WHERE id = ?',
+  const j = get<{ id: string; title: string; company: string; source: string; url: string; apply_url_canonical: string | null; ats: string | null; description_text: string | null }>(
+    'SELECT id, title, company, source, url, apply_url_canonical, ats, description_text FROM jobs WHERE id = ?',
     jobId,
   );
-  return j ? { id: j.id, title: j.title, company: j.company, source: j.source, url: j.url, ats: j.ats } : null;
+  return j ? { id: j.id, title: j.title, company: j.company, source: j.source, url: j.url, ats: j.ats, description: j.description_text } : null;
+}
+
+/**
+ * The candidate's skills, most relevant first: core-stack skills the job names,
+ * other skills the job names, the rest of the core stack, then everything else
+ * (each tier in the profile's own order). Only skills the profile lists.
+ */
+export function rankSkills(c: Pick<Candidate, 'skills' | 'coreStack'>, job: Pick<JobInfo, 'title' | 'description'> | null): string[] {
+  const text = ` ${normText([job?.title, job?.description].filter(Boolean).join(' '))} `;
+  const named = (s: string) => {
+    const n = normText(s);
+    return !!n && text.includes(` ${n} `);
+  };
+  const core = new Set((c.coreStack ?? []).map(normText));
+  const isCore = (s: string) => core.has(normText(s));
+  const tier = (s: string) => (named(s) ? (isCore(s) ? 0 : 1) : isCore(s) ? 2 : 3);
+  return c.skills.map((s, i) => ({ s, i, t: tier(s) })).sort((a, b) => a.t - b.t || a.i - b.i).map((x) => x.s);
 }
 
 type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string } };
@@ -560,18 +579,25 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
         case 'profile': {
           if (!c) break;
           if (e.key === 'skills') {
-            // Only skills the profile really lists.
+            // Only skills the profile really lists, the most relevant to this job first.
+            const ranked = rankSkills(c, job);
+            const optionFor = (sk: string) => (f.options ?? []).find((o) => optionScore(sk, o) >= 0.9) ?? null;
+            if (f.kind === 'combobox') {
+              // Menus hide what is already picked and creatable ones add what they lack: rank by relevance, not by
+              // the options shown, so the answer is stable across passes and the core stack is never dropped.
+              const picks = [...new Set(ranked.map((sk) => optionFor(sk) ?? sk))];
+              // A single-pick menu with known options takes the most relevant listed one.
+              const single = !!f.options?.length && !f.meta?.multi;
+              const want = (single ? picks.filter((p) => f.options!.includes(p)).slice(0, 1) : picks.slice(0, 6)).join('; ');
+              return want ? val(f, 'profile', 'skills', want, 0.85, { synKey: e.key }) : null;
+            }
             if (f.options?.length) {
-              const hits = f.options.filter((o) => c.skills.some((sk) => optionScore(sk, o) >= 0.9));
+              const hits = [...new Set(ranked.map(optionFor).filter((o): o is string => !!o))];
               const single = f.kind === 'radio' || (f.kind === 'select' && !f.meta?.multiple);
               if (hits.length) return val(f, 'profile', 'skills', single ? hits[0] : hits.join('; '), 0.9, { synKey: e.key });
               return optional('None of the listed options is in your profile.');
             }
-            if (f.kind === 'combobox') {
-              const want = c.skills.slice(0, 6).join('; ');
-              return want ? val(f, 'profile', 'skills', want, 0.85, { synKey: e.key }) : null;
-            }
-            if (f.kind === 'text' || f.kind === 'textarea') return c.skills.length ? val(f, 'profile', 'skills', c.skills.slice(0, 10).join(', '), 0.85, { synKey: e.key }) : null;
+            if (f.kind === 'text' || f.kind === 'textarea') return ranked.length ? val(f, 'profile', 'skills', ranked.slice(0, 10).join(', '), 0.85, { synKey: e.key }) : null;
             break;
           }
           if (e.key === 'summary') {

@@ -47,6 +47,8 @@ export interface Candidate {
   cvText: string;
   summary: string;
   skills: string[];
+  /** The profile's core stack (a subset of `skills`), when it names one. */
+  coreStack?: string[];
 }
 
 /** Calling codes for the countries Bureau users apply from and to most. */
@@ -190,5 +192,6 @@ export function candidateFrom(p: Profile | null, links: { linkedin?: string; git
     cvText: p.cvMarkdown,
     summary: p.summary,
     skills: [...new Set([...(p.coreStack ?? []), ...(p.skills ?? [])])],
+    coreStack: [...(p.coreStack ?? [])],
   };
 }
