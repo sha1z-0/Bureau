@@ -25,6 +25,7 @@ export default async function a02Match({ check, section }: Harness) {
   const { profileEmbeddingText, toMatchProfile } = await import('../../server/match/profile.ts');
   const { FIXTURE_ASSESSMENTS, FIXTURE_JOBS, FIXTURE_NOW, TEST_PROFILE, TEST_V1_PROFILE } = await import('../../server/match/fixtures.ts');
   const { SCORING_RUBRIC } = await import('../../server/ai/prompts.ts');
+  const { AppError } = await import('../../server/errors.ts');
   const { scoreJobs, computeScore } = await import('../../server/ai/score.ts');
   type MatchJob = import('../../server/match/jobs.ts').MatchJob;
   type CampaignConfig = import('../../server/contracts/campaign.ts').CampaignConfig;
@@ -512,6 +513,14 @@ export default async function a02Match({ check, section }: Harness) {
     assert.match(r.reason, /^filter: on-site in Austin/);
     assert.equal(readMatch(onsite.id)?.explain.filter?.code, 'location');
   });
+  await check('when the budget runs out, the error surfaces and the jobs wait at filtered', async () => {
+    const j = insertJob(baseJob({ id: 'pr-budget', title: 'Frontend Engineer (React)', descriptionText: 'React and TypeScript.', prefilterScore: 80 }));
+    const broke: typeof structured = async () => {
+      throw new AppError(402, 'BUDGET', 'Monthly AI budget reached.');
+    };
+    await assert.rejects(matchJobs([j.id], cfgOf(), { profile, now: FIXTURE_NOW, structuredFn: broke }), (e: unknown) => (e as { code?: string }).code === 'BUDGET');
+    assert.equal(pipelineState(j.id)?.state, 'filtered');
+  });
   await check('jobs already past scoring (selected, writing, …) are left alone', async () => {
     const busy = insertJob(baseJob({ id: 'pr-busy' }));
     for (const s of ['found', 'filtered', 'scored', 'selected', 'writing'] as const) transition(busy.id, s);
@@ -586,7 +595,6 @@ export default async function a02Match({ check, section }: Harness) {
   // ── Routes ────────────────────────────────────────────────────────────────
   section('A02 matcher: routes');
   const Fastify = (await import('fastify')).default;
-  const { AppError } = await import('../../server/errors.ts');
   const app = Fastify();
   app.setErrorHandler((err: Error, _req, reply) => {
     if (err instanceof AppError) return reply.status(err.status).send({ error: err.code, message: err.message });

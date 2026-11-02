@@ -147,6 +147,7 @@ export async function runMatch(jobIds: string[], cfg: CampaignConfig, opts: Matc
   const signals = companiesWithSignals(now);
   let stop = false;
   let assessed = 0;
+  let firstError: unknown = null;
 
   const handle = async (batch: typeof toAssess) => {
     if (stop) {
@@ -163,6 +164,7 @@ export async function runMatch(jobIds: string[], cfg: CampaignConfig, opts: Matc
       );
     } catch (err) {
       const msg = (err as Error).message;
+      firstError ??= err;
       run.errors.push(msg);
       run.deferred.push(...batch.map((b) => b.job.id));
       if (err instanceof AppError && ['BUDGET', 'NO_API_KEY', 'AI_AUTH'].includes(err.code)) stop = true;
@@ -193,7 +195,8 @@ export async function runMatch(jobIds: string[], cfg: CampaignConfig, opts: Matc
   }
 
   if (batches.length && !assessed && run.errors.length) {
-    // Nothing got through: surface the outage (budget, key, network) to the caller.
+    // Nothing got through: surface the outage (budget, key, network) to the caller with its own code.
+    if (firstError instanceof AppError) throw firstError;
     throw new AppError(502, 'MATCH_FAILED', `The matcher could not assess any job: ${run.errors[0]}`);
   }
   if (run.errors.length) logEvent('match', `Matcher: ${run.errors.length} problem(s); ${run.deferred.length} job(s) wait for the next cycle. First: ${run.errors[0].slice(0, 200)}`);
