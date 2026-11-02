@@ -64,6 +64,14 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           if (r === 'listbox' || r === 'option' || r === 'tooltip' || r === 'combobox') continue;
           if (t === 'BUTTON' && c.getAttribute('aria-haspopup')) continue;
           if (c.hasAttribute('data-bureau-skiptext')) continue;
+          // A <slot> shows the light-DOM content assigned to it (a label projected into a shadow <label>).
+          if (t === 'SLOT' && c.assignedNodes && c.assignedNodes({ flatten: true }).length) {
+            for (const a of c.assignedNodes({ flatten: true })) {
+              if (a.nodeType === 3) out += a.nodeValue;
+              else if (a.nodeType === 1) { walk(a); out += ' '; }
+            }
+            continue;
+          }
           if (c.getClientRects().length === 0 && getComputedStyle(c).display === 'none') continue;
           walk(c);
           out += ' ';
@@ -113,6 +121,20 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       node = parentOf(node);
     }
     return '';
+  }
+  /** A form-associated custom element with a closed shadow root (no light-DOM control, no reachable shadowRoot). */
+  function closedField(el) {
+    const tag = el.tagName.toLowerCase();
+    if (tag.indexOf('-') < 0 || el.shadowRoot || el.getAttribute('role') || !el.getAttribute('name')) return false;
+    if (el.querySelector(CONTROL_SEL)) return false;
+    const C = W.customElements && W.customElements.get(tag);
+    return !!(C && C.formAssociated);
+  }
+  /** What a form-associated element contributes to its form (the only way to read a closed field). */
+  function formValueOf(el) {
+    const form = el.closest('form');
+    if (!form) return '';
+    try { const v = new FormData(form).get(el.getAttribute('name')); return typeof v === 'string' ? v : ''; } catch (e) { return ''; }
   }
   /** The menu a menu button opens, when its items are choices (menuitemcheckbox / menuitemradio), else null. */
   function choiceMenu(el) {
@@ -415,6 +437,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         }
         continue;
       }
+      // A form-associated custom element whose shadow root is CLOSED: its input cannot be reached, but the host
+      // delegates focus (click + keyboard) and its value shows in the form's FormData under its name.
+      if (!native && !custom && closedField(el)) {
+        consumed.add(el);
+        if (!visible(el) || honeypot(el, '')) continue;
+        const raw = norm(el.getAttribute('label')) || norm(el.getAttribute('aria-label')) || labelOf(el) || humanName(el.getAttribute('name'));
+        const id = stampField(el, prefix);
+        el.setAttribute('data-bureau-closed', '1');
+        const label = cleanLabel(raw);
+        out.push({ id, kind: 'text', rawLabel: raw, label, required: el.hasAttribute('required') || el.getAttribute('aria-required') === 'true' || requiredMark(raw), meta: { closed: true }, el, selectors: selectorsFor(el, label) });
+        continue;
+      }
       if (!native && !custom) continue;
       if (el.closest('[role="listbox"], [role="menu"], nav, header, footer, [data-bureau-ignore]')) continue;
       if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
@@ -701,6 +735,8 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         value = on ? optionLabel(on) : '';
       } else if (members.length && kind === 'checkbox') {
         value = members.filter((m) => m.checked || m.getAttribute('aria-checked') === 'true').map(optionLabel).join('; ');
+      } else if (el.getAttribute('data-bureau-closed')) {
+        value = formValueOf(el);
       } else if (el.tagName === 'SELECT') {
         const sel = Array.from(el.selectedOptions || []).filter((o) => !isPlaceholderOption(o));
         value = sel.map((o) => norm(o.text)).join('; ');
