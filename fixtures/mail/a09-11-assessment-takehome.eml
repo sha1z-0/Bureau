@@ -1,0 +1,19 @@
+From: Mei Tanaka <mei@tallgrass.example.com>
+To: ayesha.jobs@example.com
+Subject: Tallgrass Games - take-home exercise
+Date: Wed, 28 Oct 2026 12:00:00 +0000
+Message-ID: <tg-mt-5520@tallgrass.example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Hi Ayesha,
+
+Thanks for your interest in the Gameplay Programmer role. The next step in our process is a small take-home exercise: build a simple 2D platformer character controller in Unity (C#) with coyote time and jump buffering.
+
+You will find the brief and starter project here: https://tallgrass.example.com/hiring/take-home/gameplay-2026
+
+Please send us a link to your repository by Monday, November 16, 2026. It should take around four hours; please do not spend more than that.
+
+Cheers,
+Mei Tanaka
+Lead Gameplay Engineer, Tallgrass Games
