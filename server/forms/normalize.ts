@@ -44,7 +44,7 @@ export function companyKey(name: string | null | undefined): string {
 
 const YES = /^(yes|y|true|1|i do|i am|i have|i will|i can|agree|accept|correct|affirmative)\b/;
 const NO = /^(no|n|false|0|i do not|i dont|i am not|i have not|i will not|i cannot|disagree|decline)\b/;
-const DECLINE = /(decline|prefer not|do not wish|dont wish|not to (say|answer|disclose|self identify)|choose not|rather not|not specified|i dont want to answer|wish not to)/;
+const DECLINE = /(decline|prefer not|do not wish|dont wish|not to (say|answer|disclose|self identify)|choose not|rather not|not specified|(do not|dont) want to (answer|say|disclose|self identify)|wish not to|not (wish|want) to self identify)/;
 
 export function isDeclineOption(o: string): boolean {
   return DECLINE.test(normText(o));
@@ -86,6 +86,14 @@ export function optionScore(value: string, option: string): number {
   const to = truthy(option);
   if (tv !== null && to !== null) return tv === to ? 0.95 : 0;
   if (isDeclineOption(value) && isDeclineOption(option)) return 0.95;
+  // Time zones: compare UTC offsets ("PKT (UTC+5)" ~ "(GMT+05:00) Islamabad, Karachi").
+  const off = (s: string) => {
+    const m = s.match(/\b(?:utc|gmt)\s*([+-−])\s*(\d{1,2})(?::?(\d{2}))?/i);
+    return m ? (m[1] === '+' ? 1 : -1) * (Number(m[2]) * 60 + Number(m[3] ?? 0)) : null;
+  };
+  const ov = off(value);
+  const oo = off(option);
+  if (ov !== null && oo !== null) return ov === oo ? 0.9 : 0;
   const num = Number(v.replace(/[^\d.]/g, ''));
   const range = numericRange(option);
   if (/^\d+(\.\d+)?$/.test(v) && range) return num >= range[0] && num <= range[1] ? 0.93 : 0;
@@ -198,12 +206,14 @@ export function sameDate(a: string, b: string, format?: string): boolean {
 const digits = (s: string) => s.replace(/\D/g, '');
 
 /** Did the field end up holding what we meant to put in it? */
-export function valuesMatch(kind: FieldKind | string, intended: string, readBack: string, extra: { display?: string; chip?: string; format?: string } = {}): boolean {
+export function valuesMatch(kind: FieldKind | string, intended: string, readBack: string, extra: { display?: string; chip?: string; format?: string; strict?: boolean } = {}): boolean {
   const i = String(intended ?? '');
   const r = String(readBack ?? '');
   switch (kind) {
     case 'tel':
     case 'phone': {
+      // Strict (is the pre-filled value already what we would type?): the same digits, trunk zero included.
+      if (extra.strict) return digits(i) === digits(r) || (i.trim().startsWith('+') && digits(r) === digits(i));
       const di = digits(i).replace(/^0+/, '');
       const dr = digits(r).replace(/^0+/, '');
       if (!di) return !dr;

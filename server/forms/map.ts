@@ -1,10 +1,10 @@
 import type { FieldValue, FormField, ValueSource } from '../contracts/forms.ts';
 import type { Answered } from '../contracts/profile.ts';
 import type { ApplicationPacket } from '../contracts/writer.ts';
-import { get } from '../db.ts';
+import { all, get } from '../db.ts';
 import { loadProfile } from '../services/profileStore.ts';
-import { type Candidate, candidateFrom, degreeLevel } from './candidate.ts';
-import { bestOption, declineOption, labelNorm as normLabel, normText, parseDate } from './normalize.ts';
+import { type Candidate, candidateFrom, degreeLevel, DIAL_CODES } from './candidate.ts';
+import { bestOption, declineOption, labelNorm as normLabel, normText, optionScore, parseDate } from './normalize.ts';
 import { matchSynonym, type SynEntry } from './synonyms.ts';
 
 /**
@@ -93,9 +93,9 @@ async function realAnswerQuestion(jobId: string, question: string, opts: { maxCh
   try {
     const { answerQuestion } = await import('../writer/index.ts');
     return await answerQuestion(jobId, question, opts);
-  } catch (err) {
-    if ((err as Error).name === 'NotImplemented') return null;
-    throw err;
+  } catch {
+    // Not built, out of budget, or no recording in replay: the question stays unanswered.
+    return null;
   }
 }
 
@@ -107,7 +107,7 @@ export function jobInfo(jobId: string): JobInfo | null {
   return j ? { id: j.id, title: j.title, company: j.company, source: j.source, url: j.url, ats: j.ats } : null;
 }
 
-type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; question?: string; cc?: string } };
+type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string } };
 
 const SOURCE_LABELS: Record<string, string> = {
   linkedin: 'LinkedIn',
@@ -128,6 +128,133 @@ const SOURCE_LABELS: Record<string, string> = {
 
 const LONG_FORM = /\?$|^(why|what|how|describe|tell|explain|share|please (describe|tell|explain|share|provide)|give|list|briefly|in a few|anything else|additional information|is there anything)/i;
 const ATTESTATION = /\b(authori[sz]ed to work|eligible to work|right to work|work permit|sponsor|visa|citizen|convicted|criminal|felony|clearance|non ?compete|at least 18|over 18|background check|drug (test|screen)|legally)\b/i;
+
+/** Canonical wordings to retry in the answer bank when the form's own wording finds nothing. */
+const ALT_QUESTIONS: Record<string, string[]> = {
+  start_date: ['When can you start?', 'What is your earliest start date?', 'Available from'],
+  notice_period: ['What is your notice period?'],
+  salary_expectation: ['What are your salary expectations?'],
+  salary_expectation_number: ['Expected annual salary (number only)', 'What are your salary expectations?'],
+  current_salary: ['What is your current salary?'],
+  sponsorship: ['Will you now or in the future require sponsorship for employment visa status?', 'Do you require visa sponsorship?'],
+  how_heard: ['How did you hear about us?'],
+  referred_by: ['Were you referred by a current employee?'],
+  relocation: ['Are you willing to relocate?'],
+  remote: ['Are you comfortable working fully remotely?', 'Are you open to hybrid or onsite work?'],
+  timezone: ['What timezone are you in?'],
+  languages: ['Which languages do you speak?'],
+  previously_employed: ['Have you previously worked for this company?'],
+  age_18: ['Are you at least 18 years of age?'],
+  background_check: ['Do you consent to a background check if you receive an offer?'],
+  years_experience: ['How many years of professional software engineering experience do you have?'],
+  highest_education: ['What is your highest level of education?'],
+  address_line: ['What is your street address?', 'Address line 1'],
+  postal_code: ['What is your postal code?', 'Postal code'],
+};
+
+const COUNTRY_WORDS: [string, RegExp][] = [
+  ...Object.keys(DIAL_CODES).map((c) => [c, new RegExp(`\b${c}\b`)] as [string, RegExp]),
+  ['united states', /\b(usa|u s a|u s|us|united states|america)\b(?! dollars?)/],
+  ['united kingdom', /\b(uk|u k|great britain|britain|england)\b/],
+  ['european union', /\b(eu|european union|europe|schengen)\b/],
+  ['united arab emirates', /\buae\b/],
+];
+
+function countriesIn(s: string): Set<string> {
+  const t = normText(s).replace(/\bwork for us\b|\bjoin us\b|\bwith us\b|\babout us\b|\bfor us\b|\bto us\b/g, ' ');
+  return new Set(COUNTRY_WORDS.filter(([, re]) => re.test(t)).map(([c]) => c));
+}
+
+const STOP = new Set('a an and are as at be by can could do does for from have how i if in is it of on or our please the this to us we what when which will with would you your yourself now future currently'.split(' '));
+const contentWords = (s: string) => new Set(normText(s).split(' ').filter((w) => w.length > 1 && !STOP.has(w)));
+
+/** Keys whose saved answers can be recognised by topic when the wording differs (dates especially). */
+const KEY_TOPIC: Record<string, RegExp> = {
+  start_date: /\b(start|available|availability|join|begin)\b/,
+  notice_period: /\bnotice\b/,
+  salary_expectation: /\bsalary|compensation\b/,
+  salary_expectation_number: /\bsalary|compensation\b/,
+};
+
+/**
+ * A direct read of the owner's answer bank (A03's table, read only) for when
+ * `answerFor` returns nothing: the saved question with the closest wording
+ * (content-word overlap ≥ 0.6), or one on the same topic for typed keys, whose
+ * answer fits the field. Owner answers first.
+ */
+function bankLookup(f: Field, key: string | undefined, accept: (a: Answered) => boolean): Answered | null {
+  let rows: { id: string; question_raw: string; answer: string; source: string }[];
+  try {
+    rows = all<{ id: string; question_raw: string; answer: string; source: string }>("SELECT id, question_raw, answer, source FROM answer_bank WHERE answer <> '' ORDER BY CASE source WHEN 'owner' THEN 0 ELSE 1 END, updated_at DESC");
+  } catch {
+    return null;
+  }
+  const lw = contentWords(f.label);
+  const topic = key ? KEY_TOPIC[key] : undefined;
+  const lc = countriesIn(f.label);
+  let best: { a: Answered; score: number } | null = null;
+  for (const r of rows) {
+    const qw = contentWords(r.question_raw);
+    let common = 0;
+    for (const w of lw) if (qw.has(w)) common++;
+    const jac = lw.size && qw.size ? common / (lw.size + qw.size - common) : 0;
+    const onTopic = topic ? topic.test(normText(r.question_raw)) : false;
+    if (jac < 0.6 && !onTopic) continue;
+    // A question about one country never borrows an answer about another (or about none).
+    const rc = countriesIn(r.question_raw);
+    if (lc.size || rc.size) {
+      if (lc.size !== rc.size || [...lc].some((x) => !rc.has(x))) continue;
+    }
+    const value = f.options?.length ? bestOption(r.answer, f.options, 0.75) : r.answer;
+    if (!value) continue;
+    const a: Answered = { value, source: 'answer_bank', confidence: r.source === 'owner' ? 0.9 : 0.82, key: r.id };
+    if (!accept(a)) continue;
+    const score = jac + (onTopic ? 0.5 : 0);
+    if (!best || score > best.score) best = { a, score };
+  }
+  return best?.a ?? null;
+}
+
+/** "Years of professional experience" in the candidate's own field (not a named tool or skill). */
+function broadExperience(labelN: string): boolean {
+  const rest = labelN
+    .replace(/\b(how many|years?|of|professional|relevant|total|overall|work|working|industry|experience|do|you|have|in|with|the|a|as|an|hands on|commercial|paid)\b/g, ' ')
+    .replace(/\b(software|engineering|engineer|development|developer|programming|web|backend|back end|frontend|front end|full stack|fullstack|technical|tech|it|coding)\b/g, ' ')
+    .trim();
+  return rest === '';
+}
+
+function toNumber(v: string): string | null {
+  const m = v.replace(/,/g, '').match(/(\d+(?:\.\d+)?)\s*(k)?\b/i);
+  if (!m) return null;
+  const n = Number(m[1]) * (m[2] ? 1000 : 1);
+  return Number.isFinite(n) ? String(n) : null;
+}
+
+const SHORT_KEYS: [string, RegExp][] = [
+  ['why this role', /\bwhy (this|the|our) (role|position|job|opening)\b|\binterest(ed|s)? (you )?in (this|the) (role|position|job)\b|\bwhat (excites|interests|attracts) you about (this|the) (role|position|job)\b/],
+  ['why us', /\bwhy (do you want to|would you like to|are you interested in|are you excited to) (work|join)\b|\bwhy (us|this company)\b|\bwhat (excites|interests|attracts|draws) you (about|to) (us|working|the company|joining)\b|\bwhy do you want to work\b|\bwhy .* interested in (working|joining)\b|^why us\b/],
+  ['tell us about a project', /\b(project|something you (have |ve )?built|you (have |ve )?built or maintained|proud of|technical challenge|hardest (problem|bug)|recent work|a (service|system|bug) you|(service|system|pipeline|project|tool|app|application|api|feature) you (have |ve )?(built|maintained|worked on|shipped|designed))\b/],
+  ['additional information', /\b(additional information|anything else|is there anything|other information|comments?|message to the hiring (manager|team)|hiring manager message)\b/],
+];
+
+/** A pre-written short answer from the packet (why us / why this role / a project / additional info). */
+function shortAnswerFor(f: Field, packet: ApplicationPacket | null, job: JobInfo | null): { key: string; value: string } | null {
+  if (!packet || f.options?.length || !(f.kind === 'textarea' || f.kind === 'richtext' || f.kind === 'text')) return null;
+  let l = normText(f.label);
+  if (job?.company) {
+    l = l.replace(normText(job.company), 'us');
+    const first = normText(job.company).split(' ')[0];
+    if (first && first.length >= 4) l = l.replace(new RegExp(`\b${first}\b`), 'us');
+  }
+  const answers = new Map(Object.entries(packet.shortAnswers ?? {}).map(([k, v]) => [normText(k), v]));
+  for (const [k, v] of answers) if (v && (l === k || l.includes(k))) return { key: `writer:${k}`, value: v };
+  for (const [key, re] of SHORT_KEYS) {
+    const v = answers.get(key);
+    if (v && re.test(l)) return { key: `writer:${key}`, value: v };
+  }
+  return null;
+}
 
 function groupOf(f: Field): { name: 'work' | 'education' | null; index: number } {
   const g = f.meta?.group;
@@ -276,13 +403,25 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
   const job = opts.job ?? (jobId ? jobInfo(jobId) : null);
   const fileFields = fields.filter((f) => f.kind === 'file');
 
-  const ask = async (f: Field): Promise<Answered | null> => {
-    const k = `bank|${f.labelNorm}|${f.kind}|${(f.options ?? []).join('|')}`;
+  const askRaw = async (q: string, f: Field): Promise<Answered | null> => {
+    const k = `bank|${normText(q)}|${f.kind}|${(f.options ?? []).join('|')}`;
     if (cache.has(k)) return cache.get(k)!;
-    const q = (f as Field).meta?.question && f.kind !== 'radio' ? `${(f as Field).meta!.question} ${f.label}` : f.label;
-    const a = await deps.answerFor(q, { jobId, fieldKind: f.kind, options: f.options?.length ? f.options : undefined });
+    const a = await deps.answerFor(q, { jobId, fieldKind: f.kind, options: f.options?.length ? f.options : undefined }).catch(() => null);
     cache.set(k, a);
     return a;
+  };
+  /** The answer bank for this field: its own wording first, then the canonical wordings of its key. */
+  const ask = async (f: Field, key?: string, accept: (a: Answered) => boolean = () => true): Promise<Answered | null> => {
+    const own = f.meta?.question && f.kind !== 'radio' ? `${f.meta.question} ${f.label}` : f.label;
+    let best: Answered | null = null;
+    for (const q of [own, ...(key ? (ALT_QUESTIONS[key] ?? []) : [])]) {
+      const a = await askRaw(q, f);
+      if (a && a.confidence >= MIN_CONFIDENCE && accept(a)) return a;
+      if (a && !best) best = a;
+    }
+    if (best && accept(best)) return best;
+    // The bank's own lookup could not fit this wording / these options: compare with the saved questions directly.
+    return bankLookup(f, key, accept);
   };
   const write = async (f: Field): Promise<Answered | null> => {
     if (!opts.writer || !deps.answerQuestion || !jobId) return null;
@@ -293,6 +432,8 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     cache.set(k, a);
     return a;
   };
+  // A phone input next to its own country picker takes the national number.
+  const hasCountryPicker = fields.some((o) => (o.kind === 'combobox' || o.kind === 'select') && (/\b(country|dial|calling) code\b/i.test(o.label) || (!!o.section && /phone|mobile/i.test(o.section) && /country/i.test(o.label))));
 
   const out: MappedValue[] = [];
   for (const raw of fields) {
@@ -306,13 +447,17 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     const g = groupOf(f);
     const ln = f.labelNorm || normLabel(f.label);
     const syn = matchSynonym(ln, g.name) ?? (f.meta?.question ? matchSynonym(normLabel(f.meta.question), g.name) : null);
-    const e: SynEntry | null = syn?.entry ?? null;
+    let e: SynEntry | null = syn?.entry ?? null;
     const optional = (reason: string) => (f.required ? unknown(f, reason) : null);
+    const choice = f.kind === 'select' || f.kind === 'radio' || f.kind === 'combobox' || f.kind === 'checkbox';
+    // A checkbox only takes yes/no style keys from the dictionary.
+    if (e && (f.kind === 'checkbox' || f.kind === 'consent') && !f.options?.length && e.source === 'profile' && e.key !== 'work_current') e = null;
 
     // 1. Files.
     if (f.kind === 'file') {
-      const wantsLetter = e?.key === 'cover_letter' || /cover|motivation|anschreiben/i.test(f.label);
-      const wantsCv = e?.key === 'resume' || /resume|cv\b|curriculum|lebenslauf/i.test(f.label) || (fileFields.length === 1 && !wantsLetter);
+      const hint = `${f.label} ${f.meta?.hint ?? ''}`;
+      const wantsLetter = e?.key === 'cover_letter' || /cover|motivation|anschreiben|coverletter/i.test(hint);
+      const wantsCv = !wantsLetter && (e?.key === 'resume' || /resume|\bcv\b|[._[-]cv\b|curriculum|lebenslauf/i.test(hint) || (fileFields.length === 1 && !/photo|avatar|picture|transcript|portfolio/i.test(hint)));
       if (wantsLetter && packet?.letterPdfPath) return val(f, 'file', 'letter', packet.letterPdfPath, 0.97);
       if (wantsCv && packet?.cvPdfPath) return val(f, 'file', 'cv', packet.cvPdfPath, 0.97);
       if (!packet) return null;
@@ -327,6 +472,8 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
         return optional('Voluntary demographic question with no decline option.');
       }
       if (f.kind === 'checkbox' || f.kind === 'consent') return null;
+      // Options appear only when the menu opens: the handler picks the decline option.
+      if (f.kind === 'combobox') return val(f, 'generated', `eeo:${e?.key ?? 'decline'}`, 'Decline to self-identify', 0.9, { synKey: e?.key });
       return f.required ? val(f, 'generated', `eeo:${e?.key ?? 'decline'}`, 'Prefer not to say', 0.8, { synKey: e?.key }) : null;
     }
 
@@ -344,10 +491,32 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
       switch (e.source) {
         case 'profile': {
           if (!c) break;
+          if (e.key === 'skills') {
+            // Only skills the profile really lists.
+            if (f.options?.length) {
+              const hits = f.options.filter((o) => c.skills.some((sk) => optionScore(sk, o) >= 0.9));
+              const single = f.kind === 'radio' || (f.kind === 'select' && !f.meta?.multiple);
+              if (hits.length) return val(f, 'profile', 'skills', single ? hits[0] : hits.join('; '), 0.9, { synKey: e.key });
+              return optional('None of the listed options is in your profile.');
+            }
+            if (f.kind === 'combobox') {
+              const want = c.skills.slice(0, 6).join('; ');
+              return want ? val(f, 'profile', 'skills', want, 0.85, { synKey: e.key }) : null;
+            }
+            if (f.kind === 'text' || f.kind === 'textarea') return c.skills.length ? val(f, 'profile', 'skills', c.skills.slice(0, 10).join(', '), 0.85, { synKey: e.key }) : null;
+            break;
+          }
+          if (e.key === 'summary') {
+            if ((f.kind === 'textarea' || f.kind === 'richtext' || f.kind === 'text') && c.summary) return val(f, 'profile', 'summary', c.summary, 0.9, { synKey: e.key });
+            break;
+          }
           let v = profileValue(e.key, c, f, g.index);
+          if (e.key === 'phone' && hasCountryPicker && f.kind !== 'phone') v = c.phoneNational;
           if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
-          if (v && f.options?.length && (f.kind === 'select' || f.kind === 'radio' || f.kind === 'combobox' || f.kind === 'checkbox')) v = fit(f, v, 0.6) ?? '';
+          if (v && f.options?.length && choice) v = fit(f, v, 0.6) ?? '';
           if (v) return val(f, 'profile', e.key, v, syn!.confidence * (g.name ? 0.95 : 1), { synKey: e.key });
+          // Entry fields with nothing in the profile (an end date for the current job, a missing entry) stay empty.
+          if (e.group) return f.required ? unknown(f, 'Not in your profile.', { synKey: e.key }) : null;
           break;
         }
         case 'file': {
@@ -357,25 +526,43 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           break;
         }
         case 'generated': {
-          const a = await ask(f);
+          if (e.key === 'date_today') {
+            if (f.kind !== 'date' && f.kind !== 'text') break;
+            const d = new Date();
+            return val(f, 'generated', 'date_today', `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, 0.9, { synKey: e.key });
+          }
+          const a = await ask(f, e.key);
           if (a && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { synKey: e.key });
           const v = howHeard(job, f);
           if (v) return val(f, 'generated', 'how_heard', v, 0.85, { synKey: e.key });
           break;
         }
         case 'bank': {
-          const a = await ask(f);
+          // "Address" alone, or an address typeahead, is where the candidate lives.
+          if (e.key === 'address_line' && c?.location && (ln === 'address' || f.kind === 'location' || f.kind === 'combobox')) {
+            const where = f.kind === 'location' || f.kind === 'combobox' ? [c.city, c.country].filter(Boolean).join(', ') || c.location : c.location;
+            return val(f, 'profile', 'location', where, 0.85, { synKey: e.key });
+          }
+          const key = e.key;
+          const money = /salary|compensation|pay|ctc/.test(key);
+          const numeric = f.kind === 'number' || /\((usd|eur|gbp|pkr|number|numbers? only|amount)\)|\bnumber only\b|\bin (usd|eur|gbp)\b/i.test(f.label);
+          const accept = (x: Answered) => (f.kind === 'date' ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true);
+          const a = await ask(f, numeric && money ? `${key}_number` : key, accept);
           if (e.attestation) {
-            if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: e.key });
-            return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true, synKey: e.key }) : null;
+            if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: key });
+            return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true, synKey: key }) : null;
           }
-          if (a && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence, { synKey: e.key });
-          if (e.key === 'years_experience' && c && c.yearsExperience > 0) {
-            const v = fit(f, String(Math.round(c.yearsExperience)), 0.8);
-            if (v) return val(f, 'profile', 'yearsExperience', v, 0.8, { synKey: e.key });
+          if (a && a.confidence >= MIN_CONFIDENCE) {
+            let v = a.value;
+            if (numeric && money) v = toNumber(v) ?? v;
+            return val(f, a.source, a.key, v, a.confidence, { synKey: key });
           }
-          if (e.key === 'referred_by' && !f.required) return null;
-          return f.required ? unknown(f, 'Not in your answer bank yet.', { synKey: e.key }) : null;
+          if (key === 'years_experience' && c && c.yearsExperience > 0 && broadExperience(ln)) {
+            const v = f.options?.length ? fit(f, String(Math.round(c.yearsExperience)), 0.8) : String(Math.round(c.yearsExperience));
+            if (v) return val(f, 'profile', 'yearsExperience', v, 0.8, { synKey: key });
+          }
+          if (key === 'referred_by' && !f.required) return null;
+          return f.required ? unknown(f, 'Not in your answer bank yet.', { synKey: key }) : null;
         }
         default:
           break;
@@ -393,7 +580,9 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     const a = await ask(f);
     if (a && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence);
 
-    // 8. The writer, for long-form prose only.
+    // 8. The packet's pre-written answers, then the writer, for long-form prose only.
+    const short = shortAnswerFor(f, packet, job);
+    if (short) return val(f, 'writer', short.key, short.value, 0.9);
     const prose = (f.kind === 'textarea' || f.kind === 'richtext' || (f.kind === 'text' && LONG_FORM.test(f.label.trim()) && f.label.split(' ').length >= 4)) && !f.options?.length;
     if (prose && (f.required || f.kind !== 'text')) {
       const w = await write(f);

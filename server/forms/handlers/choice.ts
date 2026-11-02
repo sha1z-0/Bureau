@@ -35,7 +35,7 @@ export async function fillRadio(c: HandlerCtx): Promise<HandlerResult> {
       await member.click({ force: true, timeout: 3000 }).catch(() => {});
     });
   } else {
-    await member.click({ timeout: 3000 }).catch(async () => member.dispatchEvent('click'));
+    await member.click({ timeout: 3000 }).catch(async () => member.dispatchEvent('click', undefined, { timeout: 2000 }).catch(() => {}));
   }
   let r = await readField(c.frame, c.field);
   if (!valuesMatch('radio', text, r.value)) {
@@ -65,7 +65,12 @@ export async function fillCheckbox(c: HandlerCtx): Promise<HandlerResult> {
   }
   const desired = truthy(c.value) ?? false;
   const l = loc(c.frame, c.field.id);
-  await setBox(l, desired);
+  // Custom boxes: click the label text the way a person does (some widgets only commit from it).
+  const labelledBy = (await l.evaluate((e) => (e.tagName === 'INPUT' ? '' : e.getAttribute('aria-labelledby') || '')).catch(() => '')) as string;
+  const cur = String(await l.evaluate((e) => ((e as HTMLInputElement).checked === true || e.getAttribute('aria-checked') === 'true' ? '1' : '0')).catch(() => '0'));
+  if (labelledBy && (cur === '1') !== desired) {
+    await c.frame.locator(`[id="${labelledBy.split(/\s+/)[0]}"]`).first().click({ timeout: 2000 }).catch(() => {});
+  } else await setBox(l, desired);
   let r = await readField(c.frame, c.field);
   if ((r.value === 'true') !== desired) {
     const id = await l.getAttribute('id').catch(() => null);

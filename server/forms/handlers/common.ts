@@ -45,8 +45,8 @@ export function loc(frame: Frame, id: string): Locator {
   return frame.locator(sel(id)).first();
 }
 
-export async function readField(frame: Frame, field: HField): Promise<ReadResult> {
-  const res = await inFrame<Record<string, ReadResult>>(frame, 'read', { items: [{ id: field.id, kind: field.kind, trigger: field.meta?.trigger === 'button' }] });
+export async function readField(frame: Frame, field: HField, expect?: string): Promise<ReadResult> {
+  const res = await inFrame<Record<string, ReadResult>>(frame, 'read', { items: [{ id: field.id, kind: field.kind, trigger: field.meta?.trigger === 'button', expect }] });
   return res[field.id] ?? { exists: false, value: '' };
 }
 
@@ -85,15 +85,27 @@ export function bestOf(value: string, options: OptionView[], min = 0.7): OptionV
   return score >= min ? best : null;
 }
 
+export const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export async function clickOption(frame: Frame, o: OptionView) {
   const l = frame.locator(`[data-bureau-opt="${o.opt}"]`).first();
-  await l.scrollIntoViewIfNeeded({ timeout: 2000 }).catch(() => {});
+  await l.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(() => {});
   try {
-    await l.click({ timeout: 3000 });
+    await l.click({ timeout: 1200 });
+    return;
   } catch {
-    await l.dispatchEvent('mousedown').catch(() => {});
-    await l.dispatchEvent('click').catch(() => {});
+    /* menus that redraw on hover detach the stamped node: find the option again by its text */
   }
+  const exact = new RegExp(`^\\s*${escapeRe(o.text)}\\s*$`);
+  const again = frame.locator('[role="option"], .select2-result-selectable, [class*="option" i], li').filter({ hasText: exact }).first();
+  try {
+    await again.click({ timeout: 2500 });
+    return;
+  } catch {
+    /* last resort: the keyboard, like a person would */
+  }
+  await frame.page().keyboard.type(o.text, { delay: 10 }).catch(() => {});
+  await frame.page().keyboard.press('Enter').catch(() => {});
 }
 
 /** Escape: close any menu left open. */

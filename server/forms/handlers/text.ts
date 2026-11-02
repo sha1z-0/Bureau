@@ -8,11 +8,15 @@ export async function fillText(c: HandlerCtx): Promise<HandlerResult> {
   await l.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {});
   await l.click({ timeout: 3000 }).catch(() => {});
   await typeInto(l, c.value);
-  await blur(c.frame, c.field.id);
+  // Leave the field the way a person does (Tab): inline editors commit on Tab/Enter, not on a programmatic blur.
+  await l.press('Tab').catch(() => blur(c.frame, c.field.id));
+  await c.page.waitForTimeout(120);
   let r = await readField(c.frame, c.field);
   if (!valuesMatch(c.field.kind, c.value, r.value)) {
+    await l.click({ timeout: 2000 }).catch(() => {});
     await l.fill(c.value).catch(() => {});
-    await blur(c.frame, c.field.id);
+    await l.press('Tab').catch(() => {});
+    await c.page.waitForTimeout(350);
     r = await readField(c.frame, c.field);
   }
   return { ok: valuesMatch(c.field.kind, c.value, r.value), readBack: r.value };

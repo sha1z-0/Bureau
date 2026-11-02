@@ -20,7 +20,7 @@ export interface VerifyOptions {
   ignoreErrors?: RegExp;
 }
 
-async function readAll(page: Page, fields: VField[]): Promise<Map<string, ReadResult>> {
+async function readAll(page: Page, fields: VField[], expects: Map<string, string> = new Map()): Promise<Map<string, ReadResult>> {
   const byFrame = new Map<ReturnType<typeof frameFor>, VField[]>();
   for (const f of fields) {
     const fr = frameFor(page, f);
@@ -28,7 +28,7 @@ async function readAll(page: Page, fields: VField[]): Promise<Map<string, ReadRe
   }
   const out = new Map<string, ReadResult>();
   for (const [fr, list] of byFrame) {
-    const res = await inFrame<Record<string, ReadResult>>(fr, 'read', { items: list.map((f) => ({ id: f.id, kind: f.kind, trigger: f.meta?.trigger === 'button' })) }).catch(() => ({}) as Record<string, ReadResult>);
+    const res = await inFrame<Record<string, ReadResult>>(fr, 'read', { items: list.map((f) => ({ id: f.id, kind: f.kind, trigger: f.meta?.trigger === 'button', expect: expects.get(f.id) })) }).catch(() => ({}) as Record<string, ReadResult>);
     for (const f of list) out.set(f.id, res[f.id] ?? { exists: false, value: '' });
   }
   return out;
@@ -48,7 +48,12 @@ export async function pageErrors(page: Page, ignore?: RegExp): Promise<string[]>
 
 export async function verifyFields(page: Page, fields: FormField[], intended: (FieldValue & { unknown?: boolean })[], opts: VerifyOptions = {}): Promise<VerifyResult> {
   const vf = fields as VField[];
-  let reads = await readAll(page, vf);
+  const expects = new Map<string, string>();
+  for (const v of intended) {
+    const f = vf.find((x) => x.id === v.fieldId);
+    if (f?.kind === 'file' && v.value) expects.set(f.id, v.value.split(/[\/]/).pop() ?? v.value);
+  }
+  const reads = await readAll(page, vf, expects);
   // Fields re-rendered since extraction (SPA re-mounts): re-extract and match by signature.
   const missing = vf.filter((f) => !reads.get(f.id)?.exists);
   if (missing.length) {

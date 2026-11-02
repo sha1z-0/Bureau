@@ -15,6 +15,7 @@ import { detectOnPage, effectiveUrl } from './detect.ts';
 import { type ExtractedField, extractStep, formPresent, frameByKey, frameFor, type StepExtract } from './extract.ts';
 import { fillField, type FileSet } from './handlers/index.ts';
 import { readField } from './handlers/common.ts';
+import { probeOptions } from './handlers/combobox.ts';
 import { pause } from './human.ts';
 import { invalidateCandidate, jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from './map.ts';
 import { companyKey, valuesMatch } from './normalize.ts';
@@ -22,6 +23,7 @@ import { inFrame } from './page.ts';
 import { buildRecipe, recipePages, recipeValue, resolveSteps, type TraceField } from './recipeRun.ts';
 import { findRecipe, recordRecipeRun, saveRecipe } from './recipes.ts';
 import { pageErrors, verifyFields } from './verify.ts';
+import { allowSubmit, armSubmitGuard, blockedSubmits, withSubmitAllowed } from './guard.ts';
 import './schema.ts';
 
 /**
@@ -153,7 +155,7 @@ async function challengeOn(page: Page): Promise<{ found: boolean; kind: string }
 async function waitForFields(page: Page, ms = 5000): Promise<StepExtract> {
   const until = Date.now() + ms;
   let ex = await extractStep(page, 0);
-  while (!formPresent(ex.fields) && Date.now() < until) {
+  while (!stepPresent(ex) && Date.now() < until) {
     await page.waitForTimeout(250);
     ex = await extractStep(page, 0);
   }
@@ -166,7 +168,7 @@ async function waitForFields(page: Page, ms = 5000): Promise<StepExtract> {
  */
 async function findForm(r: Run): Promise<StepExtract> {
   let ex = await waitForFields(r.page, 4000);
-  for (let hop = 0; hop < 3 && !formPresent(ex.fields); hop++) {
+  for (let hop = 0; hop < 3 && !stepPresent(ex); hop++) {
     const apply = ex.applies.find((a) => !a.inForm) ?? ex.applies[0];
     if (!apply) break;
     const frame = frameByKey(r.page, apply.frame);
@@ -175,7 +177,7 @@ async function findForm(r: Run): Promise<StepExtract> {
       await r.page.goto(next, { waitUntil: 'domcontentloaded', timeout: 45_000 }).catch(() => {});
     } else {
       const popup = r.page.context().waitForEvent('page', { timeout: 3000 }).catch(() => null);
-      await frame.locator(`[data-bureau-nav="${apply.id}"]`).first().click({ timeout: 5000 }).catch(() => {});
+      await withSubmitAllowed(r.page, () => frame.locator(`[data-bureau-nav="${apply.id}"]`).first().click({ timeout: 5000 }).catch(() => {}));
       const np = await popup;
       if (np) {
         await np.waitForLoadState('domcontentloaded').catch(() => {});
@@ -192,11 +194,17 @@ async function findForm(r: Run): Promise<StepExtract> {
 
 // ── Filling one step ─────────────────────────────────────────────────────────
 
+const DEBUG = process.env.BUREAU_FORMS_DEBUG === '1';
+function dbg(r: Run, msg: string) {
+  r.notes.push(msg);
+  if (DEBUG) console.log(`    [forms ${r.id.slice(0, 6)}] ${msg}`);
+}
+
 function adapterRun(r: Run, step: number): AdapterRun {
   return {
     page: r.page,
     step,
-    note: (m) => r.notes.push(m),
+    note: (m) => dbg(r, m),
     entries: { work: Math.min(3, r.candidate?.work.length ?? 0), education: Math.min(3, r.candidate?.education.length ?? 0) },
   };
 }
@@ -230,6 +238,13 @@ async function extract(r: Run, step: number): Promise<StepExtract> {
 
 async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: StepRecord, groupOverride?: { name: string; index: number }) {
   if (groupOverride) for (const f of fields) f.meta = { ...f.meta, group: { name: groupOverride.name, index: groupOverride.index, count: groupOverride.index + 1 } };
+  // Custom selects show their options only when opened: look before mapping, so answers match an option.
+  for (const f of fields) {
+    if (f.kind === 'combobox' && !f.options?.length && !f.meta?.native) {
+      const opts = await probeOptions(r.page, f);
+      if (opts.length) f.options = opts;
+    }
+  }
   const mapped = await mapFieldsWith(fields, r.packet, { writer: r.deps.writer !== false, job: r.job, cache: r.cache, deps: r.deps.map });
   // Recipe steps decide values where they name one.
   let resolution: Awaited<ReturnType<typeof resolveSteps>> | null = null;
@@ -254,7 +269,10 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
     aborted(r.opts);
     rec.fields.push(f);
     const v = mapped.find((m) => m.fieldId === f.id);
-    if (!v) continue;
+    if (!v) {
+      if (DEBUG) dbg(r, `no value: ${f.label} [${f.kind}]${f.required ? ' *' : ''} opts=${f.options?.length ?? 0}`);
+      continue;
+    }
     rec.values.push(v);
     if (v.unknown || v.confidence < MIN_CONFIDENCE) {
       if (f.required) r.unknown.set(f.labelNorm, { label: f.label, kind: f.kind, options: f.options ?? [], reason: v.reason ?? 'unknown' });
@@ -262,8 +280,16 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
       continue;
     }
     // Already right (autofill, resume parse, a previous visit): leave it alone.
-    const cur = await readField(frameFor(r.page, f), f).catch(() => null);
-    if (cur?.exists && f.kind !== 'file' && cur.value && valuesMatch(f.kind, v.value, cur.value, { display: cur.display, format: f.meta?.format })) {
+    let cur = await readField(frameFor(r.page, f), f).catch(() => null);
+    if (cur && !cur.exists) {
+      // The page re-rendered (a checkbox that re-draws its section): find the same field again.
+      const twin = await refind(r, step, f);
+      if (!twin) continue;
+      f.id = twin.id;
+      v.fieldId = twin.id;
+      cur = await readField(frameFor(r.page, f), f).catch(() => null);
+    }
+    if (cur?.exists && f.kind !== 'file' && cur.value && valuesMatch(f.kind, v.value, cur.value, { display: cur.display, format: f.meta?.format, strict: true })) {
       r.trace.push({ field: f, value: v, step });
       continue;
     }
@@ -273,10 +299,21 @@ async function mapAndFill(r: Run, step: number, fields: ExtractedField[], rec: S
       res = await fillField(r.page, f, v, r.files);
     }
     if (res.chosen && f.kind !== 'file') v.value = res.chosen;
-    if (!res.ok && res.note) r.notes.push(`${f.label}: ${res.note}`);
+    if (!res.ok) dbg(r, `fill failed: ${f.label} [${f.kind}] = ${JSON.stringify(v.value).slice(0, 60)}${res.note ? ` (${res.note})` : ''} read ${JSON.stringify(res.readBack).slice(0, 60)}`);
     if (res.ok) r.trace.push({ field: f, value: v, step });
     await pause(r.page);
   }
+}
+
+async function refind(r: Run, step: number, f: ExtractedField): Promise<ExtractedField | null> {
+  const ex = await extract(r, step);
+  const same = ex.fields.filter((x) => x.signature === f.signature && (x.frame ?? '') === (f.frame ?? ''));
+  return same.find((x) => x.order === f.order) ?? same[0] ?? ex.fields.find((x) => x.labelNorm === f.labelNorm && x.kind === f.kind && x.section === f.section) ?? null;
+}
+
+/** A wizard page counts as a form when it has fields, or a field and a way forward. */
+function stepPresent(ex: StepExtract): boolean {
+  return formPresent(ex.fields) || (ex.fields.length > 0 && ex.navs.some((n) => n.kind === 'next' || n.kind === 'submit'));
 }
 
 /** Add entries to repeating sections ("Add another") until the profile's entries fit. */
@@ -302,7 +339,7 @@ async function repeaters(r: Run, step: number, ex: StepExtract, rec: StepRecord)
         // Inline sub-form: fill this entry, save it, go again.
         const idx = have;
         await mapAndFill(r, step, fresh.filter((f) => !f.meta?.group || f.meta.group.name === group), rec, { name: group, index: idx });
-        await clickStamped(frame, 'data-bureau-nav', saveId);
+        await withSubmitAllowed(r.page, () => clickStamped(frame, 'data-bureau-nav', saveId));
         await settle(r.page, 300);
         saved++;
         ex = await extract(r, step);
@@ -344,6 +381,7 @@ async function fillStep(r: Run, step: number): Promise<{ rec: StepRecord; ex: St
   rec.log = v.fieldLog;
   rec.verified = v.verified;
   rec.problems = v.problems;
+  dbg(r, `step ${step + 1}: ${rec.fields.length} fields, verified=${rec.verified}${rec.problems.length ? ` problems: ${rec.problems.slice(0, 3).join(' | ')}` : ''}`);
   rec.shot = await stepShot(r.page, r.id, `step-${step + 1}`);
   if (rec.shot) r.shots.push(rec.shot);
   return { rec, ex: live };
@@ -393,17 +431,22 @@ async function fingerprint(page: Page): Promise<string> {
 
 async function clickNext(r: Run, nav: NonNullable<Nav>): Promise<{ moved: boolean; errors: string[] }> {
   const before = await fingerprint(r.page);
-  await nav.frame.locator(nav.selector).first().click({ timeout: 8000 }).catch(() => {});
-  const until = Date.now() + (r.adapter.stepWaitMs ?? 6000);
-  while (Date.now() < until) {
-    await r.page.waitForTimeout(250);
-    const after = await fingerprint(r.page);
-    if (after !== before) {
-      await settle(r.page, 300);
-      return { moved: true, errors: [] };
+  await allowSubmit(r.page, true);
+  try {
+    await nav.frame.locator(nav.selector).first().click({ timeout: 8000 }).catch(() => {});
+    const until = Date.now() + (r.adapter.stepWaitMs ?? 6000);
+    while (Date.now() < until) {
+      await r.page.waitForTimeout(250);
+      const after = await fingerprint(r.page);
+      if (after !== before) {
+        await settle(r.page, 300);
+        return { moved: true, errors: [] };
+      }
     }
+    return { moved: false, errors: await pageErrors(r.page, r.adapter.ignoreErrors) };
+  } finally {
+    await allowSubmit(r.page, false);
   }
-  return { moved: false, errors: await pageErrors(r.page, r.adapter.ignoreErrors) };
 }
 
 // ── Submit and confirm ───────────────────────────────────────────────────────
@@ -423,6 +466,7 @@ async function confirmed(r: Run): Promise<boolean> {
 /** The one place a form is ever submitted. Throws unless the run is verified. */
 export async function submitVerified(r: { page: Page; verified: boolean; problems: string[] }, nav: NonNullable<Nav>): Promise<void> {
   if (r.verified !== true) throw new UnverifiedSubmitError(r.problems.slice(0, 3).join('; ') || 'not verified');
+  await allowSubmit(r.page, true);
   await nav.frame.locator(nav.selector).first().click({ timeout: 10_000 });
 }
 
@@ -440,6 +484,7 @@ function finish(r: Run | null, base: Partial<FillOutcome> & Pick<FillOutcome, 's
           }),
       )
     : [];
+  if (r) void blockedSubmits(r.page).then((n) => n && r.notes.push(`the submit guard stopped ${n} premature submit(s)`)).catch(() => {});
   const out: FillOutcome = {
     status: base.status,
     reason: base.reason,
@@ -574,18 +619,20 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
       return finish(r, { status: 'needs_you', reason: 'The site blocks automated browsers here. It needs you.', shotPath: await proofShot(page, packet.applicationId) });
     }
 
-    // Login wall.
-    if (r.adapter.account && (await r.adapter.account.needed(page))) {
-      const sel: AccountSelectors = { ...DEFAULT_ACCOUNT_SELECTORS, ...(r.adapter.account.selectors ?? {}) };
-      const acct = await ensureAccount(page, { waitForCode: deps.waitForCode ?? realWaitForCode, email: jobSearchEmail }, sel);
-      if (!acct.ok) {
+    // Login wall (it can take a moment to render after Apply).
+    const wallWait = Date.now() + (r.adapter.account ? 6000 : 0);
+    let needsLogin = false;
+    while (r.adapter.account && !(needsLogin = await r.adapter.account.needed(page)) && Date.now() < wallWait) await page.waitForTimeout(250);
+    if (needsLogin) {
+      const out = await login(r);
+      if (out) {
         keepOpen = !!opts.headful;
-        return finish(r, { status: 'needs_you', reason: acct.reason, shotPath: await proofShot(page, packet.applicationId) });
+        return out;
       }
-      r.notes.push(acct.created ? `created an account for ${acct.email}` : `signed in as ${acct.email}`);
-      await settle(page, 500);
     }
 
+    // From here on the page cannot submit anything Bureau did not mean to.
+    await armSubmitGuard(ctx, page);
     const ex0 = await findForm(r);
     r.ats = r.ats && r.ats !== 'other' ? r.ats : await detectOnPage(page, job.ats);
     if (r.adapter === GENERIC && adapterFor(r.ats)) r.adapter = adapterFor(r.ats)!;
@@ -593,7 +640,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     r.recipe = findRecipe({ ats: r.ats, company: job.company, url: page.url() });
     r.via = r.recipe ? 'recipe' : r.adapter !== GENERIC ? 'adapter' : 'generic';
 
-    if (!formPresent(ex0.fields) && !(await r.adapter.isFinal?.(page, ex0))) {
+    if (!stepPresent(ex0) && !(await r.adapter.isFinal?.(page, ex0))) {
       // Nothing recognisable: the browser agent's job.
       return await agentOrNeedsYou(r, ex0.fields, 'Could not find an application form on the page.');
     }
@@ -603,9 +650,22 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     let stopReason = '';
     for (let step = 0; step < MAX_STEPS; step++) {
       aborted(opts);
-      const { rec, ex } = await fillStep(r, step);
+      if (r.adapter.account && (await r.adapter.account.needed(page))) {
+        const out = await login(r);
+        if (out) {
+          keepOpen = !!opts.headful;
+          return out;
+        }
+      }
+      let { rec, ex } = await fillStep(r, step);
+      if (!rec.verified && !r.unknown.size) {
+        // One repair pass: fields that did not stick (re-renders, traps that clear values) get filled again.
+        r.shots.pop();
+        ({ rec, ex } = await fillStep(r, step));
+      }
       r.steps.push(rec);
-      if (r.unknown.size && !rec.verified) {
+      if (r.unknown.size) {
+        // A required question nobody can answer: never move on past it (or past a value we did not choose).
         stopReason = 'unknown';
         break;
       }
@@ -619,15 +679,11 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
         break;
       }
       if (!rec.verified) {
-        // One more pass on what failed, then give up on this step.
-        const again = await fillStep(r, step);
-        r.steps[r.steps.length - 1] = again.rec;
-        if (!again.rec.verified) {
-          stopReason = 'unverified';
-          break;
-        }
+        stopReason = 'unverified';
+        break;
       }
       r.nexts.push({ step, selectors: [nav.selector.startsWith('[data-bureau') ? '' : nav.selector].filter(Boolean) });
+      dbg(r, `next: ${nav.selector}`);
       const moved = await clickNext(r, nav);
       if (!moved.moved) {
         r.steps[r.steps.length - 1].problems.push(...(moved.errors.length ? moved.errors : ['the form did not move to the next step']));
@@ -727,6 +783,16 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
       if (own) await lease.browser.close().catch(() => {});
     }
     lease.release();
+  }
+
+  async function login(r: Run): Promise<FillOutcome | null> {
+    const sel: AccountSelectors = { ...DEFAULT_ACCOUNT_SELECTORS, ...(r.adapter.account?.selectors ?? {}) };
+    // Account forms submit by design: the gate is open only for them.
+    const acct = await withSubmitAllowed(r.page, () => ensureAccount(r.page, { waitForCode: deps.waitForCode ?? realWaitForCode, email: jobSearchEmail }, sel));
+    if (!acct.ok) return finish(r, { status: 'needs_you', reason: acct.reason, shotPath: await proofShot(r.page, packet.applicationId) });
+    r.notes.push(acct.created ? `created an account for ${acct.email}` : `signed in as ${acct.email}`);
+    await settle(r.page, 500);
+    return null;
   }
 
   async function agentOrNeedsYou(r: Run, fields: FormField[], why: string): Promise<FillOutcome> {

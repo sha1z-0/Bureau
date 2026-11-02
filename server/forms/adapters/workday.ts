@@ -30,6 +30,18 @@ export const workday: Adapter = {
   account: {
     needed: async (page) => (await visible(page, aid('createAccountPage'))) || (await visible(page, aid('signInPage'))) || (await visible(page, aid('verifyAccountPage'))),
   },
+  beforeStep: async (page, run) => {
+    // Resume-parse correction: the parser invents entries (a side project as a job); keep only as many as the profile has.
+    for (const [prefix, keep] of [['workExperience', run.entries.work], ['education', run.entries.education]] as const) {
+      for (let n = 9; n > keep; n--) {
+        const panel = page.locator(aid(`${prefix}-${n}`));
+        if (!(await panel.count().catch(() => 0))) continue;
+        await panel.locator(aid('panel-set-delete-button')).first().click({ timeout: 3000 }).catch(() => {});
+        await panel.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+        run.note(`removed parsed ${prefix} entry ${n} (not in the profile)`);
+      }
+    }
+  },
   next: [aid('bottom-navigation-next-button'), aid('pageFooterNextButton')],
   submit: [`${aid('bottom-navigation-next-button')}:has-text("Submit")`, aid('pageFooterSubmitButton')],
   isFinal: async (page) => (await visible(page, aid('reviewJobApplicationPage'))) || (await visible(page, `${aid('bottom-navigation-next-button')}:has-text("Submit")`)),

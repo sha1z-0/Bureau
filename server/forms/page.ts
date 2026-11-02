@@ -63,6 +63,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           const r = c.getAttribute('role');
           if (r === 'listbox' || r === 'option' || r === 'tooltip') continue;
           if (c.hasAttribute('data-bureau-skiptext')) continue;
+          if (c.getClientRects().length === 0 && getComputedStyle(c).display === 'none') continue;
           walk(c);
           out += ' ';
         }
@@ -128,6 +129,10 @@ export const PAGE_LIB = String.raw`(op, arg) => {
   }
   function groupLabel(first, container) {
     const g = container || first.closest('fieldset, [role="radiogroup"], [role="group"]');
+    if (g && container) {
+      const cap = container.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > legend, :scope > p, :scope > [class*="question" i], :scope > [class*="label" i]:not(label)');
+      if (cap && !cap.contains(first) && !hasControl(cap)) { const t = ownText(cap); if (t) return t; }
+    }
     if (g) {
       const by = g.getAttribute('aria-labelledby');
       if (by) { const t = byIds(g, by); if (t) return t; }
@@ -151,7 +156,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     if (next && !hasControl(next)) { const t = ownText(next); if (t) return t; }
     return norm(el.value);
   }
-  function requiredMark(label) { return /\*\s*\)?\s*$|^\s*\*|\(required\)|\brequired\s*$/i.test(label); }
+  function requiredMark(label) { return /[*✱]\s*\)?\s*$|^\s*[*✱]|\(required\)|\brequired\s*\.?\s*$|^\s*required\b/i.test(label); }
   function containerRequired(el) {
     let n = parentOf(el);
     for (let i = 0; n && i < 3; i++, n = parentOf(n)) {
@@ -162,7 +167,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return false;
   }
   function cleanLabel(t) {
-    return norm(String(t || '').replace(/\(required\)|\(optional\)/gi, ' ').replace(/\s*\*+\s*/g, ' '));
+    return norm(String(t || '').replace(/\(required\)|\(optional\)/gi, ' ').replace(/\s*[*✱]+\s*/g, ' ').replace(/\s+required\s*\.?\s*$/i, '').replace(/^\s*required\s*[.:]\s*/i, ''));
   }
   const HEAD_DIRECT = ':scope > legend, :scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > [role="heading"], :scope > header h2, :scope > header h3, :scope > div > h2, :scope > div > h3, :scope > div > legend, :scope > [data-automation-id*="sectionHeader" i], :scope > [class*="section-title" i], :scope > [class*="sectionTitle"], :scope > [class*="section-header" i] h2, :scope > [class*="section-header" i] h3';
   function sectionOf(el, label) {
@@ -201,20 +206,34 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     if (/reference/i.test(t)) return 'reference';
     return 'other';
   }
+  /** What a repeating block is about, from its attributes and the words in it (labels say "School", "Company"). */
+  function blockKind(n) {
+    const a = attrsOf(n);
+    const byAttr = groupKind(a);
+    if (byAttr !== 'other' && /educat|school|experience|employ|work|position|history|language|reference/i.test(a)) return byAttr;
+    const t = norm(n.textContent).slice(0, 400).toLowerCase();
+    if (/\b(school|university|degree|field of study|major|institution|college)\b/.test(t)) return 'education';
+    if (/\b(company|employer|job title|title|position|currently work)\b/.test(t)) return 'work';
+    return groupKind(a + ' ' + sectionOf(n, ''));
+  }
   function groupOf(el, label) {
     let node = parentOf(el);
     for (let i = 0; node && i < 9 && node !== document.body; i++) {
       const p = parentOf(node);
       if (!p || !p.children) break;
       const key = shapeKey(node);
-      const sibs = Array.from(p.children).filter((s) => shapeKey(s) === key && s.querySelector(CONTROL_SEL));
       const attr = attrsOf(node);
-      const named = /(experience|education|employment|work|school|position|job|language|reference)[\w-]*?\d/i.test(attr);
-      if (sibs.length >= 2 && label && sibs.filter((s) => norm(s.textContent).indexOf(label) >= 0).length >= 2 && controlCount(node) >= 2) {
-        return { index: sibs.indexOf(node), count: sibs.length, name: groupKind(attr + ' ' + sectionOf(node, '')) };
-      }
+      const named = /(experience|education|employment|school|position|language|reference)s?[-_ ]?(item|entry|section|group|panel|row)?[-_ ]?\d+\b/i.test(attr);
       if (named && controlCount(node) >= 2) {
-        return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: groupKind(attr) };
+        const kind = blockKind(node);
+        const sibs = Array.from(p.children).filter((s) => shapeKey(s) === key && s.querySelector(CONTROL_SEL) && blockKind(s) === kind);
+        return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: kind };
+      }
+      const sibs = Array.from(p.children).filter((s) => shapeKey(s) === key && s.querySelector(CONTROL_SEL));
+      if (sibs.length >= 2 && label && controlCount(node) >= 2 && sibs.filter((s) => norm(s.textContent).indexOf(label) >= 0).length >= 2) {
+        const kind = blockKind(node);
+        const same = sibs.filter((s) => blockKind(s) === kind);
+        if (same.length >= 2) return { index: same.indexOf(node), count: same.length, name: kind };
       }
       if (node.tagName === 'FORM') break;
       node = p;
@@ -279,6 +298,20 @@ export const PAGE_LIB = String.raw`(op, arg) => {
   const CONSENT_RE = /\b(agree|consent|acknowledge|accept|privacy|terms|gdpr|data (protection|processing)|i (have )?read|certify|confirm that|attest|understand that)\b/i;
   const EEO_RE = /voluntary|self[- ]?identif|equal (employment )?opportunit|\beeo\b|\beeoc\b|demographic|diversity|veteran|disabilit|gender|\brace\b|ethnic|hispanic|latin[oax]|sexual orientation|transgender/i;
 
+  const PHONE_PICKER = '.iti__selected-flag, .iti__selected-country, [class*="flag-dropdown" i], [class*="country-select" i] button, button[aria-label*="calling code" i], button[aria-label*="country code" i], [role=combobox][aria-label*="country code" i], [role=combobox][aria-label*="calling code" i]';
+  function nativeSelectFor(trigger) {
+    const box = trigger.closest('.select2-container, .chosen-container, [id^="s2id_"], [id$="_chosen"]') || parentOf(trigger);
+    if (!box) return null;
+    let sel = null;
+    if (box.id && /^s2id_/.test(box.id)) sel = (rootOf(box).getElementById ? rootOf(box).getElementById(box.id.slice(5)) : null);
+    if (!sel && box.id && /_chosen$/.test(box.id)) sel = (rootOf(box).getElementById ? rootOf(box).getElementById(box.id.replace(/_chosen$/, '')) : null);
+    if (!sel) {
+      // The hidden <select> sits right next to the widget (before or after it).
+      const near = [box.previousElementSibling, box.nextElementSibling].filter(Boolean);
+      sel = near.find((c) => c.tagName === 'SELECT' && !visible(c)) || null;
+    }
+    return sel && sel.tagName === 'SELECT' && !visible(sel) ? sel : null;
+  }
   function phonePicker(el) {
     let n = parentOf(el);
     for (let i = 0; n && i < 3; i++, n = parentOf(n)) {
@@ -293,7 +326,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         const own = labelOf(sel);
         if (!own || own === labelOf(el) || /code|country|dial|flag/i.test(own) && !(sel.labels && sel.labels.length)) return { el: sel, kind: 'select' };
       }
-      const btn = n.querySelector('.iti__selected-flag, .iti__selected-country, [class*="flag-dropdown" i], [class*="country-select" i] button, button[aria-label*="country" i], [role=combobox][aria-label*="country" i], button[class*="country" i], button[aria-haspopup][class*="phone" i]');
+      const btn = n.querySelector(PHONE_PICKER + ', .iti__selected-flag, .iti__selected-country, [class*="flag-dropdown" i], [class*="country-select" i] button, button[aria-label*="country" i], [role=combobox][aria-label*="country" i], button[class*="country" i], button[aria-haspopup][class*="phone" i]');
       if (btn && btn !== el) return { el: btn, kind: 'button' };
     }
     return null;
@@ -377,16 +410,31 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         const scope = el.form || rootOf(el);
         const box = el.closest('fieldset, [role="group"]');
         let members = [el];
+        let groupBox = box;
         if (type === 'checkbox' && el.name && box) members = Array.from(box.querySelectorAll('input[type=checkbox]')).filter((c) => c.name === el.name && (c.form || rootOf(c)) === scope);
         else if (role === 'checkbox' && box) members = Array.from(box.querySelectorAll('[role="checkbox"]'));
+        if (members.length < 2 && type === 'checkbox') {
+          // "Pick all that apply" without a fieldset: short option labels under one question caption.
+          let n = parentOf(el);
+          for (let i = 0; n && i < 3; i++, n = parentOf(n)) {
+            const boxes = Array.from(n.querySelectorAll('input[type=checkbox]'));
+            if (boxes.length < 2) continue;
+            if (boxes.length > 40 || n.querySelectorAll('input:not([type=checkbox]):not([type=hidden]), select, textarea').length) break;
+            const shortOpts = boxes.every((b) => { const t = optionLabel(b); return t && t.length <= 40; });
+            const caption = n.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > legend, :scope > p, :scope > [class*="question" i], :scope > [class*="label" i]:not(label)');
+            if (shortOpts && caption && !caption.contains(el)) { members = boxes; groupBox = n; }
+            break;
+          }
+        }
         const shownOne = (m) => visible(m) || (m.labels && m.labels[0] && visible(m.labels[0])) || visible(parentOf(m));
         if (members.length >= 2) {
           members.forEach((m) => consumed.add(m));
           if (!members.some(shownOne)) continue;
-          const raw = groupLabel(members[0], box);
+          const raw = groupLabel(members[0], groupBox);
           const id = stampGroup(members, prefix);
           const label = cleanLabel(raw);
-          out.push({ id, kind: 'checkbox', rawLabel: raw, label, required: requiredMark(raw) || (box && box.getAttribute('aria-required') === 'true') || containerRequired(box), options: members.map(optionLabel), meta: { multi: true }, el: box, selectors: selectorsFor(box, label) });
+          const gb = groupBox || parentOf(members[0]);
+          out.push({ id, kind: 'checkbox', rawLabel: raw, label, required: requiredMark(raw) || (gb && gb.getAttribute('aria-required') === 'true') || containerRequired(gb) || (gb && gb.getAttribute('data-required') === 'true'), options: members.map(optionLabel), meta: { multi: true }, el: gb, selectors: selectorsFor(gb, label) });
           continue;
         }
         consumed.add(el);
@@ -403,25 +451,51 @@ export const PAGE_LIB = String.raw`(op, arg) => {
 
       if (type === 'file') {
         consumed.add(el);
-        const raw = labelOf(el) || el.getAttribute('accept') || 'file';
+        let raw = labelOf(el) || '';
+        // Drop zones label themselves "Upload a file…" or with the accept list: find what the upload is for.
+        if (!raw || /^\s*\.\w+\s*,/.test(raw) || /^(upload|choose|drop|drag|attach|browse|select)\b/i.test(raw)) {
+          let n = parentOf(el);
+          for (let i = 0; n && i < 5; i++, n = parentOf(n)) {
+            const t = ownText(n);
+            const m = t.match(/(resume\s*\/\s*cv|curriculum vitae|resume|\bcv\b|cover letter|motivation letter|anschreiben|lebenslauf|portfolio|transcript|photo)/i);
+            if (m) { raw = m[1] + (/[*✱]/.test(t.slice(0, 60)) ? ' *' : ''); break; }
+            if (controlCount(n) > 3) break;
+          }
+        }
+        raw = raw || el.getAttribute('accept') || 'file';
+        const hintEl = el.closest('[data-for], [data-field-path], [data-ui], [data-test], [data-automation-id]');
+        const hint = [el.name, el.id, el.getAttribute('aria-label'), hintEl && (hintEl.getAttribute('data-for') || hintEl.getAttribute('data-field-path') || hintEl.getAttribute('data-ui') || hintEl.getAttribute('data-test') || hintEl.getAttribute('data-automation-id'))].filter(Boolean).join(' ');
         const id = stampField(el, prefix);
         const label = cleanLabel(raw);
-        out.push({ id, kind: 'file', rawLabel: raw, label, required: el.required || el.getAttribute('aria-required') === 'true' || requiredMark(raw) || containerRequired(el), meta: { accept: el.getAttribute('accept') || '', multiple: !!el.multiple }, el, selectors: selectorsFor(el, label) });
+        out.push({ id, kind: 'file', rawLabel: raw, label, required: el.required || el.getAttribute('aria-required') === 'true' || requiredMark(raw) || containerRequired(el), meta: { accept: el.getAttribute('accept') || '', multiple: !!el.multiple, hint }, el, selectors: selectorsFor(el, label) });
         continue;
       }
 
+      // A phone input's country button is folded into the phone field, not a question of its own.
+      if (trigger && el.matches(PHONE_PICKER)) continue;
       consumed.add(el);
       if (!visible(el)) continue;
       const r = el.getBoundingClientRect();
       if (r.width <= 2 && r.height <= 2) continue;
       if (el.readOnly && !(el.getAttribute('aria-haspopup') || role === 'combobox' || /date|picker|calendar/i.test(String(el.className) + ' ' + (el.getAttribute('data-automation-id') || '')))) continue;
-      const raw = trigger || editable || role === 'textbox' ? (labelOf(el) || questionLabel(el)) : labelOf(el);
+      // Select2 / Chosen style widgets: a visible trigger over a hidden native <select>.
+      const nat = trigger ? nativeSelectFor(el) : null;
+      if (nat) consumed.add(nat);
+      let raw = nat ? labelOf(nat) : trigger || editable || role === 'textbox' ? (labelOf(el) || questionLabel(el)) : labelOf(el);
+      if (nat && (!raw || GENERIC.test(raw))) raw = labelOf(el) || questionLabel(el);
       if (honeypot(el, raw)) continue;
       if (trigger && !raw) continue;
       const label = cleanLabel(raw);
-      const required = !!el.required || el.getAttribute('aria-required') === 'true' || requiredMark(raw) || containerRequired(el);
+      const required = !!el.required || el.getAttribute('aria-required') === 'true' || requiredMark(raw) || containerRequired(el) || (!!nat && (nat.required || nat.getAttribute("aria-required") === "true"));
       let kind = 'text';
       const meta = {};
+      if (nat) {
+        const id = stampField(el, prefix);
+        nat.setAttribute("data-bureau-native", id);
+        const opts = Array.from(nat.options).filter((o) => !isPlaceholderOption(o) && !o.disabled).map((o) => norm(o.text)).filter(Boolean);
+        out.push({ id, kind: 'combobox', rawLabel: raw, label, required, options: opts, meta: { trigger: 'button', native: true }, el, selectors: selectorsFor(nat, label) });
+        continue;
+      }
       if (tag === 'SELECT') {
         kind = 'select';
         const opts = Array.from(el.options).filter((o) => !isPlaceholderOption(o) && !o.disabled).map((o) => norm(o.text)).filter(Boolean);
@@ -508,7 +582,14 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const da = b.getAttribute('data-automation-id') || '';
       if (/^\+?\s*add\b(?!ress)/i.test(t) || /^add(Button)?$|-add$/i.test(da)) {
         const id = stampAttr(b, 'data-bureau-add', prefix + 'a');
-        adders.push({ id, text: t, section: cleanLabel(sectionOf(b, '')), group: groupKind(t + ' ' + sectionOf(b, '') + ' ' + attrsOf(parentOf(b) || b)) });
+        let ctx = t + ' ' + attrsOf(b) + ' ' + (b.getAttribute('data-test') || '') + ' ' + (b.getAttribute('data-ui') || '');
+        let up = parentOf(b);
+        for (let k = 0; up && k < 4 && groupKind(ctx) === 'other'; k++, up = parentOf(up)) {
+          const hd = up.querySelector('h1, h2, h3, h4, legend, [role="heading"]');
+          ctx += ' ' + attrsOf(up) + ' ' + (up.getAttribute('data-ui') || '') + ' ' + (hd ? ownText(hd) : '');
+        }
+        if (groupKind(ctx) === 'other') ctx += ' ' + sectionOf(b, '');
+        adders.push({ id, text: t, section: cleanLabel(sectionOf(b, '')), group: groupKind(ctx) });
         continue;
       }
       let kind = null;
@@ -568,6 +649,16 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         value = Array.from(el.files || []).map((f) => f.name).join('; ');
         let n = parentOf(el);
         for (let i = 0; n && i < 4; i++, n = parentOf(n)) { const t = norm(n.innerText || n.textContent); if (t) chip = t.slice(0, 400); if (controlCount(n) > 2) break; }
+        // Upload widgets render the file name somewhere else (a preview list, a shadow root): look for it.
+        if (it.expect && chip.indexOf(it.expect) < 0) {
+          const roots = [document];
+          for (const x of all()) if (x.shadowRoot) roots.push(x.shadowRoot);
+          for (const r of roots) {
+            const host = r === document ? document.body : r;
+            const txt = host ? (host.innerText !== undefined ? host.innerText : host.textContent) || '' : '';
+            if (txt.indexOf(it.expect) >= 0 || (host && (host.textContent || '').indexOf(it.expect) >= 0)) { chip = it.expect; break; }
+          }
+        }
       } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         value = el.value;
         if (kind === 'combobox' || kind === 'location') display = displayOf(el);
@@ -575,6 +666,10 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           const cc = byStamp('data-bureau-cc', id)[0];
           if (cc) display = cc.tagName === 'SELECT' ? norm(cc.selectedOptions[0] && cc.selectedOptions[0].text) : norm(cc.getAttribute('title') || cc.getAttribute('aria-label') || cc.textContent);
         }
+      } else if (byStamp('data-bureau-native', id)[0]) {
+        const nat = byStamp('data-bureau-native', id)[0];
+        value = Array.from(nat.selectedOptions || []).filter((o) => !isPlaceholderOption(o)).map((o) => norm(o.text)).join('; ');
+        display = norm(el.innerText || el.textContent);
       } else if (it.trigger || el.getAttribute('aria-haspopup') === 'listbox' || el.getAttribute('role') === 'combobox') {
         value = norm(el.innerText || el.textContent);
         if (/^(select( one)?|select\.\.\.|choose.*|please select.*|--.*)$/i.test(value)) value = '';
@@ -595,16 +690,19 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       if (ctl) scope = (rootOf(el).getElementById ? rootOf(el).getElementById(ctl) : null) || document.getElementById(ctl);
       if (scope && !visible(scope) && !Array.from(scope.querySelectorAll('[role=option]')).some(visible)) scope = null;
     }
-    const SEL = '[role="option"], [class*="select__option"], .MuiAutocomplete-option, [data-automation-id="promptOption"], [data-automation-id="menuItem"], .pac-item, [class*="suggestion" i]:not(:has([class*="suggestion" i])), [class*="dropdown-item" i], li[class*="option" i]';
+    const SEL = '[role="option"], [role="menuitemcheckbox"], [role="menuitemradio"], .select2-result-selectable, .chosen-results li.active-result, [class*="dropdown-results" i] > *, [class*="select__option"], .MuiAutocomplete-option, [data-automation-id="promptOption"], [data-automation-id="menuItem"], .pac-item, [class*="suggestion" i]:not(:has([class*="suggestion" i])), [class*="dropdown-item" i], li[class*="option" i]';
     const els = scope ? Array.from(scope.querySelectorAll(SEL)) : deepAll(SEL);
     const seen = new Set();
     const out = [];
     for (const o of els) {
       if (seen.has(o) || !visible(o) || o.getAttribute('aria-disabled') === 'true') continue;
       if (o.querySelector('[role="option"]')) continue;
+      // Real menu items only: no form controls inside, and loose class matches must sit in a menu-like container.
+      if (o.querySelector('input, select, textarea')) continue;
+      if (!o.matches('[role="option"], [role="menuitemcheckbox"], [role="menuitemradio"], .pac-item, .select2-result-selectable, .MuiAutocomplete-option, [data-automation-id="promptOption"], [data-automation-id="menuItem"]') && !o.closest('[role="listbox"], [role="menu"], .pac-container, [class*="menu" i], [class*="dropdown" i], [class*="results" i], [class*="suggest" i], [class*="popover" i], [class*="popup" i]')) continue;
       seen.add(o);
       const id = stampAttr(o, 'data-bureau-opt', 'o');
-      out.push({ opt: id, text: norm(o.innerText || o.textContent).slice(0, 200) });
+      out.push({ opt: id, text: norm(o.innerText || o.textContent).replace(/\s*[›»▸▶❯>]+\s*$/, '').slice(0, 200) });
       if (out.length >= 200) break;
     }
     return out;
@@ -741,6 +839,8 @@ export interface RawField {
     options?: string[];
     question?: string;
     hiddenInput?: boolean;
+    hint?: string;
+    native?: boolean;
     toggle?: boolean;
   };
   selectors: string[];

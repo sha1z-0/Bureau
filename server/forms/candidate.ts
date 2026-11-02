@@ -43,6 +43,8 @@ export interface Candidate {
   work: WorkEntry[];
   education: EduEntry[];
   cvText: string;
+  summary: string;
+  skills: string[];
 }
 
 /** Calling codes for the countries Bureau users apply from and to most. */
@@ -184,5 +186,7 @@ export function candidateFrom(p: Profile | null, links: { linkedin?: string; git
     work,
     education,
     cvText: p.cvMarkdown,
+    summary: p.summary,
+    skills: [...new Set([...(p.coreStack ?? []), ...(p.skills ?? [])])],
   };
 }

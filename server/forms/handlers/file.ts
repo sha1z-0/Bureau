@@ -31,11 +31,19 @@ export async function fillFile(c: HandlerCtx): Promise<HandlerResult> {
     await fc.setFiles(which as string);
   }
   // Uploads that post first (S3 direct, pre-upload endpoints) need a moment to render the chip.
-  let r = await readField(c.frame, c.field);
+  let r = await readField(c.frame, c.field, name);
   for (let i = 0; i < 20 && !shows(name, r.value, r.chip); i++) {
     await c.page.waitForTimeout(150);
-    r = await readField(c.frame, c.field);
+    r = await readField(c.frame, c.field, name);
   }
+  // Uploads that post and then parse ("Uploading...", "Reading your resume..."): wait for them to settle.
+  const busy = /\b(uploading|reading your (resume|cv)|analy[sz]ing your|parsing your|please wait)\b/i;
+  for (let i = 0; i < 60; i++) {
+    const text = await c.frame.locator('body').innerText({ timeout: 2000 }).catch(() => '');
+    if (!busy.test(text)) break;
+    await c.page.waitForTimeout(250);
+  }
+  r = await readField(c.frame, c.field, name);
   return { ok: shows(name, r.value, r.chip), readBack: r.value, chip: r.chip, chosen: name };
 }
 

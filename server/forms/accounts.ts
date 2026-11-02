@@ -150,14 +150,16 @@ export async function authView(page: Page, sel: AccountSelectors = DEFAULT_ACCOU
   return null;
 }
 
-async function waitView(page: Page, sel: AccountSelectors, ms: number): Promise<'create' | 'signin' | 'verify' | 'gone'> {
+/** Wait until the auth view changes from `from` (or an error shows on it). */
+async function waitView(page: Page, sel: AccountSelectors, ms: number, from: 'create' | 'signin' | 'verify'): Promise<'create' | 'signin' | 'verify' | 'gone'> {
   const until = Date.now() + ms;
   while (Date.now() < until) {
-    const v = await authView(page, sel);
-    if (v !== 'create' && v !== 'signin') return v ?? 'gone';
-    const body = await page.locator('body').innerText().catch(() => '');
-    if (sel.exists.test(body) || sel.badLogin.test(body)) return v ?? 'gone';
     await page.waitForTimeout(fastMode() ? 100 : 250);
+    const v = (await authView(page, sel)) ?? 'gone';
+    if (v !== from) return v;
+    const msg = await page.locator('[data-automation-id="errorMessage"], [role="alert"], .error, [class*="error" i]').filter({ visible: true }).allInnerTexts().catch(() => [] as string[]);
+    const text = msg.join(' ');
+    if (sel.exists.test(text) || sel.badLogin.test(text) || (from === 'verify' && /(invalid|incorrect|expired|wrong).*code|code.*(invalid|incorrect|expired)/i.test(text))) return v;
   }
   return (await authView(page, sel)) ?? 'gone';
 }
@@ -177,7 +179,7 @@ async function signIn(page: Page, sel: AccountSelectors, email: string, password
   await pw.fill(password);
   const submit = await first(f, sel.signInSubmit.map((s) => `${sel.signInView[0]} ${s}`).concat(sel.signInSubmit));
   await (submit ?? scope).click().catch(() => {});
-  const v = await waitView(page, sel, 8000);
+  const v = await waitView(page, sel, 8000, 'signin');
   return v === 'gone' || v === 'verify';
 }
 
@@ -221,8 +223,8 @@ export async function ensureAccount(page: Page, deps: AccountDeps, sel: AccountS
   const submit = await first(f, sel.createSubmit.map((s) => `${sel.createView[0]} ${s}`).concat(sel.createSubmit));
   if (!submit) return { ok: false, reason: `Could not find the ${domain} create-account button.` };
   await submit.click().catch(() => {});
-  const v = await waitView(page, sel, 10_000);
-  const body = await page.locator('body').innerText().catch(() => '');
+  const v = await waitView(page, sel, 10_000, 'create');
+  const body = (await page.locator('[data-automation-id="errorMessage"], [role="alert"], .error, [class*="error" i]').filter({ visible: true }).allInnerTexts().catch(() => [] as string[])).join(' ');
   if (v === 'create' && sel.exists.test(body)) {
     // An account exists that Bureau has no password for (made by hand): the owner decides.
     run('DELETE FROM site_accounts WHERE domain = ?', domain);
@@ -256,7 +258,7 @@ async function verify(page: Page, deps: AccountDeps, sel: AccountSelectors, doma
     const submit = await first(f, sel.verifySubmit.map((s) => `${sel.verifyView[0]} ${s}`).concat(sel.verifySubmit));
     await submit?.click().catch(() => {});
   }
-  const v = await waitView(page, sel, 10_000);
+  const v = await waitView(page, sel, 10_000, 'verify');
   if (v === 'verify') return { ok: false, reason: `${domain} did not accept the verification code.` };
   if (v === 'signin') {
     const acct = getAccount(domain);
