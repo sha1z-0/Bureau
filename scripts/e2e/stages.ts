@@ -745,7 +745,7 @@ export const external: Stage<E2EContext> = {
       assert.equal(badKey.status, 401, `/api/v1/jobs with a bogus key → ${badKey.status}`);
       for (const p of ['/api/%76%31/jobs', '/API/V1/jobs', '/api/v1/../v1/jobs', '//api/v1/jobs']) {
         const r = await fetch(`${base}${p}`);
-        assert.ok([400, 401, 404].includes(r.status), `${p} → ${r.status}`);
+        assert.ok([400, 401, 403, 404].includes(r.status) && !(await r.text()).includes('"jobs"'), `${p} → ${r.status}`);
       }
       const mcp = await fetch(`${base}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) });
       assert.equal(mcp.status, 401, `/mcp without a key → ${mcp.status}`);
