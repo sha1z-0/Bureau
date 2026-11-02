@@ -1,7 +1,8 @@
-import { getJson } from '../security/safeFetch.ts';
+import { getJson } from './http.ts';
 import { cleanHtml } from '../security/sanitize.ts';
 import type { Connector, RawJob } from './types.ts';
 import { firstEmail, htmlToText, isRemote, pool, toIso } from './util.ts';
+import { detectAts, findAtsUrls } from '../scout/detect.ts';
 
 /**
  * Community hiring threads — the "social" layer. Posts here are written by the
@@ -43,6 +44,7 @@ export const hackernews: Connector = {
     );
     const comments = pages.flatMap((p) => p?.hits ?? []).filter((c) => c.parent_id === storyId && c.comment_text);
     ctx.log(`HN: ${comments.length} top-level posts in "${thread.title}"`);
+    ctx.discover?.(comments.flatMap((c) => findAtsUrls(c.comment_text ?? '')), 'hackernews');
     return comments.map<RawJob>((c) => {
       const html = cleanHtml(c.comment_text!);
       const text = htmlToText(html);
@@ -64,6 +66,7 @@ export const hackernews: Connector = {
         postedAt: toIso(c.created_at),
         tags: ['hn-hiring'],
         applyEmail: firstEmail(text),
+        applyUrl: findAtsUrls(html).find((u) => detectAts(u)?.jobId) ?? null,
       };
     });
   },

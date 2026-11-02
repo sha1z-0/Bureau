@@ -1,0 +1,92 @@
+{
+ "jobs": [
+  {
+   "id": "db808740-242e-4a40-ad43-d41f26c049d7",
+   "title": " Technical Support Engineer",
+   "department": "Support Engineering",
+   "team": "Support Engineering",
+   "employmentType": "FullTime",
+   "location": "Remote",
+   "shouldDisplayCompensationOnJobPostings": false,
+   "secondaryLocations": [],
+   "publishedAt": "2026-10-28T14:43:56.854+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "US | EU"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/posthog/db808740-242e-4a40-ad43-d41f26c049d7",
+   "applyUrl": "https://jobs.ashbyhq.com/posthog/db808740-242e-4a40-ad43-d41f26c049d7/application",
+   "descriptionHtml": "<h2>About PostHog</h2><p style=\"min-height:1.5em\">PostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.</p><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://posthog.com/handbook/story\"><u>We launched out of Y Combinator's W20 cohort</u></a>. We've since shipped more than a dozen products, including:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">A suite of analytics and observability tools, including <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/product-analytics\">product analytics</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/replay-vision\">replay vision</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/ai-observability\">AI observability</a>, and <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/error-tracking\">error tracking</a></p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/mcp\">PostHog MCP</a> for users and their agents to query and act on their product and business data</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/context-warehouse/managed-warehouse\">Data warehouse</a> so users can query product and customer data together using custom SQL insights.</p></li></ul><p style=\"min-height:1.5em\">We are:</p><ol style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Product-led</strong>. More than 500K organizations have installed PostHog, mostly driven by word-of-mouth. We have intensely strong product-market fit.</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener nofollow\" href=\"https://paulgraham.com/aord.html\"><strong><u>Default alive</u></strong></a>. Revenue is growing incredibly quickly, and we're very efficient. We raise money to push ",
+   "descriptionPlain": "ABOUT POSTHOG\n\nPostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.\n\nWe launched out of Y Combinator's W20 cohort https://posthog.com/handbook/story. We've since shipped more than a dozen pro",
+   "compensation": {
+    "compensationTierSummary": null,
+    "scrapeableCompensationSalarySummary": null,
+    "compensationTiers": [],
+    "summaryComponents": []
+   }
+  },
+  {
+   "id": "0be1b52c-2401-4ae2-b7fc-5d018c1ff96f",
+   "title": "Technical Customer Success Manager - EMEA",
+   "department": "Sales & Customer Success",
+   "team": "Customer Success",
+   "employmentType": "FullTime",
+   "location": "Remote (EMEA)",
+   "shouldDisplayCompensationOnJobPostings": false,
+   "secondaryLocations": [],
+   "publishedAt": "2026-09-18T08:41:19.683+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "European Union"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/posthog/0be1b52c-2401-4ae2-b7fc-5d018c1ff96f",
+   "applyUrl": "https://jobs.ashbyhq.com/posthog/0be1b52c-2401-4ae2-b7fc-5d018c1ff96f/application",
+   "descriptionHtml": "<h2>About PostHog</h2><p style=\"min-height:1.5em\">PostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.</p><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://posthog.com/handbook/story\"><u>We launched out of Y Combinator's W20 cohort</u></a>. We've since shipped more than a dozen products, including:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">A suite of analytics and observability tools, including <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/product-analytics\">product analytics</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/replay-vision\">replay vision</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/ai-observability\">AI observability</a>, and <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/error-tracking\">error tracking</a></p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/mcp\">PostHog MCP</a> for users and their agents to query and act on their product and business data</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/context-warehouse/managed-warehouse\">Data warehouse</a> so users can query product and customer data together using custom SQL insights.</p></li></ul><p style=\"min-height:1.5em\">We are:</p><ol style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Product-led</strong>. More than 500K organizations have installed PostHog, mostly driven by word-of-mouth. We have intensely strong product-market fit.</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener nofollow\" href=\"https://paulgraham.com/aord.html\"><strong><u>Default alive</u></strong></a>. Revenue is growing incredibly quickly, and we're very efficient. We raise money to push ",
+   "descriptionPlain": "ABOUT POSTHOG\n\nPostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.\n\nWe launched out of Y Combinator's W20 cohort https://posthog.com/handbook/story. We've since shipped more than a dozen pro",
+   "compensation": {
+    "compensationTierSummary": null,
+    "scrapeableCompensationSalarySummary": null,
+    "compensationTiers": [],
+    "summaryComponents": []
+   }
+  },
+  {
+   "id": "43dbf072-0fc1-48c9-8c1e-7416db7d4a14",
+   "title": "ClickHouse Operations Engineer ",
+   "department": "Engineering",
+   "team": "ClickHouse",
+   "employmentType": "FullTime",
+   "location": "Remote",
+   "shouldDisplayCompensationOnJobPostings": false,
+   "secondaryLocations": [],
+   "publishedAt": "2026-10-29T15:32:29.354+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "USA"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/posthog/43dbf072-0fc1-48c9-8c1e-7416db7d4a14",
+   "applyUrl": "https://jobs.ashbyhq.com/posthog/43dbf072-0fc1-48c9-8c1e-7416db7d4a14/application",
+   "descriptionHtml": "<h2>About PostHog</h2><p style=\"min-height:1.5em\">PostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.</p><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://posthog.com/handbook/story\"><u>We launched out of Y Combinator's W20 cohort</u></a>. We've since shipped more than a dozen products, including:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">A suite of analytics and observability tools, including <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/product-analytics\">product analytics</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/replay-vision\">replay vision</a>, <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/ai-observability\">AI observability</a>, and <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/error-tracking\">error tracking</a></p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/mcp\">PostHog MCP</a> for users and their agents to query and act on their product and business data</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://posthog.com/context-warehouse/managed-warehouse\">Data warehouse</a> so users can query product and customer data together using custom SQL insights.</p></li></ul><p style=\"min-height:1.5em\">We are:</p><ol style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Product-led</strong>. More than 500K organizations have installed PostHog, mostly driven by word-of-mouth. We have intensely strong product-market fit.</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener nofollow\" href=\"https://paulgraham.com/aord.html\"><strong><u>Default alive</u></strong></a>. Revenue is growing incredibly quickly, and we're very efficient. We raise money to push ",
+   "descriptionPlain": "ABOUT POSTHOG\n\nPostHog is your product’s context layer. It ingests and stores your analytics, errors, replays, and business data so you and your agents can query and act on it.\n\nWe launched out of Y Combinator's W20 cohort https://posthog.com/handbook/story. We've since shipped more than a dozen pro",
+   "compensation": {
+    "compensationTierSummary": null,
+    "scrapeableCompensationSalarySummary": null,
+    "compensationTiers": [],
+    "summaryComponents": []
+   }
+  }
+ ],
+ "apiVersion": "1"
+}

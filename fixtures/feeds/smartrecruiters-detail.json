@@ -1,0 +1,78 @@
+{
+ "id": "744000159057430",
+ "name": "Staff Software Engineer",
+ "uuid": "ff2f4d48-6734-4dd1-b52b-4c3cb0684366",
+ "jobId": "bead9d2b-c5df-4db4-900b-7d5396682aa0",
+ "jobAdId": "8046d920-9237-4519-a34c-28cf27af3dbf",
+ "defaultJobAd": true,
+ "refNumber": "JB0076550",
+ "company": {
+  "name": "ServiceNow",
+  "identifier": "ServiceNow"
+ },
+ "location": {
+  "city": "Hyderabad",
+  "region": "Telangana",
+  "country": "in",
+  "address": "Salarpuria Sattva Knowledge City Knowledge City, Unit II, 17 to 10 Floor Survey No. 83/1, Serilingampally Mandal",
+  "postalCode": "500081",
+  "remote": false,
+  "hybrid": true,
+  "fullLocation": "Hyderabad, Telangana, India"
+ },
+ "releasedDate": "2026-11-02T06:39:50.372Z",
+ "creator": {
+  "name": "",
+  "avatarUrl": ""
+ },
+ "postingUrl": "https://jobs.smartrecruiters.com/ServiceNow/744000159057430-staff-software-engineer",
+ "applyUrl": "https://jobs.smartrecruiters.com/ServiceNow/744000159057430-staff-software-engineer?oga=true",
+ "referralUrl": "https://jobs.smartrecruiters.com/external-referrals/company/ServiceNow/publication/ff2f4d48-6734-4dd1-b52b-4c3cb0684366?dcr_ci=ServiceNow",
+ "jobAd": {
+  "sections": {
+   "companyDescription": {
+    "title": "Company Description",
+    "text": "<p>It all started when engineer Fred Luddy wrote code that automated a tedious task for his coworker, Phyllis. She cried tears of joy. That moment inspired Fred to build a company that could do that for everyone—freeing people from busywork so they could focus on meaningful work. Today, ServiceNow is the AI control tower for business reinvention. Our ServiceNow AI platform brings together any AI, any data, and any workflow— helping 85% of the Fortune 500® work smarter, faster, and better. We're building an AI-native culture where technology and talent are unstoppable together. And we're just getting started.</p><p>Join us to put AI to work for people.</p><p>&#xa0;</p>"
+   },
+   "jobDescription": {
+    "title": "Job Description",
+    "text": "<p><strong>About the role</strong></p><p>We’re looking for a Staff Software Engineer to set technical direction for a team building AI-native products on the ServiceNow platform. You’ll shape how we design, build, and operate systems where AI agents, LLM-driven workflows, and traditional platform engineering work together. This is a hands-on role with broad influence: you’ll make architectural calls, raise the engineering bar, and help the team move from AI-assisted development to AI-native delivery.</p><p><strong>What you’ll do</strong></p><ul><li>Lead the design and delivery of complex, cross-functional features across the platform, from architecture through production operations.</li><li>Build AI-native capabilities, including LLM-integrated workflows, agentic patterns, prompt and context design, and evaluation pipelines, with reliability and governance built in.</li><li>Define and drive how the team uses AI tools across the development lifecycle: code generation, test automation, review, triage, and documentation. Measure the impact and share what works.</li><li>Design for ServiceNow platform internals: Flow Designer, Workflow Studio, Decision Management etc</li><li>Mentor senior and mid-level engineers and set standards for code quality, observability, and safe AI usage.</li><li>Partner with product, UX, and other engineering leads to turn ambiguous problems into scoped, shippable plans.</li><li>Own production quality for your area, including defect triage, release readi"
+   },
+   "qualifications": {
+    "title": "Qualifications",
+    "text": "<p><strong>What we’re looking for</strong></p><ul><li>8+ years of software engineering experience, with a track record of technical leadership at the staff level or equivalent.</li><li>Strong proficiency in Java, JavaScript, or another language relevant to the platform, plus solid system design skills.</li><li>Hands-on experience building or integrating LLM-based features: prompt design, retrieval or context management, evaluation, and cost/latency tradeoffs.</li><li>Working knowledge of agentic architectures, including tool use, orchestration, and human-in-the-loop controls.</li><li>Experience using AI-assisted development tools in daily work, with an opinion on where they help and where they don’t.</li><li>Clear written and verbal communication, including the ability to brief senior leaders and align multiple teams.</li><li>Familiarity with enterprise SaaS, multi-tenant systems, and secure, compliant software delivery.</li></ul><p><strong>Nice to have</strong></p><ul><li>Experience with ServiceNow platform development or Flow Designer internals.</li><li>Background in workflow automation, or approval systems.</li><li>Experience designing AI governance, guardrails, or responsible AI controls.</li><li>Contributions to internal or external AI engineering standards or tooling.</li></ul>"
+   },
+   "additionalInformation": {
+    "title": "Additional Information",
+    "text": "<p><strong>Work Personas</strong></p><p>We approach our distributed world of work with flexibility and trust. Work personas (flexible, remote, or required in office) are categories that are assigned to ServiceNow employees depending on the nature of their work and their assigned work location. <a href=\"https://careers.servicenow.com/life-at-servicenow#workpersonas\" rel=\"noopener noreferrer\"><u>Learn more here</u></a>. To determine eligibility for a work persona, ServiceNow may confirm the distance between your primary residence and the closest ServiceNow office using a third-party service.</p><p><strong>Equal Opportunity Employer</strong></p><p>ServiceNow is an equal opportunity employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, sexual orientation, national origin, age, disability, gender identity,&#xa0; veteran status, or any other category protected by law. In addition, all qualified applicants with arrest or conviction records will be considered for employment in accordance with legal requirements. &#xa0;</p><p><strong>Accommodations</strong></p><p>We strive to create an accessible and inclusive experience for all candidates. If you require a reasonable accommodation to complete any part of the application process, or are unable to use this online application and need an alternative method to apply, please contact <a href=\"mailto:globaltalentss@servicenow.com\" rel=\"noopener noreferrer\">globaltalentss@s"
+   }
+  }
+ },
+ "active": true,
+ "visibility": "PUBLIC",
+ "industry": {
+  "id": "it_and_services",
+  "label": "Information Technology And Services"
+ },
+ "function": {
+  "id": "engineering",
+  "label": "Engineering"
+ },
+ "department": {
+  "id": 2294038,
+  "label": "Engineering, Infrastructure and Operations"
+ },
+ "experienceLevel": {
+  "id": "not_applicable",
+  "label": "Not Applicable"
+ },
+ "typeOfEmployment": {
+  "id": "permanent",
+  "label": "Full-time"
+ },
+ "language": {
+  "code": "en",
+  "label": "English",
+  "labelNative": "English (US)"
+ }
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python.org Jobs Feed</title><link>https://www.python.org/jobs/</link><description>Python jobs from Python.org</description><atom:link href="https://www.python.org/jobs/feed/rss/" rel="self"/><language>en-us</language><lastBuildDate>Mon, 02 Nov 2026 07:55:29 +0000</lastBuildDate><item><title>Senior Python Engineer, webbyfox consultancy</title><link>https://www.python.org/jobs/8183/</link><description>London, UK
+&lt;p&gt;We're looking for a Senior Python Engineer to design, build, and scale the backend systems that power our products. You'll own services end to end — from architecture and API design through to deployment and monitoring — and work closely with product, data, and DevOps teams.&lt;/p&gt;
+&lt;p&gt;Key responsibilities:
+- Design, develop, and maintain scalable, high-performance backend services and APIs in Python
+- Lead technical design discussions and make sound architectural decisions
+- Write clean, well-tested, maintainable code and champion engineering best practices
+- Review code and mentor junior and mid-level engineers
+- Optimise application performance, reliability, and security
+- Collaborate with cross-functional teams to translate requirements into technical solutions
+- Contribute to CI/CD pipelines, observability, and production support
+- Stay current with the Python ecosystem and help evolve our tech stack&lt;/p&gt;
+
+&lt;ul class="simple"&gt;
+&lt;li&gt;5+ years of professional software development experience, with strong expertise in Python&lt;/li&gt;
+&lt;li&gt;Solid experience with at least one major web framework (Django, FastAPI, or Flask)&lt;/li&gt;
+&lt;li&gt;Strong understanding of RESTful API design; GraphQL experience is a plus&lt;/li&gt;
+&lt;li&gt;Proficiency with relational databases (PostgreSQL/MySQL) and ORMs; NoSQL experience (Redis, MongoDB) is a plus&lt;/li&gt;
+&lt;li&gt;Experience with asynchronous programming (asyncio) and task queues (Celery, RQ, or similar)&lt;/li&gt;
+&lt;li&gt;Hands-on experience with cloud platforms (AWS, GCP, or Azure), Docker, and Kubernetes&lt;/li&gt;
+&lt;li&gt;Strong testing discipline (pytest, unit/integration testing, TDD)&lt;/li&gt;
+&lt;li&gt;Familiarity with CI/CD, Git workflows, and monitoring/logging tools&lt;/li&gt;
+&lt;li&gt;Good knowledge of software design patterns, system design, and security best practices&lt;/li&gt;
+&lt;li&gt;Excellent communication skills and experience mentoring other engineers&lt;/li&gt;
+&lt;li&gt;Bachelor's degree in Computer Science or a related field, or equivalent practical experience&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/8183/</guid></item>
+<item><title>Senior Python Engineer (Barcelona-based / Relocation support to Barcelona), Manychat</title><link>https://www.python.org/jobs/8180/</link><description>Barcelona, Spain
+&lt;p&gt;&lt;strong&gt;Senior Python Engineer, Billing &amp;amp; Accounts&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Manychat builds AI-powered automations that help creators and brands engage with their audiences on Instagram, Messenger, WhatsApp and TikTok. We are 400+ people across three continents behind the leading platform for conversational growth.&lt;/p&gt;
+&lt;p&gt;As a Senior Python Engineer you will create the Python foundation for Manychat's Billing: payments, payment provider integrations, anti-fraud and local regulatory compliance, all tied to the pricing model every feature depends on. There is no roadmap yet, so you will design systems end to end, make the architectural decisions and experiment with what works best. Two mid-level engineers will join after you, and you will help them grow.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What you will do&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Design and build Billing's Python foundation, where product features and the existing PHP backend work together.&lt;/li&gt;
+&lt;li&gt;Build async Python services for payments, payment provider integrations, invoicing, anti-fraud and regulatory compliance.&lt;/li&gt;
+&lt;li&gt;Design and integrate internal and third-party APIs with clear, stable contracts.&lt;/li&gt;
+&lt;li&gt;Build for failure: retries, idempotency, consistency and observability, so every payment is handled correctly.&lt;/li&gt;
+&lt;li&gt;Set the testing, CI/CD and rollout practices this layer runs on.&lt;/li&gt;
+&lt;li&gt;Mentor and set the technical bar for two mid-level engineers.&lt;/li&gt;
+&lt;li&gt;Work with cross-functional partners so your technical decisions fit how the business runs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;What we offer&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Hybrid onboarding (start remotely) and relocation support for you and your family&lt;/li&gt;
+&lt;li&gt;Comprehensive health insurance for you and your family&lt;/li&gt;
+&lt;li&gt;Professional development budget for conferences, courses and learning resources&lt;/li&gt;
+&lt;li&gt;Flexible benefits package tailored to your priorities&lt;/li&gt;
+&lt;li&gt;Hybrid work and generous leave options&lt;/li&gt;
+&lt;li&gt;In-office perks, including free meals and snacks&lt;/li&gt;
+&lt;li&gt;Company-funded sports activities, annual offsites and team-building events&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Manychat is an Equal Opportunity Employer. If you need an accommodation during the interview process, please indicate this in your application.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;You need&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;6+ years of commercial Python development in production, with Python as your primary language and recent hands-on work&lt;/li&gt;
+&lt;li&gt;Strong expertise in modern Python frameworks (FastAPI preferred; Django or Flask are fine)&lt;/li&gt;
+&lt;li&gt;Solid experience designing and integrating APIs, including third-party services&lt;/li&gt;
+&lt;li&gt;Strong understanding of async programming and concurrency (AsyncIO, non-blocking I/O)&lt;/li&gt;
+&lt;li&gt;Experience with PostgreSQL and large datasets&lt;/li&gt;
+&lt;li&gt;Experience building and maintaining backend systems under production load&lt;/li&gt;
+&lt;li&gt;Strong testing practices (unit and integration tests; PyTest preferred), CI/CD pipelines and Docker&lt;/li&gt;
+&lt;li&gt;Strong engineering judgment: you design systems end to end and make architectural decisions on your own&lt;/li&gt;
+&lt;li&gt;Mentoring or leadership experience of any kind&lt;/li&gt;
+&lt;li&gt;Experience working in cross-functional teams, with clear communication&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Nice to have&lt;/strong&gt;&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Experience with billing, invoicing or payment systems&lt;/li&gt;
+&lt;li&gt;Experience with PHP&lt;/li&gt;
+&lt;li&gt;A product mindset and scale-up experience&lt;/li&gt;
+&lt;li&gt;Experience with queues, NoSQL or analytical systems&lt;/li&gt;
+&lt;li&gt;Deep database experience, such as replication, partitioning, sharding or PL/pgSQL&lt;/li&gt;
+&lt;li&gt;Hands-on experience with AI tools in your engineering work&lt;/li&gt;
+&lt;/ul&gt;
+</description><guid>https://www.python.org/jobs/8180/</guid></item>
+<item><title>Software Engineer, AI Coding Tasks, Askable</title><link>https://www.python.org/jobs/8178/</link><description>Remote, None, Global
+&lt;p&gt;We're looking for experienced software engineers to build AI coding tasks from a codebase they know well. US$1,000 per task, and you can do as many tasks as you want.&lt;/p&gt;
+&lt;p&gt;You turn a real change from a repository you know into a task that today's best AI coding models struggle with: hard for the models, but fair for a skilled engineer. Your tasks are used to measure and train AI coding models.&lt;/p&gt;
+&lt;p&gt;Remote, any location. US$1,000 per task that passes review. Minimum of one task a week, about 10 hours a week.&lt;/p&gt;
+&lt;p&gt;How it works
+Apply. Complete a short screener interview and upload your resume.
+Propose. Once you're selected, pick a change from a repository you know and submit a short proposal. We approve it or suggest a better candidate.
+Build. In our platform, set up the repository as it was before the change, then write the brief, the correct solution and the grading checks.
+Stress-test. Try lazy, incorrect and shortcut solutions and make sure your checks catch them.
+Model testing. Run your task against leading AI models until strong models often fail but a skilled engineer can clearly solve it.
+Review. A reviewer checks your task and you revise it. Most tasks take more than one round.
+Next task. Once your task is accepted, start another.&lt;/p&gt;
+
+&lt;p&gt;Requirements
+2+ years of professional software engineering
+Code merged into a public open-source repository, ideally one you know well. A private codebase you own may also qualify (not employer or client code)
+Strong in at least one of Python, TypeScript, Go, Rust, Java or C++
+Solid with Docker, Linux, Git and automated testing
+Regular use of an AI coding tool
+Experience writing tests, rubrics or evaluation criteria, ideally for AI models
+You can explain a change clearly and concisely, in your own words
+At least 10 hours a week, starting now
+A secure personal or work computer (no public or shared machines)&lt;/p&gt;
+&lt;p&gt;Nice to have
+Deep expertise in one area, such as databases, compilers, distributed systems, security or infrastructure
+Experience building agent tasks or RL environments&lt;/p&gt;
+&lt;p&gt;Terms&lt;/p&gt;
+&lt;p&gt;US$1,000 for each task that passes our quality review, paid directly to you
+Once your proposal is qualified, you sign Askable's contract and accept its terms
+The work is used for AI training. The change and your solution must be your own, and you must be free to license them to us
+Don't publish the work anywhere: no public pull request or public fork&lt;/p&gt;
+</description><guid>https://www.python.org/jobs/8178/</guid></item></channel></rss>

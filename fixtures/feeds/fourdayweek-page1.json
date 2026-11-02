@@ -1,0 +1,110 @@
+{
+ "usage": "Thanks for using this API! All we ask is that you link back to https://4dayweek.io :) Docs and a richer v2 are at https://4dayweek.io/developers.",
+ "page": 1,
+ "total": 29085,
+ "has_more": true,
+ "jobs": [
+  {
+   "id_str": "01a19130-20f1-7ad2-b9b1-1807b2135af9",
+   "title": "Software Engineer - AI Tooling Infrastructure",
+   "slug": "software-engineer-ai-tooling-infrastructure-at-supabase-82f4762f",
+   "url": "https://4dayweek.io/job/software-engineer-ai-tooling-infrastructure-at-supabase-82f4762f",
+   "description": "### **About Supabase**\n\nSupabase is the Postgres development platform, built by developers for developers. We provide a complete backend solution including Database, Auth, Storage, Edge Functions, Realtime, and Vector Search. All services are deeply integrated and designed for growth.\n\n**About the Role**\n\nWe’re looking for a **Software Engineer, AI Tooling Infrastructure** to join our **AI Tooling team** and help build and run the backend services behind Supabase’s AI products. The Supabase MCP server is one example of what the team runs in production, alongside the services that support agent skills and the dashboard assistant. You’ll work closely with the Platform, SRE, Auth, Billing and Edge Functions teams, and with the engineers on the AI Tooling team who build the product surfaces.\n\nThe AI Tooling team runs its own services in production and carries its own on-call. Traffic from AI clients and agents behaves differently from traffic from people: hundreds of calls a minute, retry loops, and no reading of deprecation warnings. This role makes sure the services they use are reliable, correctly authorized and observable. It is a systems and infrastructure role rather than a product AI role, and it is not an SRE role. You will build and operate these systems, not only advise on them.\n\nThis role is ideal for someone who thrives in async, fast-paced environments, owns what they ship in production, and is excited about building developer tools that scale to millions.\n\n### What ",
+   "category": "Engineering",
+   "role": "Software Engineer",
+   "level": "Mid-level",
+   "hours": 40,
+   "reduced_hours": "Flexible hours",
+   "is_remote": true,
+   "location_city": "",
+   "location_country": "",
+   "location_continent": "",
+   "location_original": "Remote",
+   "posted": 1793437213,
+   "filters": [
+    {
+     "label": "API Design",
+     "value": "api-design"
+    },
+    {
+     "label": "Agent tooling (MCP)",
+     "value": "agent-tooling-(mcp)"
+    },
+    {
+     "label": "Async Communication",
+     "value": "async-communication"
+    }
+   ],
+   "company_id": "019b776e-f058-71cd-8667-e49ae6c94f4e",
+   "company_name": "Supabase"
+  },
+  {
+   "id_str": "01a1911c-99e2-7685-9400-e9cb517e0c74",
+   "title": "Enterprise+ Account Executive",
+   "slug": "enterprise-account-executive-at-gong-9aee817d",
+   "url": "https://4dayweek.io/job/enterprise-account-executive-at-gong-9aee817d",
+   "description": "Gong harnesses the power of AI to transform how revenue teams win. The Gong Revenue AI Operating System unifies data, insights, and workflows into a single, trusted system that observes, guides, and acts alongside the world’s most successful revenue teams. Powered by the Gong Revenue Graph, AI-powered intelligence, specialized agents, and trusted applications, Gong helps more than 5,000 companies around the world deeply understand their teams and customers, automate critical sales workflows, and close more deals with less effort. For more information, visit www.gong.io.\n\nAt Gong, you will join a company built on innovative products, ambitious goals, and passionate people. We are shaping the future of revenue intelligence and we want people who are excited to build what comes next. You will work with a team that dreams big, moves fast, and cares deeply about the craft and about each other. Here, transparency and trust are core to how we operate, and every person has the opportunity to make a visible impact. If you want to grow, stretch, and do work that truly matters, Gong is the place to do the best work of your career.\n\nWe are looking for an enterprise seller who is ready to take their game to the next level. This is a **hunt-to-own role**: you win the logo, and you keep it. There is no handoff after the close. You own the relationship and grow the account over time. You have proven you can close enterprise deals and navigate complex buying processes. You build relationships",
+   "category": "Sales",
+   "role": "Account Executive",
+   "level": "Mid-level",
+   "hours": 40,
+   "reduced_hours": "Best place to work",
+   "is_remote": true,
+   "location_city": "",
+   "location_country": "United States",
+   "location_continent": "North America",
+   "location_original": "Remote in United States",
+   "posted": 1793435933,
+   "filters": [
+    {
+     "label": "Account Management",
+     "value": "account-management"
+    },
+    {
+     "label": "Business Acumen",
+     "value": "business-acumen"
+    },
+    {
+     "label": "Consultative Selling",
+     "value": "consultative-selling"
+    }
+   ],
+   "company_id": "019e8449-f9ef-744f-b684-164870a4e151",
+   "company_name": "Gong"
+  },
+  {
+   "id_str": "01a1911c-99bc-75fd-8da8-c589a35f2b2a",
+   "title": "Enterprise Account Executive",
+   "slug": "enterprise-account-executive-at-gong-da616d0d",
+   "url": "https://4dayweek.io/job/enterprise-account-executive-at-gong-da616d0d",
+   "description": "Gong harnesses the power of AI to transform how revenue teams win. The Gong Revenue AI Operating System unifies data, insights, and workflows into a single, trusted system that observes, guides, and acts alongside the world’s most successful revenue teams. Powered by the Gong Revenue Graph, AI-powered intelligence, specialized agents, and trusted applications, Gong helps more than 5,000 companies around the world deeply understand their teams and customers, automate critical sales workflows, and close more deals with less effort. For more information, visit www.gong.io.\n\nAt Gong, you will join a company built on innovative products, ambitious goals, and passionate people. We are shaping the future of revenue intelligence and we want people who are excited to build what comes next. You will work with a team that dreams big, moves fast, and cares deeply about the craft and about each other. Here, transparency and trust are core to how we operate, and every person has the opportunity to make a visible impact. If you want to grow, stretch, and do work that truly matters, Gong is the place to do the best work of your career.\n\nWe are looking for an enterprise seller who is ready to take their game to the next level. This is a **hunt-to-own role**: you win the logo, and you keep it. There is no handoff after the close. You own the relationship and grow the account over time. You have proven you can close enterprise deals and navigate complex buying processes. You build relationships",
+   "category": "Sales",
+   "role": "Account Executive",
+   "level": "Mid-level",
+   "hours": 40,
+   "reduced_hours": "Best place to work",
+   "is_remote": true,
+   "location_city": "",
+   "location_country": "United States",
+   "location_continent": "North America",
+   "location_original": "Remote in United States",
+   "posted": 1793435933,
+   "filters": [
+    {
+     "label": "Account Management",
+     "value": "account-management"
+    },
+    {
+     "label": "Communication",
+     "value": "communication"
+    },
+    {
+     "label": "Complex Sales Cycles",
+     "value": "complex-sales-cycles"
+    }
+   ],
+   "company_id": "019e8449-f9ef-744f-b684-164870a4e151",
+   "company_name": "Gong"
+  }
+ ]
+}

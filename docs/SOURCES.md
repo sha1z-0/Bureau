@@ -1215,3 +1215,125 @@ Endpoints:
   - Free text: Remotive, Jobspresso, Larajobs, HN.
 - **Timeouts:** Lever was slow from this network, so use 60–90 s timeouts or `limit`/`skip`. Everything else answered in under 5 s.
 - **Attribution required:** RemoteOK (dofollow backlink), Remotive (backlink plus name; max 4 polls/day), Himalayas (visible source link; unchanged apply link), Jobicy (credit plus link), Arbeitnow (link appreciated), 4dayweek (link back). Store `sourceName` and `sourceUrl` on every job and render "via X".
+
+---
+
+# v2 additions (A01, verified live on 2026-11-02)
+
+Every endpoint below was read with plain `GET`s (Workday: its public search `POST`)
+from this machine on 2026-11-02, with Bureau's honest User-Agent
+(`… Bureau/1.0`), no keys, no logins. A trimmed copy of each response is in
+`fixtures/feeds/<connector>-*.json|xml|html`, and `npm run selfcheck -- a01`
+parses every one of them offline.
+
+## 17. More ATS families (per company token, from the company registry)
+
+| # | Family | Endpoint | Auth | Pagination / limits | Description in list? | Verified with |
+|---|---|---|---|---|---|---|
+| 17a | SmartRecruiters | `GET https://api.smartrecruiters.com/v1/companies/{id}/postings?limit=100&offset=N`, then `GET …/postings/{postingId}` | none | 100 per page; `totalFound`. Unknown id → 200 with `totalFound: 0`. Ids are case-sensitive (`Ubisoft2`) | no → detail request (budgeted) | `ServiceNow` (429 matching "software engineer"), `WesternDigital` (345), `BoschGroup` |
+| 17b | Workday (CXS) | `POST https://{tenant}.{wdN}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs` with body `{"appliedFacets":{},"limit":20,"offset":N,"searchText":""}`; detail `GET …/wday/cxs/{tenant}/{site}{externalPath}` | none (unofficial, undocumented) | 20 per page, newest first; `total` caps at 2000 | no → detail (budgeted, tech titles only) | `nvidia:wd5:NVIDIAExternalCareerSite` (2000+), `crowdstrike:wd5:crowdstrikecareers` |
+| 17c | Workable | `GET https://apply.workable.com/api/v1/widget/accounts/{sub}?details=true` | none | whole board in one response | yes (with `details=true`) | `thorlabs`, `huggingface` |
+| 17d | Recruitee | `GET https://{c}.recruitee.com/api/offers/` | none | whole board; heavy (application questions inline) | yes | `hardrockdigital`, `bunq` |
+| 17e | Personio | `GET https://{c}.jobs.personio.de/xml` (or `.com`) | none | whole board, XML `<workzag-jobs><position>` | yes (`jobDescriptions`) | `1komma5grad` (311), `chrono24` (12), `ottonova` (9), `clark`, `tado`; unknown → 404 |
+| 17f | Teamtailor | `GET https://{c}.teamtailor.com/jobs.rss` | none | whole board, RSS with a `tt:` namespace (`tt:locations`, `tt:department`, `remoteStatus`) | yes (escaped HTML) | `career` (Teamtailor itself, 17 roles) |
+| 17g | BambooHR | `GET https://{c}.bamboohr.com/careers/list`, then `GET …/careers/{id}/detail` | none | whole list; `locationType` 0 on-site, 1 remote, 2 hybrid | no → detail (budgeted) | `asuresoftware` (53), `fispan`, `selectorsoftware`, `nexthopai` |
+| 17h | Breezy HR | `GET https://{c}.breezy.hr/json` | none | whole board | no (title, location, salary string) | `forge-nano` |
+| 17i | JazzHR | `GET https://app.jazz.co/feeds/export/jobs/{c}` (XML) | none | whole board; the creation time is embedded in the id `job_YYYYMMDDhhmmss_…` | yes | `evertz` |
+| 17j | Rippling | `GET https://api.rippling.com/platform/api/ats/v1/board/{slug}/jobs`, then `…/jobs/{uuid}` | none | whole list | no → detail (budgeted) | `rippling` |
+| 17k | Pinpoint | `GET https://{c}.pinpointhq.com/postings.json` | none | whole board; no publish date | yes (sections) | `wolve` |
+| 17l | Comeet | careers page `https://www.comeet.com/jobs/{company}/{uid}` | the positions API needs a per-company token embedded in the page | — | — | **detection only.** Bureau doesn't lift tokens out of pages, so these boards are recorded with `status = unsupported` |
+| 17m | iCIMS | `https://careers-{c}.icims.com/jobs/search` | — | — | — | **not usable**: answers 405 with a "Human Verification" page. Detection only |
+| 17n | Taleo, SuccessFactors, Oracle Cloud HCM, Jobvite, Eightfold | various | — | — | — | detection only (registry `unsupported`), so apply URLs still resolve to the employer's own system |
+
+Sample (Workday list item, then its detail):
+
+```json
+{ "title": "Senior ICPE Production Security Software Engineer",
+  "externalPath": "/job/Israel-Yokneam/Senior-ICPE-Production-Security-Software-Engineer_JR2028963-2",
+  "locationsText": "Israel, Yokneam", "postedOn": "Posted Today", "bulletFields": ["JR2028963"] }
+{ "jobPostingInfo": { "title": "…", "jobDescription": "<p>…", "location": "Israel, Yokneam", "startDate": "2026-11-02",
+  "timeType": "Full time", "jobReqId": "JR2022657", "externalUrl": "https://nvidia.wd5.myworkdayjobs.com/…" },
+  "hiringOrganization": { "name": "IL00 Mellanox Technologies, Ltd." } }
+```
+
+Sample (Personio XML):
+
+```xml
+<position><id>2827202</id><subcompany>Chrono24 GmbH</subcompany><office>Remote</office>
+  <additionalOffices><office>Berlin</office><office>Karlsruhe</office></additionalOffices>
+  <department>Product &amp; Technology</department><name>(Senior) Full Stack Engineer (Backend Focus) (m/f/d)</name>
+  <jobDescriptions>…</jobDescriptions><employmentType>permanent</employmentType><createdAt>2026-10-05T09:29:19+00:00</createdAt></position>
+```
+
+Mapping notes: every ATS connector sets `ats`, `applyUrl` (the employer's own
+posting URL in its shortest working form) and `companyDomain` when the registry
+knows it. Hourly ranges (Lever, Ashby, Pinpoint, Rippling, BambooHR, Breezy
+salary strings) are annualised ×2080, monthly ×12.
+
+## 18. Niche and remote boards added in v2
+
+| Source | Endpoint | Notes |
+|---|---|---|
+| 4dayweek.io | `GET https://4dayweek.io/api/v1?page=N` | robots.txt allows `/api/v1`. 25 per page, ~29k total, newest first; `posted` in epoch seconds; Markdown descriptions. They ask for a link back. |
+| Python.org jobs | `GET https://www.python.org/jobs/feed/rss/` | 20 items; the title is `"Role, Company"`; the description starts with the location line. |
+| Y Combinator (HN job stories) | `GET https://hacker-news.firebaseio.com/v0/jobstories.json`, then `/v0/item/{id}.json` | Official API. Titles look like `"Wasmer (YC S19) Is Hiring OS/Hypervisor Experts in Europe"`; URLs often point at the company's ATS (fed to discovery). |
+| Y Combinator (Work at a Startup) | `GET https://www.workatastartup.com/jobs/l/{role}` | robots.txt allows everything. The public page embeds ~30 jobs as JSON in `data-page`. Applying there needs a YC account, so Bureau keeps the listing but prefers the company's own ATS when discovery finds it. |
+| Wellfound | `https://wellfound.com/jobs` | **not used**: Cloudflare Turnstile challenge. |
+| landing.jobs | `/api/v1/jobs` | **not used**: robots.txt has `Disallow: /api/`. |
+
+## 19. Local and Gulf boards
+
+| Board | How | Status |
+|---|---|---|
+| Rozee.pk | `GET https://www.rozee.pk/job/jsearch/q/{term}[/fpn/20]`. The page embeds the results as JSON (`var apResp = {…}`): `jid`, `title`, `company_name`, `city`, `created_at`, `applyBy`, `description_raw`, `permaLink`. Job URL: `https://www.rozee.pk/{permaLink}` | **works**. robots.txt allows `/job/jsearch`. Salaries are hidden from public results. Many listings are re-crawled from BeBee (`whereFrom`), tagged `via:BeBee`. |
+| Mustakbil | `GET https://www.mustakbil.com/jobs/pakistan/{computer-software,information-technology,web-e-commerce}`: server-rendered cards (`jc-title__link`, `jc-byline__name`, `jc-byline__place`, `jc-fact--time` "37 mins ago", `jc-desc`) | **works**. robots.txt has `Allow: /` for `*`. |
+| GulfTalent | search pages | **not used**: robots.txt allows it, but search answers 403 with a Cloudflare "Just a moment…" challenge, and Bureau never solves challenges. |
+| NaukriGulf | — | **not used**: connections were refused or timed out from this network (robots.txt unreachable, so treated as disallowed). |
+| Bayt | through the JobSpy sidecar (`bayt` site) | robots.txt disallows `/en/jobs/?` search paths for generic crawlers, so Bureau doesn't scrape it directly. |
+
+All HTML scraping goes through `server/sources/http.ts` with `robots: true`:
+robots.txt is fetched once per origin (12 h cache), the longest matching rule
+wins (allow wins ties), a `Bureau` group beats `*`, `Crawl-delay` is honoured,
+an unreachable or 5xx robots.txt means "don't fetch", and pages are spaced at
+least 1.5 s apart per host with at most 2 in flight. APIs get a 250 ms spacing
+and at most 4 requests in flight per host.
+
+## 20. JobSpy sidecar (LinkedIn, Indeed, Glassdoor, Google, ZipRecruiter, Bayt, Naukri)
+
+- `sidecars/jobspy/` wraps `python-jobspy` (1.4.1 verified). Setup:
+  `scripts/setup-sidecar.ps1` (Windows) or `scripts/setup-sidecar.sh` (Linux)
+  creates `sidecars/jobspy/.venv` (~170 MB) and runs `python -m jobspy_cli --check`.
+- Guest search only: no cookies, no login. Verified live: `indeed` + `linkedin`,
+  "security engineer", Remote, 72 h → 10 + 10 rows in about 1 s each.
+- Rows carry `job_url` (the board), `job_url_direct` (the employer's link when the
+  board exposes it, which becomes `applyUrl`), `date_posted`, `min/max_amount` with
+  `interval` (annualised), `emails`, and `company_url_direct` (→ `companyDomain`).
+- Limits: LinkedIn rate-limits guest search early, and each site tops out near
+  1,000 results per search. Bureau asks for at most 40 per site per term, spaces
+  sites 3 s apart, and rotates 4 (roles × locations) combinations per run through
+  a persisted cursor. Proxies are optional (the `scout.jobspy.proxies` setting).
+- Missing Python or venv → the connector reports `unavailable` and the rest of the
+  scan continues (tested in selfcheck with `BUREAU_JOBSPY_PYTHON=none`).
+
+## 21. Company registry and ATS detection
+
+- `server/scout/detect.ts` recognises 19 families from URLs and from DOM
+  fingerprints (embedded boards, iframes, `Grnhse.Settings.boardToken`, BambooHR
+  `data-domain`, Workable `whr_embed`, plain links), and extracts the board token
+  and job id. Token formats are documented at the top of that file (Workday:
+  `tenant:wdN:site`; EU Greenhouse/Lever: `eu:slug`; Personio `.com` tenants:
+  `slug.com`).
+- The registry is seeded from the v1 curated boards, every token in §15, the
+  tokens verified in §17, and every ATS board referenced by the SimplifyJobs
+  new-grad list (open and closed rows): **3,495 companies** in
+  `server/scout/seed-companies.json` (Workday 1,254 · Greenhouse 627 · Ashby 500 ·
+  Lever 238 · iCIMS 234 · SmartRecruiters 166 · Workable 157 · JazzHR 121 ·
+  Rippling 120 · BambooHR 36 · Taleo 20 · others).
+- It grows by itself: any apply URL or careers link seen by a connector, the
+  resolver, HN/Reddit posts, SimplifyJobs rows, deep-scan research text, or the
+  weekly Claude `site:` search adds that company's board.
+- Boards that 404 are marked `dead`. Each poll stores `open_roles` and
+  `prev_open_roles`; a jump of 30% or more (and at least 2 roles) records a
+  `roles_jump` signal, and funding news in deep-scan text records a `funding`
+  signal. Companies with a signal in the last 14 days are polled every cycle and
+  their roles get +1 `jobs.priority`.

@@ -1,0 +1,67 @@
+{
+ "meta": {
+  "totalCount": 3
+ },
+ "result": [
+  {
+   "id": "448",
+   "jobOpeningName": "Senior Security Engineer",
+   "departmentId": "18471",
+   "departmentLabel": "Engineering",
+   "employmentStatusLabel": "Full-Time",
+   "employmentType": null,
+   "location": {
+    "city": "Vancouver",
+    "state": "British Columbia"
+   },
+   "atsLocation": {
+    "country": null,
+    "state": null,
+    "province": null,
+    "city": null
+   },
+   "isRemote": null,
+   "locationType": "0"
+  },
+  {
+   "id": "451",
+   "jobOpeningName": "Senior Account Executive",
+   "departmentId": "18964",
+   "departmentLabel": "Sales & Marketing ",
+   "employmentStatusLabel": "Full-Time",
+   "employmentType": null,
+   "location": {
+    "city": "Vancouver",
+    "state": "British Columbia"
+   },
+   "atsLocation": {
+    "country": null,
+    "state": null,
+    "province": null,
+    "city": null
+   },
+   "isRemote": null,
+   "locationType": "2"
+  },
+  {
+   "id": "461",
+   "jobOpeningName": "Client Implementations Consultant",
+   "departmentId": "18635",
+   "departmentLabel": "Servicing",
+   "employmentStatusLabel": "Full-Time",
+   "employmentType": null,
+   "location": {
+    "city": "Vancouver",
+    "state": "British Columbia"
+   },
+   "atsLocation": {
+    "country": null,
+    "state": null,
+    "province": null,
+    "city": null
+   },
+   "isRemote": null,
+   "locationType": "2"
+  }
+ ]
+}

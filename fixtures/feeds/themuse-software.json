@@ -1,0 +1,122 @@
+{
+ "page": 1,
+ "page_count": 4666,
+ "items_per_page": 20,
+ "took": 7,
+ "timed_out": false,
+ "total": 93304,
+ "results": [
+  {
+   "contents": "<div><p>SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today SpaceX is actively developing the technologies to make this possible, with the ultimate goal of&nbsp;enabling human life on Mars.</p></div>\n\n<div>\n<div>\n<p><strong>SR. EMBEDDED SOFTWARE ENGINEER, OS/PLATFORM (STARLINK)</strong></p>\n<p>At SpaceX, we’re leveraging our experience in building rockets and spacecraft to deploy Starlink, the world’s most advanced broadband internet system. Starlink is the world’s largest satellite constellation and is providing fast, reliable internet to millions of users worldwide. We design, build, test, and operate all parts of the system – thousands of satellites, consumer receivers that allow users to connect within minutes of unboxing, and the software that brings it all together. We’ve only begun to scratch the surface of Starlink’s potential global impact and are looking for best-in-class engineers to help maximize Starlink’s utility for communities and businesses around the globe.</p>\n<p>As a Sr. Embedded Software Engineer on the Starlink program, you will be solving challenges underpinning every aspect of the program’s growth. The areas you could have an impact on could include, but are not limited to:</p>\n<ul>\n<li>Bringing up next generation space grade silicon, including in house designed system on chip and peripherals.</li>\n<li>Develop software from the early stage boot loade",
+   "name": "Sr. Embedded Software Engineer, OS/Platform (Starlink)",
+   "type": "external",
+   "publication_date": "2026-06-26T18:34:36Z",
+   "short_name": "sr-embedded-software-engineer-osplatform-starlink",
+   "model_type": "jobs",
+   "id": 21825761,
+   "locations": [
+    {
+     "name": "Lockhart, TX"
+    }
+   ],
+   "categories": [
+    {
+     "name": "Software Engineering"
+    }
+   ],
+   "levels": [
+    {
+     "name": "Senior Level",
+     "short_name": "senior"
+    }
+   ],
+   "tags": [],
+   "refs": {
+    "landing_page": "https://www.themuse.com/jobs/spacex/sr-embedded-software-engineer-osplatform-starlink"
+   },
+   "company": {
+    "id": 15000190,
+    "short_name": "spacex",
+    "name": "SpaceX"
+   }
+  },
+  {
+   "contents": "<div><p>SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today SpaceX is actively developing the technologies to make this possible, with the ultimate goal of&nbsp;enabling human life on Mars.</p></div>\n\n<p><strong>PRINCIPAL ELECTRICAL ENGINEER (STARLINK)</strong></p>\n\n<p>SpaceX is leveraging its experience in building rockets and spacecraft to deploy Starlink, the world’s most advanced broadband internet system. Starlink is the world’s largest satellite constellation and is providing fast, reliable internet to millions of users worldwide. We design, build, test, and operate all parts of the system – thousands of satellites, consumer receivers that allow users to connect within minutes of unboxing, and the software that brings it all together. We’ve only begun to scratch the surface of Starlink’s potential global impact. As we continue to upgrade and expand the constellation, we’re looking for best-in-class engineers to join the team.</p>\n\n<p>As a Principal Electrical Design Engineer on Starlink, you’ll have ownership over the entire life-cycle of the hardware that enables this connectivity, and sits at the intersection of electrical, mechanical, thermal analysis, software, and antenna/RF engineering. Challenges range from high-speed digital communications, analog, network system integration, power electronics, and RF devices. Your work will include everything from system desi",
+   "name": "Principal Electrical Engineer, Satellites (Starlink)",
+   "type": "external",
+   "publication_date": "2026-08-14T18:55:59Z",
+   "short_name": "principal-electrical-engineer-satellites-starlink-ee8f9f",
+   "model_type": "jobs",
+   "id": 22062639,
+   "locations": [
+    {
+     "name": "Redmond, WA"
+    }
+   ],
+   "categories": [
+    {
+     "name": "Software Engineering"
+    }
+   ],
+   "levels": [
+    {
+     "name": "Senior Level",
+     "short_name": "senior"
+    }
+   ],
+   "tags": [],
+   "refs": {
+    "landing_page": "https://www.themuse.com/jobs/spacex/principal-electrical-engineer-satellites-starlink-ee8f9f"
+   },
+   "company": {
+    "id": 15000190,
+    "short_name": "spacex",
+    "name": "SpaceX"
+   }
+  },
+  {
+   "contents": "<p>We started Modern Animal in 2018 with a simple mission to build next-generation veterinary care by leveraging technology to improve the lives of pets, the people who love them, and the healthcare partners who take care of them. We’re rethinking systems and processes to improve the efficiency of the veterinary clinic in meaningful ways, giving the veterinarian not only the time, support, and tools s/he needs to practice the best medicine possible, but making it easier for the client to access the care their pet needs, when they need it.&nbsp;&nbsp;</p>\n\n<p>At Modern Animal, we put innovative veterinary thinkers and brilliant software engineers in the same room and asked them to build a new kind of veterinary experience from the ground up. The result? A job that will rekindle your love affair with veterinary medicine. Come join a group of highly-skilled individuals who are reinventing the people's experience in veterinary medicine, both for clients and clinicians.</p>\n\n<p><br>As Modern Animal expands our physical footprint, we’re looking for a talented team of Relief Veterinarians to support our current hospital teams in&nbsp;<em><strong>Santa Monica, Playa Vista, Culver City, and West LA.&nbsp;</strong></em><br><br></p>\n\n<p><strong>What a Relief Veterinarian does:</strong></p>\n\n<ul>\n<li>Delivers the highest standard of medical care to all Modern Animal patients</li>\n<li>Sees Modern Animal patients for scheduled and same-day, next-day appointments only, no surgery or dentist",
+   "name": "Relief Weekend or Weekday Veterinarians - Westside",
+   "type": "external",
+   "publication_date": "2026-09-14T19:05:56Z",
+   "short_name": "relief-weekend-or-weekday-veterinarians-westside",
+   "model_type": "jobs",
+   "id": 17173600,
+   "locations": [
+    {
+     "name": "Culver City, CA"
+    },
+    {
+     "name": "Los Angeles, CA"
+    },
+    {
+     "name": "Playa Vista, CA"
+    },
+    {
+     "name": "Santa Monica, CA"
+    }
+   ],
+   "categories": [
+    {
+     "name": "Software Engineering"
+    }
+   ],
+   "levels": [
+    {
+     "name": "Mid Level",
+     "short_name": "mid"
+    }
+   ],
+   "tags": [],
+   "refs": {
+    "landing_page": "https://www.themuse.com/jobs/modernanimalinc/relief-weekend-or-weekday-veterinarians-westside"
+   },
+   "company": {
+    "id": 15000208,
+    "short_name": "modernanimalinc",
+    "name": "Modern Animal, Inc."
+   }
+  }
+ ],
+ "aggregations": {}
+}
