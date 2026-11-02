@@ -89,7 +89,7 @@ export const HUMANIZER_RULES: HumanizerRule[] = [
     description: 'Words that appear in model-written text far more often than in human writing.',
     fix: 'Use the plain word a person would say out loud.',
     pattern: w(
-      "delv(?:e|es|ed|ing)|tapestry|testament|pivotal|leverag(?:e|es|ed|ing)|seamless(?:ly)?|robust|elevat(?:e|es|ed|ing)|foster(?:s|ed|ing)?|navigat(?:e|es|ed|ing) the (?:complexities|challenges|intricacies)|intricac(?:y|ies)|intricate|meticulous(?:ly)?|underscor(?:e|es|ed|ing)|bolster(?:s|ed|ing)?|garner(?:s|ed|ing)?|interplay|enduring|multifaceted|holistic|synerg(?:y|ies|istic)|paradigm|realm|embark(?:s|ed|ing)?|unwavering|crucial|deep dive|align(?:s|ed)? (?:perfectly |closely )?with|resonat(?:e|es|ed) (?:deeply )?with|in the (?:\\w+ )?landscape|landscape of|thrive in|dynamic team|fast-paced|team player|self-starter|hit the ground running|results-driven|detail-oriented|go-getter|wheelhouse",
+      "delv(?:e|es|ed|ing)|tapestry|testament|pivotal|leverag(?:e|es|ed|ing)|seamless(?:ly)?|robust|elevat(?:e|es|ed|ing)|foster(?:s|ed|ing)?|navigat(?:e|es|ed|ing) the (?:complexities|challenges|intricacies)|intricac(?:y|ies)|intricate|meticulous(?:ly)?|underscor(?:e|es|ed|ing)|bolster(?:s|ed|ing)?|garner(?:s|ed|ing)?|interplay|enduring|multifaceted|holistic|synerg(?:y|ies|istic)|paradigm|realm|embark(?:s|ed|ing)?|unwavering|crucial|deep dive|align(?:s|ed)? (?:perfectly |closely )?with|resonat(?:e|es|ed) (?:deeply )?with|landscapes?|thrive in|dynamic team|fast-paced|team player|self-starter|hit the ground running|results-driven|detail-oriented|go-getter|wheelhouse",
     ),
   },
   {

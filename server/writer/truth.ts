@@ -162,7 +162,7 @@ function numberSet(text: string): Set<string> {
 }
 
 const YEARS_CLAIM =
-  /(\d+(?:\.\d+)?|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty)\+?\s*(?:years?|yrs?)(?:['’])?\s+(?:of\s+)?(?:professional\s+|hands-on\s+|industry\s+|commercial\s+|production\s+|working\s+|relevant\s+)?(?:experience|exp\b)/gi;
+  /(\d+(?:\.\d+)?|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty)\+?\s*(?:years?|yrs?)(?:['’])?\s+(?:of\s+)?(?:[a-z][a-z/-]*\s+){0,3}?(?:experience|exp\b)/gi;
 
 // ── Scope and seniority ──────────────────────────────────────────────────────
 
@@ -283,7 +283,10 @@ export function codeTruth(input: TruthInput, src: TruthSource): CodeIssue[] {
     for (const s of splitSentences(text)) {
       if (!EMPLOYMENT_CUE.test(s)) continue;
       for (const m of s.matchAll(EMPLOYER_AFTER)) {
-        const org = m[1].replace(/['’]s$/, '').trim();
+        const org = m[1]
+          .replace(/(?:\s+(?:I|We|My|Our|And|But|So|Then))+$/, '')
+          .replace(/['’]s$/, '')
+          .trim();
         if (org.length < 2 || /^(I|The|A|An|My|Our|Your|Present|Now)$/.test(org)) continue;
         if (knownOrgs.some((k) => sameCompany(k, org))) continue;
         if (hasTerm(factText, org)) continue;
