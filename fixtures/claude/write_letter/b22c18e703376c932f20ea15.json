@@ -1,0 +1,29 @@
+{
+  "task": "write_letter",
+  "hash": "b22c18e703376c932f20ea15",
+  "scenario": "e2e",
+  "label": "revise: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Saffron Studio team,\n\nI have two years of professional experience with TypeScript, React and Node.js. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the invoicing service, which issues about 9,000 invoices a month.\n\nI am very comfortable with SQL. I cut our nightly reconciliation job from 41 minutes to 6 with set-based SQL and two partial indexes.\n\nI have not used Next.js or Prisma; when nobody at work knew Docker Compose, I learned it in time for a two-week migration.\n\nCould we have a short call?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-team-loved"
+        ],
+        "text": "Dear Saffron Studio team,\n\nThe billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. Anyone can add to it, and on Fridays we go through it together. Half the items are nothing. The other half turn into tickets before they turn into incidents.\n\nA 25-person studio that ships everything in-house probably works the same way, and that is the kind of place I'd like to grow in.\n\nI build React screens and Node.js services on PostgreSQL at Tessellate Labs, and I cut our reconciliation job from 41 minutes to 6 with set-based SQL. I haven't used Next.js yet.\n\nCould we have a short call about the role?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

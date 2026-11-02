@@ -1,0 +1,46 @@
+{
+  "task": "write_letter",
+  "hash": "0ce4fefca026f64e63aa9b73",
+  "scenario": "e2e",
+  "label": "letters: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-learned-fast",
+          "vb-why-field"
+        ],
+        "text": "Dear Saffron Studio team,\n\nSaffron Studio's kitchen display that keeps taking orders when the restaurant's internet drops is a problem I've thought about before, on a much smaller scale. My final-year project was an offline-first attendance app for rural schools, so I've had to decide what an app should do when the connection disappears and what it owes the server when it comes back. If a page renders a bit wrong, someone squints. If an order goes missing during service, a kitchen stops.\n\nSince then I've spent two years at Tessellate Labs building on the stack you describe. I built the React (TypeScript) admin screens for refunds and credit notes, with role-based access checks on the API side, and I maintain the Node.js invoicing service on PostgreSQL. Orders and loyalty points would feel familiar after credit notes and invoices.\n\nI haven't used Next.js or Prisma. When our VPS provider announced a migration with two weeks' notice, nobody at work had written a Dockerfile, so I volunteered. I read the Compose docs on the bus and broke my laptop's networking twice. We moved four services. I'd learn your framework the same way.\n\nReal client work from week one, with a buddy, is how I'd want to start.\n\nCould we have a short call about the role?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Saffron Studio team,\n\nI have two years of professional experience with TypeScript, React and Node.js, which matches your must-haves for the Full-Stack Developer, Early Career role. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the invoicing service, which issues about 9,000 invoices a month.\n\nI am very comfortable with SQL. I cut our nightly reconciliation job from 41 minutes to 6 with set-based SQL and two partial indexes.\n\nI am eager to learn Next.js and Prisma, and I am sure I would pick them up quickly.\n\nI would be a great addition to your team. I look forward to hearing from you.\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-team-loved"
+        ],
+        "text": "Dear Saffron Studio team,\n\nThe billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. Anyone can add to it, and on Fridays we go through it together. Half the items are nothing. The other half turn into tickets before they turn into incidents.\n\nA 25-person studio that ships everything in-house probably works the same way, and that is the kind of place I'd like to grow in.\n\nI build React screens and Node.js services on PostgreSQL at Tessellate Labs, and I haven't used Next.js yet.\n\nLet me know if you'd like to talk.\n\nBest regards,\nRania Haroon"
+      }
+    ],
+    "subjects": [
+      "Full-Stack Developer, Early Career: React and Node.js, offline-first",
+      "Full-Stack Developer, Early Career application: Rania Haroon",
+      "Kitchen displays that work offline, and an offline-first school app",
+      "Early-career full-stack application: React, Node.js, PostgreSQL",
+      "Full-Stack Developer application from Lahore"
+    ],
+    "outreach": "Saffron Studio's kitchen display that keeps taking orders when the internet drops caught my eye: my final-year project was an offline-first attendance app for rural schools. Today I build React admin screens and a Node.js service on PostgreSQL at Tessellate Labs, and I cut our nightly reconciliation job from 41 minutes to 6 with set-based SQL. I've applied for the Full-Stack Developer, Early Career role. Would you be open to a short call?",
+    "followUp": "Hello,\n\nI applied for the Full-Stack Developer, Early Career role last week. One detail I left out: before Tessellate Labs, I built an offline-first attendance app for rural schools as my final-year project, which is why your offline kitchen display stuck with me. If it helps, I'm happy to walk someone through my React admin screens on a short call.\n\nBest regards,\nRania Haroon"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "3983e03b86fd4735e42734ea",
+  "scenario": "e2e",
+  "label": "short_answers: Orchard Robotics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Orchard Robotics turns what a robot sees in a row of trees into something a grower can act on, and that dashboard is where I'd be useful. I built Bus Tracker Lahore, a React and Leaflet map that about 300 people use a month, so map views of orchard blocks are close to work I already enjoy."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Junior Full-Stack Developer role covers the stack I use every day: React and TypeScript in front, Node.js and PostgreSQL behind. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the Node.js invoicing service. I haven't used PostGIS, and it's the first thing I'd learn."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "Bus Tracker Lahore is a React and Leaflet map of Metro Bus stops that shows estimated arrival gaps worked out from public timetables. It's a side project, and about 300 people use it a month, which is enough to make me careful with every change I push."
+      }
+    ]
+  }
+}

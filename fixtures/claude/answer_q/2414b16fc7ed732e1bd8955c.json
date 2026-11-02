@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "2414b16fc7ed732e1bd8955c",
+  "scenario": "e2e",
+  "label": "short_answers: Pebble Analytics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Pebble Analytics gives small gyms and studios the reporting a big chain would have, and your class-attendance forecasts show it is useful, not decorative. I like work where the numbers have to add up at the end of the day. Your warehouse is fed by nightly pipelines, and nightly jobs are where I've done my best work."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Junior Software Developer role touches the two things I know best: PostgreSQL and TypeScript. At Tessellate Labs I cut our nightly reconciliation job from 41 minutes to 6 and built React admin screens, and as an intern at Kestrel Analytics I loaded about 2 million rows a week into PostgreSQL with Python. Django would be new to me."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "At Kestrel Analytics I wrote Python scripts that cleaned and loaded retail sales CSVs into PostgreSQL for the analytics team, about 2 million rows a week. The loader had no tests when I started, so I added unit tests with pytest and took its coverage from 0 to 71%."
+      }
+    ]
+  }
+}

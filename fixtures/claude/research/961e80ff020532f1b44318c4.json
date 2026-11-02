@@ -1,0 +1,28 @@
+{
+  "task": "research",
+  "hash": "961e80ff020532f1b44318c4",
+  "scenario": "e2e",
+  "label": "research: Saffron Studio",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Saffron Studio is a Stockholm product studio that builds ordering, loyalty and kitchen-display apps for restaurant groups in the Nordics, and runs everything in-house. A recent case study covers a kitchen-display system that keeps working when the restaurant’s internet drops. Early-career developers get a buddy and a growth plan, per the careers page.\n\n```json\n{\n  \"whatTheyBuild\": \"Ordering, loyalty and kitchen-display apps for restaurant groups across the Nordics, designed and built in-house.\",\n  \"products\": [\n    {\n      \"text\": \"Online ordering and loyalty apps for restaurant groups.\",\n      \"sourceUrl\": \"https://saffronstudio.example.com/\"\n    },\n    {\n      \"text\": \"Kitchen-display system for restaurant kitchens.\",\n      \"sourceUrl\": \"https://saffronstudio.example.com/work/offline-kitchen-display\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Case study: a kitchen-display system that keeps taking orders when the restaurant’s internet drops and syncs when it returns.\",\n      \"sourceUrl\": \"https://saffronstudio.example.com/work/offline-kitchen-display\",\n      \"date\": \"2026-06\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Next.js and React front ends, Node.js (TypeScript) APIs, PostgreSQL.\",\n      \"sourceUrl\": \"https://saffronstudio.example.com/careers\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Early-career developers work on real client projects from week one, with a buddy and a growth plan.\",\n      \"sourceUrl\": \"https://saffronstudio.example.com/careers\"\n    }\n  ],\n  \"stage\": \"bootstrapped studio (company site)\",\n  \"teamSize\": \"25 people\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://saffronstudio.example.com/",
+      "title": "Saffron Studio: apps for restaurant groups"
+    },
+    {
+      "url": "https://saffronstudio.example.com/work/offline-kitchen-display",
+      "title": "A kitchen display that keeps going offline | Saffron Studio"
+    },
+    {
+      "url": "https://saffronstudio.example.com/careers",
+      "title": "Careers | Saffron Studio"
+    }
+  ]
+}

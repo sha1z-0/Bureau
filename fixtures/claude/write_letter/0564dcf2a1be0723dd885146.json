@@ -1,0 +1,46 @@
+{
+  "task": "write_letter",
+  "hash": "0564dcf2a1be0723dd885146",
+  "scenario": "e2e",
+  "label": "letters: Brightwater Health",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-team-loved",
+          "vb-failure"
+        ],
+        "text": "Dear Brightwater Health team,\n\nBrightwater's two-way SMS, where a patient replies to confirm or delay a repeat prescription, is the kind of feature where the boring parts matter most: each reply has to reach the right patient record once, even when a provider retries the webhook.\n\nI already care about getting that right in billing. At Tessellate Labs I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL, about 9,000 invoices a month, and I built the React admin screens for refunds and credit notes with role-based access checks on the API side.\n\nWeb security is something I've practised on purpose. I built chai-check, a browser extension that flags insecure form actions, while working through the PortSwigger Web Security Academy. I also like teams that say the scary thing out loud early, even when it's awkward, and I try to be the person who writes it down first. In my first month I shipped a migration that renamed a column without a fallback. My lead didn't shout. She asked me to write up what happened, and since then I write the rollback before the migration, every time.\n\nI haven't built for healthcare or used Redis queues, and I'd treat patient data with the care your security page describes.\n\nCould we set up a short call about the role?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Brightwater Health team,\n\nI'm applying for the Junior Node.js Developer role because I have over one year of commercial experience with Node.js and TypeScript, which is your main requirement. At Tessellate Labs I maintain an invoicing service on PostgreSQL that issues about 9,000 invoices a month.\n\nI understand REST API design and web security. I built role-based access checks for our refund screens, and I built chai-check, which flags insecure form actions.\n\nI don't have healthcare experience, but I am very careful with data.\n\nI hope to hear from you soon.\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-team-loved"
+        ],
+        "text": "Dear Brightwater Health team,\n\nThe billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. Anyone can add to it, and on Fridays we go through it together. The other half of the items turn into tickets before they turn into incidents.\n\nPatient data seems like exactly the place for that habit. I build Node.js and TypeScript services on PostgreSQL at Tessellate Labs and built chai-check while working through the PortSwigger Web Security Academy.\n\nPlease let me know if you would like to talk.\n\nBest regards,\nRania Haroon"
+      }
+    ],
+    "subjects": [
+      "Junior Node.js Developer: billing services and web security practice",
+      "Junior Node.js Developer application: Rania Haroon",
+      "Two-way SMS replies and the engineer who writes rollbacks first",
+      "Junior Node.js Developer: Node.js, PostgreSQL, access checks",
+      "Application for the remote Node.js role from Lahore"
+    ],
+    "outreach": "Brightwater's two-way SMS for repeat prescriptions caught my eye: each patient reply has to land on the right record once, even when a webhook is retried. I build billing software in Node.js, TypeScript and PostgreSQL at Tessellate Labs, with role-based access checks on the API side, and I practise web security on the side. I've applied for the Junior Node.js Developer role. Could we have a short call?",
+    "followUp": "Hello,\n\nI applied for the Junior Node.js Developer role last week. One detail I left out: chai-check, my browser extension that flags insecure form actions, came out of working through the PortSwigger Web Security Academy, which is where I learned most of what I know about input validation. If it helps, I'm happy to talk it through on a short call.\n\nBest regards,\nRania Haroon"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "task": "critic",
+  "hash": "064b7e95fe094d022bedacdb",
+  "scenario": "e2e",
+  "label": "critic: Harbor & Pine",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 5.6,
+        "scores": {
+          "specificity": 6,
+          "evidence": 6,
+          "voice": 4.5,
+          "clarity": 7.5,
+          "ask": 5,
+          "aiTells": 5
+        },
+        "demands": [
+          "Cut \"is a great step, and I would be excited to contribute\"; it is flattery.",
+          "Cut \"I am a hard worker and I learn quickly\"; show it.",
+          "Replace \"I would love the opportunity to discuss how I can help Harbor & Pine\" with a concrete ask."
+        ]
+      },
+      {
+        "strategy": "proof",
+        "score": 6.9,
+        "scores": {
+          "specificity": 6.5,
+          "evidence": 7.5,
+          "voice": 6.5,
+          "clarity": 8,
+          "ask": 5,
+          "aiTells": 7
+        },
+        "demands": [
+          "Replace \"I'd still like to be considered for the entry-level opening\" with a reason the team should talk to you.",
+          "Replace \"Thank you for your consideration\" with a concrete ask."
+        ]
+      },
+      {
+        "strategy": "story",
+        "score": 8.2,
+        "scores": {
+          "specificity": 8,
+          "evidence": 8,
+          "voice": 9,
+          "clarity": 8,
+          "ask": 8,
+          "aiTells": 8.5
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 3
+  }
+}

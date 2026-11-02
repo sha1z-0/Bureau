@@ -1,0 +1,28 @@
+{
+  "task": "research",
+  "hash": "91e58075823d395753adf99f",
+  "scenario": "e2e",
+  "label": "research: Tulip & Tern",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Tulip & Tern is a small Amsterdam studio that designs and builds websites and booking tools for independent hotels and B&Bs. It recently published its accessibility checklist for client sites. Fourteen people, per the about page.\n\n```json\n{\n  \"whatTheyBuild\": \"Websites and booking tools for independent hotels and B&Bs.\",\n  \"products\": [\n    {\n      \"text\": \"Fast, accessible websites for independent hotels and B&Bs.\",\n      \"sourceUrl\": \"https://tulipandtern.example.com/\"\n    },\n    {\n      \"text\": \"Small React apps that let hotel owners manage rooms and bookings, backed by a Node.js booking API.\",\n      \"sourceUrl\": \"https://tulipandtern.example.com/\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Published the accessibility checklist the studio runs on every client site before launch.\",\n      \"sourceUrl\": \"https://tulipandtern.example.com/journal/accessibility-checklist\",\n      \"date\": \"2026-09\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"React and TypeScript components, a Node.js booking API, and headless CMSs such as Sanity.\",\n      \"sourceUrl\": \"https://tulipandtern.example.com/\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Accessibility and speed are checked on every client site, not left to the end.\",\n      \"sourceUrl\": \"https://tulipandtern.example.com/journal/accessibility-checklist\"\n    }\n  ],\n  \"stage\": \"independent studio\",\n  \"teamSize\": \"14 people\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://tulipandtern.example.com/",
+      "title": "Tulip & Tern: websites and booking tools for independent hotels"
+    },
+    {
+      "url": "https://tulipandtern.example.com/journal/accessibility-checklist",
+      "title": "Our accessibility checklist, published | Tulip & Tern"
+    },
+    {
+      "url": "https://tulipandtern.example.com/about",
+      "title": "About Tulip & Tern"
+    }
+  ]
+}

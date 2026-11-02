@@ -1,0 +1,120 @@
+{
+  "task": "evidence",
+  "hash": "bf0f07c37f15cf82afc4a7c0",
+  "scenario": "e2e",
+  "label": "evidence: Meridian Freight",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "TypeScript and Node.js services on PostgreSQL for quoting, booking and tracking freight",
+      "SQL migrations and small features shipped end to end",
+      "A graduate who ships early with support"
+    ],
+    "mustWins": [
+      "TypeScript or Python in production",
+      "Comfort with SQL",
+      "Shipping small features safely"
+    ],
+    "tone": "Short, friendly posting; a product team in logistics",
+    "seniority": "Graduate (the candidate is above it, with two years)",
+    "hooks": [
+      {
+        "text": "Instant air-freight quotes for routes from Karachi, Lahore and Dubai (2026-08).",
+        "sourceUrl": "https://meridianfreight.example.com/news/instant-air-quotes"
+      },
+      {
+        "text": "Graduate engineers ship to production in their first month, paired with a senior engineer.",
+        "sourceUrl": "https://meridianfreight.example.com/careers/graduates"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1+ years with TypeScript or Python",
+        "importance": "critical",
+        "factIds": [
+          "f-exp-tessellate",
+          "f-skill-ts"
+        ],
+        "evidence": "Two years of TypeScript at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "two years of production TypeScript"
+      },
+      {
+        "requirement": "Comfort with SQL",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-recon"
+        ],
+        "evidence": "Reconciliation job from 41 to 6 minutes with set-based SQL",
+        "framing": "direct",
+        "phrasing": "set-based SQL on a live billing database"
+      },
+      {
+        "requirement": "TypeScript and Node.js services backed by PostgreSQL",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Invoicing service for logistics clients, about 9,000 invoices a month",
+        "framing": "direct",
+        "phrasing": "Node.js and TypeScript on PostgreSQL for logistics clients"
+      },
+      {
+        "requirement": "Write SQL migrations",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Maintains the invoicing schema; rollback-first migrations (voice bank)",
+        "framing": "transferable",
+        "phrasing": "migrations with the rollback written first"
+      },
+      {
+        "requirement": "Ship small features end to end",
+        "importance": "important",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "Refund and credit-note screens plus their API checks",
+        "framing": "direct",
+        "phrasing": "shipped features from React screen to API"
+      },
+      {
+        "requirement": "Docker",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Moved four services to Docker Compose",
+        "framing": "direct",
+        "phrasing": "moved four services to Docker Compose"
+      },
+      {
+        "requirement": "AWS",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "React",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "React admin screens",
+        "framing": "direct",
+        "phrasing": "React admin screens"
+      }
+    ],
+    "biggestGap": null,
+    "fastLearning": "vb-learned-fast"
+  }
+}

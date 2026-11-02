@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "a2815eb39a06d1d17fff28c6",
+  "scenario": "e2e",
+  "label": "research: Orchard Robotics",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Orchard Robotics builds small autonomous platforms that scout fruit orchards for disease and frost damage, and a web dashboard where growers see the findings. The most recent update is a frost-alert timeline in the dashboard. The careers page describes a small engineering team with two senior engineers.\n\n```json\n{\n  \"whatTheyBuild\": \"Small autonomous robots that scout orchards for disease and frost damage, plus the web dashboard where growers review what the robots found.\",\n  \"products\": [\n    {\n      \"text\": \"Scouting robots that drive orchard rows and photograph trees for signs of disease and frost damage.\",\n      \"sourceUrl\": \"https://orchardrobotics.example.com/\"\n    },\n    {\n      \"text\": \"Grower dashboard with map views of orchard blocks, alert timelines and report exports.\",\n      \"sourceUrl\": \"https://orchardrobotics.example.com/dashboard\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Added a frost-alert timeline that shows damage block by block on the orchard map.\",\n      \"sourceUrl\": \"https://orchardrobotics.example.com/news/frost-alerts\",\n      \"date\": \"2026-09\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Dashboard in React and TypeScript; telemetry served by a Node.js (Fastify) API on PostgreSQL.\",\n      \"sourceUrl\": \"https://orchardrobotics.example.com/careers\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Engineers help the field team when a robot’s data upload fails.\",\n      \"sourceUrl\": \"https://orchardrobotics.example.com/careers\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"unknown\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://orchardrobotics.example.com/",
+      "title": "Orchard Robotics: scouting robots for fruit growers"
+    },
+    {
+      "url": "https://orchardrobotics.example.com/dashboard",
+      "title": "The grower dashboard | Orchard Robotics"
+    },
+    {
+      "url": "https://orchardrobotics.example.com/news/frost-alerts",
+      "title": "Frost alerts, block by block | Orchard Robotics"
+    },
+    {
+      "url": "https://orchardrobotics.example.com/careers",
+      "title": "Careers | Orchard Robotics"
+    }
+  ]
+}

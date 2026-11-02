@@ -1,0 +1,32 @@
+{
+  "task": "research",
+  "hash": "a09d1346eed6626127cf17c1",
+  "scenario": "e2e",
+  "label": "research: Meridian Freight",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Meridian Freight is a digital freight forwarder: shippers in South Asia and the Gulf get quotes, bookings and tracking for ocean and air freight in one platform. The company site gives its own volume figures and describes a graduate programme for engineers. Recent news is a launch of instant air-freight quotes. Stage and headcount are not stated anywhere I could read.\n\n```json\n{\n  \"whatTheyBuild\": \"A digital freight-forwarding platform that quotes, books and tracks ocean and air shipments for shippers in South Asia and the Gulf.\",\n  \"products\": [\n    {\n      \"text\": \"Online quoting and booking for ocean and air freight with carrier options side by side.\",\n      \"sourceUrl\": \"https://meridianfreight.example.com/platform\"\n    },\n    {\n      \"text\": \"Shipment tracking with milestone alerts and a shared document folder per shipment.\",\n      \"sourceUrl\": \"https://meridianfreight.example.com/platform\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Launched instant air-freight quotes for routes from Karachi, Lahore and Dubai.\",\n      \"sourceUrl\": \"https://meridianfreight.example.com/news/instant-air-quotes\",\n      \"date\": \"2026-08\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"The platform team works in TypeScript and Node.js with PostgreSQL.\",\n      \"sourceUrl\": \"https://meridianfreight.example.com/careers/graduates\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"Graduate engineers ship to production in their first month, paired with a senior engineer.\",\n      \"sourceUrl\": \"https://meridianfreight.example.com/careers/graduates\"\n    }\n  ],\n  \"stage\": \"unknown\",\n  \"teamSize\": \"unknown\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://meridianfreight.example.com/",
+      "title": "Meridian Freight: book and track ocean and air freight"
+    },
+    {
+      "url": "https://meridianfreight.example.com/platform",
+      "title": "The Meridian platform"
+    },
+    {
+      "url": "https://meridianfreight.example.com/news/instant-air-quotes",
+      "title": "Instant air-freight quotes are live | Meridian Freight"
+    },
+    {
+      "url": "https://meridianfreight.example.com/careers/graduates",
+      "title": "Graduate engineers | Meridian Freight careers"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "4458d7b4693d296da9d123f7",
+  "scenario": "e2e",
+  "label": "short_answers: Quillstack",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Quillstack treats documentation the way good teams treat code, with every change reviewed before it ships. I already work like that on the billing team at Tessellate Labs, where I review pull requests and wrote the runbook our on-call rotation uses. Suggested edits is the feature I'd want to work on, because small, specific reviews are the ones people actually accept."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Associate Software Engineer role sits in the stack I use every day: React with TypeScript on the front, Node.js behind it. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the Node.js invoicing service. I haven't built an editor or used CRDTs, and six months with a mentor is how I'd want to learn that."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "ledger-lite started because I didn't trust my own code. A check in the service layer was the only thing stopping an unbalanced journal entry at work, so at home I rebuilt the idea and pushed the rule down into Postgres with a deferred constraint trigger. Then a stranger on GitHub opened an issue saying it had caught a bug in their importer on day one."
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "task": "evidence",
+  "hash": "aba1cbcb294058cf1e76c63e",
+  "scenario": "e2e",
+  "label": "evidence: Harbor & Pine",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Go and TypeScript services on Kubernetes that other teams build on",
+      "Owning reliability, including on-call",
+      "Event streaming on Kafka",
+      "Cross-team technical leadership"
+    ],
+    "mustWins": [
+      "Production services in TypeScript (Go a plus)",
+      "Comfort owning reliability and on-call",
+      "Container and Kubernetes fundamentals"
+    ],
+    "tone": "Ambitious and senior-flavoured; the entry-level label does not match the duties",
+    "seniority": "Labelled entry level, but the work described is mid to senior platform ownership",
+    "hooks": [
+      {
+        "text": "Opened the internal developer portal to every product team (2026-08).",
+        "sourceUrl": "https://harborpine.example.com/engineering/developer-portal"
+      },
+      {
+        "text": "Teams own the reliability of the services they build, including on-call.",
+        "sourceUrl": "https://harborpine.example.com/engineering/platform-team"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "5+ years of professional software engineering experience",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "Two years; not met",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "3+ years operating Kubernetes in production",
+        "importance": "important",
+        "factIds": [
+          "ll-k8s"
+        ],
+        "evidence": "Evening course; runs workloads on kind locally only",
+        "framing": "learning",
+        "phrasing": "learning Kubernetes now, on kind on her laptop; nothing in production"
+      },
+      {
+        "requirement": "Go and TypeScript services",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-skill-ts"
+        ],
+        "evidence": "Node.js/TypeScript invoicing service in production; Go only on the learning list",
+        "framing": "direct",
+        "phrasing": "TypeScript services in production"
+      },
+      {
+        "requirement": "Go",
+        "importance": "important",
+        "factIds": [
+          "ll-go"
+        ],
+        "evidence": "Porting ledger-lite's trial-balance endpoint to Go",
+        "framing": "learning",
+        "phrasing": "learning Go by porting ledger-lite's trial-balance endpoint"
+      },
+      {
+        "requirement": "24/7 on-call rotation from your first month",
+        "importance": "important",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Wrote the runbook the on-call rotation now uses",
+        "framing": "transferable",
+        "phrasing": "wrote the runbook her on-call rotation uses"
+      },
+      {
+        "requirement": "Deep experience with Kafka or a comparable streaming system",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "A track record of leading projects across multiple teams",
+        "importance": "important",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "BS in Computer Science or equivalent",
+        "importance": "important",
+        "factIds": [
+          "f-edu-bs"
+        ],
+        "evidence": "Bachelor of Science, Computer Science, Lahore Institute of Computing",
+        "framing": "direct",
+        "phrasing": "BS in Computer Science"
+      },
+      {
+        "requirement": "Docker and container operations",
+        "importance": "important",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Moved four services to Docker Compose with health checks",
+        "framing": "direct",
+        "phrasing": "moved four services to Docker Compose with health checks"
+      },
+      {
+        "requirement": "Terraform, AWS and Datadog",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "No production Kubernetes (only kind locally) and two years of experience against five asked",
+    "fastLearning": "vb-learned-fast"
+  }
+}

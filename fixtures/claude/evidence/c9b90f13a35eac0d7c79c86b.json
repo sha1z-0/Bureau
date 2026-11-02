@@ -1,0 +1,123 @@
+{
+  "task": "evidence",
+  "hash": "c9b90f13a35eac0d7c79c86b",
+  "scenario": "e2e",
+  "label": "evidence: Orchard Robotics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "Dashboard features in React and TypeScript: map views, alert timelines, report exports",
+      "The Fastify API and PostgreSQL schema behind robot telemetry",
+      "Tests and code review in a small team with two seniors",
+      "Willingness to debug real-world data uploads"
+    ],
+    "mustWins": [
+      "React and TypeScript in production",
+      "REST APIs in Node.js",
+      "Working SQL"
+    ],
+    "tone": "Friendly and concrete; a small hardware company with a web product",
+    "seniority": "Junior (1-2 years)",
+    "hooks": [
+      {
+        "text": "Frost-alert timeline that shows damage block by block on the orchard map (2026-09).",
+        "sourceUrl": "https://orchardrobotics.example.com/news/frost-alerts"
+      },
+      {
+        "text": "Grower dashboard with map views of orchard blocks, alert timelines and report exports.",
+        "sourceUrl": "https://orchardrobotics.example.com/dashboard"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1-2 years of professional experience with React and TypeScript",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-react",
+          "f-skill-react",
+          "f-skill-ts"
+        ],
+        "evidence": "React (TypeScript) admin screens for refunds and credit notes at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "React and TypeScript in production for two years"
+      },
+      {
+        "requirement": "Experience building REST APIs in Node.js",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-invoicing",
+          "f-proj-ledger"
+        ],
+        "evidence": "Node.js invoicing service; ledger-lite API on Fastify",
+        "framing": "direct",
+        "phrasing": "Node.js APIs, including a Fastify API on PostgreSQL"
+      },
+      {
+        "requirement": "Working knowledge of SQL",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-recon"
+        ],
+        "evidence": "Reconciliation job from 41 to 6 minutes with set-based SQL",
+        "framing": "direct",
+        "phrasing": "set-based SQL on a live database"
+      },
+      {
+        "requirement": "Node.js (Fastify) API and PostgreSQL schema",
+        "importance": "important",
+        "factIds": [
+          "f-proj-ledger",
+          "f-skill-fastify"
+        ],
+        "evidence": "ledger-lite runs on Fastify and PostgreSQL",
+        "framing": "direct",
+        "phrasing": "Fastify and PostgreSQL"
+      },
+      {
+        "requirement": "Write tests, review pull requests",
+        "importance": "important",
+        "factIds": [
+          "f-tess-review",
+          "f-kestrel-tests"
+        ],
+        "evidence": "Reviews billing pull requests; loader coverage 0 to 71%",
+        "framing": "direct",
+        "phrasing": "reviews pull requests and writes tests"
+      },
+      {
+        "requirement": "Leaflet, Mapbox or another web mapping library",
+        "importance": "nice",
+        "factIds": [
+          "f-proj-bus"
+        ],
+        "evidence": "Bus Tracker Lahore: React + Leaflet map, about 300 monthly users",
+        "framing": "direct",
+        "phrasing": "built a Leaflet map used by about 300 people a month"
+      },
+      {
+        "requirement": "PostGIS or time-series data",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "Hardware or IoT tinkering",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      }
+    ],
+    "biggestGap": "No PostGIS or time-series experience",
+    "fastLearning": "vb-learned-fast"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "task": "critic",
+  "hash": "1c7a621768deffe6c0e05bf2",
+  "scenario": "e2e",
+  "label": "critic: Meridian Freight",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 8.5,
+        "scores": {
+          "specificity": 8.5,
+          "evidence": 8.5,
+          "voice": 9,
+          "clarity": 8.5,
+          "ask": 8,
+          "aiTells": 8.5
+        },
+        "demands": []
+      },
+      {
+        "strategy": "proof",
+        "score": 4.6,
+        "scores": {
+          "specificity": 4,
+          "evidence": 7,
+          "voice": 3.5,
+          "clarity": 7,
+          "ask": 4,
+          "aiTells": 3
+        },
+        "demands": [
+          "Cut \"Please accept my application for the Graduate Software Engineer position\"; open with something only Meridian would recognise.",
+          "Cut \"I believe I would be an excellent fit for your team\" and \"hard-working and detail-oriented\"; they are stock phrases.",
+          "Replace \"Thank you for your consideration\" with a concrete ask."
+        ]
+      },
+      {
+        "strategy": "story",
+        "score": 7.1,
+        "scores": {
+          "specificity": 6.5,
+          "evidence": 6.5,
+          "voice": 9,
+          "clarity": 7.5,
+          "ask": 6,
+          "aiTells": 7.5
+        },
+        "demands": [
+          "Name something about Meridian; the letter could go to any company.",
+          "Replace \"I'd be happy to talk whenever suits you\" with a concrete ask."
+        ]
+      }
+    ],
+    "bestSubject": 0
+  }
+}

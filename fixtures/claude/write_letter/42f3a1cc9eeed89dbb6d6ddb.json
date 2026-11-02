@@ -1,0 +1,31 @@
+{
+  "task": "write_letter",
+  "hash": "42f3a1cc9eeed89dbb6d6ddb",
+  "scenario": "e2e",
+  "label": "revise: Northwind Labs",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-hard-bug"
+        ],
+        "text": "Dear Northwind Labs team,\n\nI cut our nightly reconciliation job at Tessellate Labs from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes.\n\nI have two years of experience with Node.js, TypeScript and PostgreSQL. I built and maintain the invoicing service that issues about 9,000 invoices a month, and I built React admin screens for refunds and credit notes. I also moved four services to Docker Compose and wrote the runbook our on-call rotation uses.\n\nI review pull requests for the billing team and always try to write clear descriptions and ask questions early.\n\nI haven't used NestJS, BullMQ or Redis yet. When nobody at work knew Docker Compose, I learned it and moved four services.\n\nCould we have a short call next week?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-learned-fast"
+        ],
+        "text": "Dear Northwind Labs team,\n\nNobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus and broke my laptop's networking twice. We moved four services, and the runbook I wrote is still pinned in our channel, typos included.\n\nI tell that story because Northwind's support rota, one week in six, is the same kind of work: someone else's integration is broken and you have to learn their setup fast.\n\nAt Tessellate Labs I build Node.js and TypeScript services on PostgreSQL. The invoicing service I maintain issues about 9,000 invoices a month, and I cut our reconciliation job from 41 minutes to 6 with set-based SQL, and I write the rollback before every migration.\n\nI haven't used NestJS. I've built Fastify APIs, so the move should be gentle.\n\nCould we have a short call about the Core API squad?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

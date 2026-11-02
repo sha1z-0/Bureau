@@ -1,0 +1,44 @@
+{
+  "task": "critic",
+  "hash": "2f867510933d904b85b93e31",
+  "scenario": "e2e",
+  "label": "critic: Quillstack",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "score": 7.2,
+        "scores": {
+          "specificity": 7,
+          "evidence": 7.5,
+          "voice": 6.5,
+          "clarity": 7.5,
+          "ask": 7.5,
+          "aiTells": 7
+        },
+        "demands": []
+      },
+      {
+        "strategy": "story",
+        "score": 7.8,
+        "scores": {
+          "specificity": 8,
+          "evidence": 7.5,
+          "voice": 8.5,
+          "clarity": 7.5,
+          "ask": 7,
+          "aiTells": 8
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 1
+  }
+}

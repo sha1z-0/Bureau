@@ -1,0 +1,159 @@
+{
+  "task": "match",
+  "hash": "1d49cfda0cbb3f2d67505754",
+  "scenario": "e2e",
+  "label": "batch: Kranich Software GmbH",
+  "model": "claude-haiku-5-5",
+  "usage": {
+    "input_tokens": 4100,
+    "output_tokens": 5200,
+    "cache_read_input_tokens": 2600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "results": [
+      {
+        "id": "1",
+        "postingLevel": "junior",
+        "inflatedPosting": false,
+        "inflationNote": "",
+        "requirements": [
+          {
+            "text": "1-2 years of professional experience with Node.js and TypeScript",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 1,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Two years on Node.js/TypeScript services at Tessellate Labs"
+          },
+          {
+            "text": "solid SQL, ideally PostgreSQL",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Reconciliation job cut from 41 to 6 minutes in PostgreSQL"
+          },
+          {
+            "text": "English at B2 level or better",
+            "importance": "critical",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "English listed as fluent"
+          },
+          {
+            "text": "Design PostgreSQL schemas for tables with hundreds of millions of rows",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "Schema and index work on invoicing data, smaller scale"
+          },
+          {
+            "text": "Integrations with ERP and accounting systems (SAP, DATEV)",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "Invoicing service for logistics clients; no SAP or DATEV"
+          },
+          {
+            "text": "Automated tests and code reviews",
+            "importance": "important",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Reviews pull requests for the billing team"
+          },
+          {
+            "text": "Docker",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "met",
+            "proofKind": "direct",
+            "proof": "Moved four services to Docker Compose"
+          },
+          {
+            "text": "RabbitMQ",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "missing",
+            "proofKind": "none",
+            "proof": ""
+          },
+          {
+            "text": "experience with logistics software",
+            "importance": "nice",
+            "evidence": "stated",
+            "blocker": false,
+            "blockerKind": "none",
+            "yearsAsked": 0,
+            "match": "partial",
+            "proofKind": "transferable",
+            "proof": "Invoicing for logistics clients at Tessellate"
+          }
+        ],
+        "dimensions": {
+          "skills": 5,
+          "experience": 4,
+          "domain": 4,
+          "logistics": 4,
+          "compensation": 5,
+          "growth": 4
+        },
+        "legitimacy": "ok",
+        "confidence": "high",
+        "verdict": "Strong chance: Node.js, TypeScript and PostgreSQL are her daily stack, English is fluent, and Kranich hires in South Asia through an employer of record.",
+        "strengths": [
+          "Node.js and TypeScript in production for two years",
+          "Set-based SQL and partial indexes on a slow job",
+          "Invoicing for logistics clients is close to warehouse software",
+          "Docker Compose"
+        ],
+        "gaps": [
+          "No SAP or DATEV integrations",
+          "Has not worked at hundreds-of-millions-of-rows scale",
+          "No RabbitMQ"
+        ],
+        "redFlags": [],
+        "applyChannel": "ats",
+        "applyEmail": "",
+        "atsKeywords": [
+          "Node.js",
+          "TypeScript",
+          "PostgreSQL",
+          "SQL",
+          "code reviews",
+          "automated tests",
+          "Docker"
+        ],
+        "seniorityFit": "match"
+      }
+    ]
+  }
+}

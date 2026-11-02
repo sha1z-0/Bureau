@@ -1,0 +1,36 @@
+{
+  "task": "research",
+  "hash": "82279b2176099189a8c64fa3",
+  "scenario": "e2e",
+  "label": "research: Kranich Software GmbH",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 18400,
+    "output_tokens": 1700,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "Kranich builds warehouse-management software for mid-sized retailers in Germany and Austria, from its Hamburg base, with a fully remote engineering team since 2020. Its engineering blog has a recent post on partitioning the stock-movements table, and a product update added a DATEV export. The careers page names the employer-of-record arrangement for South Asia.\n\n```json\n{\n  \"whatTheyBuild\": \"Warehouse-management software for mid-sized retailers in Germany and Austria: stock movements, picking and shipping, with ERP and accounting integrations.\",\n  \"products\": [\n    {\n      \"text\": \"Kranich WMS: stock movements, picking lists and shipping for retail warehouses.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/product\"\n    },\n    {\n      \"text\": \"A handheld picking app for warehouse staff.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/product\"\n    }\n  ],\n  \"recent\": [\n    {\n      \"text\": \"Released a DATEV export so stock valuations flow straight into customers’ accounting.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/news/datev-export\",\n      \"date\": \"2026-06\"\n    },\n    {\n      \"text\": \"Engineering blog post on partitioning the stock-movements table in PostgreSQL by month.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/blog/partitioning-stock-movements\",\n      \"date\": \"2026-09\"\n    }\n  ],\n  \"techSignals\": [\n    {\n      \"text\": \"Node.js and TypeScript services on PostgreSQL, with RabbitMQ between services.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/careers\"\n    },\n    {\n      \"text\": \"Monthly partitions on the stock-movements table to keep queries fast at hundreds of millions of rows.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/blog/partitioning-stock-movements\"\n    }\n  ],\n  \"values\": [\n    {\n      \"text\": \"English is the engineering team’s working language; a fortnightly architecture round is open to everyone.\",\n      \"sourceUrl\": \"https://kranich.example.com/en/careers\"\n    }\n  ],\n  \"stage\": \"privately held, profitable (company site)\",\n  \"teamSize\": \"about 60 people\",\n  \"hiringContact\": null\n}\n```\n",
+  "sources": [
+    {
+      "url": "https://kranich.example.com/",
+      "title": "Kranich: warehouse software for retailers"
+    },
+    {
+      "url": "https://kranich.example.com/en/product",
+      "title": "Kranich WMS | Product"
+    },
+    {
+      "url": "https://kranich.example.com/en/blog/partitioning-stock-movements",
+      "title": "Partitioning our stock-movements table | Kranich Engineering"
+    },
+    {
+      "url": "https://kranich.example.com/en/news/datev-export",
+      "title": "New: DATEV export | Kranich"
+    },
+    {
+      "url": "https://kranich.example.com/en/careers",
+      "title": "Careers | Kranich Software GmbH"
+    }
+  ]
+}

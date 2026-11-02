@@ -1,0 +1,120 @@
+{
+  "task": "evidence",
+  "hash": "79f4ffd289643d4675a6e251",
+  "scenario": "e2e",
+  "label": "evidence: Atlas Mutual",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 1900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 3700
+  },
+  "output": {
+    "priorities": [
+      "TypeScript and Node.js services on PostgreSQL for member-facing platforms",
+      "SQL migrations and small features shipped end to end",
+      "A reliable engineer for the new remote hub in Pakistan"
+    ],
+    "mustWins": [
+      "TypeScript or Python in production",
+      "Comfort with SQL",
+      "Steady, careful delivery"
+    ],
+    "tone": "Short posting from a large, established insurer",
+    "seniority": "Junior (associate)",
+    "hooks": [
+      {
+        "text": "Opened a remote engineering hub for engineers based in Pakistan (2026-06).",
+        "sourceUrl": "https://atlasmutual.example.com/careers/digital-engineering"
+      },
+      {
+        "text": "Online claim tracking so members can see each step of a claim without calling (2026-07).",
+        "sourceUrl": "https://atlasmutual.example.com/newsroom/claims-tracking"
+      }
+    ],
+    "items": [
+      {
+        "requirement": "1+ years with TypeScript or Python",
+        "importance": "critical",
+        "factIds": [
+          "f-exp-tessellate",
+          "f-skill-ts"
+        ],
+        "evidence": "Two years of TypeScript at Tessellate Labs",
+        "framing": "direct",
+        "phrasing": "two years of production TypeScript"
+      },
+      {
+        "requirement": "Comfort with SQL",
+        "importance": "critical",
+        "factIds": [
+          "f-tess-recon"
+        ],
+        "evidence": "Reconciliation job from 41 to 6 minutes with set-based SQL",
+        "framing": "direct",
+        "phrasing": "set-based SQL on a live database"
+      },
+      {
+        "requirement": "TypeScript and Node.js services backed by PostgreSQL",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Invoicing service, about 9,000 invoices a month",
+        "framing": "direct",
+        "phrasing": "Node.js and TypeScript on PostgreSQL in production"
+      },
+      {
+        "requirement": "Write SQL migrations",
+        "importance": "important",
+        "factIds": [
+          "f-tess-invoicing"
+        ],
+        "evidence": "Maintains the invoicing schema; expand-then-contract checklist (voice bank)",
+        "framing": "transferable",
+        "phrasing": "schema changes with the rollback written first"
+      },
+      {
+        "requirement": "Ship small features end to end",
+        "importance": "important",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "Refund and credit-note screens plus API checks",
+        "framing": "direct",
+        "phrasing": "features from React screen to API"
+      },
+      {
+        "requirement": "Docker",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-docker"
+        ],
+        "evidence": "Moved four services to Docker Compose",
+        "framing": "direct",
+        "phrasing": "moved four services to Docker Compose"
+      },
+      {
+        "requirement": "AWS",
+        "importance": "nice",
+        "factIds": [],
+        "evidence": "None",
+        "framing": "omit",
+        "phrasing": ""
+      },
+      {
+        "requirement": "React",
+        "importance": "nice",
+        "factIds": [
+          "f-tess-react"
+        ],
+        "evidence": "React admin screens",
+        "framing": "direct",
+        "phrasing": "React admin screens"
+      }
+    ],
+    "biggestGap": null,
+    "fastLearning": "vb-learned-fast"
+  }
+}

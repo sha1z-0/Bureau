@@ -1,0 +1,46 @@
+{
+  "task": "write_letter",
+  "hash": "47a1151b8e7c41831f74b0b3",
+  "scenario": "e2e",
+  "label": "letters: Tulip & Tern",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [],
+        "text": "Dear Tulip & Tern team,\n\nI loved reading your published accessibility checklist. It is inspiring to see a studio that takes accessibility so seriously, and I would be excited to bring my skills to your team.\n\nI have two years of experience with React and TypeScript at Tessellate Labs, where I built admin screens for refunds and credit notes, and I maintain a Node.js invoicing service on PostgreSQL. I also built Bus Tracker Lahore, a React and Leaflet map used by about 300 people a month.\n\nI am passionate about building fast, accessible websites, and I am confident I would be a valuable asset.\n\nThank you for considering my application.\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-why-build",
+          "vb-learned-fast"
+        ],
+        "text": "Dear Tulip & Tern team,\n\nThe small React apps Tulip & Tern builds for hotel owners are close to what I've shipped at Tessellate Labs, where I built the React (TypeScript) admin screens for refunds and credit notes, with role-based access checks on the API side. Those screens taught me that the access checks matter more than the buttons. Owners of small places don't want the clever part. They want the part where someone stops staying up late over a double booking, and that is the part I like best too.\n\nIn my own time I built Bus Tracker Lahore, a React and Leaflet map of Metro Bus stops with estimated arrival gaps from public timetables. About 300 people use it a month. On the back end I maintain a Node.js invoicing service on PostgreSQL, the same pairing as your booking API.\n\nI haven't run an accessibility audit, and your published checklist is the first thing I'd read. I learn fastest with a real deadline. Nobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice, so I volunteered. I read the Compose docs on the bus and broke my laptop's networking twice. We moved four services.\n\nCould we set up a short call about the Junior Web Developer role?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-why-build"
+        ],
+        "text": "Dear Tulip & Tern team,\n\nMy father ran a small hardware shop in Ichhra and kept his accounts in a green register with a rubber band around it. I wrote him a little spreadsheet when I was fifteen. It showed him which day the money went missing, and that was enough.\n\nIndependent hotels and B&Bs are small businesses like his, and I'd enjoy building the tools they use to manage rooms and bookings.\n\nI've built React screens and a Node.js service at Tessellate Labs, and a Leaflet bus map in my own time.\n\nI'd be grateful for the chance to talk.\n\nBest regards,\nRania Haroon"
+      }
+    ],
+    "subjects": [
+      "Junior Web Developer: React screens and a bus map 300 people use",
+      "Junior Web Developer application: Rania Haroon",
+      "React and Node.js for hotel booking tools: Junior Web Developer",
+      "Junior Web Developer: your accessibility checklist, read first",
+      "Application from Lahore for the remote web developer role"
+    ],
+    "outreach": "Tulip & Tern's small React apps for hotel owners are close to what I build at Tessellate Labs: React (TypeScript) admin screens for refunds and credit notes, on a Node.js service. In my own time I built Bus Tracker Lahore, a React and Leaflet map about 300 people use a month. I haven't run an accessibility audit yet, and your checklist is where I'd start. I've applied for the Junior Web Developer role. Could we have a short call?",
+    "followUp": "Hello,\n\nI applied for the Junior Web Developer role last week. One detail I left out: I also review pull requests for the billing team at Tessellate Labs, so small, careful changes to things people rely on are my everyday work. If it helps, I'm happy to walk someone through the map and my React admin screens on a short call.\n\nBest regards,\nRania Haroon"
+  }
+}

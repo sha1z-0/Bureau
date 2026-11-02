@@ -207,6 +207,9 @@ export function writerAnswer(req: DumpedRequest): Answer {
   if (!company) return { skip: `${req.task}: no company in the prompt` };
   const a = APPLICATIONS[company];
   if (!a) return { skip: `${req.task}: nothing authored for ${company}` };
+  // In the first round research is not recorded yet and the writer carries on without it; answering
+  // that prompt would only leave a recording the finished pipeline never asks for.
+  if (text.includes('No company research is available')) return { skip: `${req.task}: ${company} has no research yet (next round)` };
   const step = writerStep(req.task, text);
   const out = stepOutput(a, step, text);
   if (typeof out === 'string') return { skip: `${out} (${company})` };
