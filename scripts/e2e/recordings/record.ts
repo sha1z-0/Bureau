@@ -38,7 +38,8 @@ const opt = (f: string) => {
 };
 const maxRounds = Number(opt('--rounds') ?? 14);
 const keepDumps = opt('--keep-dumps');
-const stages = opt('--stages') ?? 'scout,match,write';
+// Every stage that runs before the writer or feeds a prompt (the campaign stage's background tick changes match scores).
+const stages = opt('--stages') ?? 'profile,campaign,scout,match,write,inbox,alert,digest';
 const keepSandbox = argv.includes('--keep-sandbox');
 
 /** Typical token counts per task, so the replayed cost meter shows realistic numbers. */
@@ -53,6 +54,7 @@ const USAGE: Record<string, { input_tokens: number; output_tokens: number; cache
   humanize: { input_tokens: 2100, output_tokens: 180, cache_read_input_tokens: 3700, cache_creation_input_tokens: 0 },
   audit: { input_tokens: 4900, output_tokens: 170, cache_read_input_tokens: 3700, cache_creation_input_tokens: 0 },
   answer_q: { input_tokens: 2700, output_tokens: 560, cache_read_input_tokens: 3700, cache_creation_input_tokens: 0 },
+  learning_plan: { input_tokens: 3900, output_tokens: 2300, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
 };
 
 function e2eRecordings(): string[] {
@@ -92,7 +94,7 @@ function runE2e(): { sandbox: string | null; summary: string } {
   const sandbox = text.match(/sandbox kept: (.+)/)?.[1]?.trim() ?? null;
   const summary = text
     .split(/\r?\n/)
-    .filter((l) => /^[✓…✗⊘] (scout|match|write)\b/.test(l) || /^E2E (OK|FAILED)/.test(l))
+    .filter((l) => /^[✓…✗⊘] (campaign|scout|match|write|inbox|alert|digest)\b/.test(l) || /^E2E (OK|FAILED)/.test(l))
     .join('\n');
   try {
     fs.rmSync(report, { force: true });

@@ -67,6 +67,12 @@ if (flag('--list')) {
 }
 
 const { runStages } = await import('./e2e/runner.ts');
+// Offline from the first stage: until the scout stage installs the e2e feed set, every safeFetch is refused.
+// (startCampaign() scouts in the background during the campaign stage; without this it reached the live job boards.)
+{
+  const { installFetchReplay } = await import('./e2e/fetch-replay.ts');
+  await installFetchReplay(() => null);
+}
 const { campaignConfig } = await import('./e2e/seed.ts');
 const { replayMisses } = await import('../server/ai/claude.ts');
 type Ctx = import('./e2e/stages.ts').E2EContext;

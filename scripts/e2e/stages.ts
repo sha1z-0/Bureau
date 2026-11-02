@@ -178,6 +178,13 @@ export const campaign: Stage<E2EContext> = {
     await (c.pauseCampaign as (id: string) => Promise<void>)(ctx.campaignId);
     assert.equal(get<{ status: string }>('SELECT status FROM campaigns WHERE id = ?', ctx.campaignId)?.status, 'paused');
     s.note('pauseCampaign() → paused (the e2e drives each step itself from here)');
+    // startCampaign() kicks off a scout + match tick in the background; let it finish (offline, it finds
+    // nothing) so it can't race the scout stage and make the job set, and every prompt after it, vary.
+    const engine = typeof c.getEngine === 'function' ? (c.getEngine as () => { settle?: () => Promise<void> })() : null;
+    if (engine?.settle) {
+      await withTimeout(engine.settle(), 120_000, 'the background tick after startCampaign');
+      s.note('the background tick startCampaign() started has settled');
+    }
   },
 };
 

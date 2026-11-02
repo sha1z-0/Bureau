@@ -6,6 +6,7 @@
  * meaning: re-run scripts/e2e/recordings/record.ts and they are saved under
  * the new hashes.
  */
+import { learningAnswer } from './learning.ts';
 import { matchAnswer } from './match.ts';
 import { researchAnswer } from './research.ts';
 import { scanAnswer } from './scan.ts';
@@ -35,6 +36,8 @@ export function answerFor(req: DumpedRequest): Answer {
       return matchAnswer(req);
     case 'research':
       return researchAnswer(req);
+    case 'learning_plan':
+      return learningAnswer(req);
     case 'evidence':
     case 'write_cv':
     case 'write_letter':
