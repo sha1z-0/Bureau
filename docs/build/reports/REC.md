@@ -149,7 +149,7 @@ These are written up in `docs/build/requests/REC.md`:
 - `15dfe7d` recorder, bench and authored answers
 - `cac09ee` first recordings
 - `b3fc85a` offline-first e2e and the full stage set
-- the final re-record with the worker pending fix
-- this report
+- `8eef2e8` the final re-record with the worker pending fix
+- `8174be4` this report
 
 Temporary sandboxes, dumps and bench copies were deleted.
