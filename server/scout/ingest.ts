@@ -154,6 +154,11 @@ export function richness(j: RawJob, ats: AtsFamily | null): number {
   );
 }
 
+/** Placeholder employer names that must never merge postings from different employers. */
+export function isGenericCompany(name: string): boolean {
+  return /^(unknown|confidential|n\/?a|none|hiring|stealth( startup| mode)?|undisclosed|private|company|employer|indie studio|game studio|hn poster|-)?$/i.test(name.trim());
+}
+
 function softKeyOf(companyId: string, title: string) {
   return `${companyId}|${[...titleTokens(title)].sort().join(' ')}`;
 }
@@ -192,22 +197,27 @@ function prepare(raw: RawJob[], opts: IngestOptions, stats: DedupeStats): Cand[]
     const url = webUrl(job.url) ? canonicalUrl(job.url) : canonical;
     const domain = job.companyDomain ?? employerDomain(job.applyUrl ?? undefined);
     const hit = applyHit ?? urlHit;
-    const company = upsertCompany({
-      name: job.company,
-      ats: hit?.token && hit.ats !== 'other' ? hit.ats : null,
-      token: hit?.token && hit.ats !== 'other' ? hit.token : null,
-      domain,
-      discoveredVia: `job:${job.source}`,
-    }).company;
+    // "Unknown"/"Confidential" employers are not one company: key them by their posting instead.
+    const anonymous = isGenericCompany(job.company) && !(hit?.token && hit.ats !== 'other');
+    const companyId = anonymous
+      ? null
+      : upsertCompany({
+          name: job.company,
+          ats: hit?.token && hit.ats !== 'other' ? hit.ats : null,
+          token: hit?.token && hit.ats !== 'other' ? hit.token : null,
+          domain,
+          discoveredVia: `job:${job.source}`,
+        }).company.id;
+    const identity = companyId ?? `anon:${canonical || url}`;
     out.push({
       job: { ...job, companyDomain: domain },
       category,
       url,
       canonical,
       ats: ats === 'other' ? 'other' : ats,
-      fingerprint: fingerprintOf(job.company, job.title),
-      softKey: softKeyOf(company.id, job.title),
-      companyId: company.id,
+      fingerprint: anonymous ? fingerprintOf(`${job.company} ${identity}`, job.title) : fingerprintOf(job.company, job.title),
+      softKey: softKeyOf(identity, job.title),
+      companyId: identity,
       richness: richness(job, ats),
       refs: [{ source: job.source, externalId: String(job.externalId ?? ''), url: job.url, loc: normalizeForFingerprint(job.location ?? ''), seenAt: ts }],
     });
@@ -461,7 +471,7 @@ function insertRow(c: Cand, opts: IngestOptions, profile: Profile | null, signal
     ts,
     c.canonical || null,
     c.ats,
-    c.companyId,
+    c.companyId.startsWith('anon:') ? null : c.companyId,
     verdict.legitimacy,
     JSON.stringify(c.refs),
     priority,

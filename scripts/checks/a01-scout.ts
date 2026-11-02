@@ -399,6 +399,18 @@ export default async function scout({ check, section }: Harness) {
     assert.equal(b.stats.inserted, 1);
     assert.ok(titleSimilarity('Platform Engineer, Kubernetes', 'Senior Kubernetes Platform Engineer') >= 0.5);
   });
+  await check('placeholder employers ("Unknown") never merge different postings', async () => {
+    const base = { company: 'Unknown', location: 'Remote', remote: true, postedAt: fresh, title: 'Senior Developer', descriptionText: desc } as const;
+    const r = await ingestJobs(
+      [
+        { ...base, source: 'weworkremotely', externalId: 'u1', url: 'https://weworkremotely.com/remote-jobs/one-senior-developer' },
+        { ...base, source: 'weworkremotely', externalId: 'u2', url: 'https://weworkremotely.com/remote-jobs/two-senior-developer' },
+      ],
+      { maxAgeDays: 30 },
+    );
+    assert.equal(r.stats.inserted, 2, JSON.stringify(r.stats));
+    for (const id of r.added) assert.equal(get<{ company_id: string | null }>('SELECT company_id FROM jobs WHERE id = ?', id)?.company_id, null);
+  });
   await check('ghost and scam filter marks (never deletes); disclaimers are not scams', () => {
     const job = (over: Partial<RawJob>): RawJob => ({ source: 'x', externalId: '1', title: 'Software Engineer', company: 'Acme', location: '', remote: true, url: 'https://x.io/1', descriptionText: 'A long enough description of the role and the team and the stack and the product.', ...over });
     const scam = assessLegitimacy({ job: job({ descriptionText: 'Work from home! Pay a small registration fee of $50 to start. Contact on WhatsApp.', applyEmail: 'hr.jobs@gmail.com' }), maxAgeDays: 30, hasApplyRoute: true, fromAts: false });

@@ -70,7 +70,7 @@ export const greenhouse: Connector = {
   homepage: 'https://boards.greenhouse.io',
   description: 'Direct company career boards hosted on Greenhouse (Anthropic, Stripe, Cloudflare, Discord…).',
   defaultEnabled: true,
-  timeoutMs: 15 * 60_000,
+  timeoutMs: 30 * 60_000,
   async run(ctx) {
     return pollBoards(ctx, 'greenhouse', 'Greenhouse', targetsFor(ctx, 'greenhouse', ctx.boards.greenhouse), 5, async (t) => {
       const slug = t.token.replace(/^eu:/, '');
@@ -138,7 +138,7 @@ export const lever: Connector = {
   homepage: 'https://jobs.lever.co',
   description: 'Company career boards hosted on Lever (EU tenants included).',
   defaultEnabled: true,
-  timeoutMs: 15 * 60_000,
+  timeoutMs: 30 * 60_000,
   async run(ctx) {
     return pollBoards(ctx, 'lever', 'Lever', targetsFor(ctx, 'lever', ctx.boards.lever), 4, async (t) => {
       const eu = t.token.startsWith('eu:');
@@ -220,7 +220,7 @@ export const ashby: Connector = {
   homepage: 'https://jobs.ashbyhq.com',
   description: 'Company career boards hosted on Ashby (OpenAI, Notion, Linear, Ramp…).',
   defaultEnabled: true,
-  timeoutMs: 15 * 60_000,
+  timeoutMs: 30 * 60_000,
   async run(ctx) {
     return pollBoards(ctx, 'ashby', 'Ashby', targetsFor(ctx, 'ashby', ctx.boards.ashby), 5, async (t) => {
       const data = await getJson<{ jobs: AshbyJob[] }>(
