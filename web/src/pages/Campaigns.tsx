@@ -552,6 +552,8 @@ function CampaignDetail({ id }: { id: string }) {
   const { data: c, error } = useQuery({ queryKey: ['campaigns', id], queryFn: () => api<Campaign>(`/api/campaigns/${id}`), refetchInterval: 20_000 });
   const steps = useQuery({ queryKey: ['campaigns', id, 'steps'], queryFn: () => api<{ steps: StepRow[] }>(`/api/campaigns/${id}/steps?limit=40`) });
   const [edit, setEdit] = useState(false);
+  // Twelve steps keep the page about one screen tall; the full log is in Pipeline.
+  const [allSteps, setAllSteps] = useState(false);
   const remove = useMutation({
     mutationFn: () => del(`/api/campaigns/${id}`),
     onSuccess: () => {
@@ -635,7 +637,7 @@ function CampaignDetail({ id }: { id: string }) {
           </div>
           {steps.data?.steps.length ? (
             <ul className="ledger">
-              {steps.data.steps.map((s) => (
+              {(allSteps ? steps.data.steps : steps.data.steps.slice(0, 12)).map((s) => (
                 <li key={s.id}>
                   <time dateTime={s.ts}>{stamp(s.ts)}</time>
                   <span>
@@ -653,7 +655,15 @@ function CampaignDetail({ id }: { id: string }) {
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : null}
+          {steps.data && steps.data.steps.length > 12 ? (
+            <div style={{ padding: 'var(--s-3) var(--s-5) var(--s-4)' }}>
+              <Btn variant="ghost" onClick={() => setAllSteps((v) => !v)}>
+                {allSteps ? 'Show fewer' : `Show all ${steps.data.steps.length}`}
+              </Btn>
+            </div>
+          ) : null}
+          {steps.data?.steps.length ? null : (
             <p className="muted" style={{ padding: '0 var(--s-5) var(--s-5)' }}>
               Each step of each application is logged here as it happens.
             </p>
