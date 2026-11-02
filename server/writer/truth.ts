@@ -167,8 +167,8 @@ const YEARS_CLAIM =
 // ── Scope and seniority ──────────────────────────────────────────────────────
 
 const SCOPE_VERBS: { re: RegExp; stem: RegExp; label: string }[] = [
-  { re: /\b(?:led|leading|lead)\b(?!\s+(?:to|by|in)\b)(?=\s+(?:a|an|the|our|my|two|three|four|five|\d|development|engineering|design|work|efforts?|teams?|projects?|migration|rollout))/gi, stem: /\b(?:led|lead|leading|leads)\b/i, label: 'led' },
-  { re: /\bmanag(?:ed|ing|es)\b(?!\s+to\b)(?=\s+(?:a|an|the|our|my|\d|two|three|four|five|teams?|engineers?|developers?|people|staff|interns?))/gi, stem: /\bmanag(?:ed|ing|e|es|er)\b/i, label: 'managed' },
+  { re: /\b(?:led|leading|lead)\b(?!\s+(?:to|by|in)\b)(?=\s+(?:a|an|the|our|my|two|three|four|five|\d|development|engineering|design|work|efforts?|teams?|projects?|migration|rollout)\b)/gi, stem: /\b(?:led|lead|leading|leads)\b/i, label: 'led' },
+  { re: /\bmanag(?:ed|ing|es)\b(?!\s+to\b)(?=\s+(?:a|an|the|our|my|\d|two|three|four|five|teams?|engineers?|developers?|people|staff|interns?)\b)/gi, stem: /\bmanag(?:ed|ing|e|es|er)\b/i, label: 'managed' },
   { re: /\bhead(?:ed|ing)\b/gi, stem: /\bhead(?:ed|ing)?\b/i, label: 'headed' },
   { re: /\bspearhead(?:ed|ing|s)?\b/gi, stem: /\bspearhead/i, label: 'spearheaded' },
   { re: /\b(?:oversaw|oversee|overseeing)\b/gi, stem: /\b(?:oversaw|oversee|overseeing|oversight)\b/i, label: 'oversaw' },
@@ -281,7 +281,8 @@ export function codeTruth(input: TruthInput, src: TruthSource): CodeIssue[] {
   const knownOrgs = [...src.profile.experience.map((e) => e.company), ...src.profile.education.map((e) => e.school), src.targetCompany].filter(Boolean);
   for (const { label, text } of prose) {
     for (const s of splitSentences(text)) {
-      if (!EMPLOYMENT_CUE.test(s)) continue;
+      // An honest gap ("I haven't worked with CRDTs") names no employer.
+      if (!EMPLOYMENT_CUE.test(s) || GAP_CUE.test(s)) continue;
       for (const m of s.matchAll(EMPLOYER_AFTER)) {
         const org = m[1]
           .replace(/(?:\s+(?:I|We|My|Our|And|But|So|Then))+$/, '')
@@ -290,6 +291,8 @@ export function codeTruth(input: TruthInput, src: TruthSource): CodeIssue[] {
         if (org.length < 2 || /^(I|The|A|An|My|Our|Your|Present|Now)$/.test(org)) continue;
         if (knownOrgs.some((k) => sameCompany(k, org))) continue;
         if (hasTerm(factText, org)) continue;
+        // "worked with Postgres" is a tool claim; rule 5 checks it against the facts.
+        if (m[0].toLowerCase().startsWith('with') && TECH_LEXICON.some((t) => t.toLowerCase() === org.toLowerCase())) continue;
         add(m[0], `${label}: "${org}" is not an employer in your profile.`);
       }
     }

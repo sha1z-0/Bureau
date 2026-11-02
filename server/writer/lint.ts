@@ -2,7 +2,7 @@ import type { StyleFingerprint } from '../contracts/profile.ts';
 import type { LintResult } from '../contracts/writer.ts';
 import { fingerprintOf } from '../profile/voice.ts';
 import { findTells } from './humanizer.ts';
-import { contentNgrams, contentWords, hasTerm, letterBody, nominalRate, paragraphs, round, splitSentences, std, WORD, wordCount, words } from './text.ts';
+import { contentNgrams, contentWords, escapeRe, hasTerm, letterBody, nominalRate, paragraphs, round, splitSentences, std, WORD, wordCount, words } from './text.ts';
 
 /**
  * The stylometric lint. Every check is code with a measured value and a
@@ -101,9 +101,14 @@ function distinctiveTerms(text: string): string[] {
 
 const COMPANY_SUFFIX = /[,.]?\s+(?:inc|incorporated|ltd|limited|llc|gmbh|plc|corp|corporation|co|pvt|technologies|labs)\.?$/i;
 
+const COMMON_FIRST_WORDS = new Set(['first', 'global', 'united', 'general', 'national', 'american', 'digital', 'smart', 'north', 'south', 'green', 'bright', 'happy', 'great', 'open', 'better', 'modern', 'future', 'blue', 'royal', 'central', 'western', 'eastern', 'pacific', 'atlantic', 'international']);
+
 export function openingNames(firstSentence: string, ctx: Pick<LintContext, 'company' | 'role' | 'specifics'>): string | null {
   const company = ctx.company.replace(COMPANY_SUFFIX, '').trim();
   if (company && hasTerm(firstSentence, company)) return company;
+  // People shorten "Copperline Payments" to "Copperline": accept a distinctive first word.
+  const short = company.split(/\s+/)[0] ?? '';
+  if (company.includes(' ') && /^[A-Z]/.test(short) && short.length >= 5 && !COMMON_FIRST_WORDS.has(short.toLowerCase()) && new RegExp(`(?<![A-Za-z0-9])${escapeRe(short)}(?![A-Za-z0-9])`).test(firstSentence)) return short;
   if (ctx.role && hasTerm(firstSentence, ctx.role)) return ctx.role;
   const roleWords = contentWords(ctx.role).filter((x) => !['senior', 'junior', 'level', 'entry', 'associate'].includes(x));
   const present = roleWords.filter((x) => hasTerm(firstSentence, x));

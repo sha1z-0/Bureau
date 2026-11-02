@@ -20,7 +20,7 @@ export default async function a04({ check, section }: Harness) {
   const { ApplicationPacketSchema } = await import('../../server/contracts/writer.ts');
   const W = await import('../../server/writer/index.ts');
   const { writeApplicationRun } = await import('../../server/writer/pipeline.ts');
-  const { lintLetter, lintShort, ruleOfThree, closingSummary } = await import('../../server/writer/lint.ts');
+  const { lintLetter, lintShort, ruleOfThree, closingSummary, openingNames } = await import('../../server/writer/lint.ts');
   const { codeTruth, truthResult, titleInflation } = await import('../../server/writer/truth.ts');
   const { findTells, HUMANIZER_RULES } = await import('../../server/writer/humanizer.ts');
   const { applyEdits, humanizeTargets } = await import('../../server/writer/humanize.ts');
@@ -173,6 +173,9 @@ export default async function a04({ check, section }: Harness) {
     );
     assert.equal(checkOf(generic, 'specific_opening').pass, false);
     assert.equal(checkOf(GOOD, 'specific_opening').value, 'Daftar Pay');
+    // People shorten a company to its distinctive first word; a common one does not count.
+    assert.equal(openingNames("Copperline's post on idempotency keys is why I'm writing.", { company: 'Copperline Payments', role: 'Backend Engineer' }), 'Copperline');
+    assert.equal(openingNames('Global teams need good tooling.', { company: 'Global Payments Inc', role: 'Backend Engineer' }), null);
   });
   await check('formatting: markdown and placeholders fail', () => {
     assert.equal(checkOf(GOOD.replace('Dear Daftar Pay Payments team,', 'Dear [Hiring Manager],'), 'formatting').pass, false);
@@ -244,6 +247,9 @@ export default async function a04({ check, section }: Harness) {
     assert.ok(high(truthOf(['As a senior engineer I care about ledgers.'])).some((i) => /none of your titles/.test(i.reason)));
     assert.ok(high(truthOf(['When I worked at Stripe I built payouts.'])).some((i) => /Stripe/.test(i.reason)));
     assert.equal(high(truthOf(['When I worked at Khan Hardware I built the ledger.'])).length, 0);
+    // "lead" as a noun and honest gap sentences are not claims.
+    assert.equal(high(truthOf(['My lead asked me to write up what happened.'])).length, 0);
+    assert.equal(high(truthOf(["I haven't worked with CRDTs yet."])).length, 0);
   });
   await check("naming the employer's own stack is allowed; claiming it is not", () => {
     assert.equal(high(truthOf(['Your posting asks for OpenTelemetry and Prometheus.'])).length, 0);

@@ -299,8 +299,12 @@ export const match: Stage<E2EContext> = {
       s.note(`matchJobs(): ${results.length} MatchResults, all schema-valid`);
       const b = results.find((r) => r.jobId === ctx.blockerJobId);
       assert.ok(b, 'blocker job was assessed');
-      assert.ok(b.stretch.blockers.length > 0 && (b.screenPassScore <= 35 || b.decision === 'skipped'), `clearance blocker: score ${b.screenPassScore}, blockers ${b.stretch.blockers.join(';')}`);
-      s.note(`true blocker (clearance) capped: score ${b.screenPassScore}`);
+      // The posting is on-site in Huntsville, so A02's location filter skips it before
+      // Claude reads the clearance; a hard-filter skip is the stronger cap. Claude's own
+      // blocker judgement is covered by a02-match's offline checks.
+      const hardSkip = b.decision === 'skipped' && b.reason.startsWith('filter:');
+      assert.ok(hardSkip || (b.stretch.blockers.length > 0 && (b.screenPassScore <= 35 || b.decision === 'skipped')), `clearance blocker: score ${b.screenPassScore}, blockers ${b.stretch.blockers.join(';')}, reason ${b.reason}`);
+      s.note(hardSkip ? `true blocker skipped before scoring (${b.reason})` : `true blocker (clearance) capped: score ${b.screenPassScore}`);
       const hp = results.find((r) => r.jobId === ctx.jobs.get('greenhouse-jobboards'));
       if (hp) {
         assert.equal(hp.inflatedPosting, true, 'Harbor & Pine "entry level, 5+ years" is recognised as inflated');
@@ -761,9 +765,10 @@ export const external: Stage<E2EContext> = {
       const { createApiKey } = await import('../../server/api/keys.ts');
       const full = await createApiKey({ name: 'e2e fake agent', scopes: ['jobs:read', 'packets:read', 'answers:read', 'recipes:read', 'traces:write', 'applications:write'] });
       const narrow = await createApiKey({ name: 'e2e read-only', scopes: ['jobs:read'] });
-      const H = (k: string) => ({ authorization: `Bearer ${k}`, 'content-type': 'application/json' });
+      // Fastify rejects a JSON content-type with an empty body, so send it only with one.
+      const H = (k: string, json: boolean) => ({ authorization: `Bearer ${k}`, ...(json ? { 'content-type': 'application/json' } : {}) });
       const api = async (method: string, p: string, body?: unknown, key = full.key) => {
-        const r = await fetch(`${base}/api/v1${p}`, { method, headers: H(key), body: body === undefined ? undefined : JSON.stringify(body) });
+        const r = await fetch(`${base}/api/v1${p}`, { method, headers: H(key, body !== undefined), body: body === undefined ? undefined : JSON.stringify(body) });
         const text = await r.text();
         let json: unknown = null;
         try {
