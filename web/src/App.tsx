@@ -323,7 +323,8 @@ export default function App() {
   );
 
   // A fresh install opens the setup wizard once; leaving it is always allowed.
-  const sentToWelcome = useRef(false);
+  // A deep link (an alert's message or plan) is never hijacked: only a plain start does.
+  const sentToWelcome = useRef(!/^#?\/?(overview)?$/.test(window.location.hash));
   useEffect(() => {
     if (shell.data?.onboarding.firstRun && !sentToWelcome.current && path !== 'welcome') {
       sentToWelcome.current = true;

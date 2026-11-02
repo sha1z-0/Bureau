@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, Cpu, Download, Inbox as InboxIcon, KeyRound, Lock, Mail, Power, Radar, ShieldCheck, Timer, Trash2 } from 'lucide-react';
-import { api, del, optional, post, put, type AutopilotSettings, type ImapSettings, type NotifyState, type ScoutHealth } from '../api';
+import { api, del, optional, post, put, type AutopilotSettings, type InboxSettings, type InboxStatus, type NotifyState, type ScoutHealth } from '../api';
 import { Btn, Field, Modal, Switch, ago, useToast } from '../ui';
 import { PageHead } from '../kit';
 
@@ -564,63 +564,165 @@ function SmtpForm({ data, bare }: { data: SettingsData; bare?: boolean }) {
   );
 }
 
+type ImapForm = { enabled: boolean; host: string; port: number; secure: boolean; user: string; mailbox: string; password: string; followUps: boolean; perDay: number; draftReplies: boolean };
+
 export function ImapCard({ bare }: { bare?: boolean }) {
-  const { data, isLoading } = useQuery({ queryKey: ['inbox', 'settings'], queryFn: () => optional<ImapSettings>('/api/inbox/settings') });
+  const { data, isLoading } = useQuery({ queryKey: ['inbox', 'settings'], queryFn: () => optional<{ settings: InboxSettings }>('/api/inbox/settings') });
+  const status = useQuery({ queryKey: ['inbox', 'status'], queryFn: () => optional<InboxStatus>('/api/inbox/status'), enabled: !!data });
   const qc = useQueryClient();
   const toast = useToast();
-  const [form, setForm] = useState<{ host: string; port: number; secure: boolean; user: string; password: string } | null>(null);
+  const [form, setForm] = useState<ImapForm | null>(null);
+  const s = data?.settings;
   useEffect(() => {
-    if (data !== undefined && !form) setForm({ host: data?.imap?.host ?? 'imap.gmail.com', port: data?.imap?.port ?? 993, secure: data?.imap?.secure ?? true, user: data?.imap?.user ?? '', password: '' });
-  }, [data, form]);
+    if (data !== undefined && !form)
+      setForm({
+        enabled: s?.enabled ?? false,
+        host: s?.host || 'imap.gmail.com',
+        port: s?.port ?? 993,
+        secure: s?.secure ?? true,
+        user: s?.user ?? '',
+        mailbox: s?.mailbox ?? 'INBOX',
+        password: '',
+        followUps: s?.followUps.enabled ?? true,
+        perDay: s?.followUps.perDay ?? 3,
+        draftReplies: s?.draftReplies ?? true,
+      });
+  }, [data, form, s]);
+  const conn = (f: ImapForm) => ({ host: f.host.trim(), port: f.port, secure: f.secure, user: f.user.trim(), mailbox: f.mailbox.trim() || 'INBOX', ...(f.password ? { password: f.password } : {}) });
   const save = useMutation({
-    mutationFn: () => put('/api/inbox/settings', { ...form, password: form?.password || undefined }),
-    onSuccess: () => {
-      toast.success('Mailbox saved.');
+    mutationFn: () =>
+      put<{ settings: InboxSettings }>('/api/inbox/settings', {
+        ...conn(form!),
+        enabled: form!.enabled,
+        draftReplies: form!.draftReplies,
+        followUps: { enabled: form!.followUps, perDay: form!.perDay },
+      }),
+    onSuccess: (r) => {
+      toast.success(r.settings.enabled ? 'Mailbox saved. Bureau checks it every few minutes.' : 'Mailbox saved. Turn on checking when the test passes.');
       setForm((f) => (f ? { ...f, password: '' } : f));
       qc.invalidateQueries({ queryKey: ['inbox'] });
       qc.invalidateQueries({ queryKey: ['onboarding'] });
     },
     onError: toast.error,
   });
-  const test = useMutation({ mutationFn: () => post<{ message?: string }>('/api/inbox/test'), onSuccess: (r) => toast.success(r.message ?? 'Connected.'), onError: toast.error });
-  const badge = data?.imap?.passwordSet ? <span className="tag olive">Connected</span> : data === null ? <span className="tag">Not in this build</span> : <span className="tag">Optional</span>;
-  if (isLoading || !form) return <div className="skeleton" style={{ height: 160 }} />;
+  const test = useMutation({
+    mutationFn: () => post<{ ok: boolean; message: string }>('/api/inbox/test', conn(form!)),
+    onSuccess: (r) => (r.ok ? toast.success(r.message) : toast.error(new Error(r.message))),
+    onError: toast.error,
+  });
+  const forget = useMutation({
+    mutationFn: () => del('/api/inbox/settings'),
+    onSuccess: () => {
+      toast.success('Password forgotten. The mailbox is no longer checked.');
+      setForm(null);
+      qc.invalidateQueries({ queryKey: ['inbox'] });
+      qc.invalidateQueries({ queryKey: ['onboarding'] });
+    },
+    onError: toast.error,
+  });
+  const stored = !!s?.password.set;
+  const badge = data === null ? (
+    <span className="tag">Not in this build</span>
+  ) : s?.enabled && stored ? (
+    <span className="tag olive">Checking</span>
+  ) : stored ? (
+    <span className="tag brass">Saved, not checking</span>
+  ) : (
+    <span className="tag">Optional</span>
+  );
+  if (isLoading || (data && !form)) return <div className="skeleton" style={{ height: 160 }} />;
+  const st = status.data;
   return (
     <Panel bare={bare} icon={<InboxIcon size={18} color="var(--accent)" />} title="Reading replies (IMAP)" badge={badge}>
       <p className="muted" style={{ marginTop: 0, fontSize: '0.875rem' }}>
         {bare ? <strong style={{ color: 'var(--text)' }}>Reading. </strong> : null}
-        Bureau reads the job-search mailbox to sort replies, spot interviews, catch verification codes and follow up once. It never answers interview invitations for you.
+        Bureau reads the job-search mailbox to sort replies, spot interviews, catch verification codes and follow up once. It only reads: it never moves, flags or deletes mail, and never answers interview
+        invitations for you. Use a mailbox made for the hunt, with an app password.
       </p>
-      {data === null ? (
-        <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>The inbox reader isn't part of this build yet. These settings appear here once it is.</p>
+      {data === null || !form ? (
+        <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>
+          The inbox reader isn't part of this build yet. These settings appear here once it is.
+        </p>
       ) : (
         <>
           <div className="form-grid">
             <Field label="IMAP host">
-              <input className="input" value={form.host} onChange={(e) => setForm({ ...form, host: e.target.value })} />
+              <input className="input" value={form.host} autoComplete="off" onChange={(e) => setForm({ ...form, host: e.target.value })} />
             </Field>
-            <Field label="Port">
-              <input className="input" type="number" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value), secure: Number(e.target.value) === 993 })} />
+            <Field label={form.secure ? 'Port (TLS)' : 'Port (STARTTLS)'}>
+              <input className="input" type="number" min={1} max={65535} value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value), secure: Number(e.target.value) === 993 })} />
             </Field>
             <Field label="Username">
               <input className="input" value={form.user} autoComplete="off" onChange={(e) => setForm({ ...form, user: e.target.value })} />
             </Field>
-            <Field label={data?.imap?.passwordSet ? 'App password (stored)' : 'App password'}>
-              <input className="input" type="password" autoComplete="new-password" value={form.password} placeholder={data?.imap?.passwordSet ? '••••••••' : ''} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            <Field label={stored ? 'App password (stored)' : 'App password'}>
+              <input className="input" type="password" autoComplete="new-password" value={form.password} placeholder={stored ? '••••••••' : ''} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            </Field>
+            <Field label="Folder">
+              <input className="input" value={form.mailbox} autoComplete="off" onChange={(e) => setForm({ ...form, mailbox: e.target.value })} />
             </Field>
           </div>
-          {data?.lastPollAt || data?.lastError ? (
-            <p className="muted" style={{ fontSize: 'var(--t-xs)' }}>
-              {data.lastError ? `Last check failed: ${data.lastError}` : `Last checked ${ago(data.lastPollAt)}.`}
+          <div className="toggle-row">
+            <div>
+              <span>Check this mailbox</span>
+              <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
+                Every few minutes while Bureau runs. Test the connection first.
+              </div>
+            </div>
+            <Switch label="Check this mailbox" checked={form.enabled} onChange={(v) => setForm({ ...form, enabled: v })} />
+          </div>
+          {bare ? null : (
+            <>
+              <div className="toggle-row">
+                <div>
+                  <span>Follow up once when nobody replies</span>
+                  <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
+                    Only to an address published in the posting, never after a rejection. At most this many a day:
+                  </div>
+                </div>
+                <div className="row">
+                  <input
+                    className="input"
+                    type="number"
+                    min={0}
+                    max={20}
+                    style={{ width: 72 }}
+                    aria-label="Follow-ups per day"
+                    value={form.perDay}
+                    disabled={!form.followUps}
+                    onChange={(e) => setForm({ ...form, perDay: Math.max(0, Math.min(20, Number(e.target.value) || 0)) })}
+                  />
+                  <Switch label="Follow up once" checked={form.followUps} onChange={(v) => setForm({ ...form, followUps: v })} />
+                </div>
+              </div>
+              <div className="toggle-row">
+                <div>
+                  <span>Draft replies to simple recruiter questions</span>
+                  <div className="muted" style={{ fontSize: 'var(--t-xs)' }}>
+                    From your answer bank, for you to send. Bureau never sends them.
+                  </div>
+                </div>
+                <Switch label="Draft replies" checked={form.draftReplies} onChange={(v) => setForm({ ...form, draftReplies: v })} />
+              </div>
+            </>
+          )}
+          {st?.lastError || st?.lastPoll ? (
+            <p className={st.lastError ? 'note bad' : 'muted'} style={{ fontSize: 'var(--t-xs)' }}>
+              {st.lastError ? `Last check failed ${ago(st.lastError.at)}: ${st.lastError.message}` : `Last checked ${ago(st.lastPoll!.at)}.`}
             </p>
           ) : null}
-          <div className="row">
-            <Btn busy={save.isPending} onClick={() => save.mutate()}>
+          <div className="row wrap">
+            <Btn busy={save.isPending} onClick={() => save.mutate()} disabled={!form.host.trim() || !form.user.trim()}>
               Save
             </Btn>
-            <Btn variant="ghost" busy={test.isPending} disabled={!data?.imap?.passwordSet} onClick={() => test.mutate()}>
+            <Btn variant="ghost" busy={test.isPending} disabled={!stored && !form.password} onClick={() => test.mutate()}>
               Test the connection
             </Btn>
+            {stored && !bare ? (
+              <Btn variant="ghost" busy={forget.isPending} onClick={() => forget.mutate()}>
+                Forget the password
+              </Btn>
+            ) : null}
           </div>
         </>
       )}

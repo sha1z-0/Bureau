@@ -2094,6 +2094,19 @@ a.stat:hover strong {
   line-height: 1.3;
 }
 
+/* A row whose title opens a drawer (the row itself holds other controls). */
+.list-row a.title {
+  color: inherit;
+  text-decoration: none;
+}
+
+.list-row a.title:hover,
+.list-row a.title:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+
 .list-row.static {
   cursor: default;
 }

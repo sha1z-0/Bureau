@@ -20,7 +20,7 @@ import './schema.ts';
  *   GET  /api/forms/recipes/:id              one recipe plus its last runs
  *   PUT  /api/forms/recipes/:id/status       { status: candidate|shadow|active|demoted }
  *   GET  /api/forms/runs?jobId=&limit=       fill runs (newest first)
- *   GET  /api/forms/runs/:id                 one run: outcome, notes and the field log
+ *   GET  /api/forms/runs/:id                 one run: outcome, notes, the field log and `shots` (step screenshot URLs)
  *   GET  /api/forms/runs/:id/shots/:name     a step screenshot (JPEG)
  *   GET  /api/forms/accounts                 site accounts (domain, username, created) — never passwords
  *   GET  /api/forms/settings                 { accountEmail }
@@ -67,6 +67,7 @@ const view = (r: RunRow) => ({
 });
 
 const SAFE = /^[A-Za-z0-9-]{8,64}$/;
+const SHOT_NAME = /^[\w-][\w.-]{0,100}\.jpg$/;
 
 export async function formsRoutes(app: FastifyInstance) {
   app.get('/api/forms/summary', async () => {
@@ -112,11 +113,17 @@ export async function formsRoutes(app: FastifyInstance) {
     if (!row) throw new AppError(404, 'NOT_FOUND', 'No such run');
     const file = path.join(RUNS_DIR, row.id, 'run.json');
     const detail = fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>) : null;
-    return { run: view(row), detail };
+    // Step screenshots as URLs the UI can load (never as paths): only names the shot route accepts.
+    const stored = Array.isArray(detail?.shots) ? (detail.shots as unknown[]) : [];
+    const shots = stored
+      .map((s) => (typeof s === 'string' ? path.posix.basename(s.replace(/\\/g, '/')) : ''))
+      .filter((n) => SHOT_NAME.test(n))
+      .map((n) => `/api/forms/runs/${row.id}/shots/${n}`);
+    return { run: view(row), detail, shots };
   });
 
   app.get<{ Params: { id: string; name: string } }>('/api/forms/runs/:id/shots/:name', async (req, reply) => {
-    if (!SAFE.test(req.params.id) || !/^[\w.-]+\.jpg$/.test(req.params.name)) throw new AppError(400, 'BAD_ID', 'Bad screenshot name');
+    if (!SAFE.test(req.params.id) || !SHOT_NAME.test(req.params.name)) throw new AppError(400, 'BAD_ID', 'Bad screenshot name');
     const file = artifactPath(path.join('forms', 'runs', req.params.id, req.params.name));
     if (!file) throw new AppError(404, 'NOT_FOUND', 'No screenshot');
     return reply.type('image/jpeg').header('cache-control', 'private, max-age=3600').send(fs.createReadStream(file));

@@ -34,7 +34,10 @@ export interface StoredMessage extends ClassifiedMessage {
   planId: string | null;
   alerted: boolean;
   stage: { from: string; to: string } | null;
+  /** Effects (stage, outcome, alerts) have run. Owned by the pipeline; a poll re-runs messages where this is false. */
   handled: boolean;
+  /** The owner marked it dealt with in the UI. Display only: it never changes processing. */
+  done?: boolean;
 }
 
 interface Row {
@@ -64,6 +67,7 @@ const DEFAULTS = {
   planId: null,
   alerted: false,
   stage: null,
+  done: false,
 };
 
 export function toStored(r: Row): StoredMessage {

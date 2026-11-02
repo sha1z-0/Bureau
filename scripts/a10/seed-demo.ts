@@ -251,6 +251,12 @@ export async function seedDemo(opts: { live?: boolean } = {}): Promise<DemoSeed>
   writeAudit({ keyId: key.info.id, route: 'POST /api/v1/answers', status: 200, detail: { source: 'answer_bank' } });
   writeAudit({ keyId: null, route: 'GET /api/v1/jobs', status: 401, detail: { error: 'NO_KEY' } });
 
+  // ── Form runs and recipes (A05), replies, a crash plan and a gap report (A09).
+  const { DATA_DIR } = await import('../../server/config.ts');
+  await import('../../server/forms/schema.ts');
+  const { plantFormsInbox } = await import('./forms-inbox-seed.ts');
+  await plantFormsInbox(DATA_DIR);
+
   // ── Setup is finished, so the wizard doesn't open by itself.
   setSetting('ui.onboarding', { current: 'campaign', completed: ['cv', 'links', 'voice', 'answers', 'learning', 'campaign'], skipped: ['github', 'apikey', 'mailbox', 'telegram'], done: true, updatedAt: new Date().toISOString() });
 

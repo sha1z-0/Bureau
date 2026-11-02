@@ -1,14 +1,14 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod/v4';
 import { ApplicationStage, InboxClass } from '../contracts/inbox.ts';
-import { get, getSetting } from '../db.ts';
+import { all, get, getSetting } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { body } from '../routes/util.ts';
 import { heldCount, waitingCount } from './codes.ts';
 import { followUpCandidates, followUpsSentToday, listFollowUps, runFollowUps } from './followup.ts';
 import { testConnection } from './imap.ts';
 import { pollInbox } from './index.ts';
-import { classCounts, getMessage, listMessages, saveMessage } from './messages.ts';
+import { classCounts, getMessage, listMessages, saveMessage, type StoredMessage } from './messages.ts';
 import { forgetMailbox, imapPassword, inboxSettings, InboxSettingsPatch, InboxSettingsSchema, publicInboxSettings, saveInboxSettings } from './settings.ts';
 import { advanceStage, recordOutcome, setStageManually } from './stage.ts';
 
@@ -25,6 +25,7 @@ import { advanceStage, recordOutcome, setStageManually } from './stage.ts';
  *   GET    /api/inbox/messages                list (?class=a,b&applicationId=&unlinked=1&review=1&q=&since=&limit=&offset=)
  *   GET    /api/inbox/messages/:id            one message
  *   PUT    /api/inbox/messages/:id            owner correction ({ class?, applicationId? }); re-applies stage and outcome
+ *   POST   /api/inbox/messages/:id/done       the owner dealt with it ({ done }); display only, never re-runs effects
  *   GET    /api/inbox/drafts                  recruiter replies drafted from the answer bank, waiting for the owner
  *   POST   /api/inbox/drafts/:id/done         the owner sent it themselves
  *   POST   /api/inbox/drafts/:id/dismiss      throw the draft away
@@ -48,6 +49,15 @@ const ListQuery = z.object({
 });
 
 const yes = (v: string | undefined) => v === '1' || v === 'true';
+
+/** Messages as the UI sees them: plus the linked application's job id, so a row can open the job. */
+function withJob<T extends StoredMessage>(items: T[]): (T & { jobId: string | null })[] {
+  const ids = [...new Set(items.map((m) => m.applicationId).filter((x): x is string => !!x))];
+  const jobs = new Map(
+    ids.length ? all<{ id: string; job_id: string }>(`SELECT id, job_id FROM applications WHERE id IN (${ids.map(() => '?').join(',')})`, ...ids).map((r) => [r.id, r.job_id]) : [],
+  );
+  return items.map((m) => ({ ...m, jobId: (m.applicationId && jobs.get(m.applicationId)) || null }));
+}
 
 const Correction = z.object({
   class: InboxClass.optional(),
@@ -96,7 +106,7 @@ export async function inboxRoutes(app: FastifyInstance) {
     const q = body(ListQuery, req.query);
     const classes = q.class ? q.class.split(',').map((c) => InboxClass.safeParse(c.trim())) : [];
     if (classes.some((c) => !c.success)) throw new AppError(400, 'INVALID', 'class: unknown inbox class');
-    return listMessages({
+    const res = listMessages({
       class: classes.map((c) => c.data!),
       applicationId: q.applicationId,
       unlinked: yes(q.unlinked),
@@ -106,12 +116,24 @@ export async function inboxRoutes(app: FastifyInstance) {
       limit: q.limit,
       offset: q.offset,
     });
+    return { ...res, items: withJob(res.items) };
   });
 
   app.get('/api/inbox/messages/:id', async (req) => {
     const m = getMessage(id(req));
     if (!m) throw new AppError(404, 'NOT_FOUND', 'No such message');
-    return { message: m };
+    return { message: withJob([m])[0] };
+  });
+
+  app.post('/api/inbox/messages/:id/done', async (req) => {
+    const msgId = id(req);
+    if (!/^[A-Za-z0-9-]{1,100}$/.test(msgId)) throw new AppError(400, 'BAD_ID', 'Bad message id');
+    const { done } = body(z.object({ done: z.boolean() }), req.body);
+    const m = getMessage(msgId);
+    if (!m) throw new AppError(404, 'NOT_FOUND', 'No such message');
+    m.done = done;
+    saveMessage(m);
+    return { message: withJob([m])[0] };
   });
 
   app.put('/api/inbox/messages/:id', async (req) => {
