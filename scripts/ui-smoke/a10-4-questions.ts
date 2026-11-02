@@ -11,7 +11,7 @@ interface Q {
 export default async function questions(t: UiSmoke) {
   const { page } = t;
   const QUESTION = 'Do you hold a valid UAE driving licence?';
-  const dir = findDataDir((t as UiSmoke & { dataDir?: string }).dataDir);
+  const dir = findDataDir(t.dataDir);
   let planted: { jobId: string; questionId: string } | null = null;
 
   await t.step('a question the form engine could not answer is waiting', async () => {

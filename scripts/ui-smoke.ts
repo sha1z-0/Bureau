@@ -28,6 +28,8 @@ export interface UiSmoke {
   page: Page;
   base: string;
   fx: FixtureServer;
+  /** The server's data folder (its bureau.db lives here), for steps that plant rows. */
+  dataDir: string;
   /** Folder for screenshots (design/shots/v2 when --shots is passed, else the sandbox). */
   shotsDir: string;
   step: (name: string, fn: () => Promise<unknown>) => Promise<void>;
@@ -54,6 +56,14 @@ if (!files.length) {
 }
 if (!fs.existsSync(path.join(ROOT, 'dist', 'web', 'index.html'))) {
   summary.pending = 'the web UI is not built (run npm run build first)';
+  console.log(summary.pending);
+  finish(strict ? 1 : 0);
+}
+// A build older than the UI source tests yesterday's screens; every step would time out.
+const newestSource = (dir: string): number =>
+  fs.readdirSync(dir, { withFileTypes: true }).reduce((m, e) => Math.max(m, e.isDirectory() ? newestSource(path.join(dir, e.name)) : fs.statSync(path.join(dir, e.name)).mtimeMs), 0);
+if (newestSource(path.join(ROOT, 'web', 'src')) > fs.statSync(path.join(ROOT, 'dist', 'web', 'index.html')).mtimeMs) {
+  summary.pending = 'the web UI build is older than web/src (run npm run build first)';
   console.log(summary.pending);
   finish(strict ? 1 : 0);
 }
@@ -87,6 +97,7 @@ try {
       page,
       base,
       fx,
+      dataDir: env.BUREAU_DATA_DIR,
       shotsDir,
       step: async (name, fn) => {
         try {
