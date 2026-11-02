@@ -96,16 +96,6 @@ ${tail.slice(0, 2500)}`);
     const issues = (q?.issues ?? []).filter((i) => i.claim !== 'Quality gate');
     for (const i of issues) console.log(`   truth ${i.severity}: ${i.claim} — ${i.reason}`);
     const answers = q?.writer.shortAnswers ?? {};
-    // Form questions beyond the pre-written three: the same lint and truth lock answerQuestion applies in the e2e.
-    for (const fa of a.formAnswers ?? []) {
-      const t = await answerQuestionTraced(job.id, fa.question, { ai, maxChars: fa.maxChars }).catch((err: Error) => {
-        console.log(`   ${err.message.split('\n')[0]}`);
-        return { answered: null, lint: null, truth: null, attempts: 0 };
-      });
-      if (!t.answered) failed++;
-      const bad = [...(t.lint?.checks.filter((c) => !c.pass).map((c) => `${c.id}=${c.value} (${c.target})`) ?? []), ...(t.truth?.issues.filter((i) => i.severity === 'high').map((i) => `truth: ${i.claim} (${i.reason})`) ?? [])];
-      console.log(`   ${t.answered ? 'form answer ok' : 'FORM ANSWER FAILED'}: "${fa.question.slice(0, 70)}" (${fa.answer.length} chars)${bad.length ? ` | ${bad.join('; ')}` : ''}`);
-    }
     console.log(`   answers: ${Object.keys(answers).join(', ') || 'none'} | outreach ${q?.writer.outreach ? 'kept' : 'DROPPED'} | follow-up ${q?.writer.followUp ? 'kept' : 'DROPPED'} | subject: ${q?.writer.subjects[q.writer.subjectIndex] ?? ''}`);
   } catch (err) {
     failed++;
@@ -113,6 +103,19 @@ ${tail.slice(0, 2500)}`);
     console.log(`   calls: ${calls.join(' → ')}`);
     const st = all<{ state: string; last_error: string | null }>('SELECT state, last_error FROM pipeline WHERE job_id = ?', job.id);
     if (st[0]) console.log(`   pipeline: ${st[0].state}`);
+  }
+  // Form questions beyond the pre-written three (also when the job is already past writing in this sandbox):
+  // the same short lint and truth lock answerQuestion applies in the e2e.
+  for (const fa of a.formAnswers ?? []) {
+    const t = await answerQuestionTraced(job.id, fa.question, { ai, maxChars: fa.maxChars }).catch((err: Error) => {
+      const m = err.message;
+      const why = m.includes('failed these checks') ? m.slice(m.indexOf('failed these checks')).split('\nPrevious answer')[0] : '';
+      console.log(`   ${m.split('\n')[0]}${why ? `\n   ${why.replace(/\n/g, '\n   ')}` : ''}`);
+      return { answered: null, lint: null, truth: null, attempts: 0 };
+    });
+    if (!t.answered) failed++;
+    const bad = [...(t.lint?.checks.filter((c) => !c.pass).map((c) => `${c.id}=${c.value} (${c.target})`) ?? []), ...(t.truth?.issues.filter((i) => i.severity === 'high').map((i) => `truth: ${i.claim} (${i.reason})`) ?? [])];
+    console.log(`   ${t.answered ? 'form answer ok' : 'FORM ANSWER FAILED'}: "${fa.question.slice(0, 70)}" (${fa.answer.length} chars)${bad.length ? ` | ${bad.join('; ')}` : ''}`);
   }
 }
 
