@@ -3,7 +3,8 @@ import { Radar, Sparkles } from 'lucide-react';
 import { api, post, CATEGORY_LABEL, type Category, type Profile } from '../api';
 import { Btn, Empty, Seal, ago, sourceLabel, useToast } from '../ui';
 import { ScanConsole } from './Sources';
-import { HuntPanel } from './Hunt';
+import { CampaignBand } from './Campaigns';
+import { useShell } from '../App';
 
 interface OverviewData {
   totals: { jobs: number; newThisWeek: number; scored: number; strong: number; drafts: number; approved: number; applied: number; interviews: number; needsYou: number };
@@ -32,6 +33,7 @@ const STAGES = [
 export default function Overview() {
   const toast = useToast();
   const { data, isLoading } = useQuery({ queryKey: ['overview'], queryFn: () => api<OverviewData>('/api/overview') });
+  const shell = useShell();
   const profile = useQuery({ queryKey: ['profile'], queryFn: () => api<{ profile: Profile | null }>('/api/profile') });
   const scan = useMutation({
     mutationFn: (kind: 'sources' | 'deep') => post<{ id: string }>('/api/scans', { kind }),
@@ -66,7 +68,18 @@ export default function Overview() {
         </div>
       </header>
 
-      <HuntPanel />
+      <CampaignBand />
+
+      {shell.data && !shell.data.onboarding.done && shell.data.onboarding.ready < shell.data.onboarding.total ? (
+        <div className="livebar">
+          <span className="text">
+            Setup is {shell.data.onboarding.ready} of {shell.data.onboarding.total} done. The voice bank, answer bank and a mailbox make every application better.
+          </span>
+          <a className="btn sm" href="#/welcome">
+            Continue setting up
+          </a>
+        </div>
+      ) : null}
 
       {data.scanning ? (
         <div className="card card-pad" style={{ marginBottom: 'var(--s-4)' }}>
@@ -83,7 +96,15 @@ export default function Overview() {
           <strong>{data.totals.strong}</strong>
           <span>strong matches of {data.totals.scored} scored</span>
         </a>
-        <a href="#/pipeline">
+        {shell.data && (shell.data.counts.questions || shell.data.counts.needsYou) ? (
+          <a href={shell.data.counts.questions ? '#/questions' : '#/pipeline?view=list&state=needs_you'}>
+            <strong>{shell.data.counts.questions + shell.data.counts.needsYou}</strong>
+            <span>
+              waiting on you: {shell.data.counts.questions} questions, {shell.data.counts.needsYou} jobs
+            </span>
+          </a>
+        ) : null}
+        <a href="#/pipeline?view=stages">
           <strong>{data.totals.applied}</strong>
           <span>applied, {data.totals.interviews} at interview or offer</span>
         </a>
@@ -122,7 +143,7 @@ export default function Overview() {
               </a>
             ))
           ) : (
-            <Empty title="No scored roles yet">Turn the hunt on, or scan sources and score a few roles in Jobs. The best ones show up here with Claude’s one-line verdict.</Empty>
+            <Empty title="No scored roles yet">Start a campaign, or scan sources and score a few roles in Jobs. The best ones show up here with Claude’s one-line verdict.</Empty>
           )}
         </section>
 

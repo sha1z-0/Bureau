@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Check, Copy, Info, X } from 'lucide-react';
-import type { PipelineState } from './api';
+import { useQuery } from '@tanstack/react-query';
+import { api, type MatchMeaning, type PipelineState } from './api';
 import { Btn, Empty } from './ui';
 
 /* Shared v2 building blocks. Plain words, status by tone, numbers in Plex Sans. */
@@ -143,6 +144,15 @@ export function Hint({ text, label = 'What this means' }: { text: string; label?
       </span>
     </span>
   );
+}
+
+const SCREEN_FALLBACK =
+  'How likely you are to pass the first screen for this role, from 0 to 100. Not how many boxes you tick: unmet nice-to-haves barely count, a few unmet important requirements are allowed by the stretch level, and only hard blockers cap it.';
+
+/** The (i) next to every score, worded by the matcher itself. */
+export function ScreenHint() {
+  const { data } = useQuery({ queryKey: ['match', 'meaning'], queryFn: () => api<MatchMeaning>('/api/match/meaning'), staleTime: Infinity, retry: false });
+  return <Hint text={data?.tooltip ?? SCREEN_FALLBACK} label="What the score means" />;
 }
 
 export function CopyButton({ text, label = 'Copy', size }: { text: string; label?: string; size?: 'sm' }) {

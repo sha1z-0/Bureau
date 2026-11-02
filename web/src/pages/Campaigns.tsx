@@ -4,7 +4,7 @@ import { ArrowLeft, Pause, Pencil, Play, Plus, RotateCcw, Trash2, Zap } from 'lu
 import { api, del, post, put, CATEGORY_LABEL, type AutopilotStatus, type Campaign, type CampaignConfig, type Category, type StepRow, type StretchLevel } from '../api';
 import { go, KillSwitch, setParam, useRoute, useShell } from '../App';
 import { Btn, Empty, Field, ListInput, Switch, ago, useToast } from '../ui';
-import { CAMPAIGN_LABEL, Facts, Hint, Meter, PageHead, STATE_LABEL, Stat, clock, day, plain, stamp, until, usd } from '../kit';
+import { CAMPAIGN_LABEL, Facts, Meter, ScreenHint, PageHead, STATE_LABEL, Stat, clock, day, plain, stamp, until, usd } from '../kit';
 
 export interface CampaignList {
   campaigns: Campaign[];
@@ -261,7 +261,6 @@ export function CampaignEditor({ campaign, onDone, onCancel, startLabel = 'Save 
   const toast = useToast();
   const qc = useQueryClient();
   const defaults = useQuery({ queryKey: ['campaigns', 'defaults'], queryFn: () => api<{ name: string; config: CampaignConfig }>('/api/campaigns/defaults'), enabled: !campaign });
-  const meaning = useQuery({ queryKey: ['match', 'meaning'], queryFn: () => api<{ tooltip: string; label: string }>('/api/match/meaning').catch(() => null) });
   const [name, setName] = useState(campaign?.name ?? '');
   const [cfg, setCfg] = useState<CampaignConfig | null>(campaign?.config ?? null);
   useEffect(() => {
@@ -383,7 +382,7 @@ export function CampaignEditor({ campaign, onDone, onCancel, startLabel = 'Save 
             help={
               <span>
                 The chance of passing the screen, 0 to 100. 60 is a sensible start.{' '}
-                {meaning.data?.tooltip ? <Hint text={meaning.data.tooltip} label="What the score means" /> : null}
+                <ScreenHint />
               </span>
             }
           >

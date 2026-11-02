@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Copy, Download, FileText, Lock, MessageSquare, RefreshCw, ScrollText, ShieldCheck, Stamp, Trash2 } from 'lucide-react';
 import { api, del, post, put, ApiError, type Application, type TailoredCv } from '../api';
-import { go, useRoute } from '../App';
+import { go, setParam, useRoute } from '../App';
+import { PageHead, Tabs } from '../kit';
+import { BanditPanel, WrittenPanel } from './Writer';
+import { VoiceBankEditor } from '../editors';
 import { Btn, Empty, Field, Modal, Seal, ago, useToast } from '../ui';
 
 type Tab = 'letter' | 'message' | 'cv' | 'lock';
 
 const STATUS_LABEL: Record<string, string> = { draft: 'Draft', approved: 'Approved', needs_you: 'Needs you' };
 
-export default function Studio() {
+function Drafts() {
   const [, params] = useRoute();
   const { data } = useQuery({ queryKey: ['applications', 'drafts'], queryFn: () => api<{ applications: Application[] }>('/api/applications') });
   const items = (data?.applications ?? []).filter((a) => a.status === 'draft' || a.status === 'approved' || a.status === 'needs_you');
@@ -25,16 +28,10 @@ export default function Studio() {
 
   return (
     <>
-      <header className="page-head">
-        <div>
-          <h1>Studio</h1>
-          <p>Each application is written for one role from your CV, then checked line by line against it. Edit anything before it goes out.</p>
-        </div>
-      </header>
       {items.length === 0 ? (
         <div className="card">
-          <Empty title="No drafts yet" action={<a className="btn primary" href="#/jobs">Pick a role in Jobs</a>}>
-            Open a role and choose “Write application”, or switch the hunt on and drafts appear here on their own.
+          <Empty title="No drafts yet" action={<a className="btn" href="#/jobs">Pick a role in Jobs</a>}>
+            Open a role in Jobs and choose Write application. Campaigns write and send on their own; their applications are under Written by the campaigns.
           </Empty>
         </div>
       ) : (
@@ -417,5 +414,41 @@ function RegenPanel({ jobId, onClose, onDone }: { jobId: string; onClose: () => 
         </Btn>
       </div>
     </form>
+  );
+}
+
+type StudioTab = 'drafts' | 'written' | 'strategy' | 'voice';
+
+export default function Studio() {
+  const [, params] = useRoute();
+  const tab = (params.get('tab') as StudioTab) || (params.get('app') ? 'written' : 'drafts');
+  return (
+    <>
+      <PageHead title="Studio" lede="Every application is written for one role from your own words and facts, checked by a recruiter critic, a style lint and the truth lock. Read anything, edit any draft before it goes out." />
+      <div style={{ marginBottom: 'var(--s-4)', overflowX: 'auto' }}>
+        <Tabs<StudioTab>
+          label="Studio sections"
+          value={tab}
+          onChange={(t) => {
+            setParam('app', null);
+            setParam('tab', t === 'drafts' ? null : t);
+          }}
+          items={[
+            { id: 'drafts', label: 'Drafts to review' },
+            { id: 'written', label: 'Written by the campaigns' },
+            { id: 'strategy', label: 'What works' },
+            { id: 'voice', label: 'Voice bank' },
+          ]}
+        />
+      </div>
+      {tab === 'drafts' ? <Drafts /> : null}
+      {tab === 'written' ? <WrittenPanel /> : null}
+      {tab === 'strategy' ? <BanditPanel /> : null}
+      {tab === 'voice' ? (
+        <section className="card card-pad" style={{ maxWidth: 860 }}>
+          <VoiceBankEditor />
+        </section>
+      ) : null}
+    </>
   );
 }

@@ -32,7 +32,7 @@ const DECISION: Record<string, string> = { apply: 'Apply', consider: 'Worth a lo
 /** Fit score as a seal and a plain number. */
 export function ScoreDial({ score, grade, decision }: { score: number | null; grade?: string | null; decision?: string | null; label?: string }) {
   return (
-    <div className="score-mark" aria-label={score === null ? 'Not assessed yet' : `Fit score ${score} of 100`}>
+    <div className="score-mark" aria-label={score === null ? 'Not assessed yet' : `Chance of passing the screen: ${score} of 100`}>
       <Seal grade={grade ?? null} size="lg" />
       <div>
         <strong>
@@ -40,7 +40,7 @@ export function ScoreDial({ score, grade, decision }: { score: number | null; gr
           <small> / 100</small>
         </strong>
         <div className="muted" style={{ fontSize: 'var(--t-sm)', marginTop: 2 }}>
-          {score === null ? 'Not assessed yet' : (DECISION[decision ?? ''] ?? 'Fit score')}
+          {score === null ? 'Not assessed yet' : (DECISION[decision ?? ''] ?? 'Chance of passing the screen')}
         </div>
       </div>
     </div>

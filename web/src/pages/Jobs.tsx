@@ -5,6 +5,8 @@ import { Archive, Bookmark, Check, ClipboardPaste, ExternalLink, Feather, Gauge,
 import { api, patch, post, CATEGORY_LABEL, type Category, type JobDetail, type JobSummary } from '../api';
 import { go, useRoute } from '../App';
 import { Btn, Empty, Field, ScoreDial, Seal, ago, money, sourceLabel, useToast } from '../ui';
+import { ScreenHint } from '../kit';
+
 
 const CATS = Object.keys(CATEGORY_LABEL) as Category[];
 
@@ -174,7 +176,7 @@ export default function Jobs() {
                     </div>
                   ) : null}
                 </div>
-                <span className="score" aria-label="Fit score">{j.score ?? ''}</span>
+                <span className="score" aria-label="Chance of passing the screen" title="Chance of passing the screen">{j.score ?? ''}</span>
               </div>
             ))}
           </div>
@@ -245,7 +247,15 @@ function JobPanel({ id, onGone }: { id: string; onGone: () => void }) {
               </span>
             </div>
           </div>
-          <ScoreDial score={job.score} grade={job.grade} decision={a?.decision} />
+          <div>
+            <ScoreDial score={job.score} grade={job.grade === 'F' ? 'D' : job.grade} decision={a?.decision} />
+            {job.score !== null ? (
+              <div className="muted" style={{ fontSize: 'var(--t-xs)', marginTop: 6 }}>
+                Chance of passing the screen <ScreenHint />{' '}
+                <a href={`#/pipeline?job=${job.id}`}>Full timeline</a>
+              </div>
+            ) : null}
+          </div>
         </div>
         <div className="row wrap" style={{ marginTop: 'var(--s-5)', gap: 8 }}>
           {job.application ? (
@@ -361,7 +371,7 @@ function JobPanel({ id, onGone }: { id: string; onGone: () => void }) {
                 ))}
               </div>
               <p className="muted" style={{ fontSize: 'var(--t-xs)', marginTop: 'var(--s-3)', maxWidth: '72ch' }}>
-                Requirements {a.breakdown.requirements} (45%), dimensions {a.breakdown.dimensions} (35%), pre-filter {a.breakdown.prefilter} (20%). Legitimacy {a.legitimacy}, confidence {a.confidence}, level {a.seniorityFit === 'match' ? 'matches yours' : a.seniorityFit}.
+                Requirements {a.breakdown.requirements} (55%), dimensions {a.breakdown.dimensions} (30%), pre-rank {a.breakdown.prefilter} (15%), then the stretch penalty, caps and boosts. Legitimacy {a.legitimacy}, confidence {a.confidence}, level {a.seniorityFit === 'match' ? 'matches yours' : a.seniorityFit}.
               </p>
             </div>
 
