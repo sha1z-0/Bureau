@@ -40,7 +40,7 @@ export const PAGES: { name: string; hash: string; wait?: string; maxHeight?: num
   { name: 'agents', hash: '#/agents' },
   { name: 'settings', hash: '#/settings' },
   { name: 'welcome', hash: '#/welcome' },
-  { name: 'welcome-voice', hash: '#/welcome', wait: '[data-testid="step-cv"]' },
+  { name: 'welcome-voice', hash: '#/welcome?step=voice', wait: '[data-testid="step-voice"]' },
 ];
 
 const SIZES = [
@@ -70,13 +70,10 @@ async function main() {
         if (only.length && !only.some((o) => p.name.includes(o))) continue;
         const hash = p.hash.replace('__CAMPAIGN__', campaignId).replace('__APP__', appId);
         await page.goto(`${BASE}/${hash}`, { waitUntil: 'networkidle' });
-        if (p.name === 'welcome-voice') {
-          await page.click('.steps button:has-text("Voice bank")').catch(async () => {
-            for (let i = 0; i < 3; i++) await page.click('[data-testid="wizard-skip"]');
-          });
-        }
         if (p.wait) await page.waitForSelector(p.wait, { timeout: 10_000 }).catch(() => {});
         await page.waitForTimeout(900);
+        // Full-page captures pin fixed bars mid-page; put the phone tab bar at the foot instead.
+        if (size.tag === 'phone') await page.addStyleTag({ content: '.shell{position:relative;min-height:100vh}.tabbar{position:absolute!important}' });
         const h = await page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
         const file = path.join(OUT, `${p.name}-${size.tag}.png`);
         if (p.name === 'timeline') await page.screenshot({ path: file });

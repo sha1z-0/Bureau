@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Check, ExternalLink, FileText, Inbox as InboxIcon, Minus, PenLine, Radar, Scale, ScrollText, Workflow, X } from 'lucide-react';
 import { maybe, optional, type FormRun, type JobFile, type LetterVariant, type MatchView, type TimelineEntry, type WriterDetail } from '../api';
 import { Seal, ago, sourceLabel } from '../ui';
-import { Drawer, Facts, Hint, STATE_LABEL, StateTag, Tabs, plain, stamp } from '../kit';
+import { Drawer, Facts, Hint, STATE_LABEL, StateTag, Tabs, atsLabel, plain, stamp } from '../kit';
 import { CLASS_LABEL } from './Inbox';
 
 function Head({ icon: Icon, title, right }: { icon: typeof Radar; title: string; right?: React.ReactNode }) {
@@ -182,7 +182,7 @@ export function WriterQuality({ w, appId }: { w: WriterDetail; appId: string }) 
         <div className="stat">
           <span className="label">Truth lock</span>
           <strong>{q ? (q.truth.pass ? 'Clean' : 'Blocked') : '–'}</strong>
-          <small>{q ? `${q.truth.issues.length} issues` : ''}</small>
+          <small>{q ? (q.truth.pass ? (q.truth.issues.length ? `${q.truth.issues.length} minor ${q.truth.issues.length === 1 ? 'note' : 'notes'}` : 'No issues') : `${q.truth.issues.length} ${q.truth.issues.length === 1 ? 'issue' : 'issues'}`) : ''}</small>
         </div>
         <div className="stat">
           <span className="label">Strategy</span>
@@ -307,7 +307,7 @@ function FormSection({ file, runs, timeline }: { file: JobFile; runs: FormRun[] 
           <span className="muted" style={{ fontSize: 'var(--t-sm)' }}>
             {plain(run.status)}
             {run.via ? `, by ${run.via}` : ''}
-            {run.ats ? ` on ${run.ats}` : ''}, {ago(run.at)}
+            {run.ats ? ` on ${atsLabel(run.ats)}` : ''}, {ago(run.at)}
           </span>
         </div>
         {run.reason ? <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>{run.reason}</p> : null}
@@ -474,7 +474,7 @@ export default function JobTimeline({ jobId, onClose }: { jobId: string; onClose
                 ['Found', stamp(j.foundAt)],
                 ['Posted', j.postedAt ? stamp(j.postedAt) : 'Not given'],
                 ['Where from', [sourceLabel(j.source), ...(j.sources as { source?: string }[]).map((s) => (typeof s === 'string' ? s : s?.source ?? '')).filter(Boolean).map(sourceLabel)].filter((v, i, a) => a.indexOf(v) === i).join(', ')],
-                ['Form', j.ats ?? (j.applyEmail ? 'Email' : 'Unknown')],
+                ['Form', j.ats ? atsLabel(j.ats) : j.applyEmail ? 'Email' : 'Unknown'],
                 ['Looks', j.legitimacy ? `${plain(j.legitimacy)}${j.legitimacyReasons.length ? `: ${j.legitimacyReasons.join(', ')}` : ''}` : 'Not checked'],
                 ['Priority', j.priority ? `Raised by ${j.priority}` : 'Normal'],
               ]}

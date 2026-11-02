@@ -185,11 +185,11 @@ function ModelsCard({ data, usage }: { data: SettingsData; usage?: { month: numb
                     {TASK_LABEL[t]?.[1]}
                   </div>
                 </td>
-                <td style={{ width: 250 }}>
+                <td style={{ width: 230 }}>
                   <select className="select" value={models[t] ?? data.defaultModels[t]} onChange={(e) => setModels({ ...models, [t]: e.target.value })} aria-label={`Model for ${TASK_LABEL[t]?.[0] ?? t}`}>
                     {data.models.map((m) => (
                       <option key={m.id} value={m.id}>
-                        {m.label} (${m.input} in, ${m.output} out per M)
+                        {m.label.replace(/^Claude /, '')}: ${m.input} / ${m.output}
                       </option>
                     ))}
                   </select>
@@ -214,7 +214,7 @@ function ModelsCard({ data, usage }: { data: SettingsData; usage?: { month: numb
             <div className="num" style={{ fontSize: 'var(--t-xl)', fontWeight: 600 }}>
               ${(usage?.month ?? data.spend).toFixed(2)}
             </div>
-            <div className="help">Prices per million tokens are shown beside each model. Estimates include prompt caching.</div>
+            <div className="help">Prices beside each model are dollars per million tokens in and out. Estimates include prompt caching.</div>
           </div>
         </div>
         {usage?.byTask.length ? (

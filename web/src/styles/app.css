@@ -2711,3 +2711,27 @@ a.stat:hover strong {
     display: none !important;
   }
 }
+
+.sidebar-foot .kill {
+  justify-self: start;
+  background: var(--surface);
+}
+
+@media (max-width: 820px) {
+  .band-stats .meter {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Long unbroken words (paths, hashes, URLs) never widen a column. */
+.ledger li > span,
+.list-row > div,
+.facts dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.grid > *,
+.split > * {
+  min-width: 0;
+}

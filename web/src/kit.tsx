@@ -211,7 +211,7 @@ export function until(iso: string | null | undefined): string {
 
 export function clock(iso: string | null | undefined): string {
   if (!iso) return '–';
-  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 }
 
 export function day(iso: string | null | undefined): string {
@@ -221,12 +221,39 @@ export function day(iso: string | null | undefined): string {
 
 export function stamp(iso: string | null | undefined): string {
   if (!iso) return '–';
-  return new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 }
 
 export const words = (s: string) => (s.trim() ? s.trim().split(/\s+/).length : 0);
 
 export const pct = (n: number | null | undefined, digits = 0) => (n === null || n === undefined ? '–' : `${(n * 100).toFixed(digits)}%`);
+
+const ATS_NAME: Record<string, string> = {
+  greenhouse: 'Greenhouse',
+  lever: 'Lever',
+  ashby: 'Ashby',
+  smartrecruiters: 'SmartRecruiters',
+  workday: 'Workday',
+  workable: 'Workable',
+  recruitee: 'Recruitee',
+  personio: 'Personio',
+  teamtailor: 'Teamtailor',
+  bamboohr: 'BambooHR',
+  breezy: 'Breezy',
+  jazzhr: 'JazzHR',
+  rippling: 'Rippling',
+  pinpoint: 'Pinpoint',
+  icims: 'iCIMS',
+  taleo: 'Taleo',
+  successfactors: 'SuccessFactors',
+  oracle: 'Oracle',
+  jobvite: 'Jobvite',
+  comeet: 'Comeet',
+  eightfold: 'Eightfold',
+};
+
+/** An applicant system's proper name. */
+export const atsLabel = (s: string | null | undefined) => (s ? (ATS_NAME[s.toLowerCase()] ?? s[0].toUpperCase() + s.slice(1)) : '');
 
 /** "needs_you" → "Needs you"; snake and kebab case to a plain sentence. */
 export const plain = (s: string) => {

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Radar, Search } from 'lucide-react';
 import { api, patch, post, type Company, type ScoutHealth } from '../api';
 import { Btn, Field, ago, useToast } from '../ui';
-import { Stat } from '../kit';
+import { Stat, atsLabel } from '../kit';
 
 export const HEALTH_LABEL: Record<string, string> = { ok: 'Healthy', slow: 'Slow', failing: 'Failing', unavailable: 'Not set up', disabled: 'Off', idle: 'Not run yet' };
 export const HEALTH_TONE: Record<string, string> = { ok: 'olive', slow: 'brass', failing: 'crimson', unavailable: 'brass' };
@@ -200,7 +200,7 @@ export function CompaniesPanel() {
           <option value="">Every ATS</option>
           {atsList.map((a) => (
             <option key={a} value={a}>
-              {a} ({reg?.byAts[a]})
+              {atsLabel(a)} ({reg?.byAts[a]})
             </option>
           ))}
         </select>
@@ -240,7 +240,7 @@ export function CompaniesPanel() {
                       {c.lastCheckedAt ? `, checked ${ago(c.lastCheckedAt)}` : ''}
                     </div>
                   </td>
-                  <td>{c.ats ?? <span className="faint">Unknown</span>}</td>
+                  <td>{c.ats ? atsLabel(c.ats) : <span className="faint">Unknown</span>}</td>
                   <td className="num">
                     {c.openRoles ?? '–'}
                     {delta ? <div className="faint" style={{ fontSize: 'var(--t-xs)' }}>{delta > 0 ? `up ${delta}` : `down ${-delta}`}</div> : null}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { api, put, type Onboarding, type OnboardingStep } from '../api';
-import { go } from '../App';
+import { go, useRoute } from '../App';
 import { Btn, useToast } from '../ui';
 import { AnswerBankEditor, GithubPreview, LearningListEditor, LinksEditor, VoiceBankEditor } from '../editors';
 import { CvUpload } from './Profile';
@@ -99,10 +99,12 @@ export default function Welcome() {
   const toast = useToast();
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ['onboarding'], queryFn: () => api<Onboarding>('/api/onboarding') });
+  const [, params] = useRoute();
+  const asked = params.get('step') as OnboardingStep | null;
   const [step, setStep] = useState<OnboardingStep | null>(null);
   useEffect(() => {
-    if (data && !step) setStep(data.current);
-  }, [data, step]);
+    if (data && !step) setStep(asked && STEPS.some((s) => s.id === asked) ? asked : data.current);
+  }, [data, step, asked]);
   const save = useMutation({
     mutationFn: (patch: { current?: OnboardingStep; complete?: OnboardingStep; skip?: OnboardingStep; done?: boolean }) => put<Onboarding>('/api/onboarding', patch),
     onSuccess: (o) => {

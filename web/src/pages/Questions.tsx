@@ -8,6 +8,24 @@ import { PageHead, Tabs, plain } from '../kit';
 
 type Status = 'open' | 'answered' | 'ignored';
 
+const KIND: Record<string, string> = {
+  text: 'Short answer',
+  textarea: 'Long answer',
+  richtext: 'Long answer',
+  select: 'Pick one',
+  radio: 'Pick one',
+  combobox: 'Pick one',
+  checkbox: 'Tick boxes',
+  date: 'A date',
+  number: 'A number',
+  url: 'A link',
+  email: 'An email address',
+  phone: 'A phone number',
+  tel: 'A phone number',
+  location: 'A place',
+  file: 'A file',
+};
+
 function QuestionCard({ q }: { q: UnknownQuestion }) {
   const toast = useToast();
   const qc = useQueryClient();
@@ -41,7 +59,7 @@ function QuestionCard({ q }: { q: UnknownQuestion }) {
           ) : (
             <span>No job attached</span>
           )}
-          <span>{plain(q.fieldKind)} field</span>
+          <span>{KIND[q.fieldKind] ?? plain(q.fieldKind)}</span>
           <span>asked {ago(q.createdAt)}</span>
           {q.duplicates ? <span>{q.duplicates} more forms asked the same</span> : null}
         </div>
@@ -75,9 +93,6 @@ function QuestionCard({ q }: { q: UnknownQuestion }) {
             <Btn variant="ghost" busy={ignore.isPending} onClick={() => ignore.mutate()}>
               Ignore
             </Btn>
-            <span className="faint" style={{ fontSize: 'var(--t-xs)' }}>
-              Saved answers are reused on every form that asks the same thing.
-            </span>
           </div>
         </>
       ) : (
@@ -98,7 +113,7 @@ export default function Questions() {
   const list = data?.questions ?? [];
   return (
     <>
-      <PageHead title="Questions" lede="Things a form asked that Bureau couldn't answer truthfully on its own. Answer once: it goes into your answer bank and the job goes back in the queue." />
+      <PageHead title="Questions" lede="Things a form asked that Bureau couldn't answer truthfully on its own. Answer once: it goes into your answer bank, every later form that asks the same thing gets it, and the job goes back in the queue." />
       <div style={{ marginBottom: 'var(--s-4)' }}>
         <Tabs<Status>
           label="Question status"

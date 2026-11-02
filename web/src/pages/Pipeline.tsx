@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import { api, PIPELINE_STATES, type PipelineItem, type PipelineState } from '../api';
 import { setParam, useRoute } from '../App';
 import { Seal, ago } from '../ui';
-import { PageHead, STATE_LABEL, StateTag, Tabs, stamp } from '../kit';
+import { PageHead, STATE_LABEL, StateTag, Tabs, atsLabel, stamp } from '../kit';
 import { useCampaigns } from './Campaigns';
 import JobTimeline from './JobTimeline';
 import { StagesBoard } from './StagesBoard';
@@ -55,7 +55,7 @@ function Card({ r }: { r: PipelineItem }) {
         </div>
       ) : null}
       <div className="row faint" style={{ fontSize: '0.75rem' }}>
-        <span>{r.state === 'written' || r.state === 'verified' ? STATE_LABEL[r.state] : r.job.ats ?? (r.job.remote ? 'Remote' : r.job.location)}</span>
+        <span>{r.state === 'written' || r.state === 'verified' ? STATE_LABEL[r.state] : (r.job.ats ? atsLabel(r.job.ats) : r.job.remote ? 'Remote' : r.job.location)}</span>
         <span className="spacer" />
         <span>{ago(r.updatedAt)}</span>
       </div>

@@ -271,7 +271,9 @@ function LiveBar({ shell }: { shell: Shell }) {
         </a>{' '}
         {what}
       </span>
-      <KillSwitch size="sm" label="Stop" />
+      <span className="hide-phone">
+        <KillSwitch size="sm" label="Stop" />
+      </span>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Check, X } from 'lucide-react';
 import { optional, post, type AgentMetrics, type AtsCoverage, type RecipeDetail, type RecipeRow, type TraceDetail, type TraceSummary } from '../api';
 import { setParam, useRoute } from '../App';
 import { Btn, ago, useToast } from '../ui';
-import { Drawer, Facts, NotSetUp, PageHead, Tabs, pct, plain, stamp, usd } from '../kit';
+import { Drawer, Facts, NotSetUp, PageHead, Tabs, atsLabel, pct, plain, stamp, usd } from '../kit';
 
 type Tab = 'recipes' | 'coverage' | 'runs' | 'traces';
 
@@ -27,7 +27,7 @@ function RecipeDrawer({ id, onClose }: { id: string; onClose: () => void }) {
   const r = data?.recipe;
   return (
     <Drawer
-      title={r ? `${r.ats} recipe, version ${r.version}` : 'Recipe'}
+      title={r ? `${atsLabel(r.ats)} recipe, version ${r.version}` : 'Recipe'}
       onClose={onClose}
       actions={
         r ? (
@@ -134,7 +134,7 @@ function TraceDrawer({ id, onClose }: { id: string; onClose: () => void }) {
             <Facts
               rows={[
                 ['Outcome', plain(t.outcome)],
-                ['Form', t.ats ?? 'Unknown'],
+                ['Form', t.ats ? atsLabel(t.ats) : 'Unknown'],
                 ['From', t.origin === 'internal' ? 'Bureau' : 'An outside agent'],
                 ['Steps', String(t.steps.length)],
                 ['Started', stamp(t.startedAt)],
@@ -277,7 +277,9 @@ export default function Forms() {
             <select className="select" style={{ width: 'auto' }} value={ats} onChange={(e) => setAts(e.target.value)} aria-label="ATS">
               <option value="">Every ATS</option>
               {atsList.map((a) => (
-                <option key={a}>{a}</option>
+                <option key={a} value={a}>
+                  {atsLabel(a)}
+                </option>
               ))}
             </select>
             <select className="select" style={{ width: 'auto' }} value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
@@ -306,7 +308,7 @@ export default function Forms() {
                 <tbody>
                   {list.map((r) => (
                     <tr key={r.id} onClick={() => setParam('recipe', r.id)} style={{ cursor: 'pointer' }}>
-                      <td style={{ fontWeight: 600 }}>{r.ats}</td>
+                      <td style={{ fontWeight: 600 }}>{atsLabel(r.ats)}</td>
                       <td>{r.scope === 'ats' ? SCOPE_LABEL.ats : r.scopeKey}</td>
                       <td>
                         <span className={`tag ${RECIPE_TONE[r.status] ?? ''}`}>{RECIPE_LABEL[r.status] ?? r.status}</span>
@@ -352,7 +354,7 @@ export default function Forms() {
             <tbody>
               {(coverage.data?.ats ?? []).map((c) => (
                 <tr key={c.ats}>
-                  <td style={{ fontWeight: 600 }}>{c.ats}</td>
+                  <td style={{ fontWeight: 600 }}>{atsLabel(c.ats)}</td>
                   <td className="num">{c.recipes}</td>
                   <td className="num">{c.active}</td>
                   <td className="num">{c.runs}</td>
@@ -389,7 +391,7 @@ export default function Forms() {
               <div style={{ minWidth: 0 }}>
                 <div className="title">{t.url.replace(/^https?:\/\//, '').slice(0, 70)}</div>
                 <div className="meta">
-                  <span>{t.ats ?? 'Unknown form'}</span>
+                  <span>{t.ats ? atsLabel(t.ats) : 'Unknown form'}</span>
                   <span>{t.steps} steps</span>
                   <span>{t.origin === 'internal' ? 'Bureau' : 'Outside agent'}</span>
                   <span>{ago(t.createdAt)}</span>
