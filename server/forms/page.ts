@@ -847,9 +847,17 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     // The "Save" / "Done" button of an inline sub-form opened by an "Add" button.
     const adder = byStamp('data-bureau-add', arg.adderId)[0];
     let n = adder ? parentOf(adder) : null;
+    const BTN = 'button, [role="button"], input[type=button], input[type=submit]';
     for (let i = 0; n && i < 7; i++, n = parentOf(n)) {
-      const btns = Array.from(n.querySelectorAll('button, [role="button"], input[type=button], input[type=submit]')).filter((b) => b !== adder && visible(b) && !b.disabled);
-      const hit = btns.find((b) => /^(save|done|ok|confirm|add|save (entry|position|education|experience))$/i.test(norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent)) || /save(-section)?$|-save$|^save/i.test(b.getAttribute('data-ui') || b.getAttribute('data-test') || ''));
+      // Buttons inside custom elements' open shadow roots count too (SmartRecruiters' spl-button).
+      const btns = collect(n, []).filter((b) => b.matches(BTN) && b !== adder && !(adder && adder.shadowRoot && adder.shadowRoot.contains(b)) && visible(b) && !b.disabled);
+      const hit = btns.find((b) => {
+        // A button inside a custom element shows its host's slotted text and carries the host's test ids.
+        const host = rootOf(b) !== document && rootOf(b).host ? rootOf(b).host : null;
+        const text = norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent) || (host ? norm(host.textContent) : '') || norm(b.getAttribute('aria-label'));
+        const tag = b.getAttribute('data-ui') || b.getAttribute('data-test') || (host && (host.getAttribute('data-ui') || host.getAttribute('data-test'))) || '';
+        return /^(save|done|ok|confirm|add|save (entry|position|education|experience)|save (position|education|experience) entry)$/i.test(text) || /save(-section)?$|-save$|^save/i.test(tag);
+      });
       if (hit) return stampAttr(hit, 'data-bureau-nav', 'sv');
       if (n.tagName === 'FORM') break;
     }

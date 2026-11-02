@@ -609,6 +609,31 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             break;
           }
           let v = profileValue(e.key, c, f, g.index);
+          if (e.key === 'edu_end' && v) {
+            // The profile has the graduation year only and the field wants a month: the owner's own answer to
+            // "When did you complete your degree?" gives it, when it names the same year.
+            const have = parseDate((g.name === 'education' ? c.education[g.index] : c.education[0])?.end ?? '');
+            const wantsMonth = f.kind === 'date' || /m/i.test(String((f.meta as { format?: string } | undefined)?.format ?? '')) || /\bmonth\b/.test(f.labelNorm);
+            if (have && !have.m && wantsMonth) {
+              for (const q of ALT_QUESTIONS.graduation_date ?? []) {
+                const a = await askRaw(q, f);
+                const p = a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE ? parseDate(a.value) : null;
+                if (p && p.m && p.y === have.y) {
+                  v = dateFor(`${p.y}-${String(p.m).padStart(2, '0')}`, f);
+                  break;
+                }
+              }
+            }
+          }
+          if (v && !f.required && ['edu_start', 'edu_end', 'work_start', 'work_end'].includes(e.key)) {
+            // A year-only profile date in a field that wants a month: an optional field stays empty rather than
+            // getting an invented "01/2019".
+            const p = parseDate(v);
+            const yearField = /\byear\b/.test(f.labelNorm) || (f.options ?? []).filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
+            const fmt = String((f.meta as { format?: string } | undefined)?.format ?? '');
+            const monthField = fmt ? /m|iso/i.test(fmt) : f.kind === 'date';
+            if (p && !p.m && !yearField && monthField) return null;
+          }
           if (e.key === 'phone' && hasCountryPicker && f.kind !== 'phone') v = c.phoneNational;
           if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
           if (v && f.options?.length && choice) v = fit(f, v, 0.6) ?? '';

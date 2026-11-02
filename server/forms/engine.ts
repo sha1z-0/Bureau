@@ -359,6 +359,7 @@ async function repeaters(r: Run, step: number, ex: StepExtract, rec: StepRecord)
       ex = await extract(r, step);
       const fresh = ex.fields.filter((f) => !before.has(f.id));
       const saveId = await inFrame<string | null>(frame, 'saveNear', { adderId: adder.id }).catch(() => null);
+      if (DEBUG) dbg(r, `add ${group}: have ${have}/${target}, ${fresh.length} new fields, save ${saveId ?? 'none'}`);
       if (saveId && fresh.length) {
         // Inline sub-form: fill this entry, save it, go again.
         const idx = have;
