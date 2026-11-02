@@ -1,4 +1,4 @@
-import { get, now, run, tx } from '../db.ts';
+import { all, get, now, run, tx } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { emit } from '../services/bus.ts';
 import { TRANSITIONS, type PipelineRow, type PipelineState } from '../contracts/campaign.ts';
@@ -97,4 +97,44 @@ export function transition(
     emit({ type: 'pipeline.state', jobId, from: result.from, to, campaignId: result.row.campaignId, reason: opts.reason });
   }
   return result.row;
+}
+
+// ── A08 extensions (read-only helpers; the write path above is unchanged) ────
+
+export interface PipelineLogEntry {
+  ts: string;
+  from: PipelineState | null;
+  to: PipelineState;
+  reason: string | null;
+}
+
+/** Every transition a job went through, oldest first. */
+export function pipelineLog(jobId: string): PipelineLogEntry[] {
+  return all<{ ts: string; from_state: PipelineState | null; to_state: PipelineState; reason: string | null }>(
+    'SELECT ts, from_state, to_state, reason FROM pipeline_log WHERE job_id = ? ORDER BY id ASC',
+    jobId,
+  ).map((r) => ({ ts: r.ts, from: r.from_state, to: r.to_state, reason: r.reason }));
+}
+
+/** How many jobs sit in each state, for one campaign (or all). */
+export function countByState(campaignId: string | null = null): Partial<Record<PipelineState, number>> {
+  const rows = all<{ state: PipelineState; n: number }>(
+    'SELECT state, COUNT(*) AS n FROM pipeline WHERE (? IS NULL OR campaign_id = ?) GROUP BY state',
+    campaignId,
+    campaignId,
+  );
+  return Object.fromEntries(rows.map((r) => [r.state, r.n]));
+}
+
+/** Rows in the given states, newest first. */
+export function pipelineRows(campaignId: string | null, states: readonly PipelineState[], limit = 200): PipelineRow[] {
+  if (!states.length) return [];
+  return all<Row>(
+    `SELECT * FROM pipeline WHERE (? IS NULL OR campaign_id = ?) AND state IN (${states.map(() => '?').join(',')})
+     ORDER BY updated_at DESC LIMIT ?`,
+    campaignId,
+    campaignId,
+    ...states,
+    limit,
+  ).map(toRow);
 }
