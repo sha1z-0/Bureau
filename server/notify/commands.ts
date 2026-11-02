@@ -11,7 +11,7 @@ import { escapeHtml, getUpdates, saveUpdateOffset, sendTelegram, updateOffset, t
  * is live to a stranger).
  */
 
-export const COMMANDS = ['start', 'help', 'status', 'stop', 'pause', 'resume', 'today', 'answer'] as const;
+export const COMMANDS = ['start', 'help', 'status', 'stop', 'pause', 'resume', 'today', 'answer', 'learning'] as const;
 export type CommandName = (typeof COMMANDS)[number];
 
 export interface ParsedCommand {
@@ -47,6 +47,8 @@ export interface CommandHandlers {
   resume(ref: string): Promise<string>;
   /** `ref` is a question short id or full id. Returns the reply text. */
   answer(ref: string, text: string): Promise<string>;
+  /** `/learning` lists the learning list; `/learning <skill>` starts learning it (A09). Optional for older callers. */
+  learning?(args: string): Promise<string>;
 }
 
 export const HELP = [
@@ -55,6 +57,7 @@ export const HELP = [
   '/today: today so far',
   '/pause &lt;campaign&gt; and /resume &lt;campaign&gt;',
   '/answer &lt;id&gt; &lt;text&gt;: answer a question (or just reply to it)',
+  '/learning [skill]: show the learning list, or start learning a skill',
   '/stop: kill switch, stops everything',
 ].join('\n');
 
@@ -107,6 +110,12 @@ export async function handleUpdate(update: TgUpdate, handlers: CommandHandlers, 
         case 'resume':
           reply = await handlers.resume(parsed.args);
           break;
+        case 'learning': {
+          const run = handlers.learning ?? (async (args: string) => (await import('../learning/index.ts')).learningCommand(args));
+          // Plain text from the learning list; escape it for Telegram HTML.
+          reply = escapeHtml(await run(parsed.args));
+          break;
+        }
         case 'answer': {
           const a = splitAnswer(parsed.args);
           reply = a ? await handlers.answer(a.ref, a.text) : 'Use /answer &lt;id&gt; &lt;your answer&gt;, or reply to the question message.';

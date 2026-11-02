@@ -16,7 +16,7 @@ export const ResearchBriefSchema = z.object({
   stage: z.string(),
   teamSize: z.string(),
   /** Only when publicly named in the posting or on the company's own pages. */
-  hiringContact: z.object({ name: z.string(), role: z.string(), sourceUrl: z.string() }).nullable(),
+  hiringContact: z.object({ name: z.string(), role: z.string(), sourceUrl: z.string(), email: z.string().optional() }).nullable(),
   fetchedAt: z.string(),
 });
 export type ResearchBrief = z.infer<typeof ResearchBriefSchema>;

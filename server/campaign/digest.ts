@@ -46,6 +46,10 @@ export interface DigestContent {
     interviews: { company: string; kind: string; summary: string; deadline: string | null }[];
     replies: number;
     rejections: number;
+    /** Recruiter-question replies A09 drafted for the owner to send (never sent by Bureau). Optional in older digests. */
+    drafts?: { company: string; summary: string; to: string; unanswered: string[] }[];
+    /** Suspicious mail held for review (count only). */
+    held?: number;
   };
   spend: { todayUsd: number; campaignUsd: number; campaignBudgetUsd: number; monthUsd: number };
   gaps: { skill: string; count: number }[];
@@ -186,6 +190,14 @@ export function buildDigest(c: Campaign | null, nowMs: number, opts: DigestOptio
       return { company: d.company ?? 'Unknown', kind: m.class, summary: (d.summary ?? '').slice(0, 200), deadline: d.deadline ?? null };
     });
   const rejections = mail.filter((m) => m.class === 'rejection').length;
+  // Drafts wait until the owner deals with them, so they're listed whatever day they arrived.
+  const drafts = all<{ data: string }>(
+    "SELECT data FROM inbox_messages WHERE class = 'recruiter_question' AND json_extract(data, '$.draft.status') = 'queued' ORDER BY received_at DESC LIMIT 10",
+  ).map((r) => {
+    const d = parse<{ company?: string | null; summary?: string; unanswered?: string[]; draft?: { to?: string } }>(r.data, {});
+    return { company: d.company ?? 'Unknown', summary: (d.summary ?? '').slice(0, 200), to: d.draft?.to ?? '', unanswered: (d.unanswered ?? []).slice(0, 5) };
+  });
+  const held = Number(get<{ n: number }>("SELECT COUNT(*) AS n FROM inbox_messages WHERE json_extract(data, '$.suspicious') = 1 AND handled = 0")?.n ?? 0);
   const replies = mail.filter((m) => !['verification_code', 'confirmation_received', 'other'].includes(m.class)).length;
 
   const spendSince = (iso: string) => Number(get<{ t: number }>('SELECT COALESCE(SUM(cost_usd), 0) AS t FROM ai_usage WHERE ts >= ?', iso)?.t ?? 0);
@@ -260,7 +272,7 @@ export function buildDigest(c: Campaign | null, nowMs: number, opts: DigestOptio
     needsYou,
     failed,
     questions,
-    inbox: { interviews, replies, rejections },
+    inbox: { interviews, replies, rejections, drafts, held },
     spend,
     gaps,
     recipesPromoted,
@@ -316,12 +328,17 @@ function lines(d: DigestContent, esc: (s: string) => string, bold: (s: string) =
     out.push(`Answer with /answer ${esc('<id> <text>')}, or in the app.`);
   }
   const ib = d.inbox;
-  if (ib.interviews.length || ib.replies || ib.rejections) {
+  if (ib.interviews.length || ib.replies || ib.rejections || ib.drafts?.length || ib.held) {
     out.push('', bold('Inbox'));
     for (const i of ib.interviews.slice(0, LIMIT)) {
       out.push(`• ${esc(i.kind.replace('_', ' '))}: ${esc(i.company)}${i.deadline ? `, by ${esc(i.deadline.slice(0, 16))}` : ''}${i.summary ? `. ${esc(i.summary.slice(0, 100))}` : ''}`);
     }
     out.push(`${ib.replies} repl${ib.replies === 1 ? 'y' : 'ies'}, ${ib.rejections} rejection${ib.rejections === 1 ? '' : 's'}`);
+    for (const dr of (ib.drafts ?? []).slice(0, LIMIT)) {
+      out.push(`• Reply drafted for you to send: ${esc(dr.company)}${dr.to ? ` (${esc(dr.to)})` : ''}${dr.summary ? `. ${esc(dr.summary.slice(0, 100))}` : ''}`);
+      if (dr.unanswered.length) out.push(`  Not in your answer bank: ${esc(dr.unanswered.join('; ').slice(0, 160))}`);
+    }
+    if (ib.held) out.push(`${ib.held} suspicious email${ib.held === 1 ? '' : 's'} held for review`);
   }
   const sp = d.spend;
   out.push(
