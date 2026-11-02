@@ -20,6 +20,8 @@ export interface EduEntry {
   discipline: string;
   start: string;
   end: string;
+  /** The profile's own notes on the entry (grade, final-year project). */
+  details?: string;
 }
 export interface Candidate {
   name: string;
@@ -163,7 +165,7 @@ export function candidateFrom(p: Profile | null, links: { linkedin?: string; git
   }));
   const education: EduEntry[] = p.education.map((e) => {
     const sd = splitDegree(e.degree);
-    return { school: e.school, degree: e.degree, degreeName: sd.discipline ? sd.degree.replace(/[,\s]+$/, '') : e.degree, degreeLevel: degreeLevel(sd.degree || e.degree), discipline: sd.discipline || e.details.split(/[.;\n]/)[0]?.trim() || '', start: e.start, end: e.end };
+    return { school: e.school, degree: e.degree, degreeName: sd.discipline ? sd.degree.replace(/[,\s]+$/, '') : e.degree, degreeLevel: degreeLevel(sd.degree || e.degree), discipline: sd.discipline || e.details.split(/[.;\n]/)[0]?.trim() || '', start: e.start, end: e.end, details: (e.details ?? '').trim() };
   });
   const current = work.find((w) => w.current) ?? null;
   return {

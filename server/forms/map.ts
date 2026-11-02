@@ -344,7 +344,9 @@ function dateFor(raw: string, f: Field): string {
 /** The profile value for a synonym key, or '' when the profile has none. */
 export function profileValue(key: string, c: Candidate, f: Field, gi: number): string {
   const w = c.work[gi];
-  const e = c.education[gi];
+  // An education entry the profile does not have stays empty (never a copy of the first one); a flat
+  // education field (or one mis-filed under another group) reads the first entry.
+  const e = groupFor(f as never).name === 'education' ? c.education[gi] : (c.education[gi] ?? c.education[0]);
   switch (key) {
     case 'first_name':
     case 'preferred_name':
@@ -389,19 +391,21 @@ export function profileValue(key: string, c: Candidate, f: Field, gi: number): s
     case 'resume_text':
       return c.cvText;
     case 'school':
-      return (e ?? c.education[0])?.school ?? '';
+      return e?.school ?? '';
     case 'degree': {
-      const d = e ?? c.education[0];
+      const d = e;
       if (!d) return '';
       if (f.options?.length) return bestOption(d.degreeName, f.options, 0.85) ?? bestOption(d.degreeLevel, f.options, 0.6) ?? bestOption(d.degree, f.options, 0.6) ?? bestOption(degreeLevel(d.degree).replace(/'s Degree$/, ''), f.options, 0.6) ?? '';
       return d.degreeName || d.degree;
     }
     case 'discipline':
-      return (e ?? c.education[0])?.discipline ?? '';
+      return e?.discipline ?? '';
     case 'edu_start':
-      return dateFor((e ?? c.education[0])?.start ?? '', f);
+      return dateFor(e?.start ?? '', f);
     case 'edu_end':
-      return dateFor((e ?? c.education[0])?.end ?? '', f);
+      return dateFor(e?.end ?? '', f);
+    case 'edu_description':
+      return e?.details ?? '';
     case 'work_company':
       return w?.company ?? '';
     case 'work_title':

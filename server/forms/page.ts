@@ -24,7 +24,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
   const W = window;
   const S = W.__bureauState || (W.__bureauState = { seq: {} });
   const norm = (s) => String(s == null ? '' : s).replace(/[ \s]+/g, ' ').trim();
-  const GENERIC = /^(attach|attach file|upload|upload file|choose( a)? files?|browse|select|select\.\.\.|select one|enter manually|or|drop files? here|drag (and|&) drop.*|paste|\+|add|remove|clear|required|optional|\*|locate me|no file chosen)$/i;
+  const GENERIC = /^(attach|attach file|upload|upload file|choose( a)? files?|browse|select|select\.\.\.|select one|enter manually|or|drop files? here|drag (and|&) drop.*|paste|\+|add|remove|delete|clear|required|optional|\*|locate me|no file chosen)$/i;
   const CONTROL_SEL = 'input:not([type=hidden]),select,textarea,[role=combobox],[role=radio],[role=checkbox],[role=textbox],[role=spinbutton],[contenteditable=""],[contenteditable=true]';
 
   function collect(root, out) {
@@ -97,7 +97,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return norm(String(n || '').replace(/^.*[\[\.]/, '').replace(/[\]_\-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2'));
   }
   const LABELISH = 'label, legend, [class*="label" i], [data-automation-id*="formLabel"], [data-automation-id*="Label"], [id$="-label"], [id$="_label"], [class*="question" i], [class*="prompt" i], h3, h4, h5, [role="heading"]';
-  function questionLabel(el) {
+  function questionLabel(el, shared) {
     let node = parentOf(el);
     for (let i = 0; node && i < 6 && node !== document.body; i++) {
       const caps = Array.from(node.querySelectorAll(LABELISH)).filter((c) => {
@@ -107,12 +107,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       });
       for (let k = caps.length - 1; k >= 0; k--) {
         const t = ownText(caps[k]);
-        if (t && !GENERIC.test(t) && t.length < 600) return t;
+        if (t && !GENERIC.test(t) && t.length < 600) { if (shared) shared.v = controlCount(node) > 1; return t; }
       }
       if (node.tagName === 'FORM') break;
       node = parentOf(node);
     }
     return '';
+  }
+  /** A placeholder that names the field ("Company", "Field of Study"), not an example value or an instruction. */
+  function placeholderName(el) {
+    const ph = norm(el.getAttribute('placeholder'));
+    if (!ph || ph.length > 40 || GENERIC.test(ph) || /^(e\.?g\.?|ex(ample)?[:.]|type|enter|start typing|search)\b/i.test(ph) || /[@\d\/]|\.\.\.|…/.test(ph)) return '';
+    return ph;
   }
   function labelOf(el) {
     const by = el.getAttribute('aria-labelledby');
@@ -124,7 +130,11 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     if (wrap) { const t = ownText(wrap); if (t && !GENERIC.test(t)) return t; }
     const aria = norm(el.getAttribute('aria-label'));
     if (aria && !GENERIC.test(aria)) return aria;
-    const q = questionLabel(el);
+    const shared = { v: false };
+    const q = questionLabel(el, shared);
+    // A caption over several controls (a section heading above an entry's inputs) names the section, not this
+    // input: the input's own placeholder is the better name when it has one.
+    if (q && shared.v && placeholderName(el)) return placeholderName(el);
     if (q) return q;
     return norm(el.getAttribute('placeholder')) || norm(el.getAttribute('title')) || humanName(el.getAttribute('name') || el.id || '');
   }
@@ -212,11 +222,20 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return 'other';
   }
   /** What a repeating block is about, from its attributes and the words in it (labels say "School", "Company"). */
+  /** A block's words: its text plus its controls' placeholders and aria-labels (entries that label inputs only by placeholder). */
+  function blockText(n) {
+    const names = Array.from(n.querySelectorAll(CONTROL_SEL)).map((c) => (c.getAttribute('placeholder') || '') + ' ' + (c.getAttribute('aria-label') || '')).join(' ');
+    return norm(n.textContent + ' ' + names);
+  }
   function blockKind(n) {
+    // The list that holds the entries names the collection ("ul#education" of "li.experience" items).
+    const p = parentOf(n);
+    const pa = p ? attrsOf(p) : '';
+    if (p && p.children && p.children.length && /educat|school|experience|employ|work|position|history|language|reference/i.test(pa) && groupKind(pa) !== 'other') return groupKind(pa);
     const a = attrsOf(n);
     const byAttr = groupKind(a);
     if (byAttr !== 'other' && /educat|school|experience|employ|work|position|history|language|reference/i.test(a)) return byAttr;
-    const t = norm(n.textContent).slice(0, 400).toLowerCase();
+    const t = blockText(n).slice(0, 400).toLowerCase();
     if (/\b(school|university|degree|field of study|major|institution|college)\b/.test(t)) return 'education';
     if (/\b(company|employer|job title|title|position|currently work)\b/.test(t)) return 'work';
     return groupKind(a + ' ' + sectionOf(n, ''));
@@ -235,7 +254,13 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: kind };
       }
       const sibs = Array.from(p.children).filter((s) => shapeKey(s) === key && s.querySelector(CONTROL_SEL));
-      if (sibs.length >= 2 && label && controlCount(node) >= 2 && sibs.filter((s) => norm(s.textContent).indexOf(label) >= 0).length >= 2) {
+      // An entry of a list that names its collection ("ul#education > li"), even the first and only one.
+      const pa = attrsOf(p);
+      if (controlCount(node) >= 2 && (p.tagName === 'UL' || p.tagName === 'OL' || /(^|[\s_-])(list|entries|items)([\s_-]|$)/i.test(pa)) && /educat|school|experience|employ|work|position|history/i.test(pa)) {
+        const kind = blockKind(node);
+        if (kind === 'work' || kind === 'education') return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: kind };
+      }
+      if (sibs.length >= 2 && label && controlCount(node) >= 2 && sibs.filter((s) => blockText(s).indexOf(label) >= 0).length >= 2) {
         const kind = blockKind(node);
         const same = sibs.filter((s) => blockKind(s) === kind);
         if (same.length >= 2) return { index: same.indexOf(node), count: same.length, name: kind };
