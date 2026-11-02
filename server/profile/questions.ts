@@ -362,7 +362,19 @@ export function canonicalCountry(name: string): string {
 
 // ── Intent detection ─────────────────────────────────────────────────────────
 
+const intentMemo = new Map<string, Intent | null>();
+
+/** The recognised intent of a question (memoised: the bank's own questions are re-checked on every lookup). */
 export function detectIntent(raw: string): Intent | null {
+  const hit = intentMemo.get(raw);
+  if (hit !== undefined) return hit ? { ...hit, countries: hit.countries && [...hit.countries] } : null;
+  const found = computeIntent(raw);
+  if (intentMemo.size > 5000) intentMemo.clear();
+  intentMemo.set(raw, found);
+  return found ? { ...found, countries: found.countries && [...found.countries] } : null;
+}
+
+function computeIntent(raw: string): Intent | null {
   const clean = cleanQuestion(raw);
   if (!clean) return null;
   const hits: { def: IntentDef; m: RegExpMatchArray }[] = [];
