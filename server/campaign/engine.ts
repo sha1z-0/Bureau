@@ -278,20 +278,23 @@ export class Engine {
     // "Every 2–3 hours" at the default of 3: a 0–20% early jitter keeps it from looking like a cron job.
     if (this.scoutNow.has(c.id) || this.due(c.id, 'scout', every, now, 0.2)) {
       this.scoutNow.delete(c.id);
-      this.runTask(c.id, 'scout', 'scout', async () => {
-        try {
-          const r = await this.deps.scout({ campaignId: c.id });
-          this.say(`Scouted for "${c.name}": ${r.found} found, ${r.added.length} new`);
-        } catch (err) {
-          if (!isNotImplemented(err)) throw err;
-          this.unavailable('scout');
-        }
-        if (killState()) return;
-        await this.matchCampaign(c);
-      });
+      // Scouting (Claude's web search) and matching are this campaign's spend too, so its budget sees them.
+      this.runTask(c.id, 'scout', 'scout', () =>
+        withCampaign(c.id, async () => {
+          try {
+            const r = await this.deps.scout({ campaignId: c.id });
+            this.say(`Scouted for "${c.name}": ${r.found} found, ${r.added.length} new`);
+          } catch (err) {
+            if (!isNotImplemented(err)) throw err;
+            this.unavailable('scout');
+          }
+          if (killState()) return;
+          await this.matchCampaign(c);
+        }),
+      );
     } else if (this.due(c.id, 'match', 30 * MIN, now) && this.deps.pendingForMatch(c.id).length) {
       // Jobs can arrive between scouts (v1 scanner, external agents): match them on a half-hour beat.
-      this.runTask(c.id, 'match', 'matcher', () => this.matchCampaign(c));
+      this.runTask(c.id, 'match', 'matcher', () => withCampaign(c.id, () => this.matchCampaign(c)));
     }
     const lastSel = this.lastSelect.get(c.id) ?? 0;
     if (now - lastSel >= 5 * MIN && !this.tasks.has(`${c.id}:scout`) && !this.tasks.has(`${c.id}:match`)) {
