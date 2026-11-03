@@ -41,6 +41,8 @@ export interface LintContext {
   specifics?: string[];
   minWords?: number;
   maxWords?: number;
+  /** Voice-bank passages the letter must measurably reuse (2; volume mode's single letter: 1). */
+  minPassages?: number;
 }
 
 export type LintCheck = LintResult['checks'][number];
@@ -189,7 +191,8 @@ export function lintLetter(text: string, ctx: LintContext): LetterLint {
   checks.push(check('specific_opening', !!named, named ?? 'nothing specific', 'first sentence names the company, the role or a concrete hook'));
 
   const measured = adaptedPassages(body, ctx.passagesUsed?.length ? ctx.voice.filter((v) => ctx.passagesUsed!.includes(v.id)) : ctx.voice);
-  checks.push(check('voice_adaptation', measured.length >= 2, measured.length, `≥ 2 voice-bank passages reused (≥ ${MIN_SHARED_TRIGRAMS} shared phrases each)`));
+  const minPassages = ctx.minPassages ?? 2;
+  checks.push(check('voice_adaptation', measured.length >= minPassages, measured.length, `≥ ${minPassages} voice-bank passage${minPassages === 1 ? '' : 's'} reused (≥ ${MIN_SHARED_TRIGRAMS} shared phrases each)`));
 
   return { pass: checks.every((c) => c.pass), checks, adaptedPassages: measured.map((m) => m.id), words: n };
 }

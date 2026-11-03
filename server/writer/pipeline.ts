@@ -252,6 +252,8 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
       company: ctx!.job.company,
       role: ctx!.job.title,
       specifics: [...evidence!.hooks.map((h) => h.text), ...(ctx!.brief?.products.map((p) => p.text) ?? []), ...evidence!.mustWins],
+      // One letter and no second draft to fall back on: it must still edit the candidate's own writing.
+      minPassages: volume ? 1 : 2,
     });
     const record = (d: LetterDraft, critic: CriticResult | null): VariantRecord => {
       const lint = lintLetter(d.text, lintCtx(d.passagesUsed));
