@@ -309,32 +309,35 @@ export function detectCurrency(text: string): string | null {
   return found.find((c) => c !== 'USD') ?? found[0];
 }
 
-/** Country names and the aliases a location string or question uses for them. */
+/**
+ * Country names and the aliases a location string or question uses for them (cities, and demonyms where the word
+ * has no other everyday meaning: "a German employer" names Germany; "Polish", "French" or "Indian" are left out).
+ */
 const COUNTRY_ALIASES: Record<string, string[]> = {
   'united states': ['united states', 'usa', 'u.s.a', 'u.s', 'us', 'america', 'new york', 'nyc', 'san francisco', 'seattle', 'austin', 'boston', 'chicago', 'los angeles'],
-  'united kingdom': ['united kingdom', 'uk', 'u.k', 'great britain', 'britain', 'england', 'scotland', 'wales', 'london', 'manchester', 'edinburgh'],
-  pakistan: ['pakistan', 'karachi', 'lahore', 'islamabad', 'rawalpindi', 'faisalabad', 'peshawar'],
+  'united kingdom': ['united kingdom', 'uk', 'u.k', 'great britain', 'britain', 'british', 'england', 'scotland', 'wales', 'london', 'manchester', 'edinburgh'],
+  pakistan: ['pakistan', 'pakistani', 'karachi', 'lahore', 'islamabad', 'rawalpindi', 'faisalabad', 'peshawar'],
   india: ['india', 'bangalore', 'bengaluru', 'mumbai', 'delhi', 'hyderabad', 'pune', 'chennai'],
-  'united arab emirates': ['united arab emirates', 'uae', 'dubai', 'abu dhabi', 'sharjah'],
-  'saudi arabia': ['saudi arabia', 'ksa', 'riyadh', 'jeddah'],
-  qatar: ['qatar', 'doha'],
-  germany: ['germany', 'deutschland', 'berlin', 'munich', 'hamburg', 'frankfurt'],
-  netherlands: ['netherlands', 'holland', 'amsterdam', 'rotterdam'],
+  'united arab emirates': ['united arab emirates', 'uae', 'emirati', 'dubai', 'abu dhabi', 'sharjah'],
+  'saudi arabia': ['saudi arabia', 'saudi', 'ksa', 'riyadh', 'jeddah'],
+  qatar: ['qatar', 'qatari', 'doha'],
+  germany: ['germany', 'german', 'deutschland', 'berlin', 'munich', 'hamburg', 'frankfurt'],
+  netherlands: ['netherlands', 'dutch', 'holland', 'amsterdam', 'rotterdam'],
   france: ['france', 'paris'],
-  ireland: ['ireland', 'dublin'],
+  ireland: ['ireland', 'irish', 'dublin'],
   spain: ['spain', 'madrid', 'barcelona'],
   portugal: ['portugal', 'lisbon'],
   italy: ['italy', 'milan', 'rome'],
   poland: ['poland', 'warsaw', 'krakow'],
-  sweden: ['sweden', 'stockholm'],
-  switzerland: ['switzerland', 'zurich', 'geneva'],
-  canada: ['canada', 'toronto', 'vancouver', 'montreal'],
-  australia: ['australia', 'sydney', 'melbourne'],
-  singapore: ['singapore'],
+  sweden: ['sweden', 'swedish', 'stockholm'],
+  switzerland: ['switzerland', 'swiss', 'zurich', 'geneva'],
+  canada: ['canada', 'canadian', 'toronto', 'vancouver', 'montreal'],
+  australia: ['australia', 'australian', 'sydney', 'melbourne'],
+  singapore: ['singapore', 'singaporean'],
   japan: ['japan', 'tokyo'],
   turkey: ['turkey', 'türkiye', 'istanbul'],
-  egypt: ['egypt', 'cairo'],
-  malaysia: ['malaysia', 'kuala lumpur'],
+  egypt: ['egypt', 'egyptian', 'cairo'],
+  malaysia: ['malaysia', 'malaysian', 'kuala lumpur'],
   'new zealand': ['new zealand', 'auckland'],
 };
 
