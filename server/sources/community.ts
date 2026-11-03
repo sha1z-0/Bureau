@@ -51,13 +51,14 @@ export const hackernews: Connector = {
       const header = text.split('\n')[0];
       const parts = header.split('|').map((p) => p.trim()).filter(Boolean);
       const company = parts[0]?.replace(/\(.*?\)/g, '').trim().slice(0, 80) || c.author || 'HN poster';
-      const roleish = parts.find((p, i) => i > 0 && /engineer|developer|designer|lead|scientist|security|sre|devops|architect|programmer|analyst|manager/i.test(p));
-      // A header run straight into the first paragraph puts prose in the last segment; a place is a few words.
-      const locationish = parts.find((p, i) => i > 0 && p !== roleish && p.length <= 80 && p.split(/\s+/).length <= 10 && /remote|onsite|on-site|hybrid|,|\b[A-Z]{2}\b/.test(p));
+      // A header run straight into the first paragraph puts prose in the last segment: titles and places are a few words.
+      const short = (p: string) => p.length <= 80 && p.split(/\s+/).length <= 10;
+      const roleish = parts.find((p, i) => i > 0 && short(p) && /engineer|developer|designer|lead|scientist|security|sre|devops|architect|programmer|analyst|manager/i.test(p));
+      const locationish = parts.find((p, i) => i > 0 && p !== roleish && short(p) && /remote|onsite|on-site|hybrid|,|\b[A-Z]{2}\b/.test(p));
       return {
         source: 'hackernews',
         externalId: c.objectID,
-        title: (roleish ?? parts[1] ?? 'Multiple roles').slice(0, 140),
+        title: (roleish ?? (parts[1] && short(parts[1]) && !/^\$|\d+k\b/i.test(parts[1]) ? parts[1] : 'Multiple roles')).slice(0, 140),
         company,
         location: locationish ?? '',
         remote: isRemote(header),

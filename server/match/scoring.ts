@@ -210,7 +210,18 @@ export interface ScoreInput {
   hiringSignal: boolean;
   /** ISO time the score is computed for (freshness). */
   now: string;
+  /** The posting's title and the candidate's level, for the seniority cap. */
+  title?: string;
+  candidateSeniority?: 'entry' | 'junior' | 'mid' | 'senior' | 'lead';
 }
+
+/** A senior title is years away for an entry or junior candidate: a long shot, not a stretch. */
+export const SENIORITY_CAP = 45;
+/** A critical requirement the candidate simply doesn't meet: just under the usual bar of 60. */
+export const CRITICAL_CAP = 55;
+const SENIOR_TITLE = /\b(senior|sr\.?|staff|principal|lead|head of|director|architect|middle\+)/i;
+/** Being somewhere: an office, a country, a move. Unmet, it rules the job out like any blocker. */
+const PRESENCE = /\b(on-?site|in[- ]office|office in|in the \w+ office|hybrid|days? (?:a|per) week|-based|based in|located in|must (?:live|reside|be located)|residen(?:t|cy|ce)|relocat\w*|work permit for|right to work in|authori[sz]ed to work in)/i;
 
 export interface ScoreBreakdown {
   requirements: number;
@@ -281,9 +292,10 @@ export function scoreMatch(input: ScoreInput): ScoreOutput {
   const preRank = clamp(input.preRank, 0, 100);
   const base = requirements * BLEND.requirements + dimensions * BLEND.dimensions + preRank * BLEND.preRank;
 
-  const blockers = input.requirements.filter((r) => r.blocker && r.match !== 'met').map((r) => r.text);
+  const presence = input.requirements.filter((r) => !r.blocker && r.match === 'missing' && r.importance !== 'nice' && PRESENCE.test(r.text)).map((r) => r.text);
+  const blockers = [...input.requirements.filter((r) => r.blocker && r.match !== 'met').map((r) => r.text), ...presence];
   const unmetImportant = input.requirements.filter((r) => r.importance === 'important' && r.match === 'missing').length;
-  const unmetCritical = input.requirements.filter((r) => r.importance === 'critical' && !r.blocker && r.match === 'missing').length;
+  const unmetCritical = input.requirements.filter((r) => r.importance === 'critical' && !r.blocker && r.match === 'missing' && !presence.includes(r.text)).length;
   const allowance = STRETCH_ALLOWANCE[input.stretchLevel];
   const excess = Math.max(0, unmetImportant + unmetCritical - allowance);
   const penalty = stretchPenalty(excess);
@@ -304,6 +316,10 @@ export function scoreMatch(input: ScoreInput): ScoreOutput {
     score = Math.min(score, cap);
   };
   if (blockers.length) capAt(BLOCKER_CAP, `blocker: ${blockers.join('; ')}`);
+  if (unmetCritical) capAt(CRITICAL_CAP, `${unmetCritical} critical requirement(s) not met`);
+  if (input.title && (input.candidateSeniority === 'entry' || input.candidateSeniority === 'junior') && SENIOR_TITLE.test(input.title)) {
+    capAt(SENIORITY_CAP, `a ${input.title.match(SENIOR_TITLE)![1].toLowerCase()} role for an ${input.candidateSeniority}-level candidate`);
+  }
   if (d.logistics === 0) capAt(LOGISTICS_CAP, 'logistics dealbreaker stated in the posting');
   if (input.legitimacy === 'ghost') capAt(30, 'ghost listing');
   if (input.legitimacy === 'scam') capAt(10, 'looks like a scam');

@@ -247,6 +247,8 @@ export function finalise(
     postedAt: job.postedAt,
     hiringSignal: hasHiringSignal(ctx.signals, { companyId: job.companyId, company: job.company, priority: job.priority }),
     now: ctx.now,
+    title: job.title,
+    candidateSeniority: ctx.profile.seniority,
   });
   const blockers = s.breakdown.blockers;
   let decision: MatchResult['decision'] = 'scored';

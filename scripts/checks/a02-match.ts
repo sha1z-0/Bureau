@@ -13,7 +13,7 @@ export default async function a02Match({ check, section }: Harness) {
   const { taskCost } = await import('../../server/ai/cost.ts');
   const { HASH_MODEL, toBlob, embed } = await import('../../server/ai/embed.ts');
   const scoring = await import('../../server/match/scoring.ts');
-  const { scoreMatch, normaliseRequirements, stretchPenalty, gradeFor, yearsOutOfReach, BLOCKER_CAP } = scoring;
+  const { scoreMatch, normaliseRequirements, stretchPenalty, gradeFor, yearsOutOfReach, BLOCKER_CAP, CRITICAL_CAP, SENIORITY_CAP } = scoring;
   const { hardFilter, buildFilterContext, remoteRestriction, annualise } = await import('../../server/match/filters.ts');
   const { companyNameKey } = await import('../../server/match/companies.ts');
   const { jobSimilarity } = await import('../../server/match/similarity.ts');
@@ -151,6 +151,22 @@ export default async function a02Match({ check, section }: Harness) {
     );
     assert.equal(blocked.screenPassScore, BLOCKER_CAP);
     assert.deepEqual(blocked.breakdown.blockers, ['Secret clearance']);
+  });
+  await check('found in the live rehearsal: office presence, a missing critical requirement and a senior title each cap the score', () => {
+    const strong = { dimensions: { skills: 5, experience: 5, domain: 5, logistics: 5, compensation: 5, growth: 5 }, preRank: 100 };
+    const perfect = [req({ importance: 'critical' }), req({}), req({ importance: 'nice' })];
+    const office = scoreMatch(input([...perfect, req({ importance: 'critical', match: 'missing', proof: '', proofKind: 'none', text: 'Hybrid 3-4 days in Paris office' })], strong));
+    assert.equal(office.screenPassScore, BLOCKER_CAP);
+    assert.deepEqual(office.breakdown.blockers, ['Hybrid 3-4 days in Paris office']);
+    const based = scoreMatch(input([...perfect, req({ importance: 'important', match: 'missing', proof: '', proofKind: 'none', text: 'Netherlands-based, permanent' })], strong));
+    assert.equal(based.screenPassScore, BLOCKER_CAP);
+    const critical = scoreMatch(input([...perfect, req({ importance: 'critical', match: 'missing', proof: '', proofKind: 'none', text: 'Excellent .NET / C# skills' })], strong));
+    assert.equal(critical.screenPassScore, CRITICAL_CAP);
+    const senior = scoreMatch(input(perfect, { ...strong, title: 'Senior Full Stack Developer', candidateSeniority: 'entry' }));
+    assert.equal(senior.screenPassScore, SENIORITY_CAP);
+    // The same title for a senior candidate, or a junior title for an entry one, is not capped.
+    assert.ok(scoreMatch(input(perfect, { ...strong, title: 'Senior Full Stack Developer', candidateSeniority: 'senior' })).screenPassScore > 90);
+    assert.ok(scoreMatch(input(perfect, { ...strong, title: 'Junior Full Stack Developer', candidateSeniority: 'entry' })).screenPassScore > 90);
   });
   await check('a blocker the candidate meets (e.g. holds the licence) does not cap', () => {
     const r = scoreMatch(input([req({ importance: 'critical', blocker: true, blockerKind: 'licence', text: 'Licence' }), req({})]));
