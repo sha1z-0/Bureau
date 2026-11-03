@@ -1,0 +1,22 @@
+{
+  "task": "write_letter",
+  "hash": "a6c8598b91d3e8f491e76acb",
+  "scenario": "e2e",
+  "label": "revise: Saffron Studio",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Saffron Studio team,\n\nI have two years of professional experience with TypeScript, React and Node.js. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the invoicing service, which issues about 9,000 invoices a month.\n\nI am very comfortable with SQL. I cut our nightly reconciliation job from 41 minutes to 6 with set-based SQL and two partial indexes.\n\nI have not used Next.js or Prisma; when nobody at work knew Docker Compose, I learned it in time for a two-week migration.\n\nCould we have a short call?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

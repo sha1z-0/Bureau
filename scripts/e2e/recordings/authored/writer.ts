@@ -227,6 +227,9 @@ export function stepOutput(a: Application, step: string, text: string): unknown 
 export function writerAnswer(req: DumpedRequest): Answer {
   const text = contentText(req);
   const company = text.match(/^Company: (.+)$/m)?.[1]?.trim() ?? text.match(/^Target role: .+ at (.+)$/m)?.[1]?.trim();
+  // The humanizer only sees the flagged sentences. With two drafts (quality mode) a letter with a mild
+  // tell can be the one chosen; the honest answer is "no edits": the lint still decides whether it passes.
+  if (req.task === 'humanize') return { label: 'humanize: no edits', body: { output: { edits: [] } } };
   if (!company) return { skip: `${req.task}: no company in the prompt` };
   const a = APPLICATIONS[company];
   if (!a) return { skip: `${req.task}: nothing authored for ${company}` };

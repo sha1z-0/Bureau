@@ -1,0 +1,49 @@
+{
+  "task": "critic",
+  "hash": "aa0b05f97716f80ca5f3087f",
+  "scenario": "e2e",
+  "label": "critic: Quillstack",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 8.6,
+        "scores": {
+          "specificity": 9,
+          "evidence": 8.5,
+          "voice": 8.5,
+          "clarity": 8.5,
+          "ask": 8,
+          "aiTells": 9
+        },
+        "demands": []
+      },
+      {
+        "strategy": "proof",
+        "score": 6.4,
+        "scores": {
+          "specificity": 6,
+          "evidence": 7.5,
+          "voice": 6,
+          "clarity": 7.5,
+          "ask": 5.5,
+          "aiTells": 6
+        },
+        "demands": [
+          "Replace the opening \"I'd like to apply for the Associate Software Engineer role\" with something only Quillstack would recognise.",
+          "Cut \"sounds like a natural fit for me\"; show the fit instead.",
+          "Cut \"I am a quick learner\" and let the Docker Compose example carry it.",
+          "Replace \"I would welcome the chance to discuss the role\" with a concrete ask."
+        ]
+      }
+    ],
+    "bestSubject": 1
+  }
+}

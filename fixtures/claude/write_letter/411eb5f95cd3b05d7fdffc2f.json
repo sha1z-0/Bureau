@@ -1,0 +1,46 @@
+{
+  "task": "write_letter",
+  "hash": "411eb5f95cd3b05d7fdffc2f",
+  "scenario": "e2e",
+  "label": "letters: Kranich Software GmbH",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-hard-bug",
+          "vb-learned-fast"
+        ],
+        "text": "Dear Kranich team,\n\nKranich Software's post on partitioning the stock-movements table by month is the kind of problem I'd like to grow into, because the slowest job I've fixed was a much smaller version of it. Our nightly reconciliation job at Tessellate Labs took 41 minutes and nobody touched it because it worked. Then it started overlapping with the morning invoice run, and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop. I rewrote it as set-based SQL and added two partial indexes. Six minutes.\n\nI build Node.js and TypeScript services on PostgreSQL every day. I maintain the invoicing service that issues about 9,000 invoices a month for our logistics clients. When our VPS provider announced a migration with two weeks' notice and nobody at work had written a Dockerfile, I volunteered, and we moved four services.\n\nI haven't built SAP or DATEV integrations, and my tables are far smaller than yours. English is my working language too, and your fortnightly architecture round sounds like the part of the week I'd enjoy most.\n\nCould we arrange a short call with someone from the engineering team?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Kranich team,\n\nI am applying for the Junior Backend Developer position. I have two years of professional experience with Node.js and TypeScript at Tessellate Labs, where I maintain the invoicing service for our logistics clients, which issues about 9,000 invoices a month.\n\nMy SQL skills are solid. I cut the nightly reconciliation job from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes. I also moved four services to Docker Compose.\n\nMy English is fluent, and I work well in remote teams.\n\nI have no experience with SAP, DATEV or RabbitMQ, but I am a fast learner.\n\nI would be glad to discuss how I can contribute to Kranich.\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-team-loved"
+        ],
+        "text": "Dear Kranich team,\n\nThe billing team at Tessellate is four people and a shared Google Doc called 'things that scared us this week'. Anyone can add to it, and on Fridays we go through it together. Half the items are nothing. The other half turn into tickets before they turn into incidents. A team that already holds an architecture round every fortnight probably knows the feeling.\n\nI build Node.js and TypeScript services on PostgreSQL. I maintain an invoicing service for logistics clients, about 9,000 invoices a month, and I cut our reconciliation job from 41 minutes to 6 with set-based SQL and two partial indexes.\n\nI haven't worked with tables as big as yours yet.\n\nI hope we can talk soon.\n\nBest regards,\nRania Haroon"
+      }
+    ],
+    "subjects": [
+      "Junior Backend Developer: Node.js and PostgreSQL for logistics",
+      "Junior Backend Developer (m/w/d) application: Rania Haroon",
+      "Partitioned stock movements, and a reconciliation job from 41 to 6 min",
+      "Junior Backend Developer: billing services for logistics clients",
+      "Application from Lahore for the remote backend role"
+    ],
+    "outreach": "Kranich Software's post on partitioning the stock-movements table by month caught my eye, because the slowest job I've fixed was a smaller version of the same problem: a nightly reconciliation job at Tessellate Labs that went from 41 minutes to 6 with set-based SQL and two partial indexes. I build Node.js and TypeScript services for logistics clients. Could we have a short call about the Junior Backend Developer role?",
+    "followUp": "Hello,\n\nI applied for the Junior Backend Developer role last week. One detail I left out: at Kestrel Analytics I wrote the Python scripts that loaded about 2 million rows a week into PostgreSQL, which is the closest I've come to your table sizes. If it helps, I'm happy to walk someone through my reconciliation fix on a short call.\n\nBest regards,\nRania Haroon"
+  }
+}

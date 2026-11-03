@@ -86,6 +86,8 @@ export function campaignConfig(overrides: Partial<CampaignConfig> = {}): Campaig
     followUpDays: 7,
     onUnknownQuestion: 'skip',
     scoutEveryHours: 3,
+    // The e2e walks the full chain (research, critic, auditor); volume mode is covered by the writer's selfcheck.
+    writingMode: 'quality',
     ...overrides,
   });
 }

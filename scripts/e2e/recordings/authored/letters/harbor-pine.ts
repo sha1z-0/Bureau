@@ -14,15 +14,15 @@ I would love the opportunity to discuss how I can help Harbor & Pine.
 Best regards,
 Rania Haroon`;
 
-const proof = `Dear Harbor & Pine team,
+const proof = `Dear Harbor & Pine Platform team,
 
-The most relevant thing I've done for a Platform role is small but real: I moved four services from a hand-built VPS setup to Docker Compose with health checks and wrote the runbook our on-call rotation now uses. At Tessellate Labs I also built and maintain a Node.js and TypeScript invoicing service, about 9,000 invoices a month, and cut a nightly reconciliation job from 41 minutes to 6.
+The most relevant thing I've done for the Software Engineer I role on Platform is small but real: we moved four services to Docker Compose, and the runbook I wrote is the one our on-call rotation still uses. Nobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus and broke my laptop's networking twice.
 
-I'm learning Go now and working through a Kubernetes course, though only on kind on my laptop.
+That sits on two years of TypeScript services in production at Tessellate Labs, including the Node.js invoicing service behind about 9,000 invoices a month. I also review pull requests for the billing team and paired with two interns through their first month.
 
-I don't have five years of experience, Kafka, or experience leading projects across teams. I'd still like to be considered for the entry-level opening.
+The posting asks for things I don't have yet. Right now I'm learning Go, porting the trial-balance endpoint from my ledger-lite project, and so far the answer is: more typing, fewer surprises. I'm also working through a Kubernetes course in the evenings, though I've only run it on kind on my own laptop. Nothing in production yet.
 
-Thank you for your consideration.
+Could we have a short call about what the first year on Platform looks like?
 
 Best regards,
 Rania Haroon`;
@@ -104,10 +104,7 @@ export const harborPine: Application = {
       'Cut "I am a hard worker and I learn quickly"; show it.',
       'Replace "I would love the opportunity to discuss how I can help Harbor & Pine" with a concrete ask.',
     ]),
-    v('proof', ['vb-learned-fast'], proof, 6.9, { specificity: 6.5, evidence: 7.5, voice: 6.5, clarity: 8, ask: 5, aiTells: 7 }, [
-      'Replace "I\'d still like to be considered for the entry-level opening" with a reason the team should talk to you.',
-      'Replace "Thank you for your consideration" with a concrete ask.',
-    ]),
+    v('proof', ['vb-learned-fast', 'vb-learning-now'], proof, 8.3, { specificity: 8, evidence: 8.5, voice: 8.5, clarity: 8, ask: 8, aiTells: 8.5 }),
     v('story', ['vb-learned-fast', 'vb-learning-now'], story, 8.2, { specificity: 8, evidence: 8, voice: 9, clarity: 8, ask: 8, aiTells: 8.5 }),
   ],
   revised: {
@@ -116,10 +113,6 @@ export const harborPine: Application = {
       [', but I am a hard worker and I learn quickly.', '. When nobody at work knew Docker Compose, I learned it and moved four services.'],
       ['I would love the opportunity to discuss how I can help Harbor & Pine.', 'Could we have a short call about the Platform team?'],
     ], 6.6, { specificity: 6.5, evidence: 6.5, voice: 6, clarity: 7.5, ask: 7, aiTells: 6.5 }),
-    proof: revise('proof', ['vb-learned-fast'], proof, [
-      ["I'd still like to be considered for the entry-level opening.", 'The runbook is the reliability work I know, and I would like to learn the rest on your Platform team.'],
-      ['Thank you for your consideration.', 'Could we have a short call?'],
-    ], 7.2, { specificity: 6.5, evidence: 7.5, voice: 7, clarity: 8, ask: 7, aiTells: 7.5 }),
   },
   subjects: [
     'Software Engineer I, Platform: Docker Compose migration and on-call runbook',

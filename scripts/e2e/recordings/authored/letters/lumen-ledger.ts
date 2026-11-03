@@ -18,13 +18,15 @@ Rania Haroon`;
 
 const proof = `Dear Lumen Ledger team,
 
-I cut a nightly reconciliation job at Tessellate Labs from 41 minutes to 6, and Lumen Ledger's matching engine is the kind of system I'd like to keep doing that for. The job had started overlapping with the morning invoice run, and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop. Set-based SQL and two partial indexes fixed it.
+I cut a nightly reconciliation job at Tessellate Labs from 41 minutes to 6, and that's why I'm applying for the Junior Backend Engineer role on Lumen Ledger's matching engine. The job had started overlapping with the morning invoice run, and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop. I rewrote it as set-based SQL and added two partial indexes. Six minutes.
 
-I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL, about 9,000 invoices a month for our logistics clients, and I moved four services to Docker Compose with a runbook the on-call rotation still uses.
+That's the work I do every day at Tessellate Labs, where I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL. It issues about 9,000 invoices a month. I also write the rollback before every migration, even for a two-line change.
 
-At home I built ledger-lite, which pushes the balance rule into Postgres with a deferred constraint trigger.
+It goes back further than work. My father kept his shop's accounts in a green register, and every Ramzan it stopped balancing and he'd sit up past sehri hunting for forty rupees. I still like that part best. Not the clever part. The part where someone stops staying up late.
 
-I'd be happy to share more about my experience in an interview.
+Your engineering post about moving candidate matching into PostgreSQL describes the part of the job I'd most like to work on.
+
+Could I walk someone on the team through the reconciliation fix on a short call?
 
 Best regards,
 Rania Haroon`;
@@ -108,9 +110,7 @@ export const lumenLedger: Application = {
       'Cut "I am a fast learner and I am comfortable with Docker"; show it with the Docker Compose move instead.',
       'Replace "Thank you for your time, and I hope to hear from you soon" with a concrete ask.',
     ]),
-    v('proof', ['vb-hard-bug', 'vb-proudest-project'], proof, 7.6, { specificity: 7.5, evidence: 9, voice: 8, clarity: 7.5, ask: 6, aiTells: 7.5 }, [
-      'Replace "I\'d be happy to share more about my experience in an interview" with a specific, low-pressure ask.',
-    ]),
+    v('proof', ['vb-hard-bug', 'vb-why-build', 'vb-failure'], proof, 8.4, { specificity: 8.5, evidence: 9, voice: 8.5, clarity: 8, ask: 8, aiTells: 8.5 }),
     v('story', ['vb-why-build', 'vb-hard-bug', 'vb-failure'], story, 8.8, { specificity: 9, evidence: 8.5, voice: 9.5, clarity: 8.5, ask: 8, aiTells: 9 }),
   ],
   revised: {
@@ -118,14 +118,6 @@ export const lumenLedger: Application = {
       ['I believe my background in billing systems and my attention to detail make me a strong candidate for your team. I am a fast learner and I am comfortable with Docker.', 'When our VPS provider gave us two weeks to move, I moved four services to Docker Compose.'],
       ['Thank you for your time, and I hope to hear from you soon.', 'Could we talk next week?'],
     ], 7.3, { specificity: 7, evidence: 8, voice: 6.5, clarity: 7.5, ask: 7, aiTells: 7 }),
-    proof: revise('proof', ['vb-hard-bug', 'vb-proudest-project'], proof, [["I'd be happy to share more about my experience in an interview.", 'Could I walk someone on the team through the reconciliation fix on a short call?']], 7.9, {
-      specificity: 7.5,
-      evidence: 9,
-      voice: 8,
-      clarity: 7.5,
-      ask: 7.5,
-      aiTells: 7.5,
-    }),
   },
   subjects: [
     'Junior Backend Engineer: reconciliation job from 41 minutes to 6',

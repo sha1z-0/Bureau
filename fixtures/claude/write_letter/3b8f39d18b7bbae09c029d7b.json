@@ -1,0 +1,22 @@
+{
+  "task": "write_letter",
+  "hash": "3b8f39d18b7bbae09c029d7b",
+  "scenario": "e2e",
+  "label": "revise: Meridian Freight",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Meridian Freight team,\n\nMeridian Freight's platform is the kind of logistics software I already work next to. I am a software engineer with two years of experience in TypeScript, Node.js and PostgreSQL.\n\nAt Tessellate Labs I built the invoicing service for our logistics clients and cut the nightly reconciliation job from 41 minutes to 6. I also built React admin screens and moved four services to Docker Compose.\n\nCould we set up a short call?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "task": "write_letter",
+  "hash": "711b8e411980255130a825ba",
+  "scenario": "e2e",
+  "label": "revise: Kranich Software GmbH",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [],
+        "text": "Dear Kranich team,\n\nKranich builds the kind of logistics software I already work next to: I have two years of professional experience with Node.js and TypeScript at Tessellate Labs, where I maintain the invoicing service for our logistics clients, which issues about 9,000 invoices a month.\n\nI cut the nightly reconciliation job from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes. I also moved four services to Docker Compose.\n\nI have no experience with SAP, DATEV or RabbitMQ. When nobody at work knew Docker Compose, I learned it in time for a two-week migration.\n\nCould we arrange a short call?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

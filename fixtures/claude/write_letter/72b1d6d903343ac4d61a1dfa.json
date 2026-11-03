@@ -1,0 +1,24 @@
+{
+  "task": "write_letter",
+  "hash": "72b1d6d903343ac4d61a1dfa",
+  "scenario": "e2e",
+  "label": "revise: Copperline Payments",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-learning-now"
+        ],
+        "text": "Dear Copperline team,\n\nI read your post on idempotency keys. Making sure a retry can never pay a seller twice is exactly the sort of problem I enjoy.\n\nAt Tessellate Labs I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL. It issues about 9,000 invoices a month for our logistics clients. I also built the React admin screens for refunds and credit notes, with role-based access checks on the API side.\n\nIn my own time I built ledger-lite, a small double-entry bookkeeping API that enforces balanced journal entries with a database constraint. It has 140 GitHub stars.\n\nI'm learning Go at the moment, porting ledger-lite's trial-balance endpoint to it. I haven't worked on payouts, but money that has to add up is the work I like best.\n\nCould I have a short call with someone on the Payouts team?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

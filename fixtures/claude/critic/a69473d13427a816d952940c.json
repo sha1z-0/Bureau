@@ -1,0 +1,44 @@
+{
+  "task": "critic",
+  "hash": "a69473d13427a816d952940c",
+  "scenario": "e2e",
+  "label": "critic: Lumen Ledger",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 7.3,
+        "scores": {
+          "specificity": 7,
+          "evidence": 8,
+          "voice": 6.5,
+          "clarity": 7.5,
+          "ask": 7,
+          "aiTells": 7
+        },
+        "demands": []
+      },
+      {
+        "strategy": "proof",
+        "score": 7.9,
+        "scores": {
+          "specificity": 7.5,
+          "evidence": 9,
+          "voice": 8,
+          "clarity": 7.5,
+          "ask": 7.5,
+          "aiTells": 7.5
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 0
+  }
+}

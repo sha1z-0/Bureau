@@ -297,7 +297,10 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
       const best = [...variants.values()].sort((a, b) => (b.critic?.score ?? 0) - (a.critic?.score ?? 0))[0];
       throw new Skip(`critic: best letter scored ${best?.critic?.score ?? 0}/10 (needs ${CRITIC_BAR}); ${best?.critic?.demands.slice(0, 2).join(' / ') || 'no detail'}`);
     }
-    const pick = pickStrategy(eligible.map((v) => ({ strategy: v.strategy, score: v.critic!.score })), rng);
+    // A letter that already passes the free lint beats one that would need a paid rewrite or a skip.
+    const lintClean = eligible.filter((v) => v.lint?.pass);
+    const pool = lintClean.length ? lintClean : eligible;
+    const pick = pickStrategy(pool.map((v) => ({ strategy: v.strategy, score: v.critic!.score })), rng);
     explored = pick.explored;
     chosen = variants.get(pick.choice)!;
     chosen.chosen = true;

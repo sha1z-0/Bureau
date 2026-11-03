@@ -1,0 +1,16 @@
+{
+  "task": "humanize",
+  "hash": "66e81d65c3ebc4cd66eb585f",
+  "scenario": "e2e",
+  "label": "humanize: no edits",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2100,
+    "output_tokens": 180,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "edits": []
+  }
+}

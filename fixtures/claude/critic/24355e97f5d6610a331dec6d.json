@@ -1,0 +1,49 @@
+{
+  "task": "critic",
+  "hash": "24355e97f5d6610a331dec6d",
+  "scenario": "e2e",
+  "label": "critic: Brightwater Health",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 8.6,
+        "scores": {
+          "specificity": 9,
+          "evidence": 8.5,
+          "voice": 8.5,
+          "clarity": 8.5,
+          "ask": 8,
+          "aiTells": 8.5
+        },
+        "demands": []
+      },
+      {
+        "strategy": "proof",
+        "score": 5.6,
+        "scores": {
+          "specificity": 5.5,
+          "evidence": 7,
+          "voice": 5,
+          "clarity": 7.5,
+          "ask": 4.5,
+          "aiTells": 5.5
+        },
+        "demands": [
+          "Replace \"I'm applying for the Junior Node.js Developer role because\" with an opening specific to Brightwater.",
+          "Change \"over one year of commercial experience\" to the true two years and drop \"which is your main requirement\".",
+          "Cut \"but I am very careful with data\"; show it.",
+          "Replace \"I hope to hear from you soon\" with a concrete ask."
+        ]
+      }
+    ],
+    "bestSubject": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "task": "write_letter",
+  "hash": "83de1ade87238e64085b15f8",
+  "scenario": "e2e",
+  "label": "revise: Orchard Robotics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-why-field"
+        ],
+        "text": "Dear Orchard Robotics team,\n\nI saw the new frost-alert timeline in the Orchard Robotics dashboard. Map views like that are the part of the job I would most like to work on.\n\nI am a junior software engineer with two years of experience in React, TypeScript and Node.js. At Tessellate Labs I built the React admin screens for refunds and credit notes and maintain the Node.js invoicing service on PostgreSQL. In my free time I built Bus Tracker Lahore, a React and Leaflet map with about 300 monthly users.\n\nI haven't used PostGIS or time-series data before, but I enjoy learning new things.\n\nCould we talk next week?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

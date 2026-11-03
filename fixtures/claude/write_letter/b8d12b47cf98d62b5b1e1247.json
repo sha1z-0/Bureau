@@ -1,0 +1,48 @@
+{
+  "task": "write_letter",
+  "hash": "b8d12b47cf98d62b5b1e1247",
+  "scenario": "e2e",
+  "label": "letters: Northwind Labs",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-failure",
+          "vb-hard-bug"
+        ],
+        "text": "Dear Northwind Labs team,\n\nNorthwind's post on migrating the bookings table without downtime landed close to home, because expand-then-contract is a step I added to our migration checklist after learning it the hard way. In my first month at Tessellate Labs I shipped a migration that renamed a column without a fallback, and the admin screen went blank. My lead didn't shout. She asked me to write up what happened and to add the step to the checklist. I did both. Since then I write the rollback before the migration, every time, even when it feels silly for a two-line change.\n\nThat habit matters more as tables grow. I built and maintain the invoicing service at Tessellate, in Node.js, TypeScript and PostgreSQL, which issues about 9,000 invoices a month. When our nightly reconciliation job started overlapping with the morning invoice run, I spent a day reading EXPLAIN output and rewrote it as set-based SQL with two partial indexes. It went from 41 minutes to 6.\n\nI haven't used NestJS. I've built APIs with Fastify, including ledger-lite, and I review pull requests for the billing team, so I'd expect the framework to be the easy part.\n\nWould you have time for a short call about the Core API squad?\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-hard-bug"
+        ],
+        "text": "Dear Northwind Labs team,\n\nI cut our nightly reconciliation job at Tessellate Labs from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes, and I think that experience would be valuable for keeping your p95 latency under 150 ms.\n\nI have two years of experience with Node.js, TypeScript and PostgreSQL. I built and maintain the invoicing service that issues about 9,000 invoices a month, and I built React admin screens for refunds and credit notes. I also moved four services to Docker Compose and wrote the runbook our on-call rotation uses.\n\nI review pull requests for the billing team and always try to write clear descriptions and ask questions early.\n\nI haven't used NestJS, BullMQ or Redis yet, but I am confident I can learn them quickly.\n\nI look forward to hearing from you.\n\nBest regards,\nRania Haroon"
+      },
+      {
+        "strategy": "story",
+        "passagesUsed": [
+          "vb-learned-fast"
+        ],
+        "text": "Dear Northwind Labs team,\n\nNobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus and broke my laptop's networking twice. We moved four services, and the runbook I wrote is still pinned in our channel, typos included.\n\nI tell that story because Northwind's support rota, one week in six, is the same kind of work: someone else's integration is broken and you have to learn their setup fast.\n\nAt Tessellate Labs I build Node.js and TypeScript services on PostgreSQL. The invoicing service I maintain issues about 9,000 invoices a month, and I cut our reconciliation job from 41 minutes to 6 with set-based SQL.\n\nI haven't used NestJS. I've built Fastify APIs, so the move should be gentle.\n\nI'd love to chat if you think I could be a fit.\n\nBest regards,\nRania Haroon"
+      }
+    ],
+    "subjects": [
+      "Backend Engineer (Junior): migrations with the rollback written first",
+      "Backend Engineer (Junior) application: Rania Haroon",
+      "Core API squad: Node.js and PostgreSQL engineer from Lahore",
+      "Backend Engineer (Junior): reconciliation job from 41 minutes to 6",
+      "Zero-downtime migrations and a junior who writes rollbacks first"
+    ],
+    "outreach": "Northwind's post on migrating the bookings table without downtime is how I learned to work: after a failed column rename in my first month at Tessellate Labs, I added expand-then-contract to our migration checklist and now write the rollback first. I maintain a Node.js and TypeScript invoicing service on PostgreSQL. I've applied for the junior backend role; could we have a short call about the Core API squad?",
+    "followUp": "Hello,\n\nI applied for the Backend Engineer (Junior) role last week. Since then I've read your webhooks v2 docs, and signed payloads with retries is the part I'd most like to learn from, since my own APIs so far are Fastify services without public consumers. If it helps, I'm happy to walk someone through my migration checklist on a short call.\n\nBest regards,\nRania Haroon"
+  }
+}

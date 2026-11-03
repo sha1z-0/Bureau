@@ -1,0 +1,22 @@
+{
+  "task": "write_letter",
+  "hash": "604226410a7774991ff2f29d",
+  "scenario": "e2e",
+  "label": "revise: Pebble Analytics",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [],
+        "text": "Dear Pebble Analytics team,\n\nYour new class-attendance forecasts help studios plan a week ahead.\n\nI am a junior software engineer with two years of experience. At Tessellate Labs I built React admin screens and maintain a Node.js and TypeScript invoicing service on PostgreSQL. As an intern at Kestrel Analytics I wrote Python scripts that loaded retail sales CSVs into PostgreSQL, about 2 million rows a week.\n\nCould we set up a short call?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

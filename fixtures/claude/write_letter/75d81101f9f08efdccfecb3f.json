@@ -1,0 +1,24 @@
+{
+  "task": "write_letter",
+  "hash": "75d81101f9f08efdccfecb3f",
+  "scenario": "e2e",
+  "label": "revise: Northwind Labs",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "proof",
+        "passagesUsed": [
+          "vb-hard-bug"
+        ],
+        "text": "Dear Northwind Labs team,\n\nI cut our nightly reconciliation job at Tessellate Labs from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes.\n\nI have two years of experience with Node.js, TypeScript and PostgreSQL. I built and maintain the invoicing service that issues about 9,000 invoices a month, and I built React admin screens for refunds and credit notes. I also moved four services to Docker Compose and wrote the runbook our on-call rotation uses.\n\nI review pull requests for the billing team and always try to write clear descriptions and ask questions early.\n\nI haven't used NestJS, BullMQ or Redis yet. When nobody at work knew Docker Compose, I learned it and moved four services.\n\nCould we have a short call next week?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}
