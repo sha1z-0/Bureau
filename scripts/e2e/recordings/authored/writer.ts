@@ -57,6 +57,12 @@ export interface Application {
   outreach: string;
   followUp: string;
   answers: { whyUs: string; whyRole: string; project: string };
+  /**
+   * Form questions the replica asks beyond the three pre-written ones (answer_q, step "answer"), as the
+   * form labels them; the prompt's question must contain `question` (case and spacing ignored). `maxChars`
+   * is the field's limit as the engine passes it (bench.ts uses it).
+   */
+formAnswers?: { question: string; answer: string; maxChars?: number }[];
   /** Revisions the critic's demands produced, by strategy (only for letters with demands). */
   revised?: Partial<Record<Strategy, Letter>>;
 }
@@ -150,6 +156,20 @@ export function reviseOutput(a: Application, strategies: string[]): { variants: 
   return { variants };
 }
 
+/** One free-text form question (answerQuestion); retries after a failed gate are never answered. */
+const normQ = (s: string) => s.toLowerCase().replace(/[‹<>*]/g, ' ').replace(/[’']/g, "'").replace(/\s+/g, ' ').trim();
+export function formAnswerOutput(a: Application, text: string): { answer: string; option: string | null } | string {
+  const q = text.match(/<form_question>([\s\S]*?)<\/form_question>/)?.[1]?.trim();
+  if (!q) return 'answer: no <form_question> in the prompt';
+  if (/Your previous answer failed these checks/.test(text)) return `answer_retry: the authored answer failed a gate ("${q.slice(0, 80)}")`;
+  if (/^Options \(choose exactly one/m.test(text)) return `answer: options questions are not authored ("${q.slice(0, 80)}")`;
+  const hit = a.formAnswers?.find((f) => normQ(q).includes(normQ(f.question)));
+  if (!hit) return `answer: nothing authored for "${q.slice(0, 160)}"`;
+  const limit = Number(text.match(/Length limit: (\d+) characters\./)?.[1] ?? 0);
+  if (limit && hit.answer.length > limit) return `answer: authored answer is ${hit.answer.length} chars, limit ${limit} ("${q.slice(0, 80)}")`;
+  return { answer: hit.answer, option: null };
+}
+
 /** The writer's step for a prompt, as the pipeline labels it. */
 export function writerStep(task: string, text: string): string {
   switch (task) {
@@ -192,6 +212,8 @@ export function stepOutput(a: Application, step: string, text: string): unknown 
       );
     case 'short_answers':
       return answersOutput(a);
+    case 'answer':
+      return formAnswerOutput(a, text);
     case 'audit':
     case 'audit_recheck':
       // Every authored text is checked against the facts before it is recorded (bench.ts): nothing to report.
@@ -209,8 +231,9 @@ export function writerAnswer(req: DumpedRequest): Answer {
   if (!a) return { skip: `${req.task}: nothing authored for ${company}` };
   // In the first round research is not recorded yet and the writer carries on without it; answering
   // that prompt would only leave a recording the finished pipeline never asks for.
-  if (text.includes('No company research is available')) return { skip: `${req.task}: ${company} has no research yet (next round)` };
   const step = writerStep(req.task, text);
+  // A single form question (answerQuestion) never carries research: its hooks come from the saved evidence map.
+  if (step !== 'answer' && text.includes('No company research is available')) return { skip: `${req.task}: ${company} has no research yet (next round)` };
   const out = stepOutput(a, step, text);
   if (typeof out === 'string') return { skip: `${out} (${company})` };
   return { label: `${step}: ${company}`, body: { output: out } };

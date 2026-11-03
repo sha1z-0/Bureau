@@ -32,7 +32,9 @@ export function spawnTs(entry: string, args: string[], env: Record<string, strin
   const merged = { ...process.env, ...env };
   // The e2e's pinned clock (scripts/e2e/clock.ts) goes to every child, so prompts carry the same dates.
   const clock = merged.BUREAU_E2E_NOW ? ['--import', pathToFileURL(path.join(ROOT, 'scripts/e2e/clock.ts')).href] : [];
-  const child = spawn(process.execPath, ['--import', 'tsx', ...clock, path.join(ROOT, entry), ...args], {
+  // Offline: every child answers safeFetch from the e2e feed set and refuses the rest (scripts/e2e/offline.ts).
+  const offline = ['--import', pathToFileURL(path.join(ROOT, 'scripts/e2e/offline.ts')).href];
+  const child = spawn(process.execPath, ['--import', 'tsx', ...clock, ...offline, path.join(ROOT, entry), ...args], {
     cwd: ROOT,
     env: merged,
     stdio: ['ignore', 'pipe', 'pipe'],

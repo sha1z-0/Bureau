@@ -142,5 +142,14 @@ Rania Haroon`,
       "The Graduate Software Engineer role is TypeScript and Node.js on PostgreSQL, the stack I've used for two years at Tessellate Labs. I maintain our invoicing service and cut the nightly reconciliation job from 41 minutes to 6 with set-based SQL. I'd bring that experience while still getting the support a graduate programme gives.",
     project:
       "The reconciliation job at Tessellate took 41 minutes and nobody touched it because it worked, until it started overlapping with the morning invoice run and customers got duplicate reminders. I spent a day reading EXPLAIN output and found we updated rows one at a time inside a loop. Set-based SQL and two partial indexes took it to 6 minutes.",
-  },
+  },  formAnswers: [
+    {
+      // SmartRecruiters' "Message to the Hiring Team" (the engine reads the field by its id).
+      question: 'hiring manager message',
+      maxChars: 5000,
+      answer:
+        "Hello, I'm applying for the Graduate Software Engineer role from Lahore, one of the cities your instant air-freight quotes now cover. At Tessellate Labs I maintain a Node.js and TypeScript invoicing service on PostgreSQL that issues about 9,000 invoices a month for logistics clients, so freight data is familiar ground. The first month you describe, shipping to production with a senior engineer alongside, is how I'd like to start. My CV is attached; I'm happy to talk whenever it suits the team.",
+    },
+  ],
+
 };

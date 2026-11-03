@@ -1,0 +1,29 @@
+{
+  "task": "answer_q",
+  "hash": "38568b103991588aa4df8f5d",
+  "scenario": "e2e",
+  "label": "short_answers: Lumen Ledger",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 2700,
+    "output_tokens": 560,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "answers": [
+      {
+        "key": "why us",
+        "answer": "Lumen Ledger builds the tool I wish my father had: he kept his shop's accounts in a green register and lost nights to forty rupees that wouldn't balance. Matching bank lines to invoices is that problem at company scale. I've spent two years on billing at Tessellate Labs, and reconciliation is where I do my best work."
+      },
+      {
+        "key": "why this role",
+        "answer": "The Junior Backend Engineer role is Node.js and TypeScript on PostgreSQL, which is exactly what I build at Tessellate Labs. I maintain our invoicing service and cut the nightly reconciliation job from 41 minutes to 6 by replacing row-by-row updates with set-based SQL. Tuning the queries behind your matching engine is the work I'd most like to do next."
+      },
+      {
+        "key": "tell us about a project",
+        "answer": "ledger-lite started because I didn't trust my own code. The only thing stopping an unbalanced journal entry at work was a check in the service layer, so at home I rebuilt the idea and pushed the rule down into Postgres with a deferred constraint trigger. It took three weekends, and a stranger on GitHub later said it caught a bug in their importer on day one."
+      }
+    ]
+  }
+}

@@ -630,6 +630,7 @@ function readStates(dir: string): { job_id: string; state: string; last_error: s
 function campaignStatus(dir: string, id: string): string | null {
   const db = new DatabaseSync(path.join(dir, 'bureau.db'), { readOnly: true });
   try {
+    db.exec('PRAGMA busy_timeout = 3000');
     return (db.prepare('SELECT status FROM campaigns WHERE id = ?').get(id) as { status: string } | undefined)?.status ?? null;
   } finally {
     db.close();

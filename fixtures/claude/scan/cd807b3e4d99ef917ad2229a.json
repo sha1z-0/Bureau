@@ -1,0 +1,44 @@
+{
+  "task": "scan",
+  "hash": "cd807b3e4d99ef917ad2229a",
+  "scenario": "e2e",
+  "label": "discovery",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 21800,
+    "output_tokens": 900,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "text": "I ran the site: searches. Most returned only aggregator pages or postings for senior roles; these are the job-posting URLs that appeared in the results:\n\nhttps://boards.greenhouse.io/lumenledger/jobs/4012345\nhttps://boards.greenhouse.io/orchardrobotics\nhttps://job-boards.greenhouse.io/harborpine/jobs/7034511\nhttps://jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38\nhttps://jobs.ashbyhq.com/quillstack/6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68\nhttps://apply.workable.com/brightwater-health/j/3F9A2C71B4\nhttps://kranich.jobs.personio.de/job/1458822\n\nThe SmartRecruiters, Workday and Recruitee searches returned no matching postings I could see in the results.",
+  "sources": [
+    {
+      "url": "https://boards.greenhouse.io/lumenledger/jobs/4012345",
+      "title": "Job Application for Junior Backend Engineer at Lumen Ledger"
+    },
+    {
+      "url": "https://boards.greenhouse.io/orchardrobotics",
+      "title": "Jobs at Orchard Robotics"
+    },
+    {
+      "url": "https://job-boards.greenhouse.io/harborpine/jobs/7034511",
+      "title": "Software Engineer I, Platform - Harbor & Pine"
+    },
+    {
+      "url": "https://jobs.lever.co/northwind-labs/8f3c2a71-5b9e-4d0a-a6c4-2e7d91b05f38",
+      "title": "Northwind Labs - Backend Engineer (Junior)"
+    },
+    {
+      "url": "https://jobs.ashbyhq.com/quillstack/6c1e9b74-2f0d-4a8e-b3c5-91d7e4a20f68",
+      "title": "Associate Software Engineer @ Quillstack"
+    },
+    {
+      "url": "https://apply.workable.com/brightwater-health/j/3F9A2C71B4",
+      "title": "Junior Node.js Developer - Brightwater Health"
+    },
+    {
+      "url": "https://kranich.jobs.personio.de/job/1458822",
+      "title": "Junior Backend Developer (m/w/d) | Kranich Software GmbH"
+    }
+  ]
+}

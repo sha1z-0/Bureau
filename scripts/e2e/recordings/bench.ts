@@ -40,6 +40,7 @@ const { all, get } = await import('../../../server/db.ts');
 const { loadManifest } = await import('../manifest.ts');
 const { writeApplicationRun } = await import('../../../server/writer/pipeline.ts');
 const { applicationQuality } = await import('../../../server/writer/quality.ts');
+const { answerQuestionTraced } = await import('../../../server/writer/answers.ts');
 const { APPLICATIONS } = await import('./authored/letters/index.ts');
 const { stepOutput } = await import('./authored/writer.ts');
 type WriterAi = import('../../../server/writer/ai.ts').WriterAi;
@@ -102,6 +103,19 @@ ${tail.slice(0, 2500)}`);
     console.log(`   calls: ${calls.join(' → ')}`);
     const st = all<{ state: string; last_error: string | null }>('SELECT state, last_error FROM pipeline WHERE job_id = ?', job.id);
     if (st[0]) console.log(`   pipeline: ${st[0].state}`);
+  }
+  // Form questions beyond the pre-written three (also when the job is already past writing in this sandbox):
+  // the same short lint and truth lock answerQuestion applies in the e2e.
+  for (const fa of a.formAnswers ?? []) {
+    const t = await answerQuestionTraced(job.id, fa.question, { ai, maxChars: fa.maxChars }).catch((err: Error) => {
+      const m = err.message;
+      const why = m.includes('failed these checks') ? m.slice(m.indexOf('failed these checks')).split('\nPrevious answer')[0] : '';
+      console.log(`   ${m.split('\n')[0]}${why ? `\n   ${why.replace(/\n/g, '\n   ')}` : ''}`);
+      return { answered: null, lint: null, truth: null, attempts: 0 };
+    });
+    if (!t.answered) failed++;
+    const bad = [...(t.lint?.checks.filter((c) => !c.pass).map((c) => `${c.id}=${c.value} (${c.target})`) ?? []), ...(t.truth?.issues.filter((i) => i.severity === 'high').map((i) => `truth: ${i.claim} (${i.reason})`) ?? [])];
+    console.log(`   ${t.answered ? 'form answer ok' : 'FORM ANSWER FAILED'}: "${fa.question.slice(0, 70)}" (${fa.answer.length} chars)${bad.length ? ` | ${bad.join('; ')}` : ''}`);
   }
 }
 

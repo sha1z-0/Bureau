@@ -1,0 +1,21 @@
+{
+  "task": "agent_step",
+  "hash": "a808c06f8c9deb66de8a53fd",
+  "scenario": "e2e",
+  "label": "agent turn 1: Widget Works verify-trap-impossible → done",
+  "model": "claude-sonnet-5-5",
+  "usage": {
+    "input_tokens": 2400,
+    "output_tokens": 70,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "target": "",
+    "valueKey": "",
+    "file": "",
+    "question": "",
+    "reason": "Every field Bureau can fill truthfully is filled; only the final submit remains.",
+    "action": "done"
+  }
+}

@@ -26,7 +26,7 @@ async function installReplay() {
 
 try {
   if (mode === 'seed') {
-    const { seedProfile, campaignConfig, insertCampaign, insertJob, advanceTo } = await import('./seed.ts');
+    const { seedProfile, campaignConfig, insertCampaign, insertJob, advanceTo, FORM_JOBS } = await import('./seed.ts');
     const { CONNECTORS } = await import('../../server/sources/index.ts');
     seedProfile();
     // No scouting in these scenarios: every connector off, jobs pre-selected.
@@ -35,7 +35,10 @@ try {
     const jobs: Record<string, string> = {};
     for (let i = 1; i + 1 < args.length; i += 2) {
       const [formId, url] = [args[i], args[i + 1]];
-      const id = insertJob({ fingerprint: `e2e-worker:${formId}`, title: `Worker scenario ${formId}`, company: `Worker Co ${formId}`, url, ats: formId.split('-')[0], campaignId });
+      // The replica's own employer and role (the same ones the main run applies to), so the autopilot
+      // writes a real application from the authored recordings instead of one for a placeholder company.
+      const meta = FORM_JOBS[formId] ?? { company: `Worker Co ${formId}`, title: `Worker scenario ${formId}` };
+      const id = insertJob({ fingerprint: `e2e-worker:${formId}`, title: meta.title, company: meta.company, url, ats: formId.split('-')[0], campaignId });
       advanceTo(id, 'selected', 'e2e: worker seed');
       jobs[formId] = id;
     }

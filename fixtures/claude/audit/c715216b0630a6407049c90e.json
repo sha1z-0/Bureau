@@ -1,0 +1,16 @@
+{
+  "task": "audit",
+  "hash": "c715216b0630a6407049c90e",
+  "scenario": "e2e",
+  "label": "audit: Lumen Ledger",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4900,
+    "output_tokens": 170,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "issues": []
+  }
+}
