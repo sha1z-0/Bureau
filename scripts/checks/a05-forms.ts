@@ -143,6 +143,37 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
     assert.equal((await one(field('Which of these have you used?', 'checkbox', { options: ['PostgreSQL', 'Elixir', 'Docker'] })))?.value, 'PostgreSQL; Docker');
     assert.ok((await one(field('Describe your favourite colour', 'text')))?.unknown);
   });
+  await check('skills by relevance (core stack, job keywords), exact option matches only', async () => {
+    const { rankSkills } = await import('../../server/forms/map.ts');
+    assert.deepEqual(rankSkills({ skills: ['TypeScript', 'PostgreSQL', 'Docker', 'Go'], coreStack: ['TypeScript', 'PostgreSQL'] }, { title: 'Backend', description: 'Go and PostgreSQL services' }), ['PostgreSQL', 'Go', 'TypeScript', 'Docker']);
+    const multi = await one(field('Skills', 'combobox', { meta: { multi: true } } as never));
+    assert.equal(multi?.value, 'TypeScript; PostgreSQL; Docker');
+    assert.equal((await one(field('Which of these have you used?', 'checkbox', { options: ['SQL Server', 'Docker'] })))?.value, 'Docker');
+    assert.ok(N.sameItem('Node', 'Node.js') && !N.sameItem('SQL', 'SQL Server') && !N.sameItem('SQL', 'MySQL'));
+    assert.ok(N.valuesMatch('combobox', 'React; Node.js', 'Select… Node.js, React ▾') && !N.valuesMatch('combobox', 'React; Go', 'React'));
+  });
+  await check('education: GPA only as the profile states it; no copied or invented entries', async () => {
+    const withGpa = candidateFrom({ name: 'Ada Lovelace', headline: '', email: '', phone: '', location: '', links: [], summary: '', yearsExperience: 3, seniority: 'junior', categories: [], targetRoles: [], coreStack: [], skills: [], experience: [], education: [{ school: 'Example University', degree: 'BSc Computer Science', start: '2018', end: '2021', details: 'CGPA 3.4 / 4.0. Thesis on engines.' }], certifications: [], languages: [], achievements: [], voice: '', cvMarkdown: '', portfolioNotes: '', preferences: {} } as never, {})!;
+    const d2 = { ...deps, candidate: () => withGpa };
+    const m = async (f: FormField) => (await mapFieldsWith([f], packet, { deps: d2, job }))[0];
+    assert.equal((await m(field('Overall Result (GPA)', 'text')))?.value, '3.4');
+    assert.notEqual((await m(field('GPA scale', 'text')))?.value, '3.4', 'the grade is not the scale');
+    const second = await m(field('School', 'text', { meta: { group: { name: 'education', index: 1 } } } as never));
+    assert.ok(!second?.value, `a second education entry the profile lacks stays empty: ${JSON.stringify(second)}`);
+    const from = await m(field('From', 'date', { required: false, meta: { group: { name: 'education', index: 0 }, format: 'MM/YYYY' } } as never));
+    assert.equal(from, undefined, 'a year-only start date is not turned into 01/2018');
+  });
+  await check('several generic website fields get distinct links in profile order', async () => {
+    const withLinks = candidateFrom({ name: 'Ada Lovelace', headline: '', email: '', phone: '', location: '', links: [{ label: 'GitHub', url: 'https://github.com/ada' }, { label: 'Portfolio', url: 'https://ada.example.com' }, { label: 'LinkedIn', url: 'https://www.linkedin.com/in/ada' }], summary: '', yearsExperience: 3, seniority: 'junior', categories: [], targetRoles: [], coreStack: [], skills: [], experience: [], education: [], certifications: [], languages: [], achievements: [], voice: '', cvMarkdown: '', portfolioNotes: '', preferences: {} } as never, {})!;
+    const d3 = { ...deps, candidate: () => withLinks };
+    const a = field('URL', 'url', { id: 'w1', required: false, selectors: ['#website-1--url'] } as never);
+    const b = field('URL', 'url', { id: 'w2', required: false, selectors: ['#website-2--url'] } as never);
+    const li = field('LinkedIn', 'url', { id: 'li', required: false });
+    const out = await mapFieldsWith([a, b, li], packet, { deps: d3, job });
+    assert.deepEqual(['w1', 'w2', 'li'].map((id) => out.find((x) => x.fieldId === id)?.value), ['https://github.com/ada', 'https://ada.example.com', 'https://www.linkedin.com/in/ada']);
+    // Mapped alone (a later pass), the numbered panel still gets its own link.
+    assert.equal((await mapFieldsWith([b], packet, { deps: d3, job, context: [a, b, li] }))[0]?.value, 'https://ada.example.com');
+  });
   await check('mapFields is side-effect free (no unknown question recorded)', async () => {
     const before = Number(get<{ n: number }>('SELECT COUNT(*) AS n FROM unknown_questions')?.n ?? 0);
     await mapFieldsWith([field('A question nobody can answer?', 'text')], packet, { deps, job });
