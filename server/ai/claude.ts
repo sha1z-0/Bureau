@@ -327,6 +327,18 @@ function translate(err: unknown): never {
 }
 
 export type SystemBlocks = Anthropic.Beta.BetaTextBlockParam[];
+
+/**
+ * Every call caches its system prompt: the rubric, rules and profile come first
+ * and stay byte-identical across a run, so later calls read them at a tenth of
+ * the price. A task that already placed its own breakpoints keeps them; one that
+ * placed none gets one on its last system block. Prompts under the model's
+ * minimum cacheable length are simply not cached.
+ */
+export function cachedSystem(system: SystemBlocks): SystemBlocks {
+  if (!system.length || system.some((b) => b.cache_control)) return system;
+  return [...system.slice(0, -1), { ...system[system.length - 1], cache_control: { type: 'ephemeral' } }];
+}
 export type UserContent = string | Anthropic.Beta.BetaContentBlockParam[];
 
 /** Structured call: returns a value validated against the zod schema. */
@@ -356,7 +368,7 @@ export async function structured<S extends z.ZodType>(opts: {
       max_tokens: opts.maxTokens ?? 16000,
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
-      system: opts.system,
+      system: cachedSystem(opts.system),
       output_config: { effort: opts.effort ?? DEFAULT_EFFORT[opts.task], format: betaZodOutputFormat(opts.schema) },
       messages: [{ role: 'user', content: opts.content }],
     });
@@ -400,7 +412,7 @@ export async function research(opts: {
         max_tokens: 32000,
         betas: ['server-side-fallback-2026-07-01'],
         fallbacks: 'default',
-        system: opts.system,
+        system: cachedSystem(opts.system),
         output_config: { effort: DEFAULT_EFFORT[opts.task] },
         tools: [
           {
