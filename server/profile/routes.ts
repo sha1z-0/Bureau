@@ -17,6 +17,7 @@ import { detectIntent, normalizeQuestion } from './questions.ts';
 import { lastSync, SYNC_PARTS, syncProfile, syncRunning } from './sync.ts';
 import { AnswerUnknownInput, answerUnknown, ignoreUnknown, listUnknown } from './unknown.ts';
 import { addVoice, deleteVoice, listVoice, storedStyle, SUGGESTED_PROMPTS, updateVoice, VOICE_GUIDANCE, VoiceInput } from './voice.ts';
+import { refilterAfterProfileChange } from '../campaign/refilter.ts';
 
 /**
  * UI-facing routes for the master profile (A10 builds the screens on these).
@@ -39,7 +40,10 @@ export async function masterProfileRoutes(app: FastifyInstance) {
 
   app.post('/api/master/sync', AI_LIMIT, async (req) => {
     const b = body(z.object({ parts: z.array(z.enum(SYNC_PARTS)).max(3).optional() }), req.body);
-    return { report: await syncProfile({ parts: b.parts }) };
+    const report = await syncProfile({ parts: b.parts });
+    // New or vanished facts change what the matcher sees: running campaigns sort their jobs again.
+    if (report.added || report.deactivated || report.reactivated) refilterAfterProfileChange();
+    return { report };
   });
 
   // ── Facts (every one with its source) ──────────────────────────────────────

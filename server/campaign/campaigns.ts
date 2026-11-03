@@ -1,10 +1,11 @@
 import crypto from 'node:crypto';
 import { z } from 'zod/v4';
-import { all, get, now as dbNow, run, tx } from '../db.ts';
+import { all, get, logEvent, now as dbNow, run, tx } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { emit } from '../services/bus.ts';
 import { CampaignConfigSchema, type Campaign, type CampaignConfig, type CampaignStatus } from '../contracts/campaign.ts';
 import './schema.ts';
+import { filtersChanged, refilterCampaign } from './refilter.ts';
 import { localDaysBetween, validTimeZone } from './time.ts';
 
 /**
@@ -161,6 +162,13 @@ export function updateCampaign(id: string, patch: { name?: string; config?: unkn
     dbNow(),
     id,
   );
+  // New roles, fields, places or limits: jobs sorted under the old ones get sorted again.
+  if (filtersChanged(cur.config, cfg)) {
+    const r = refilterCampaign(id, cfg);
+    if (r.reopened || r.dropped || r.rechecked) {
+      logEvent('campaign', `${name}: settings changed; ${r.reopened} set-aside jobs reopened, ${r.rechecked} re-scored, ${r.dropped} dropped`);
+    }
+  }
   return requireCampaign(id);
 }
 

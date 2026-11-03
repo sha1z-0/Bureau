@@ -10,6 +10,7 @@ import type { EngineDeps } from './deps.ts';
 import { isNotImplemented } from './deps.ts';
 import { lastOutcome, loadPacket, openSubmitIntent, recordStep, savePacket } from './journal.ts';
 import { pipelineState, transition } from './pipeline.ts';
+import { ruledOutNow } from './refilter.ts';
 import { backoffMs } from './settings.ts';
 
 /**
@@ -241,6 +242,14 @@ export async function applyOne(ctx: WorkerCtx, item: QueueItem): Promise<JobResu
       return 'quick';
     }
     if (fresh) packet = fresh;
+
+    // The owner may have narrowed the campaign (fields, places, remote only) since this was written.
+    const ruledOut = ruledOutNow(jobId, item.campaign.config);
+    if (ruledOut) {
+      transition(jobId, 'skipped', { campaignId, reason: `filter: ${ruledOut}` });
+      updateApplication(packet.applicationId, 'skipped', { reason: `No longer fits the campaign: ${ruledOut}`, campaignId });
+      return 'quick';
+    }
 
     // ── Route ──
     const route = chooseRoute(j, item.campaign, deps.emailReady());

@@ -359,6 +359,40 @@ export default async function a08Campaign({ check, section }: Harness) {
     await step(engine);
     assert.equal(ledger.submitted.get(j), 1);
   });
+  await check('changing what a campaign wants re-sorts its jobs and holds back written ones that no longer fit', async () => {
+    const { seedProfile } = await import('../e2e/seed.ts');
+    const { invalidateMasterProfile } = await import('../../server/profile/index.ts');
+    const { ruledOutNow } = await import('../../server/campaign/refilter.ts');
+    const { c } = scenario({ config: { locations: ['Remote'] } });
+    seedProfile(); // the test candidate lives in Lahore
+    invalidateMasterProfile();
+    try {
+      const skippedBy = (location: string, code: string) => {
+        const j = mkJob({ location });
+        run('UPDATE jobs SET match = ? WHERE id = ?', JSON.stringify({ decision: 'skipped', reason: `filter: ${code}`, explain: { filter: { code, reason: code } } }), j);
+        transition(j, 'found', { campaignId: c.id });
+        transition(j, 'skipped', { campaignId: c.id, reason: `filter: ${code}` });
+        return j;
+      };
+      const nearby = skippedBy('Lahore, Pakistan', 'location');
+      const scam = skippedBy('Lahore, Pakistan', 'legitimacy');
+      const abroad = mkJob({ location: 'Berlin, Germany' });
+      toSelected(abroad, c.id);
+      C.updateCampaign(c.id, { config: { locations: ['Lahore'] } });
+      assert.equal(pipelineState(nearby)?.state, 'found', 'a job the old places ruled out goes back to the matcher');
+      assert.equal(pipelineState(scam)?.state, 'skipped', 'a scam stays skipped');
+      assert.equal(pipelineState(abroad)?.state, 'skipped', 'a picked job the new places rule out is dropped');
+      const cfgNow = C.requireCampaign(c.id).config;
+      assert.ok(ruledOutNow(abroad, cfgNow), 'a written application for it would be held back');
+      assert.equal(ruledOutNow(nearby, cfgNow), null);
+      // Changing only the name or the daily cap re-sorts nothing.
+      C.updateCampaign(c.id, { config: { dailyCap: 3 } });
+      assert.equal(pipelineState(nearby)?.state, 'found');
+    } finally {
+      run('DELETE FROM profile');
+      invalidateMasterProfile();
+    }
+  });
   await check('a rehearsal that cannot verify goes to needs_you, never to submit', async () => {
     const { engine, c, ledger } = scenario({ config: { dryRunDays: 1 }, over: {} });
     engine.deps.fill = async (p, o) => {

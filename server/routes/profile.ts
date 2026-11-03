@@ -10,6 +10,7 @@ import { all, logEvent, now, run } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { loadProfile, ProfileSchema, saveProfile } from '../services/profileStore.ts';
 import { rescoreFromProfile } from '../services/scanner.ts';
+import { refilterAfterProfileChange } from '../campaign/refilter.ts';
 import { AI_LIMIT, body } from './util.ts';
 
 const MAX_UPLOAD = 10 * 1024 * 1024;
@@ -48,6 +49,7 @@ export async function profileRoutes(app: FastifyInstance) {
     const profile = body(ProfileSchema, req.body);
     saveProfile(profile);
     rescoreFromProfile();
+    refilterAfterProfileChange();
     return { profile };
   });
 
@@ -82,6 +84,7 @@ export async function profileRoutes(app: FastifyInstance) {
     else profile = await extractProfile({ text: buf.toString('utf8'), notes });
 
     rescoreFromProfile();
+    refilterAfterProfileChange();
     logEvent('profile', `Profile built from ${file.filename}`);
     return { profile };
   });

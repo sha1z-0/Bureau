@@ -324,9 +324,12 @@ export function CampaignEditor({ campaign, onDone, onCancel, startLabel = 'Save 
       </section>
 
       <section className="card card-pad">
-        <h2 className="section-title" style={{ marginBottom: 'var(--s-4)' }}>
+        <h2 className="section-title" style={{ marginBottom: 'var(--s-2)' }}>
           What to look for
         </h2>
+        <p className="muted" style={{ fontSize: 'var(--t-sm)', marginBottom: 'var(--s-4)' }}>
+          Change these any time, even while the campaign runs. Jobs already found are sorted again, and anything written that no longer fits is not sent.
+        </p>
         <div className="stack" style={{ gap: 'var(--s-4)' }}>
           <Field label="Roles" help="Job titles to search for. Leave empty to take every role in the categories below.">
             <ListInput value={cfg.roles} onChange={(v) => set('roles', v)} placeholder="e.g. Backend Engineer, Junior Developer" />
