@@ -449,6 +449,8 @@ export interface AutopilotSettings {
   keepAwake: boolean;
   maxAttempts: number;
   preferEmployerHours: boolean;
+  batchMatching: boolean;
+  skipUnneededLetters: boolean;
 }
 
 export interface AutopilotStatus {
@@ -982,7 +984,17 @@ export interface FormsSummary {
   adapters: { ats: string; name: string; accounts: boolean }[];
   synonyms: number;
   recipes: Partial<Record<RecipeStatus, number>>;
-  last30Days: { ats: string; runs: number; ok: number; verified: number; successRate: number }[];
+  /**
+   * Per ATS, last 30 days. `rehearsal`: fill-and-verify runs that never send (rate = verified / runs).
+   * `live`: runs allowed to send (rate = submitted / attempts; only real submissions count). Rates are null without runs.
+   */
+  last30Days: {
+    ats: string;
+    runs: number;
+    verified: number;
+    rehearsal: { runs: number; verified: number; rate: number | null };
+    live: { runs: number; submitted: number; rate: number | null };
+  }[];
 }
 
 export type FillStatus = 'submitted' | 'rehearsed' | 'needs_you' | 'skipped' | 'failed' | 'submitting';
@@ -1151,6 +1163,8 @@ export interface InboxMessage {
   draft: { to: string; subject: string; body: string; answers: { question: string; answer: string; source: string; confidence: number }[]; status: 'queued' | 'done' | 'dismissed' } | null;
   unanswered: string[];
   interviewDate: string | null;
+  /** The interview time in the owner's zone, or as written with "(time zone not stated)". */
+  interviewShown?: string | null;
   planId: string | null;
   stage: { from: string; to: string } | null;
   /** Effects have run (owned by the inbox pipeline). */

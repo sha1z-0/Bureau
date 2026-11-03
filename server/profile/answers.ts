@@ -88,6 +88,7 @@ export const AnswerInput = z.object({
 /** Add an owner answer, or update the owner answer with the same question and scope. */
 export function upsertAnswer(input: z.input<typeof AnswerInput>, source: 'owner' | 'derived' = 'owner'): AnswerEntry {
   const v = AnswerInput.parse(input);
+  migrateNorms();
   const norm = normalizeQuestion(v.question);
   const scope = cleanScope(v.scope);
   const ts = now();
@@ -162,13 +163,37 @@ export function deleteAnswer(id: string) {
 
 const SEED_KEY = 'profile.answerSeed';
 const DISMISSED_KEY = 'profile.answerSeedDismissed';
-const SEED_VERSION = 1;
+const SEED_VERSION = 2;
+const NORM_KEY = 'profile.answerNormVersion';
+
+let normsChecked = false;
+
+/**
+ * Version 1 stored notice-period questions under the start-date key ("start date"). Re-key those rows once by
+ * their own wording, so a saved notice period keeps resolving and saving a start date no longer replaces it.
+ */
+export function migrateNorms(force = false) {
+  if (normsChecked && !force) return;
+  normsChecked = true;
+  if (getSetting<number>(NORM_KEY, 1) >= 2) return;
+  tx(() => {
+    for (const r of all<Row>("SELECT * FROM answer_bank WHERE question_norm = 'start date'")) {
+      const norm = normalizeQuestion(r.question_raw);
+      if (norm !== r.question_norm) run('UPDATE answer_bank SET question_norm = ? WHERE id = ?', norm, r.id);
+    }
+    // The owner deleted the old combined "notice period / earliest start date" seed: both halves stay deleted.
+    const dismissed = getSetting<string[]>(DISMISSED_KEY, []);
+    if (dismissed.includes('start date') && !dismissed.includes('notice period')) setSetting(DISMISSED_KEY, [...dismissed, 'notice period']);
+    setSetting(NORM_KEY, 2);
+  });
+}
 
 /** Common questions the owner fills once. Each normalises to a distinct intent. */
 export const COMMON_QUESTIONS: string[] = [
   'Are you legally authorized to work in the country where this job is located?',
   'Will you now or in the future require visa sponsorship?',
-  'What is your notice period / earliest start date?',
+  'What is your notice period?',
+  'What is your earliest start date?',
   'What are your salary expectations?',
   'What is your expected salary in USD?',
   'What is your expected salary in EUR?',
@@ -208,7 +233,8 @@ export function derivedFromPreferences(p: Profile | null): { question: string; a
     // A legal attestation: only derived once the owner has filled the work-eligibility section, never from a default.
     out.push({ question: 'Will you now or in the future require visa sponsorship?', answer: yesNo(pr.needsSponsorship) });
   }
-  if (pr.noticePeriod.trim()) out.push({ question: 'What is your notice period / earliest start date?', answer: pr.noticePeriod.trim() });
+  // The notice period only: start-date questions fall back to it in words (see answerFor), never as a date.
+  if (pr.noticePeriod.trim()) out.push({ question: 'What is your notice period?', answer: pr.noticePeriod.trim() });
   if (pr.salaryExpectation.trim()) out.push({ question: 'What are your salary expectations?', answer: pr.salaryExpectation.trim() });
   out.push({ question: 'Are you willing to relocate?', answer: yesNo(pr.openToRelocation) });
   if (pr.remoteOnly) out.push({ question: 'Are you open to working on-site or hybrid?', answer: 'No, I am looking for remote roles only.' });
@@ -247,6 +273,7 @@ export function parseExtraAnswers(text: string): { question: string; answer: str
  * when nothing changed (one settings read), so it can run on every lookup.
  */
 export function ensureSeeded(force = false) {
+  migrateNorms();
   const profile = loadProfile();
   const derived = derivedFromPreferences(profile);
   const skills = (profile?.coreStack ?? []).slice(0, 6);
@@ -517,18 +544,23 @@ export async function answerFor(question: string, ctx: AnswerContext = {}): Prom
   }
 
   // 1–2. Same question (word for word, then exact normalised form) or same intent with a compatible slot.
-  // "When can you start?" and "What is your notice period?" share a normalised form, so the wording breaks the tie.
+  // Several stored wordings can share an intent ("When can you start?", "Earliest start date"), so the wording breaks the tie.
   const sameWords = cleanQuestion(question);
+  const preferred = (a: Candidate & { kind: number }, b: Candidate & { kind: number }) =>
+    b.fit - a.fit || b.kind - a.kind || (a.entry.source === 'owner' ? -1 : 1) - (b.entry.source === 'owner' ? -1 : 1) || b.entry.updatedAt.localeCompare(a.entry.updatedAt);
   const confident = candidates
     .map((c) => ({ ...c, kind: cleanQuestion(c.entry.questionRaw) === sameWords ? 3 : c.entry.questionNorm === norm ? 2 : qIntent && c.intent && slotsCompatible(qIntent, c.intent, c.entry) ? 1 : 0 }))
     .filter((c) => c.kind > 0)
-    .sort((a, b) => b.fit - a.fit || b.kind - a.kind || (a.entry.source === 'owner' ? -1 : 1) - (b.entry.source === 'owner' ? -1 : 1) || b.entry.updatedAt.localeCompare(a.entry.updatedAt));
-  for (const c of confident) {
+    .sort(preferred);
+  // A start-date question with no start date saved: the notice period answers it in words ("Two weeks"), a notch less
+  // certain and only after every real start-date answer. A date field still skips it below (never "2 weeks" in a date).
+  const notice = qIntent?.key === 'start_date' ? candidates.filter((c) => c.intent?.key === 'notice_period').map((c) => ({ ...c, kind: 0 })).sort(preferred) : [];
+  for (const c of [...confident, ...notice]) {
     const value = finish(c.entry.answer, ctx);
     if (!value) continue;
     // A date field needs a date, not "2 weeks".
     if (ctx.fieldKind === 'date' && Number.isNaN(Date.parse(value))) continue;
-    let confidence = c.kind >= 2 ? 0.97 : 0.92;
+    let confidence = c.kind >= 2 ? 0.97 : c.kind === 1 ? 0.92 : 0.9;
     if (c.entry.source === 'derived') confidence -= 0.08;
     if (qIntent?.currency && !(c.intent?.currency ?? detectCurrency(c.entry.answer))) confidence -= 0.1;
     return { value, source: 'answer_bank', confidence: Math.round(confidence * 100) / 100, key: c.entry.id };

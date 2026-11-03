@@ -1,6 +1,7 @@
 import './schema.ts';
 import { ClassifiedMessageSchema, InboxClass, type ClassifiedMessage } from '../contracts/inbox.ts';
 import { all, get, run } from '../db.ts';
+import type { WrittenTime } from './when.ts';
 
 /**
  * Stored inbox messages. `data` holds the ClassifiedMessage contract plus the
@@ -30,7 +31,12 @@ export interface StoredMessage extends ClassifiedMessage {
   questions: string[];
   draft: DraftReply | null;
   unanswered: string[];
+  /** As written in the email ("2026-11-12T15:00", no zone): what the learning plan and the alert's day use. */
   interviewDate: string | null;
+  /** The interview time as a UTC instant when the email wrote its zone, with the original words. */
+  interviewAt: WrittenTime | null;
+  /** Every date with a time of day in the email (instant when zoned). */
+  times: WrittenTime[];
   planId: string | null;
   alerted: boolean;
   stage: { from: string; to: string } | null;
@@ -64,6 +70,8 @@ const DEFAULTS = {
   draft: null,
   unanswered: [],
   interviewDate: null,
+  interviewAt: null,
+  times: [],
   planId: null,
   alerted: false,
   stage: null,

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  Fixture: an employer's own careers page (careers.<employer>.com, origin A) that embeds the
+  iCIMS job and application through the iCIMS "iframe integration" from origin B
+  ({{ORIGIN_B}}/careers-<tenant>.icims.com/jobs/<id>/<slug>/job?in_iframe=1&...).
+  Everything to fill and every button (Apply, Next, Submit) is inside the CROSS-ORIGIN frame;
+  the host only sizes the frame from postMessage height events. The host page also has its own
+  newsletter box and search, which are not the application.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Junior Frontend Developer – Careers – Northbeam Logistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: #1b2733; background: #fbfaf7; }
+    header { background: #12324f; color: #fff; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
+    header nav a { color: #fff; margin-left: 20px; font-family: Arial, sans-serif; font-size: 14px; }
+    .hero { padding: 28px 32px 8px; max-width: 1100px; margin: 0 auto; }
+    .hero h1 { margin: 0 0 6px; font-size: 32px; }
+    #icims_content_iframe { display: block; border: 0; width: 100%; max-width: 1100px; margin: 0 auto; height: 900px; background: #fff; }
+    footer { max-width: 1100px; margin: 24px auto; padding: 0 32px 32px; font-family: Arial, sans-serif; font-size: 14px; }
+    footer input { padding: 6px 8px; }
+  </style>
+</head>
+<body>
+  <header><strong>NORTHBEAM LOGISTICS</strong><nav><a href="#">About</a><a href="#">Life at Northbeam</a><a href="#">Careers</a></nav></header>
+  <section class="hero"><h1>Build the routes that move South Asia</h1><p>Join our Lahore engineering hub. Apply below.</p></section>
+  <iframe id="icims_content_iframe" title="Job application" scrolling="no"
+    src="{{ORIGIN_B}}/careers-northbeam.icims.com/jobs/4907/junior-frontend-developer/job?in_iframe=1&amp;mobile=false&amp;width=1100&amp;height=500&amp;bga=true&amp;needsRedirect=false&amp;jan1offset=300&amp;jun1offset=300"></iframe>
+  <footer>
+    <form id="newsletter" onsubmit="return false"><label for="nl">Get Northbeam news by email</label> <input id="nl" type="email" name="newsletter_email" placeholder="you@example.com"> <button type="submit">Subscribe</button></form>
+  </footer>
+  <script>
+    window.addEventListener('message', function (e) {
+      if (e.origin !== '{{ORIGIN_B}}') return;
+      if (e.data && e.data.type === 'icims-resize') document.getElementById('icims_content_iframe').style.height = Math.max(600, e.data.height + 40) + 'px';
+    });
+  </script>
+</body>
+</html>

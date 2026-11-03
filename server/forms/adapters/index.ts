@@ -1,6 +1,7 @@
 import type { Page } from 'playwright-core';
 import type { AtsFamily } from '../../contracts/job.ts';
 import type { Adapter } from './types.ts';
+import { icims, successfactors, taleo } from './enterprise.ts';
 import { workday } from './workday.ts';
 
 export type { Adapter, AdapterRun } from './types.ts';
@@ -100,30 +101,9 @@ export const ADAPTERS: Adapter[] = [
     confirm: { text: /thank(s| you)|application (has been )?(sent|submitted|received)/i, url: /submitted|__confirm/i },
   },
   workday,
-  {
-    ats: 'icims',
-    name: 'iCIMS (best effort)',
-    next: ['#enterprise_next', 'input[value="Next"]', 'button:has-text("Next")'],
-    submit: ['#enterprise_submit', 'input[value="Submit"]', 'button:has-text("Submit")'],
-    confirm: { text: /thank(s| you)|application (has been )?(submitted|received)|successfully applied/i },
-    account: { needed: async (page) => (await page.locator('input[type=password]').count().catch(() => 0)) > 0 },
-  },
-  {
-    ats: 'taleo',
-    name: 'Taleo (best effort)',
-    next: ['#editTemplateMultipart-editForm-content-ftf-saveContinueCmdBottom', 'input[value="Save and Continue"]', 'button:has-text("Save and Continue")'],
-    submit: ['input[value="Submit"]', 'button:has-text("Submit")'],
-    confirm: { text: /thank(s| you)|application (has been )?(submitted|received)|confirmation/i },
-    account: { needed: async (page) => (await page.locator('input[type=password]').count().catch(() => 0)) > 0 },
-  },
-  {
-    ats: 'successfactors',
-    name: 'SAP SuccessFactors (best effort)',
-    next: ['button:has-text("Next")', 'button:has-text("Continue")'],
-    submit: ['button:has-text("Apply")', 'button:has-text("Submit")'],
-    confirm: { text: /thank(s| you)|application (has been )?(submitted|received)/i },
-    account: { needed: async (page) => (await page.locator('input[type=password]').count().catch(() => 0)) > 0 },
-  },
+  icims,
+  taleo,
+  successfactors,
 ];
 
 export const GENERIC: Adapter = {

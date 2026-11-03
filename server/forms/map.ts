@@ -341,6 +341,18 @@ function dateFor(raw: string, f: Field): string {
   return p.m ? `${p.y}-${String(p.m).padStart(2, '0')}${p.d ? `-${String(p.d).padStart(2, '0')}` : ''}` : String(p.y);
 }
 
+/**
+ * A year-only date ("2019") for a field that wants a month (a date input, an MM format, a "month" label). The fill
+ * would have to pick a month, and January is as invented as any other, so callers treat it as unknown instead.
+ */
+function yearOnlyForMonth(raw: string, f: Field): boolean {
+  const p = parseDate(raw);
+  if (!p || p.m) return false;
+  const yearField = /\byear\b/.test(f.labelNorm) || (f.options ?? []).filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
+  const fmt = String(f.meta?.format ?? '');
+  return !yearField && (fmt ? /m|iso/i.test(fmt) : f.kind === 'date' || /\bmonth\b/.test(f.labelNorm));
+}
+
 /** The profile value for a synonym key, or '' when the profile has none. */
 export function profileValue(key: string, c: Candidate, f: Field, gi: number): string {
   const w = c.work[gi];
@@ -544,6 +556,8 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
   };
   // A phone input next to its own country picker takes the national number.
   const hasCountryPicker = [...fields, ...(opts.context ?? [])].some((o) => (o.kind === 'combobox' || o.kind === 'select') && (/\b(country|dial|calling) code\b/i.test(o.label) || (!!o.section && /phone|mobile/i.test(o.section) && /country/i.test(o.label))));
+  // "Address" next to its own City box is the street line (iCIMS, Taleo), not where the candidate lives.
+  const hasCityBox = [...fields, ...(opts.context ?? [])].some((o) => (o.kind === 'text' || o.kind === 'location') && /^(city|town)\b/i.test(o.label.trim()));
 
   const out: MappedValue[] = [];
   for (const raw of fields) {
@@ -672,14 +686,10 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
               }
             }
           }
-          if (v && !f.required && ['edu_start', 'edu_end', 'work_start', 'work_end'].includes(e.key)) {
-            // A year-only profile date in a field that wants a month: an optional field stays empty rather than
-            // getting an invented "01/2019".
-            const p = parseDate(v);
-            const yearField = /\byear\b/.test(f.labelNorm) || (f.options ?? []).filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
-            const fmt = String(f.meta?.format ?? '');
-            const monthField = fmt ? /m|iso/i.test(fmt) : f.kind === 'date';
-            if (p && !p.m && !yearField && monthField) return null;
+          if (v && ['edu_start', 'edu_end', 'work_start', 'work_end'].includes(e.key) && yearOnlyForMonth(v, f)) {
+            // A year-only profile date in a field that wants a month: an optional field stays empty, a required one
+            // goes to the owner rather than getting an invented "01/2019".
+            return f.required ? unknown(f, 'Your profile has only the year for this date, and the field wants a month.', { synKey: e.key }) : null;
           }
           if (e.key === 'phone' && hasCountryPicker && f.kind !== 'phone') v = c.phoneNational;
           if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
@@ -716,7 +726,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
         }
         case 'bank': {
           // "Address" alone, or an address typeahead, is where the candidate lives.
-          if (e.key === 'address_line' && c?.location && (ln === 'address' || f.kind === 'location' || f.kind === 'combobox')) {
+          if (e.key === 'address_line' && c?.location && ((ln === 'address' && !hasCityBox) || f.kind === 'location' || f.kind === 'combobox')) {
             const where = f.kind === 'location' || f.kind === 'combobox' ? [c.city, c.country].filter(Boolean).join(', ') || c.location : c.location;
             return val(f, 'profile', 'location', where, 0.85, { synKey: e.key });
           }
@@ -725,7 +735,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
           const numeric = f.kind === 'number' || /\((usd|eur|gbp|pkr|number|numbers? only|amount)\)|\bnumber only\b|\bin (usd|eur|gbp)\b/i.test(f.label);
           // A start date in a free date field must be a date ("2 weeks" is a notice period, not a date).
           const wantsDate = f.kind === 'date' || ((key === 'start_date' || key === 'graduation_date') && !f.options?.length);
-          const accept = (x: Answered) => (wantsDate ? !!parseDate(x.value) : numeric && money ? /\d/.test(x.value) : true) && (!e!.attestation || (x.source === 'answer_bank' && attestOk(f, x, key)));
+          const accept = (x: Answered) => (wantsDate ? !!parseDate(x.value) && !yearOnlyForMonth(x.value, f) : numeric && money ? /\d/.test(x.value) : true) && (!e!.attestation || (x.source === 'answer_bank' && attestOk(f, x, key)));
           const a = await ask(f, numeric && money ? `${key}_number` : key, accept);
           if (e.attestation) {
             if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE && attestOk(f, a, key)) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true, synKey: key });
@@ -742,7 +752,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             const v = f.options?.length ? fit(f, String(Math.round(c.yearsExperience)), 0.8) : String(Math.round(c.yearsExperience));
             if (v) return val(f, 'profile', 'yearsExperience', v, 0.8, { synKey: key });
           }
-          if (key === 'graduation_date' && c?.education[0]?.end) return val(f, 'profile', 'edu_end', dateFor(c.education[0].end, f), 0.85, { synKey: key });
+          if (key === 'graduation_date' && c?.education[0]?.end && !yearOnlyForMonth(c.education[0].end, f)) return val(f, 'profile', 'edu_end', dateFor(c.education[0].end, f), 0.85, { synKey: key });
           if (key === 'referred_by' && !f.required) return null;
           return f.required ? unknown(f, 'Not in your answer bank yet.', { synKey: key }) : null;
         }
@@ -759,7 +769,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     }
 
     // 7. The answer bank.
-    const a = await ask(f, f.kind === 'date' && /\b(start|available|availability|join|begin)\b/i.test(f.label) ? 'start_date' : undefined, (x) => f.kind !== 'date' || !!parseDate(x.value));
+    const a = await ask(f, f.kind === 'date' && /\b(start|available|availability|join|begin)\b/i.test(f.label) ? 'start_date' : undefined, (x) => f.kind !== 'date' || (!!parseDate(x.value) && !yearOnlyForMonth(x.value, f)));
     if (a && a.confidence >= MIN_CONFIDENCE) return val(f, a.source, a.key, a.value, a.confidence);
 
     // 8. The packet's pre-written answers, then the writer, for long-form prose only.

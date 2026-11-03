@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<!--
+  Fixture: SAP SuccessFactors Recruiting candidate site
+  (career<N>.successfactors.com/career?company=<id>&career_ns=job_listing&career_job_req_id=<n>).
+  One document for the whole flow, as the real site renders it client-side:
+   - job listing with "Apply now" (a.dialogApplyBtn), "Save job", "Email to a friend";
+   - the Data Privacy Consent Statement dialog (role=dialog) with Accept / Decline;
+   - the candidate login wall: form#loginForm (Email, Password, Sign In) and "Create an Account"
+     → form#createAccountForm: Email, Retype Email, Password, Retype Password, First Name,
+     Last Name, Country/Region of Residence, a job-alerts opt-in (must stay unticked),
+     "Create Account". Ids fbclc_* as on the real page. Accounts (with their name, country and
+     job-alerts choice) live on the fixture server (/__account/{{FORM_ID}}/*); "An account with
+     this email already exists" when taken;
+   - the application: one long page in sections (My Profile with name / email prefilled
+     from the account, phone, address, city, a Country picklist that is an SF combobox
+     (input role=combobox + listbox, hidden value input); Resume upload with "Upload a Resume"
+     / "Paste resume"; Questions; Voluntary Self-Identification), "Save Draft" and the final
+     "Apply" button. Field-level .sfError messages role=alert.
+  The final Apply is one multipart POST (/__submit/{{FORM_ID}}).
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Career Opportunities: Junior Software Engineer (10432)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: "72", Arial, Helvetica, sans-serif; color: #32363a; background: #f7f7f7; font-size: 14px; }
+    .sfHeader { background: #354a5f; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; }
+    .sfMain { max-width: 960px; margin: 18px auto; background: #fff; border: 1px solid #d9d9d9; padding: 20px 28px; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    h2 { font-size: 17px; margin: 22px 0 10px; border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }
+    .jobActions { display: flex; gap: 12px; margin: 14px 0; }
+    .sfBtn { display: inline-block; padding: 8px 18px; border-radius: 4px; border: 1px solid #0a6ed1; background: #fff; color: #0a6ed1; font: inherit; cursor: pointer; text-decoration: none; }
+    .sfBtn.primary { background: #0a6ed1; color: #fff; }
+    .fieldRow { margin-bottom: 14px; max-width: 520px; }
+    .fieldRow > label, .fieldRow > .lbl { display: block; font-size: 13px; color: #6a6d70; margin-bottom: 4px; }
+    .req { color: #bb0000; }
+    input[type=text], input[type=email], input[type=password], input[type=tel], select, textarea { box-sizing: border-box; width: 100%; padding: 7px 9px; border: 1px solid #89919a; border-radius: 3px; font: inherit; }
+    .sfError { color: #bb0000; font-size: 12px; }
+    .dlg-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+    .dlg { background: #fff; width: 560px; max-width: 92vw; padding: 20px 24px; border-radius: 4px; }
+    .dlg .text { max-height: 180px; overflow: auto; border: 1px solid #e5e5e5; padding: 10px; margin: 10px 0; line-height: 1.5; }
+    .combo { position: relative; }
+    .combo ul { position: absolute; z-index: 4; left: 0; right: 0; max-height: 200px; overflow: auto; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #89919a; }
+    .combo li { padding: 6px 9px; cursor: pointer; }
+    .combo li[aria-selected=true], .combo li:hover { background: #e5f0fa; }
+    .radios label { display: block; margin-bottom: 4px; }
+    .alert { display: none; background: #ffebeb; border: 1px solid #bb0000; color: #bb0000; padding: 8px 10px; margin-bottom: 12px; }
+    .uploadRow { display: flex; gap: 10px; align-items: center; }
+    .uploadRow input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="sfHeader"><strong>Northbeam Logistics</strong><span>Careers</span></div>
+<div class="sfMain">
+
+  <section id="listing">
+    <h1>Junior Software Engineer</h1>
+    <div>Requisition ID: 10432 · Lahore, Punjab, PK · Posted 28-Oct-2026</div>
+    <div class="jobActions"><a class="sfBtn primary dialogApplyBtn" href="#apply" role="button">Apply now</a><a class="sfBtn" href="#" onclick="return false">Save job</a><a class="sfBtn" href="#" onclick="return false">Email to a friend</a></div>
+    <h2>Job Description</h2>
+    <p>Join Northbeam's Lahore platform team to build shipment tracking services in TypeScript, Node.js and PostgreSQL. You will ship features end to end with a mentor.</p>
+    <p><b>Requirements:</b> a degree in Computer Science or similar, 1+ years of web development, SQL.</p>
+  </section>
+
+  <div class="dlg-backdrop" id="dpcs" hidden>
+    <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dpcsTitle">
+      <h2 id="dpcsTitle">Data Privacy Consent Statement</h2>
+      <div class="text">Northbeam Logistics processes the personal data in your candidate profile and application to assess your suitability for open roles, for up to 24 months. You may withdraw consent at any time from your candidate profile.</div>
+      <div class="jobActions"><button type="button" class="sfBtn primary" id="dpcsAccept">Accept</button><button type="button" class="sfBtn" id="dpcsDecline">Decline</button></div>
+    </div>
+  </div>
+
+  <section id="authPanel" hidden>
+    <div class="alert" id="authAlert" role="alert"></div>
+    <form id="loginForm" action="/career?career_ns=login" method="post" novalidate>
+      <h1>Sign In</h1>
+      <div class="fieldRow"><label for="username">Email</label><input type="email" id="username" name="username" autocomplete="username"></div>
+      <div class="fieldRow"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password"></div>
+      <button type="submit" class="sfBtn primary" id="fbclc_signInButton">Sign In</button>
+      <p><a href="#" onclick="return false">Forgot your password?</a></p>
+      <p>Not a registered user yet? <a href="#create" id="fbclc_createAccountLink">Create an Account</a></p>
+    </form>
+    <form id="createAccountForm" action="/career?career_ns=createAccount" method="post" novalidate hidden>
+      <h1>Create an Account</h1>
+      <div class="fieldRow"><label for="fbclc_userName">Email <span class="req">*</span></label><input type="email" id="fbclc_userName" name="fbclc_userName"></div>
+      <div class="fieldRow"><label for="fbclc_emailConf">Retype Email <span class="req">*</span></label><input type="email" id="fbclc_emailConf" name="fbclc_emailConf"></div>
+      <div class="fieldRow"><label for="fbclc_pwd">Choose Password <span class="req">*</span></label><input type="password" id="fbclc_pwd" name="fbclc_pwd" autocomplete="new-password"></div>
+      <div class="fieldRow"><label for="fbclc_pwdConf">Retype Password <span class="req">*</span></label><input type="password" id="fbclc_pwdConf" name="fbclc_pwdConf" autocomplete="new-password"></div>
+      <div class="fieldRow"><label for="fbclc_fName">First Name <span class="req">*</span></label><input type="text" id="fbclc_fName" name="fbclc_fName"></div>
+      <div class="fieldRow"><label for="fbclc_lName">Last Name <span class="req">*</span></label><input type="text" id="fbclc_lName" name="fbclc_lName"></div>
+      <div class="fieldRow"><label for="fbclc_country">Country/Region of Residence <span class="req">*</span></label><select id="fbclc_country" name="fbclc_country"><option value="">-- Select --</option></select></div>
+      <div class="fieldRow"><label><input type="checkbox" id="fbclc_jobAlerts" name="fbclc_jobAlerts"> Send me job alerts and news about similar positions</label></div>
+      <button type="submit" class="sfBtn primary" id="fbclc_createAccountButton">Create Account</button>
+      <button type="button" class="sfBtn" id="fbclc_backToSignIn">Back to Sign In</button>
+    </form>
+  </section>
+
+  <section id="appPanel" hidden>
+    <h1>Apply: Junior Software Engineer</h1>
+    <div class="alert" id="appAlert" role="alert">Please fill in all required fields.</div>
+    <form id="applyForm" action="/career?career_ns=apply" method="post" enctype="multipart/form-data" novalidate>
+      <h2>My Profile</h2>
+      <div class="fieldRow"><label for="firstName">First Name <span class="req">*</span></label><input type="text" id="firstName" name="firstName" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="lastName">Last Name <span class="req">*</span></label><input type="text" id="lastName" name="lastName" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="contactEmail">Contact Email <span class="req">*</span></label><input type="email" id="contactEmail" name="contactEmail" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="cellPhone">Cell Phone <span class="req">*</span></label><input type="tel" id="cellPhone" name="cellPhone" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="address">Address <span class="req">*</span></label><input type="text" id="address" name="address" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="city">City <span class="req">*</span></label><input type="text" id="city" name="city" data-req="1"><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="zip">Zip/Postal Code</label><input type="text" id="zip" name="zip"></div>
+      <div class="fieldRow"><label id="countryLbl" for="countryInput">Country/Region <span class="req">*</span></label>
+        <div class="combo"><input type="text" id="countryInput" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="countryList" aria-labelledby="countryLbl" autocomplete="off" placeholder="Type to search"><ul role="listbox" id="countryList" hidden></ul></div>
+        <input type="hidden" name="country" id="countryValue" data-req="1"><div class="sfError" role="alert"></div></div>
+      <h2>Resume</h2>
+      <div class="fieldRow"><span class="lbl">Resume <span class="req">*</span></span>
+        <div class="uploadRow"><input type="file" id="resumeUpload" name="resume" accept=".pdf,.doc,.docx,.txt" data-req="1"><button type="button" class="sfBtn" onclick="document.getElementById('resumeUpload').click()">Upload a Resume</button><button type="button" class="sfBtn" onclick="return false">Paste resume</button><span id="resumeName">No file chosen</span></div>
+        <div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="coverLetterText">Cover Letter (optional)</label><textarea id="coverLetterText" name="coverLetterText" rows="3"></textarea></div>
+      <h2>Questions</h2>
+      <div class="fieldRow"><span class="lbl" id="q1l">Are you authorized to work in Pakistan? <span class="req">*</span></span><div class="radios" role="radiogroup" aria-labelledby="q1l"><label><input type="radio" name="custAuthorizedPK" value="Yes" data-req="1"> Yes</label><label><input type="radio" name="custAuthorizedPK" value="No"> No</label></div><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="custSponsorship">Will you now or in the future require sponsorship for employment visa status? <span class="req">*</span></label><select id="custSponsorship" name="custSponsorship" data-req="1"><option value="">No Selection</option><option>Yes</option><option>No</option></select><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="custYears">How many years of professional software engineering experience do you have? <span class="req">*</span></label><select id="custYears" name="custYears" data-req="1"><option value="">No Selection</option><option>0-1</option><option>1-3</option><option>3-5</option><option>5+</option></select><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="custRemote">Are you comfortable working fully remotely? <span class="req">*</span></label><select id="custRemote" name="custRemote" data-req="1"><option value="">No Selection</option><option>Yes</option><option>No</option></select><div class="sfError" role="alert"></div></div>
+      <div class="fieldRow"><label for="custHeard">How did you hear about us?</label><select id="custHeard" name="custHeard"><option value="">No Selection</option><option>Company Website</option><option>Job Board</option><option>Referral</option><option>Social Media</option></select></div>
+      <h2>Voluntary Self-Identification</h2>
+      <div class="fieldRow"><label for="eeoGender">Gender</label><select id="eeoGender" name="eeoGender"><option value="">No Selection</option><option>Female</option><option>Male</option><option>Prefer not to say</option></select></div>
+      <div class="fieldRow"><label for="eeoVeteran">Veteran Status</label><select id="eeoVeteran" name="eeoVeteran"><option value="">No Selection</option><option>I am a protected veteran</option><option>I am not a protected veteran</option><option>Prefer not to say</option></select></div>
+      <div class="jobActions"><button type="submit" class="sfBtn primary" id="applyButton">Apply</button><button type="button" class="sfBtn" id="saveDraft">Save Draft</button><button type="button" class="sfBtn" id="cancelApply">Cancel</button></div>
+    </form>
+  </section>
+</div>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var KEY = 'sf-session-' + FORM_ID;
+  var $ = function (id) { return document.getElementById(id); };
+  var COUNTRIES = ['Australia', 'Bangladesh', 'Canada', 'Germany', 'India', 'Pakistan', 'Saudi Arabia', 'Singapore', 'United Arab Emirates', 'United Kingdom', 'United States'];
+  COUNTRIES.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; $('fbclc_country').appendChild(o); });
+  function session() { try { return JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function post(path, body) {
+    return fetch('/__account/' + FORM_ID + '/' + path, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(body) }).then(function (r) { return r.json().then(function (j) { j.status = r.status; return j; }); });
+  }
+  function authFail(msg) { $('authAlert').textContent = msg; $('authAlert').style.display = 'block'; }
+  function view(name) {
+    $('listing').hidden = name !== 'listing';
+    $('authPanel').hidden = name !== 'auth';
+    $('appPanel').hidden = name !== 'app';
+    $('dpcs').hidden = name !== 'dpcs';
+    if (name === 'dpcs') $('listing').hidden = false;
+    window.scrollTo(0, 0);
+  }
+  function startApp(s) {
+    view('app');
+    if (s) { if (!$('firstName').value) $('firstName').value = s.first || ''; if (!$('lastName').value) $('lastName').value = s.last || ''; if (!$('contactEmail').value) $('contactEmail').value = s.email || ''; }
+  }
+  document.querySelector('.dialogApplyBtn').addEventListener('click', function (e) { e.preventDefault(); view('dpcs'); });
+  $('dpcsDecline').addEventListener('click', function () { view('listing'); });
+  $('dpcsAccept').addEventListener('click', function () { var s = session(); if (s) startApp(s); else view('auth'); });
+  $('fbclc_createAccountLink').addEventListener('click', function (e) { e.preventDefault(); $('loginForm').hidden = true; $('createAccountForm').hidden = false; $('authAlert').style.display = 'none'; });
+  $('fbclc_backToSignIn').addEventListener('click', function () { $('createAccountForm').hidden = true; $('loginForm').hidden = false; $('authAlert').style.display = 'none'; });
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var u = $('username').value.trim();
+    post('login', { username: u, password: $('password').value }).then(function (r) {
+      if (!r.ok) return authFail('The email or password is incorrect. Please try again.');
+      var p = r.profile || {};
+      var s = { email: u, first: p.first || '', last: p.last || '', country: p.country || '', alerts: !!p.alerts };
+      try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch (x) {}
+      startApp(s);
+    });
+  });
+  $('createAccountForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var em = $('fbclc_userName').value.trim(), em2 = $('fbclc_emailConf').value.trim(), p = $('fbclc_pwd').value, p2 = $('fbclc_pwdConf').value;
+    var f = $('fbclc_fName').value.trim(), l = $('fbclc_lName').value.trim(), c = $('fbclc_country').value;
+    if (!em || !em2 || !p || !p2 || !f || !l || !c) return authFail('Please fill in all required fields.');
+    if (em.toLowerCase() !== em2.toLowerCase()) return authFail('The email addresses do not match.');
+    if (p !== p2) return authFail('The passwords do not match.');
+    if (p.length < 8) return authFail('The password must be at least 8 characters long.');
+    var s = { email: em, first: f, last: l, country: c, alerts: $('fbclc_jobAlerts').checked };
+    post('register', { email: em, password: p, profile: s }).then(function (r) {
+      if (!r.ok) return authFail(r.status === 409 ? 'An account with this email already exists. Sign in instead.' : 'The account could not be created.');
+      try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch (x) {}
+      startApp(s);
+    });
+  });
+
+  // SF combobox picklist.
+  var input = $('countryInput'), list = $('countryList'), hidden = $('countryValue');
+  function render(q) {
+    list.innerHTML = '';
+    COUNTRIES.filter(function (c) { return !q || c.toLowerCase().indexOf(q.toLowerCase()) >= 0; }).forEach(function (c, i) {
+      var li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = 'countryOpt' + i; li.textContent = c; list.appendChild(li);
+    });
+    list.hidden = !list.children.length; input.setAttribute('aria-expanded', String(!list.hidden));
+  }
+  function pick(v) { input.value = v; hidden.value = v; list.hidden = true; input.setAttribute('aria-expanded', 'false'); }
+  input.addEventListener('focus', function () { render(''); });
+  input.addEventListener('input', function () { hidden.value = ''; render(input.value); });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !list.hidden && list.children.length) { e.preventDefault(); pick(list.children[0].textContent); }
+    if (e.key === 'ArrowDown') render(input.value);
+    if (e.key === 'Escape') { list.hidden = true; input.setAttribute('aria-expanded', 'false'); }
+  });
+  input.addEventListener('blur', function () { setTimeout(function () { list.hidden = true; input.setAttribute('aria-expanded', 'false'); if (hidden.value !== input.value) input.value = hidden.value; }, 150); });
+  list.addEventListener('mousedown', function (e) { var li = e.target.closest('li'); if (li) { e.preventDefault(); pick(li.textContent); } });
+
+  $('resumeUpload').addEventListener('change', function () { $('resumeName').textContent = this.files.length ? this.files[0].name : 'No file chosen'; });
+
+  var form = $('applyForm');
+  function blank(el) {
+    if (el.type === 'radio') return !form.querySelector('[name="' + el.name + '"]:checked');
+    if (el.type === 'file') return !el.files.length;
+    return !String(el.value || '').trim();
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = 0;
+    form.querySelectorAll('[data-req]').forEach(function (el) {
+      var box = el.closest('.fieldRow').querySelector('.sfError');
+      var miss = blank(el);
+      if (box) box.textContent = miss ? 'This field is required.' : '';
+      if (miss) bad++;
+    });
+    $('appAlert').style.display = bad ? 'block' : 'none';
+    if (bad) return;
+    $('applyButton').disabled = true;
+    var fd = new FormData(form);
+    var s = session() || {};
+    fd.set('candidateAccount', s.email || '');
+    fd.set('jobAlertsOptIn', s.alerts ? 'true' : 'false');
+    fd.set('accountCountry', s.country || '');
+    fetch('/__submit/' + FORM_ID, { method: 'POST', body: fd, headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.ok && res.redirect) return location.assign(res.redirect);
+        $('applyButton').disabled = false;
+        $('appAlert').textContent = 'Your application could not be submitted: ' + (res.errors || []).join('; ');
+        $('appAlert').style.display = 'block';
+      });
+  });
+  view('listing');
+})();
+</script>
+</body>
+</html>

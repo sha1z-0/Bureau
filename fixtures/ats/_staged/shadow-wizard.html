@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--
+  Fixture: a two-step application built entirely from web components with OPEN shadow roots
+  (Lightning Web Components / Shoelace style career sites):
+   - <qf-wizard> (open root) holds the steps; each step's fields are <qf-text-field>,
+     <qf-select>, <qf-radio-group>, <qf-file>, <qf-checkbox> components, each with its own open
+     root: shadow-scoped <label for> + native control, so labels and controls are two or three
+     shadow roots deep;
+   - the Next / Back / Submit buttons are <qf-button> components: the real <button> is inside
+     the open root and its text arrives through a <slot> (light-DOM text);
+   - values live in the components (shadow-DOM controls do not join the outer <form>): the
+     page gathers them and posts multipart to /__submit/{{FORM_ID}}.
+  The ".../shadow-closed" route adds one REQUIRED field, <qf-secure-field label="Preferred
+  first name *">, whose shadow root is CLOSED and which is NOT form-associated: no locator can
+  reach its input and nothing outside the component can read its value. The page refuses to
+  submit without it. An honest filler must stop (needs_you), never submit.
+  Fictional employer (Quillfeather Studio). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apply – Junior Web Engineer – Quillfeather Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f6f4ef; color: #1f2328; }
+    header { background: #2d2a4a; color: #fff; padding: 18px 28px; }
+    main { max-width: 720px; margin: 24px auto; background: #fff; padding: 24px 28px; border-radius: 8px; }
+    #thanks { display: none; }
+  </style>
+</head>
+<body>
+<header><strong>Quillfeather Studio</strong> · Careers</header>
+<main>
+  <h1>Junior Web Engineer</h1>
+  <p>Remote (Pakistan) · Full-time</p>
+  <form id="application" novalidate>
+    <qf-wizard id="wizard"></qf-wizard>
+  </form>
+  <div id="thanks" role="status"><h2>Application submitted to Quillfeather Studio</h2></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var CLOSED = /shadow-closed/.test(location.pathname);
+  var uid = 0;
+  var css = 'label{display:block;font-size:14px;margin:0 0 4px;font-weight:600} input[type=text],input[type=email],input[type=tel],input[type=url],select{box-sizing:border-box;width:100%;max-width:420px;padding:8px 10px;border:1px solid #9aa0a6;border-radius:6px;font:inherit} .err{color:#b3261e;font-size:12px;min-height:14px} .row{margin-bottom:14px}';
+
+  class QfField extends HTMLElement {
+    constructor() { super(); this.root = this.attachShadow({ mode: 'open' }); this.cid = 'c' + (++uid); }
+    get name() { return this.getAttribute('name'); }
+    get label() { return this.getAttribute('label') || ''; }
+    get isRequired() { return this.hasAttribute('required'); }
+    error(msg) { var e = this.root.querySelector('.err'); if (e) e.textContent = msg || ''; }
+  }
+  class QfTextField extends QfField {
+    connectedCallback() {
+      if (this.root.childElementCount) return;
+      var type = this.getAttribute('type') || 'text';
+      this.root.innerHTML = '<style>' + css + '</style><div class="row"><label for="' + this.cid + '">' + this.label + (this.isRequired ? ' *' : '') + '</label><input id="' + this.cid + '" type="' + type + '"' + (this.isRequired ? ' required aria-required="true"' : '') + '><div class="err" role="alert"></div></div>';
+    }
+    get value() { return this.root.querySelector('input').value; }
+  }
+  class QfSelect extends QfField {
+    connectedCallback() {
+      if (this.root.childElementCount) return;
+      var opts = (this.getAttribute('options') || '').split('|');
+      this.root.innerHTML = '<style>' + css + '</style><div class="row"><label for="' + this.cid + '">' + this.label + (this.isRequired ? ' *' : '') + '</label><select id="' + this.cid + '"' + (this.isRequired ? ' required' : '') + '><option value="">Select an option</option>' + opts.map(function (o) { return '<option>' + o + '</option>'; }).join('') + '</select><div class="err" role="alert"></div></div>';
+    }
+    get value() { return this.root.querySelector('select').value; }
+  }
+  class QfRadioGroup extends QfField {
+    connectedCallback() {
+      if (this.root.childElementCount) return;
+      var self = this;
+      var opts = (this.getAttribute('options') || '').split('|');
+      this.root.innerHTML = '<style>' + css + '</style><fieldset class="row" style="border:0;padding:0;margin:0 0 14px"><legend style="font-weight:600;font-size:14px;margin-bottom:4px">' + this.label + (this.isRequired ? ' *' : '') + '</legend>' + opts.map(function (o, i) { return '<label style="font-weight:400"><input type="radio" name="' + self.cid + '" value="' + o + '"' + (self.isRequired && !i ? ' required' : '') + '> ' + o + '</label>'; }).join('') + '<div class="err" role="alert"></div></fieldset>';
+    }
+    get value() { var c = this.root.querySelector('input:checked'); return c ? c.value : ''; }
+  }
+  class QfCheckbox extends QfField {
+    connectedCallback() {
+      if (this.root.childElementCount) return;
+      this.root.innerHTML = '<style>' + css + '</style><div class="row"><label style="font-weight:400"><input type="checkbox"' + (this.isRequired ? ' required' : '') + '> ' + this.label + (this.isRequired ? ' *' : '') + '</label><div class="err" role="alert"></div></div>';
+    }
+    get value() { return this.root.querySelector('input').checked ? 'true' : ''; }
+  }
+  class QfFile extends QfField {
+    connectedCallback() {
+      if (this.root.childElementCount) return;
+      this.root.innerHTML = '<style>' + css + '</style><div class="row"><label for="' + this.cid + '">' + this.label + (this.isRequired ? ' *' : '') + '</label><input id="' + this.cid + '" type="file" accept=".pdf,.doc,.docx"><span class="chip"></span><div class="err" role="alert"></div></div>';
+      var inp = this.root.querySelector('input'), chip = this.root.querySelector('.chip');
+      inp.addEventListener('change', function () { chip.textContent = inp.files.length ? inp.files[0].name : ''; });
+    }
+    get file() { var f = this.root.querySelector('input').files; return f.length ? f[0] : null; }
+    get value() { return this.file ? this.file.name : ''; }
+  }
+  // CLOSED and not form-associated: only this component can see its input.
+  var secret = new WeakMap();
+  class QfSecureField extends HTMLElement {
+    constructor() {
+      super();
+      var r = this.attachShadow({ mode: 'closed' });
+      r.innerHTML = '<style>' + css + '</style><div class="row"><label for="s">' + (this.getAttribute('label') || '') + '</label><input id="s" type="text"><div class="err" role="alert"></div></div>';
+      secret.set(this, r);
+    }
+    get name() { return this.getAttribute('name'); }
+    get label() { return this.getAttribute('label') || ''; }
+    get isRequired() { return this.hasAttribute('required'); }
+    get value() { return secret.get(this).querySelector('input').value; }
+    error(msg) { secret.get(this).querySelector('.err').textContent = msg || ''; }
+  }
+  class QfButton extends HTMLElement {
+    constructor() {
+      super();
+      var r = this.attachShadow({ mode: 'open' });
+      var primary = this.getAttribute('variant') === 'primary';
+      r.innerHTML = '<style>button{padding:9px 20px;border-radius:6px;border:1px solid #2d2a4a;font:inherit;cursor:pointer;background:' + (primary ? '#2d2a4a;color:#fff' : '#fff;color:#2d2a4a') + '}</style><button type="button" part="base"><slot></slot></button>';
+      var self = this;
+      r.querySelector('button').addEventListener('click', function () { self.dispatchEvent(new CustomEvent('qf-click', { bubbles: true, composed: true, detail: self.getAttribute('data-action') })); });
+    }
+  }
+  class QfStep extends HTMLElement {
+    constructor() { super(); this.attachShadow({ mode: 'open' }).innerHTML = '<style>:host{display:block}:host([hidden]){display:none}</style><h2 part="title"></h2><slot></slot>'; }
+    connectedCallback() { this.shadowRoot.querySelector('h2').textContent = this.getAttribute('heading') || ''; }
+  }
+  class QfWizard extends HTMLElement {
+    constructor() {
+      super();
+      var r = this.attachShadow({ mode: 'open' });
+      r.innerHTML =
+        '<style>.nav{display:flex;gap:10px;margin-top:18px}.alert{color:#b3261e;margin-bottom:10px}</style>' +
+        '<div class="alert" role="alert" id="alert"></div>' +
+        '<qf-step heading="Your details" data-step="0">' +
+          '<qf-text-field label="First name" name="first_name" required></qf-text-field>' +
+          '<qf-text-field label="Last name" name="last_name" required></qf-text-field>' +
+          '<qf-select label="Country of residence" name="country" options="India|Pakistan|United Kingdom|United States" required></qf-select>' +
+          '<qf-radio-group label="Are you authorized to work in Pakistan?" name="work_auth_pk" options="Yes|No" required></qf-radio-group>' +
+        '</qf-step>' +
+        '<qf-step heading="Contact and documents" data-step="1" hidden>' +
+          '<qf-text-field label="Email address" name="email" type="email" required></qf-text-field>' +
+          '<qf-text-field label="Phone number" name="phone" type="tel" required></qf-text-field>' +
+          '<qf-text-field label="LinkedIn profile" name="linkedin" type="url"></qf-text-field>' +
+          (CLOSED ? '<qf-secure-field label="Preferred first name *" name="preferred_name" required></qf-secure-field>' : '') +
+          '<qf-file label="Resume" name="resume" required></qf-file>' +
+          '<qf-checkbox label="I agree to the privacy policy" name="privacy_consent" required></qf-checkbox>' +
+        '</qf-step>' +
+        '<div class="nav"><qf-button data-action="back" hidden>Back</qf-button><qf-button variant="primary" data-action="next">Next</qf-button><qf-button variant="primary" data-action="submit" hidden>Submit application</qf-button></div>';
+      this.step = 0;
+    }
+    steps() { return Array.prototype.slice.call(this.shadowRoot.querySelectorAll('qf-step')); }
+    fields(step) { return Array.prototype.slice.call(this.steps()[step].querySelectorAll('qf-text-field, qf-select, qf-radio-group, qf-checkbox, qf-file, qf-secure-field')); }
+    show(n) {
+      this.step = n;
+      this.steps().forEach(function (s, i) { s.hidden = i !== n; });
+      var last = n === this.steps().length - 1;
+      this.shadowRoot.querySelector('[data-action=back]').hidden = n === 0;
+      this.shadowRoot.querySelector('[data-action=next]').hidden = last;
+      this.shadowRoot.querySelector('[data-action=submit]').hidden = !last;
+      this.shadowRoot.getElementById('alert').textContent = '';
+    }
+    valid(n) {
+      var bad = 0;
+      this.fields(n).forEach(function (f) {
+        var miss = f.isRequired && !String(f.value || '').trim();
+        if (!miss && f.getAttribute('type') === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.value)) miss = true;
+        f.error(miss ? (f.label.replace(/\s*\*$/, '') + ' is required') : '');
+        if (miss) bad++;
+      });
+      this.shadowRoot.getElementById('alert').textContent = bad ? 'Please fix the highlighted fields.' : '';
+      return !bad;
+    }
+    connectedCallback() {
+      var self = this;
+      this.addEventListener('qf-click', function (e) {
+        var a = e.detail;
+        if (a === 'back') return self.show(Math.max(0, self.step - 1));
+        if (a === 'next') { if (self.valid(self.step)) self.show(self.step + 1); return; }
+        if (a === 'submit') {
+          if (!self.valid(self.step)) return;
+          var fd = new FormData();
+          self.steps().forEach(function (s, i) { self.fields(i).forEach(function (f) { if (f.tagName === 'QF-FILE') { if (f.file) fd.append(f.name, f.file); } else fd.append(f.name, f.value); }); });
+          fetch('/__submit/' + FORM_ID, { method: 'POST', body: fd, headers: { accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (res) {
+            if (res.ok) { document.getElementById('application').style.display = 'none'; document.getElementById('thanks').style.display = 'block'; }
+            else self.shadowRoot.getElementById('alert').textContent = 'Submission failed: ' + (res.errors || []).join('; ');
+          });
+        }
+      });
+      this.show(0);
+    }
+  }
+  customElements.define('qf-text-field', QfTextField);
+  customElements.define('qf-select', QfSelect);
+  customElements.define('qf-radio-group', QfRadioGroup);
+  customElements.define('qf-checkbox', QfCheckbox);
+  customElements.define('qf-file', QfFile);
+  customElements.define('qf-secure-field', QfSecureField);
+  customElements.define('qf-button', QfButton);
+  customElements.define('qf-step', QfStep);
+  customElements.define('qf-wizard', QfWizard);
+})();
+</script>
+</body>
+</html>

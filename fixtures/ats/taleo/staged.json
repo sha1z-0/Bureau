@@ -1,0 +1,60 @@
+{
+  "_comment": "Staged replica (fixtures/ats/_staged/server.ts): same FormSpec as a manifest.json, kept out of the e2e until its job's Claude requests are recorded. Rename to manifest.json to promote (and port the /__account endpoints to a fixture-routes module).",
+  "forms": [
+    {
+      "id": "taleo-careersection",
+      "ats": "taleo",
+      "title": "Taleo Enterprise career section: Apply Online, login wall with New User registration, 7-step jobapply.ftl wizard",
+      "route": "/northbeam.taleo.net/careersection/2/jobdetail.ftl",
+      "file": "taleo/jobdetail.html",
+      "extraRoutes": [{ "route": "/northbeam.taleo.net/careersection/2/jobapply.ftl", "file": "taleo/jobapply.html" }],
+      "confirmationFile": "taleo/confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "steps": 7,
+      "login": true,
+      "required": [
+        "privacyAccepted", "resumeFile", "FirstName", "LastName", "EmailAddress", "MobilePhone", "Address", "City", "Country", "StateProvince", "ZipCode",
+        "Q1_AuthorizedPK", "Q2_Sponsorship", "Q3_Education", "Q4_Over18", "Q5_Salary", "eSignatureFullName", "candidateUser"
+      ],
+      "expect": {
+        "privacyAccepted": "true",
+        "resumeFile": "file:cv",
+        "FirstName": "profile:firstName",
+        "MiddleInitial": "empty",
+        "LastName": "profile:lastName",
+        "EmailAddress": "profile:email",
+        "MobilePhone": "profile:phone",
+        "Address": "profile:addressLine1",
+        "City": "profile:city",
+        "Country": "profile:country",
+        "StateProvince": "profile:region",
+        "ZipCode": "profile:postalCode",
+        "Q1_AuthorizedPK": "answer:authorizedToWorkPakistan",
+        "Q2_Sponsorship": "answer:needsSponsorship",
+        "Q3_Education": "=Bachelor's Degree",
+        "Q4_Over18": "answer:over18",
+        "Q5_Salary": "answer:salaryExpectation",
+        "Q6_Relocate": "answer:openToRelocation",
+        "Gender": "decline",
+        "Ethnicity": "decline",
+        "Veteran": "decline",
+        "Disability": "decline",
+        "eSignatureFullName": "profile:fullName",
+        "eSignatureDate": "nonempty",
+        "candidateUser": "nonempty"
+      },
+      "quirks": [
+        "jobdetail.ftl → a#applyFromDetailBtn 'Apply Online' (next to 'Add to My Job Cart' / 'Send to a Friend')",
+        "login wall: form#loginForm (User Name / Password / Login) and the 'New User' link to form#registerForm: User Name, Password, Re-enter Password, Email Address, terms checkbox, Register; password policy; 'User name is not available' when taken",
+        "the session lasts for the browser session: every new browser signs in again with the stored account",
+        "jobapply.ftl train of steps with JSF ids (et-ef-content-ftf-gp-j_id_id8pc9-page_N-...); 'Save and Continue', 'Save as Draft', 'Quit', 'Previous'",
+        "Privacy Agreement acceptance checkbox; resume file input with an attached-files list",
+        "Country select reloads the State/Province list after a delay (disabled until then)",
+        "questions as selects with 'Select...' placeholders and a radio group; Diversity radios with 'I choose not to disclose'",
+        "eSignature full name with a read-only date; Review and Submit lists the answers and shows the only 'Submit' button"
+      ],
+      "reference": "Public Taleo career sections (<tenant>.taleo.net/careersection/<n>/jobdetail.ftl, jobapply.ftl), studied read-only",
+      "job": { "company": "Northbeam Logistics", "title": "Junior Backend Developer", "location": "Lahore, Pakistan" }
+    }
+  ]
+}

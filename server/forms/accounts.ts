@@ -25,7 +25,11 @@ export interface AccountSelectors {
   createView: string[];
   signInView: string[];
   verifyView: string[];
+  /** A user-name box separate from the email (Taleo): it gets the same dedicated email. */
+  username?: string[];
   email: string[];
+  /** "Retype email" (SuccessFactors). */
+  confirmEmail?: string[];
   password: string[];
   confirm: string[];
   consent: string[];
@@ -44,14 +48,15 @@ export interface AccountSelectors {
 export const DEFAULT_ACCOUNT_SELECTORS: AccountSelectors = {
   createView: ['[data-automation-id="createAccountPage"]', 'form#create-account', 'form[action*="register" i]', 'form:has(input[type=password] + input[type=password])'],
   signInView: ['[data-automation-id="signInPage"]', 'form#sign-in', 'form[action*="login" i]', 'form[action*="signin" i]'],
-  verifyView: ['[data-automation-id="verifyAccountPage"]', 'form:has(input[autocomplete="one-time-code"])', 'form:has(input[name*="code" i])'],
+  // "code" alone would also match a postal / zip code box on the application form behind the wall.
+  verifyView: ['[data-automation-id="verifyAccountPage"]', 'form:has(input[autocomplete="one-time-code"])', 'form:has(input[name*="code" i]:not([name*="zip" i]):not([name*="postal" i]):not([name*="post_code" i]):not([name*="country" i]):not([name*="promo" i]))'],
   email: ['input[data-automation-id="email"]', 'input[type=email]', 'input[name*="email" i]', 'input[autocomplete="username"]'],
   password: ['input[data-automation-id="password"]', 'input[type=password][name*="pass" i]:not([name*="confirm" i]):not([name*="verify" i])', 'input[type=password]'],
   confirm: ['input[data-automation-id="verifyPassword"]', 'input[type=password][name*="confirm" i]', 'input[type=password][name*="verify" i]'],
   consent: ['input[data-automation-id="createAccountCheckbox"]', 'input[type=checkbox][name*="terms" i]', 'input[type=checkbox][name*="agree" i]'],
   createSubmit: ['[data-automation-id="click_filter"]', '[data-automation-id="createAccountSubmitButton"]', 'button[type=submit]'],
   signInSubmit: ['[data-automation-id="click_filter"]', '[data-automation-id="signInSubmitButton"]', 'button[type=submit]'],
-  verifyCode: ['input[data-automation-id="verificationCode"]', 'input[autocomplete="one-time-code"]', 'input[name*="code" i]'],
+  verifyCode: ['input[data-automation-id="verificationCode"]', 'input[autocomplete="one-time-code"]', 'input[name*="code" i]:not([name*="zip" i]):not([name*="postal" i]):not([name*="country" i])'],
   verifySubmit: ['[data-automation-id="click_filter"]', '[data-automation-id="verifySubmitButton"]', 'button[type=submit]'],
   toSignIn: ['[data-automation-id="signInLink"]', 'a:has-text("Sign In")', 'button:has-text("Sign In")'],
   toCreate: ['[data-automation-id="createAccountLink"]', 'a:has-text("Create Account")', 'button:has-text("Create Account")'],
@@ -62,6 +67,12 @@ export const DEFAULT_ACCOUNT_SELECTORS: AccountSelectors = {
 export interface AccountDeps {
   waitForCode: (domain: string, timeoutMs: number) => Promise<string | null>;
   email: () => Promise<string | null>;
+  /**
+   * Fill the profile part of a create-account form (name, country of residence:
+   * SuccessFactors) before the credentials go in. The engine maps those fields from
+   * the candidate like any other; email and password boxes are left to this module.
+   */
+  fillProfile?: (frame: Frame) => Promise<void>;
 }
 
 export type AccountResult = { ok: true; created: boolean; email: string } | { ok: false; reason: string };
@@ -142,12 +153,31 @@ async function first(frame: Frame, sels: string[]) {
   return null;
 }
 
-export async function authView(page: Page, sel: AccountSelectors = DEFAULT_ACCOUNT_SELECTORS): Promise<'create' | 'signin' | 'verify' | null> {
-  const f = page.mainFrame();
+const ERRORS = '[data-automation-id="errorMessage"], [role="alert"], .error, [class*="error" i]';
+
+async function viewIn(f: Frame, sel: AccountSelectors): Promise<'create' | 'signin' | 'verify' | null> {
   if (await first(f, sel.verifyView)) return 'verify';
   if (await first(f, sel.createView)) return 'create';
   if (await first(f, sel.signInView)) return 'signin';
   return null;
+}
+
+/**
+ * The frame that holds the login wall: the main document, or a child frame when the
+ * ATS runs embedded in an employer's page (iCIMS / Taleo / SuccessFactors iframes).
+ */
+export async function authFrame(page: Page, sel: AccountSelectors = DEFAULT_ACCOUNT_SELECTORS): Promise<Frame> {
+  const main = page.mainFrame();
+  if (await viewIn(main, sel)) return main;
+  for (const f of page.frames()) {
+    if (f === main || f.isDetached()) continue;
+    if ((await viewIn(f, sel)) || (await first(f, ['input[type=password]']))) return f;
+  }
+  return main;
+}
+
+export async function authView(page: Page, sel: AccountSelectors = DEFAULT_ACCOUNT_SELECTORS): Promise<'create' | 'signin' | 'verify' | null> {
+  return viewIn(await authFrame(page, sel), sel);
 }
 
 /** Wait until the auth view changes from `from` (or an error shows on it). */
@@ -157,7 +187,7 @@ async function waitView(page: Page, sel: AccountSelectors, ms: number, from: 'cr
     await page.waitForTimeout(fastMode() ? 100 : 250);
     const v = (await authView(page, sel)) ?? 'gone';
     if (v !== from) return v;
-    const msg = await page.locator('[data-automation-id="errorMessage"], [role="alert"], .error, [class*="error" i]').filter({ visible: true }).allInnerTexts().catch(() => [] as string[]);
+    const msg = await (await authFrame(page, sel)).locator(ERRORS).filter({ visible: true }).allInnerTexts().catch(() => [] as string[]);
     const text = msg.join(' ');
     if (sel.exists.test(text) || sel.badLogin.test(text) || (from === 'verify' && /(invalid|incorrect|expired|wrong).*code|code.*(invalid|incorrect|expired)/i.test(text))) return v;
   }
@@ -165,14 +195,15 @@ async function waitView(page: Page, sel: AccountSelectors, ms: number, from: 'cr
 }
 
 async function signIn(page: Page, sel: AccountSelectors, email: string, password: string): Promise<boolean> {
-  const f = page.mainFrame();
+  let f = await authFrame(page, sel);
   if ((await authView(page, sel)) !== 'signin') {
     const link = await first(f, sel.toSignIn);
     await link?.click().catch(() => {});
     await page.waitForTimeout(400);
+    f = await authFrame(page, sel);
   }
   const scope = (await first(f, sel.signInView)) ?? f.locator('body');
-  const em = await first(f, sel.email.map((s) => `${sel.signInView[0]} ${s}`).concat(sel.email));
+  const em = await first(f, (sel.username ?? []).concat(sel.email).map((s) => `${sel.signInView[0]} ${s}`).concat(sel.username ?? [], sel.email));
   const pw = await first(f, sel.password.map((s) => `${sel.signInView[0]} ${s}`).concat(sel.password));
   if (!em || !pw) return false;
   await em.fill(email);
@@ -191,7 +222,7 @@ export async function ensureAccount(page: Page, deps: AccountDeps, sel: AccountS
   const domain = accountDomain(page.url());
   if (!domain) return { ok: false, reason: 'Could not tell which site the login is for.' };
   if (FORBIDDEN_ACCOUNT_HOSTS.test(domain)) return { ok: false, reason: `Bureau never signs in to or creates accounts on ${domain}. It needs you.` };
-  const f = page.mainFrame();
+  let f = await authFrame(page, sel);
   const existing = getAccount(domain);
   if (existing) {
     if (await signIn(page, sel, existing.username, existing.password)) {
@@ -207,14 +238,21 @@ export async function ensureAccount(page: Page, deps: AccountDeps, sel: AccountS
     const link = await first(f, sel.toCreate);
     await link?.click().catch(() => {});
     await page.waitForTimeout(400);
+    f = await authFrame(page, sel);
   }
   const em = await first(f, sel.email.map((s) => `${sel.createView[0]} ${s}`).concat(sel.email));
   const pw = await first(f, sel.password.map((s) => `${sel.createView[0]} ${s}`).concat(sel.password));
   if (!em || !pw) return { ok: false, reason: `Could not find the ${domain} account form.` };
+  // Name, country and the like first (the engine's mapper), then the credentials over them.
+  if (deps.fillProfile) await deps.fillProfile(f).catch(() => {});
   const password = generatePassword();
   // Store first: a created account must never lose its password.
   saveAccount(domain, email, password);
+  const un = sel.username?.length ? await first(f, sel.username) : null;
+  await un?.fill(email);
   await em.fill(email);
+  const ce = sel.confirmEmail?.length ? await first(f, sel.confirmEmail) : null;
+  await ce?.fill(email);
   await pw.fill(password);
   const cf = await first(f, sel.confirm.map((s) => `${sel.createView[0]} ${s}`).concat(sel.confirm));
   await cf?.fill(password);
@@ -224,7 +262,7 @@ export async function ensureAccount(page: Page, deps: AccountDeps, sel: AccountS
   if (!submit) return { ok: false, reason: `Could not find the ${domain} create-account button.` };
   await submit.click().catch(() => {});
   const v = await waitView(page, sel, 10_000, 'create');
-  const body = (await page.locator('[data-automation-id="errorMessage"], [role="alert"], .error, [class*="error" i]').filter({ visible: true }).allInnerTexts().catch(() => [] as string[])).join(' ');
+  const body = (await (await authFrame(page, sel)).locator(ERRORS).filter({ visible: true }).allInnerTexts().catch(() => [] as string[])).join(' ');
   if (v === 'create' && sel.exists.test(body)) {
     // An account exists that Bureau has no password for (made by hand): the owner decides.
     run('DELETE FROM site_accounts WHERE domain = ?', domain);
@@ -244,7 +282,7 @@ async function verify(page: Page, deps: AccountDeps, sel: AccountSelectors, doma
     throw err;
   }
   if (!code) return { ok: false, reason: `The ${domain} verification email did not arrive.` };
-  const f = page.mainFrame();
+  const f = await authFrame(page, sel);
   if (/^https?:\/\//i.test(code)) {
     // A verification link: follow it only on the same site.
     const target = accountDomain(code);

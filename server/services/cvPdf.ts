@@ -1,10 +1,12 @@
 import PDFDocument from 'pdfkit';
 import { LEARNING_GROUP_NAME, type TailoredCv } from '../writer/cvSchema.ts';
+import { drawText } from '../writer/pdfText.ts';
 
 /**
  * ATS-first PDFs (A04). One column, real selectable text in the standard PDF
- * fonts (Helvetica), plain section headings in reading order, no tables, text
- * boxes, images or letter-spaced headings (character spacing makes some
+ * fonts (Helvetica; text Helvetica cannot encode, such as a non-Latin name, is
+ * drawn in embedded Noto Sans, see server/writer/pdfText.ts), plain section
+ * headings in reading order, no tables, text boxes, images or letter-spaced headings (character spacing makes some
  * parsers read "S U M M A R Y"). A single crimson rule is the only ornament.
  * The selfcheck round-trips the output through PDF-to-text extraction.
  */
@@ -39,28 +41,32 @@ export async function renderCvPdfWithPages(cv: TailoredCv, paper: 'A4' | 'LETTER
   const done = collect(doc);
   const width = doc.page.width - margin.left - margin.right;
 
-  doc.font('Helvetica-Bold').fontSize(19).fillColor(INK).text(cv.name, { width });
-  if (cv.headline) doc.font('Helvetica').fontSize(11).fillColor(MUTED).text(cv.headline, { width });
+  drawText(doc, cv.name, { weight: 'bold', size: 19, color: INK }, { width });
+  if (cv.headline) drawText(doc, cv.headline, { weight: 'regular', size: 11, color: MUTED }, { width });
   const contact = [cv.contact.email, cv.contact.phone, cv.contact.location].filter(Boolean).join(' | ');
-  if (contact) doc.moveDown(0.25).font('Helvetica').fontSize(9).fillColor(MUTED).text(contact, { width });
+  if (contact) {
+    doc.moveDown(0.25);
+    drawText(doc, contact, { weight: 'regular', size: 9, color: MUTED }, { width });
+  }
   if (cv.contact.links.length) {
-    doc.font('Helvetica').fontSize(9).fillColor(MUTED).text(cv.contact.links.map((l) => l.url).join(' | '), { width });
+    drawText(doc, cv.contact.links.map((l) => l.url).join(' | '), { weight: 'regular', size: 9, color: MUTED }, { width });
   }
   doc.moveDown(0.45);
   doc.moveTo(margin.left, doc.y).lineTo(margin.left + width, doc.y).lineWidth(1.1).strokeColor(ACCENT).stroke();
 
   const heading = (label: string) => {
-    doc.moveDown(0.7).font('Helvetica-Bold').fontSize(10.5).fillColor(ACCENT).text(label.toUpperCase(), { width });
+    doc.moveDown(0.7);
+    drawText(doc, label.toUpperCase(), { weight: 'bold', size: 10.5, color: ACCENT }, { width });
     doc.moveDown(0.2);
   };
-  const body = () => doc.font('Helvetica').fontSize(9.6).fillColor(INK);
+  const body = (text: string, opts: PDFKit.Mixins.TextOptions) => drawText(doc, text, { weight: 'regular', size: 9.6, color: INK }, opts);
   const bullets = (items: string[]) => {
-    for (const b of items) body().text(`•  ${b}`, { width, paragraphGap: 1.5, lineGap: 0.8 });
+    for (const b of items) body(`•  ${b}`, { width, paragraphGap: 1.5, lineGap: 0.8 });
   };
 
   if (cv.summary) {
     heading('Summary');
-    body().text(cv.summary, { width, lineGap: 1.2 });
+    body(cv.summary, { width, lineGap: 1.2 });
   }
 
   const regular = cv.skills.filter((s) => !LEARNING.test(s.group.trim()) && s.items.length);
@@ -68,20 +74,20 @@ export async function renderCvPdfWithPages(cv: TailoredCv, paper: 'A4' | 'LETTER
   if (regular.length) {
     heading('Skills');
     for (const s of regular) {
-      doc.font('Helvetica-Bold').fontSize(9.6).fillColor(INK).text(`${s.group}: `, { width, continued: true });
-      body().text(s.items.join(', '), { width });
+      drawText(doc, `${s.group}: `, { weight: 'bold', size: 9.6, color: INK }, { width, continued: true });
+      body(s.items.join(', '), { width });
     }
   }
   if (learning.length) {
     heading(LEARNING_GROUP_NAME);
-    body().text(learning.join(', '), { width });
+    body(learning.join(', '), { width });
   }
 
   if (cv.experience.length) {
     heading('Experience');
     for (const e of cv.experience) {
-      doc.font('Helvetica-Bold').fontSize(10.3).fillColor(INK).text(e.role, { width });
-      doc.font('Helvetica').fontSize(9.2).fillColor(MUTED).text([e.company, e.location, `${e.start} – ${e.end}`].filter(Boolean).join(' | '), { width });
+      drawText(doc, e.role, { weight: 'bold', size: 10.3, color: INK }, { width });
+      drawText(doc, [e.company, e.location, `${e.start} – ${e.end}`].filter(Boolean).join(' | '), { weight: 'regular', size: 9.2, color: MUTED }, { width });
       doc.moveDown(0.15);
       bullets(e.bullets);
       doc.moveDown(0.35);
@@ -91,9 +97,9 @@ export async function renderCvPdfWithPages(cv: TailoredCv, paper: 'A4' | 'LETTER
   if (cv.projects.length) {
     heading('Projects');
     for (const p of cv.projects) {
-      doc.font('Helvetica-Bold').fontSize(10).fillColor(INK).text(p.name, { width });
-      if (p.link) doc.font('Helvetica').fontSize(9).fillColor(MUTED).text(p.link, { width });
-      if (p.description) body().text(p.description, { width, lineGap: 0.8 });
+      drawText(doc, p.name, { weight: 'bold', size: 10, color: INK }, { width });
+      if (p.link) drawText(doc, p.link, { weight: 'regular', size: 9, color: MUTED }, { width });
+      if (p.description) body(p.description, { width, lineGap: 0.8 });
       bullets(p.highlights);
       doc.moveDown(0.3);
     }
@@ -102,10 +108,10 @@ export async function renderCvPdfWithPages(cv: TailoredCv, paper: 'A4' | 'LETTER
   if (cv.education.length) {
     heading('Education');
     for (const ed of cv.education) {
-      doc.font('Helvetica-Bold').fontSize(10).fillColor(INK).text([ed.degree, ed.school].filter(Boolean).join(', '), { width });
+      drawText(doc, [ed.degree, ed.school].filter(Boolean).join(', '), { weight: 'bold', size: 10, color: INK }, { width });
       const dates = [ed.start, ed.end].filter(Boolean).join(' – ');
-      if (dates) doc.font('Helvetica').fontSize(9).fillColor(MUTED).text(dates, { width });
-      if (ed.details) body().text(ed.details, { width });
+      if (dates) drawText(doc, dates, { weight: 'regular', size: 9, color: MUTED }, { width });
+      if (ed.details) body(ed.details, { width });
       doc.moveDown(0.25);
     }
   }
@@ -139,10 +145,11 @@ export async function renderLetterPdf(name: string, letter: string, contact = ''
   const doc = new PDFDocument({ size: 'A4', margins: { top: 64, bottom: 64, left: 70, right: 70 }, info: { Title: `${name} - Cover letter`, Author: name } });
   const done = collect(doc);
   const width = doc.page.width - 140;
-  doc.font('Helvetica-Bold').fontSize(16).fillColor(INK).text(name, { width });
-  if (contact) doc.font('Helvetica').fontSize(9).fillColor(MUTED).text(contact, { width });
+  drawText(doc, name, { weight: 'bold', size: 16, color: INK }, { width });
+  if (contact) drawText(doc, contact, { weight: 'regular', size: 9, color: MUTED }, { width });
   doc.moveDown(0.3).moveTo(70, doc.y).lineTo(doc.page.width - 70, doc.y).lineWidth(1).strokeColor(ACCENT).stroke();
-  doc.moveDown(1.2).font('Helvetica').fontSize(10.5).fillColor(INK).text(letter, { width, lineGap: 3, paragraphGap: 8 });
+  doc.moveDown(1.2);
+  drawText(doc, letter, { weight: 'regular', size: 10.5, color: INK }, { width, lineGap: 3, paragraphGap: 8 });
   doc.end();
   return done;
 }

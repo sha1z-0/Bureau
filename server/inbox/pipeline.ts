@@ -13,6 +13,7 @@ import { parseEmail, type ParsedEmail } from './parse.ts';
 import { inboxSettings } from './settings.ts';
 import { advanceStage, recordOutcome } from './stage.ts';
 import { publicUrl } from './url.ts';
+import { ownerTimeZone, showTime } from './when.ts';
 
 /**
  * One message, end to end: parse → classify → link → store → act. Acting means
@@ -64,6 +65,8 @@ export function interviewDateFor(cls: InboxClass, dates: string[], deadline: str
 export function buildRecord(email: ParsedEmail, c: Classification, link: LinkResult): StoredMessage {
   const company = link.company ?? c.company;
   const isCode = c.class === 'verification_code';
+  const interviewDate = ALERT_CLASSES.includes(c.class) ? interviewDateFor(c.class, c.dates, c.deadline, email.receivedAt) : null;
+  const times = c.x.times ?? [];
   return {
     id: crypto.randomUUID(),
     messageId: email.messageId,
@@ -91,7 +94,9 @@ export function buildRecord(email: ParsedEmail, c: Classification, link: LinkRes
     questions: c.questions,
     draft: null,
     unanswered: [],
-    interviewDate: ALERT_CLASSES.includes(c.class) ? interviewDateFor(c.class, c.dates, c.deadline, email.receivedAt) : null,
+    interviewDate,
+    interviewAt: (interviewDate && times.find((t) => t.local === interviewDate)) || null,
+    times,
     planId: null,
     alerted: false,
     stage: null,
@@ -155,7 +160,7 @@ function alertTitle(m: StoredMessage): string {
 function alertBody(m: StoredMessage, plan: { id: string; days: number; gaps: string[] } | null): string {
   const lines = [m.summary];
   if (m.deadline) lines.push(`Deadline: ${m.deadline}`);
-  if (m.interviewDate && m.class !== 'assessment') lines.push(`Likely date: ${m.interviewDate.replace('T', ' ')}`);
+  if (m.interviewDate && m.class !== 'assessment') lines.push(`Likely date: ${showTime(m.interviewDate, m.interviewAt, ownerTimeZone(m.applicationId))}`);
   if (m.schedulingLinks[0]) lines.push(`Booking link: ${m.schedulingLinks[0]}`);
   const assess = m.links.find((l) => /hackerrank|codility|codesignal|testgorilla|coderbyte|hackerearth|karat|qualified|coderpad|devskiller/i.test(l));
   if (m.class === 'assessment' && assess) lines.push(`Assessment link: ${assess}`);

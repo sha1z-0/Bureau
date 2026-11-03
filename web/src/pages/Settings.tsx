@@ -286,6 +286,24 @@ function AutopilotCard() {
         </div>
         <Switch label="Prefer employer hours" checked={s.preferEmployerHours} onChange={(v) => setS({ ...s, preferEmployerHours: v })} />
       </div>
+      <div className="toggle-row">
+        <div>
+          <strong>Score jobs in batches (half price)</strong>
+          <div className="muted" style={{ fontSize: '0.8125rem' }}>
+            Matching goes through Claude's Batch API at 50% off. Scores arrive within minutes to a few hours instead of at once.
+          </div>
+        </div>
+        <Switch label="Batch matching" checked={s.batchMatching} onChange={(v) => setS({ ...s, batchMatching: v })} />
+      </div>
+      <div className="toggle-row">
+        <div>
+          <strong>Skip cover letters the form doesn't ask for</strong>
+          <div className="muted" style={{ fontSize: '0.8125rem' }}>
+            Only when the form is known to have no cover-letter field (for example from Greenhouse's question list). Email applications always get one.
+          </div>
+        </div>
+        <Switch label="Skip unneeded letters" checked={s.skipUnneededLetters} onChange={(v) => setS({ ...s, skipUnneededLetters: v })} />
+      </div>
       <div className="form-grid" style={{ paddingTop: 'var(--s-3)' }}>
         <Field label="Applications a day across all campaigns">
           <input className="input" type="number" min={0} max={400} value={s.globalDailyCap} onChange={(e) => setS({ ...s, globalDailyCap: Number(e.target.value) })} />

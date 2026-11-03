@@ -4,7 +4,7 @@ Branch `v2`. Written at the end of Phase 3 (the live dry-run rehearsal). The spe
 
 ## 1. Summary
 
-Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboarding and profile sync, scout, matcher, writer, form engine, browser agent with recipe learning, the external API and MCP server, the campaign autopilot, inbox and follow-ups, the learning engine, digests and alerts, and the UI. The offline suites pass (588/588 self-checks; UI smoke 39 steps). The strict e2e result is in section 4. In Phase 3, Bureau ran on the owner's real profile against live sources in dry run, with every apply channel off. Nothing was submitted and no employer form was opened. The rehearsal found seven problems; all seven are fixed (section 5). Two choices differ from the spec on purpose: the owner set the recruiter-critic bar to 5/10 in quality mode (spec: 8), and the new default volume mode skips the critic and the paid auditor. Real Telegram, IMAP and SMTP have not been tested live. JobSpy is installed and returned real postings. The app is ready for the owner to start a live campaign (section 7).
+Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboarding and profile sync, scout, matcher, writer, form engine, browser agent with recipe learning, the external API and MCP server, the campaign autopilot, inbox and follow-ups, the learning engine, digests and alerts, and the UI. The offline suites pass (642/642 self-checks; UI smoke 39 steps). The strict e2e result is in section 4. In Phase 3, Bureau ran on the owner's real profile against live sources in dry run, with every apply channel off. Nothing was submitted and no employer form was opened. The rehearsal found seven problems; all seven are fixed (section 5). Two choices differ from the spec on purpose: the owner set the recruiter-critic bar to 5/10 in quality mode (spec: 8), and the new default volume mode skips the critic and the paid auditor. Real Telegram, IMAP and SMTP have not been tested live. JobSpy is installed and returned real postings. The app is ready for the owner to start a live campaign (section 7).
 
 ## 2. What was built
 
@@ -62,12 +62,12 @@ Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboa
 
 ## 4. Test results
 
-- **Self-checks:** `npm run selfcheck`, 588/588 pass. Offline, replay mode, hash embeddings.
+- **Self-checks:** `npm run selfcheck`, 642/642 pass. Offline, replay mode, hash embeddings.
 - **Typecheck:** clean (`npm run typecheck`).
 - **UI smoke:** `npm run build && npm run ui-smoke`, 39/39 steps pass.
 - **Strict e2e:** `npm run e2e -- --strict`. Results below.
 
-Run on 3 November 2026, offline (replay mode, local fixture server), 828 s: **17 passed, 0 pending, 0 failed, 0 blocked.**
+Run on 3 November 2026 after the gap fixes, offline (replay mode, local fixture server), 884 s: **17 passed, 0 pending, 0 failed, 0 blocked.**
 
 | Stage | Result |
 |---|---|
@@ -223,22 +223,31 @@ All filters can change later; jobs already found are re-sorted.
 - Not run on a Linux host. JobSpy is installed on Windows only so far.
 - Real Telegram, IMAP and SMTP are untested. Do one check of each before going live: Telegram "Test", mailbox "Test", then one poll.
 - No application has been submitted to a real employer yet. The first live days are the real test of the form engine.
-- Docker and `docker compose` were written but never built on this machine (CI builds them).
+- Docker and `docker compose` were written but never built on this machine (disk space).
 - PWA install not tried on a physical phone.
 
 **Gaps in what is built**
 
-- Resolver links are weak: 2 of 150 aggregator listings resolved to the employer's own apply URL in the first live run.
-- iCIMS, Taleo and SuccessFactors adapters are untested (no replicas). These ATSs are also detection-only in the scout.
-- A form with a truly unreachable required field (closed shadow DOM) goes to `needs_you`.
-- The browser agent cannot click buttons inside cross-origin iframes.
-- "Notice period" and "start date" share one normalised question in the answer bank, so saving one replaces the other.
-- The Forms coverage rate mixes rehearsals and real submissions.
-- A required date field that wants a month the profile does not have gets January.
-- GitHub profile sync hit GitHub's anonymous rate limit. Add a token.
+Closed after the first build (3 November 2026, evening):
+
+- **Resolver:** rewritten (`server/scout/resolve.ts`, `server/sources/boardSearch.ts`). On a live sample of 60 aggregator listings it found the employer's ATS posting for 20 (old resolver: 1). It tries the cache, the listing text and stored postings first, then the company's ATS board, the listing page, a name-guessed board and the employer's careers page, all through `safeFetch` with per-ATS cool-offs. It never fetches LinkedIn, Indeed or Google pages. Misses are mostly staffing agencies, Workday/Oracle employers not yet in the registry and Indeed rows without a direct link.
+- **iCIMS, Taleo, SuccessFactors:** realistic local replicas (`fixtures/ats/icims|taleo|successfactors`, served by `fixtures/ats/_staged/server.ts`) and rewritten adapters (`server/forms/adapters/enterprise.ts`). Rehearsal verified 100% on all four replicas, and live submissions to them carry every expected value. Account walls are handled once with a vault password; an existing account with no stored password goes to `needs_you`. The replicas are staged, not part of the e2e (adding them would change recorded request hashes); promote one by renaming its `staged.json` to `manifest.json` and recording its requests. The scout also recognises `*.sapsf.com/eu` and Taleo Business Edition hosts.
+- **Iframes and shadow DOM:** the browser agent and form engine operate controls inside cross-origin iframes and open shadow roots. A required field in a closed shadow root goes to `needs_you` with the reason.
+- **Notice period vs start date:** separate answer-bank questions; old rows are re-keyed in code. A start-date question with no saved date can use the notice period as text, never in a date field.
+- **Dates:** a required field that needs a month the profile does not have goes to `needs_you` instead of getting January.
+- **Forms coverage:** rehearsal and live rates are reported separately per ATS (API and UI).
+- **Inbox times:** interview times are stored as UTC instants with the zone the email used, and shown in the owner's time zone; a time with no zone is never guessed.
+- **API rate limits:** kept in sqlite, so a restart does not reset them.
+- **Batch API (50% off):** for match scoring, off by default (Settings → "Score jobs in batches"). Batches persist across restarts and fall back to normal calls on error or expiry. Research and evidence prep are not batched yet.
+- **Letter not needed:** off by default (Settings → "Skip cover letters the form doesn't ask for"). A letter is skipped only on positive knowledge: Greenhouse's question list (fetched once per job) or the form recipe for that exact posting. Email applications always get one.
+- **Unicode PDFs:** CV and letter PDFs embed Noto Sans (Latin-ext, Greek, Cyrillic, Vietnamese, Arabic script) when text needs it; English CVs are unchanged. A wrapped right-to-left paragraph keeps its words but not full bidirectional order; CJK, Devanagari and Hebrew are not covered.
+
+Still open:
+
+- GitHub profile sync hits GitHub's anonymous rate limit. Add a token in Profile → Links and GitHub.
 - A11 §8 (passphrase bootstrap for a server install) is deferred.
-- Batch API (50% off) and per-form "letter not needed" skipping are not built.
 - Volume-mode cost is measured on one job so far ($0.22 with a new role CV); the cost with a cached role CV still needs a larger sample.
+- An unknown question saved before the notice-period split and answered later through Telegram may update the start-date answer (rare, once).
 
 **Deviations from the spec, chosen by the owner**
 
@@ -249,6 +258,4 @@ All filters can change later; jobs already found are re-sorted.
 **Smaller limits** (details in the agent reports)
 
 - Matcher and lint thresholds are not tuned on labelled data (A02, A03, A04).
-- CV and letter PDFs use Helvetica (Latin-1 only); non-Latin names would not render (A04).
-- Inbox times are kept as written, without time-zone conversion; hiring contacts come only from the posting text (A09).
-- API rate limits reset on restart and count per process (A07).
+- Hiring contacts come only from the posting text (A09).

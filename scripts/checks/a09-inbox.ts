@@ -449,6 +449,26 @@ export default async function a09Inbox({ check, section }: Harness) {
       assert.equal(ev.find((e) => e.kind === 'offer')!.planId, null, 'no crash plan for an offer');
     });
 
+    await check('interview times keep their zone: a UTC instant next to the words as written, shown in the owner’s time zone', async () => {
+      const { showTime, ownerTimeZone } = await import('../../server/inbox/when.ts');
+      const r = row('a09-09-interview-times.eml');
+      assert.equal(r.interviewDate, '2026-11-12T15:00', 'the wall time as written is kept (the learning plan reads it)');
+      assert.deepEqual(r.interviewAt, { local: '2026-11-12T15:00', at: '2026-11-12T10:00:00.000Z', zone: 'PKT', text: 'November 12, 2026 at 3:00 PM PKT' });
+      assert.deepEqual(r.times.map((t) => t.at), ['2026-11-12T10:00:00.000Z', '2026-11-13T06:00:00.000Z']);
+      const tz = ownerTimeZone(r.applicationId);
+      const alert = notes.find((n) => n.kind === 'alert' && n.payload.title.startsWith('Interview invite: Quillstone'))!;
+      assert.ok(alert.payload.body.includes(`Likely date: ${showTime(r.interviewDate!, r.interviewAt, tz)}`), alert.payload.body);
+      assert.equal(showTime(r.interviewDate!, r.interviewAt, 'Europe/London'), 'Thu 12 Nov, 10:00 Europe/London (written as PKT)');
+      // Daylight saving follows the date for a generic zone; a time with no zone is never guessed.
+      const ref = new Date('2026-06-01T00:00:00Z');
+      assert.equal(R.findDates('Can you do July 7, 2026 at 9am ET?', ref)[0].time?.at, '2026-07-07T13:00:00.000Z');
+      assert.equal(R.findDates('Can you do December 7, 2026 at 9am ET?', ref)[0].time?.at, '2026-12-07T14:00:00.000Z');
+      assert.equal(R.findDates('Or 16 November 2026 at 10:00 (GMT+05:30)?', ref)[0].time?.at, '2026-11-16T04:30:00.000Z');
+      const bare = R.findDates('Could you do November 12, 2026 at 3 PM to talk?', ref)[0].time!;
+      assert.equal(bare.at, null);
+      assert.equal(showTime(bare.local, bare, 'Asia/Karachi'), '2026-11-12 15:00 (time zone not stated)');
+    });
+
     await check('Bureau never replies: no mail sent, recruiter answers are drafted for the owner only', () => {
       assert.equal(sent.length, 0);
       const b = row('a09-13-recruiter-notice.eml');

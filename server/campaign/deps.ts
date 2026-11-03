@@ -11,7 +11,9 @@ import { get } from '../db.ts';
 import { sourceHealth as scoutHealth } from '../scout/index.ts';
 import { secretHint } from '../security/vault.ts';
 import { sendApplicationEmail, smtpSettings } from '../services/mailer.ts';
+import { batchMatcher, matchViaBatch } from './batchMatch.ts';
 import { realClock, type Clock } from './clock.ts';
+import { autopilotSettings } from './settings.ts';
 import { createKeepAwake, type KeepAwake } from './awake.ts';
 
 /**
@@ -24,6 +26,8 @@ export interface EngineDeps {
   clock: Clock;
   scout(opts: { campaignId?: string; sources?: string[] }): Promise<{ found: number; added: string[] }>;
   match(jobIds: string[], cfg: CampaignConfig, opts: { campaignId: string }): Promise<unknown[]>;
+  /** Batch matching on and a message batch due a check: a match cycle now would collect its answers. */
+  batchReady?(): boolean;
   pendingForMatch(campaignId: string): string[];
   selectForCampaign(cfg: CampaignConfig, campaignId: string, slots: number): string[];
   syncProfile(): Promise<{ added: number }>;
@@ -82,7 +86,9 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
   const base: EngineDeps = {
     clock: realClock,
     scout: async (opts) => (await import('../scout/index.ts')).runScout(opts),
-    match: (ids, cfg, opts) => matchJobs(ids, cfg, opts),
+    // With batch matching on, assessments go through the Message Batches API (half price, answers within the hour).
+    match: (ids, cfg, opts) => (autopilotSettings().batchMatching ? matchViaBatch(batchMatcher(), (seams) => matchJobs(ids, cfg, { ...opts, ...seams })) : matchJobs(ids, cfg, opts)),
+    batchReady: () => autopilotSettings().batchMatching && batchMatcher().ready(),
     pendingForMatch: (id) => pendingForMatch(id),
     selectForCampaign: (cfg, id, slots) => selectForCampaign(cfg, id, slots),
     syncProfile: async () => (await import('../profile/index.ts')).syncProfile(),
@@ -93,7 +99,9 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
     write: async (jobId, campaignId) => {
       // The campaign decides how much to spend on each application (volume or quality).
       const c = (await import('./campaigns.ts')).getCampaign(campaignId);
-      return (await import('../writer/index.ts')).writeApplication(jobId, campaignId, { mode: c?.config.writingMode ?? 'volume', roles: c?.config.roles ?? [] });
+      // A letter the form has no field for is skipped only when the owner switched that on.
+      const letter = autopilotSettings().skipUnneededLetters ? ('auto' as const) : ('always' as const);
+      return (await import('../writer/index.ts')).writeApplication(jobId, campaignId, { mode: c?.config.writingMode ?? 'volume', roles: c?.config.roles ?? [], letter });
     },
     freshPacket: async (applicationId) => {
       const w = await import('../writer/packet.ts');

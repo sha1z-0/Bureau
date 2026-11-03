@@ -292,8 +292,9 @@ export class Engine {
           await this.matchCampaign(c);
         }),
       );
-    } else if (this.due(c.id, 'match', 30 * MIN, now) && this.deps.pendingForMatch(c.id).length) {
+    } else if ((this.due(c.id, 'match', 30 * MIN, now) || (this.deps.batchReady?.() && this.due(c.id, 'match', 2 * MIN, now))) && this.deps.pendingForMatch(c.id).length) {
       // Jobs can arrive between scouts (v1 scanner, external agents): match them on a half-hour beat.
+      // With batch matching, a message batch due a check brings the cycle forward (answers are used as they arrive).
       this.runTask(c.id, 'match', 'matcher', () => withCampaign(c.id, () => this.matchCampaign(c)));
     }
     const lastSel = this.lastSelect.get(c.id) ?? 0;

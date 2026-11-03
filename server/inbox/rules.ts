@@ -1,6 +1,7 @@
 import type { InboxClass } from '../contracts/inbox.ts';
 import { atsFamilyOf, baseDomain, hostOf, isAssessmentLink, isEmployerHost, isFreeMail, isSchedulingLink } from './domains.ts';
 import type { ParsedEmail } from './parse.ts';
+import { toInstant, zoneAfter, type WrittenTime } from './when.ts';
 
 /**
  * Code-side pre-rules and extraction. Everything obvious (verification codes,
@@ -116,13 +117,25 @@ interface FoundDate {
   iso: string;
   index: number;
   end: number;
+  /** With a time of day: the UTC instant when a zone follows it ("3:00 PM PKT"), and the words as written. */
+  time?: WrittenTime;
 }
 
-/** Every calendar date written in the text, as YYYY-MM-DD (or YYYY-MM-DDTHH:MM when a time is given). */
+/**
+ * Every calendar date written in the text, as YYYY-MM-DD (or YYYY-MM-DDTHH:MM when a time is given, the wall time
+ * as written). A time followed by its zone also carries the UTC instant.
+ */
 export function findDates(text: string, ref: Date): FoundDate[] {
   const out: FoundDate[] = [];
   const push = (iso: string | null, index: number, end: number) => {
-    if (iso && !out.some((o) => o.index === index)) out.push({ iso, index, end });
+    if (!iso || out.some((o) => o.index === index)) return;
+    const found: FoundDate = { iso, index, end };
+    if (iso.includes('T')) {
+      const z = zoneAfter(text.slice(end));
+      const stop = z ? end + z.length : end;
+      found.time = { local: iso, at: z ? toInstant(iso, z.offsetAt) : null, zone: z?.zone ?? null, text: text.slice(index, stop).replace(/\s+/g, ' ').trim() };
+    }
+    out.push(found);
   };
   // "Monday, November 16, 2026 at 3:00 PM", "Nov 9 or 10", "November 4 and November 11, 2026"
   const mdy = new RegExp(`\\b(${MONTH_RE})\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:\\s*(?:or|and|-|–|to|&)\\s*(\\d{1,2})(?:st|nd|rd|th)?(?![\\d:]))?(?:,?\\s+(\\d{4}))?${TIME_RE}`, 'gi');
@@ -222,6 +235,8 @@ export interface Extraction {
   schedulingLinks: string[];
   assessmentLinks: string[];
   dates: string[];
+  /** Dates with a time of day, with the UTC instant when the email wrote the zone. */
+  times: WrittenTime[];
   deadline: string | null;
   company: string | null;
   suspicious: boolean;
@@ -237,6 +252,7 @@ export function extract(email: ParsedEmail): Extraction {
     schedulingLinks: email.links.filter(isSchedulingLink),
     assessmentLinks: email.links.filter(isAssessmentLink),
     dates: [...new Set(found.map((d) => d.iso))],
+    times: found.flatMap((d) => (d.time ? [d.time] : [])),
     deadline: extractDeadline(email.text, found, ref),
     company: senderCompany(email),
     suspicious: looksLikeInjection(all) || looksLikeSpoof(email),

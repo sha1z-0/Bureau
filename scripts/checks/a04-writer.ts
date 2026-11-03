@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import type { Harness } from '../lib/harness.ts';
 
 /**
@@ -586,6 +587,168 @@ export default async function a04({ check, section }: Harness) {
     for (const s of ['found', 'filtered', 'scored'] as const) transition(F.JOB_ID, s, { campaignId: F.CAMPAIGN_ID });
     await assert.rejects(() => writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: noAi }), (e: unknown) => e instanceof AppError && e.code === 'NOT_SELECTED');
   });
+
+  // ── Letter only where the form has a field for it ─────────────────────────
+  section('A04 writer: cover letter skipped only when the form is known to have no field for it');
+  {
+    const LN = await import('../../server/writer/letterNeed.ts');
+    const jobUrl = 'https://jobs.daftarpay.example.net/backend-payments';
+    const recipe = (id: string, scope: 'url' | 'company', key: string, steps: Record<string, unknown>[]) =>
+      run(
+        `INSERT OR REPLACE INTO form_recipes (id, ats, scope, scope_key, version, recipe, status, created_at, updated_at) VALUES (?, 'greenhouse', ?, ?, 1, ?, 'active', '2026-10-01', '2026-10-01')`,
+        id,
+        scope,
+        key,
+        JSON.stringify({ ats: 'greenhouse', scope, scopeKey: key, version: 1, status: 'active', match: {}, steps, hooks: [] }),
+      );
+    const fill = (labelNorm: string, valueKey: string, action = 'fill') => ({ action, fieldSignature: `sig-${valueKey}`, selectors: ['#x'], widget: 'text', valueSource: 'profile', valueKey, labelNorm });
+    const GH_NO_LETTER = {
+      questions: [
+        { label: 'First Name', required: true, fields: [{ name: 'first_name', type: 'input_text' }] },
+        { label: 'Resume/CV', required: true, fields: [{ name: 'resume', type: 'input_file' }, { name: 'resume_text', type: 'textarea' }] },
+        { label: 'Why do you want to work here?', required: false, fields: [{ name: 'question_1', type: 'textarea' }] },
+      ],
+    };
+    const GH_LETTER = { questions: [...GH_NO_LETTER.questions, { label: 'Cover Letter', required: false, fields: [{ name: 'cover_letter', type: 'input_file' }, { name: 'cover_letter_text', type: 'textarea' }] }] };
+    const clean = () => {
+      LN.forgetFormFacts(F.JOB_ID);
+      run("DELETE FROM form_recipes WHERE id LIKE 'a04-ln-%'");
+    };
+    F.seedScenario();
+    clean();
+
+    await check('unknown form, email applications and "apply by email/DM" postings always get a letter', async () => {
+      assert.deepEqual(await LN.letterNeed(F.JOB_ID), { needed: true, reason: 'the form is not known yet', source: null });
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_NO_LETTER)!);
+      run("UPDATE jobs SET apply_email = 'jobs@daftarpay.example.net' WHERE id = ?", F.JOB_ID);
+      assert.match((await LN.letterNeed(F.JOB_ID)).reason, /email application/);
+      run('UPDATE jobs SET apply_email = NULL WHERE id = ?', F.JOB_ID);
+      const m = get<{ match: string }>('SELECT match FROM jobs WHERE id = ?', F.JOB_ID)!.match;
+      run('UPDATE jobs SET match = ? WHERE id = ?', JSON.stringify({ ...JSON.parse(m), explain: { applyChannel: 'dm' } }), F.JOB_ID);
+      assert.equal((await LN.letterNeed(F.JOB_ID)).needed, true);
+      run('UPDATE jobs SET match = ? WHERE id = ?', m, F.JOB_ID);
+      clean();
+    });
+    await check('Greenhouse questions (?questions=true): no cover_letter field → skip; cover_letter / cover_letter_text → write', async () => {
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_NO_LETTER)!);
+      const skip = await LN.letterNeed(F.JOB_ID);
+      assert.equal(skip.needed, false);
+      assert.equal(skip.source, 'greenhouse_api');
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_LETTER)!);
+      assert.equal((await LN.letterNeed(F.JOB_ID)).needed, true);
+      assert.equal(LN.formFactsFromGreenhouse({}), null);
+      assert.equal(LN.formFactsFromGreenhouse({ questions: [] }), null);
+      for (const label of ['Cover letter', 'Covering letter', 'Motivation letter', 'Anschreiben', 'Lettre de motivation']) assert.ok(LN.isLetterField({ label }), label);
+      for (const label of ['Resume/CV', 'Why do you want to work here?', 'LinkedIn profile', 'Letter grade (GPA)']) assert.ok(!LN.isLetterField({ label }), label);
+      clean();
+    });
+    await check("the form engine's proven recipe for this posting's URL counts; company-wide recipes do not", async () => {
+      recipe('a04-ln-company', 'company', 'daftarpay', [fill('first name', 'firstName')]);
+      assert.equal((await LN.letterNeed(F.JOB_ID)).needed, true, 'a company recipe is not knowledge of this form');
+      recipe('a04-ln-url', 'url', jobUrl, [fill('first name', 'firstName'), fill('resume', 'cv', 'upload')]);
+      const skip = await LN.letterNeed(F.JOB_ID);
+      assert.equal(skip.needed, false);
+      assert.equal(skip.source, 'recipe:a04-ln-url');
+      recipe('a04-ln-url', 'url', jobUrl, [fill('first name', 'firstName'), fill('upload', 'letter', 'upload')]);
+      assert.equal((await LN.letterNeed(F.JOB_ID)).needed, true);
+      // Any source showing a letter field wins over one that does not.
+      recipe('a04-ln-url', 'url', jobUrl, [fill('first name', 'firstName')]);
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_LETTER)!);
+      assert.equal((await LN.letterNeed(F.JOB_ID)).needed, true);
+      clean();
+    });
+    await check('off by default: without letter "auto" the writer writes the letter even when the form has no field', async () => {
+      F.seedScenario();
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_NO_LETTER)!);
+      const calls: string[] = [];
+      const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: fakeAi({}, calls), rng: seededRng(F.SEED) });
+      assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
+      assert.ok(calls.includes('letters'));
+      assert.ok((r.result as { coverLetter: string }).coverLetter.length > 200);
+      clean();
+    });
+    await check('letter "auto", form known to have none: CV and short answers only, no letter calls, packet hands out', async () => {
+      F.seedScenario();
+      LN.recordFormFacts(F.JOB_ID, LN.formFactsFromGreenhouse(GH_NO_LETTER)!);
+      const calls: string[] = [];
+      const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: fakeAi({}, calls), rng: seededRng(F.SEED), letter: 'auto' });
+      assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
+      assert.ok(!calls.some((c) => /^(letters|critic|revise|humanize|lint_fix|critic_final|outreach_fix|follow_up_fix)/.test(c)), calls.join(', '));
+      assert.ok(calls.includes('cv') && calls.includes('short_answers'), calls.join(', '));
+      const p = ApplicationPacketSchema.parse(r.result);
+      assert.equal(p.coverLetter, '');
+      assert.equal(p.letterPdfPath, '');
+      assert.equal(p.subject, '');
+      assert.equal(p.outreach, '');
+      assert.ok(fs.existsSync(p.cvPdfPath));
+      assert.equal(p.quality.critic, null);
+      assert.equal(p.quality.lint.checks[0].id, 'letter_not_needed');
+      assert.ok(p.quality.truth.pass);
+      assert.deepEqual(Object.keys(p.shortAnswers).sort(), ['tell us about a project', 'why this role', 'why us']);
+      assert.equal(W.loadPacket(r.applicationId!)?.applicationId, r.applicationId);
+      assert.equal(pipelineState(F.JOB_ID)?.state, 'written');
+      const q = applicationQuality(r.applicationId!)!;
+      assert.ok(q.writer.steps.some((s) => s.step === 'letter_need' && /^skip: the form has no cover-letter field/.test(s.detail)));
+      assert.equal(get<{ n: number }>('SELECT count(*) AS n FROM letter_variants WHERE application_id = ?', r.applicationId!)?.n, 0);
+      clean();
+    });
+    await check('letter "auto", form unknown: the letter is written exactly as before', async () => {
+      F.seedScenario();
+      clean();
+      const calls: string[] = [];
+      const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: fakeAi({}, calls), rng: seededRng(F.SEED), letter: 'auto' });
+      assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
+      assert.ok(calls.includes('letters') && calls.includes('critic'));
+      assert.equal((r.result as { coverLetter: string }).coverLetter, R.LETTER_HOOK);
+    });
+  }
+
+  // ── Unicode PDFs ──────────────────────────────────────────────────────────
+  section('A04 writer: CV and letter PDFs in any script (embedded Noto Sans; Helvetica for Latin)');
+  {
+    const PT = await import('../../server/writer/pdfText.ts');
+    const { renderLetterPdf } = await import('../../server/services/cvPdf.ts');
+    const path = await import('node:path');
+    const flat = (s: string) => s.replace(/\s+/g, ' ').trim();
+    const fontsOf = (buf: Buffer) => [...buf.toString('latin1').matchAll(/\/BaseFont \/([A-Za-z0-9+_-]+)/g)].map((m) => m[1]);
+    await check('Latin CVs are unchanged: Helvetica only, nothing embedded, same one-page fit', async () => {
+      assert.ok(PT.winAnsiSafe(JSON.stringify(cleanCv)), 'the fixture CV is plain WinAnsi');
+      assert.ok(PT.winAnsiSafe('Café – “quoted” • €5 Œuvre š'));
+      assert.ok(!PT.winAnsiSafe('Łukasz') && !PT.winAnsiSafe('محمد'));
+      const r = await renderCvPdfWithPages(cleanCv);
+      assert.equal(r.pages, 1);
+      assert.deepEqual([...new Set(fontsOf(r.buffer))].sort(), ['Helvetica', 'Helvetica-Bold']);
+      assert.ok(!r.buffer.toString('latin1').includes('/FontFile'), 'no embedded font in a Latin CV');
+    });
+    const intl = structuredClone(cleanCv);
+    intl.name = 'محمد علی Łukasz Ωmega Дмитрий';
+    intl.headline = 'Backend Engineer – Lahore / لاہور';
+    intl.contact.location = 'لاہور, Pakistan';
+    intl.skills[0].items = [...intl.skills[0].items.slice(0, 2), 'Ελληνικά', 'Tiếng Việt', 'Türkçe'];
+    await check('a CV with an Urdu name and Polish, Greek, Cyrillic, Vietnamese and Turkish text renders with embedded Noto Sans and extracts', async () => {
+      const r = await renderCvPdfWithPages(intl);
+      assert.equal(r.pages, 1);
+      const fonts = fontsOf(r.buffer);
+      assert.ok(fonts.some((f) => /NotoSansArabic/.test(f)) && fonts.some((f) => /NotoSans-/.test(f)), fonts.join(', '));
+      assert.ok(r.buffer.toString('latin1').includes('/FontFile2'), 'subset embedded');
+      const got = flat((await extractText(new Uint8Array(r.buffer), { mergePages: true })).text as string);
+      for (const s of ['Łukasz', 'Ωmega', 'Дмитрий', 'Ελληνικά', 'Tiếng Việt', 'Türkçe', 'Pakistan', 'SUMMARY', cleanCv.summary.slice(0, 40)]) assert.ok(got.includes(s), `missing: ${s}`);
+      for (const word of ['محمد', 'علی', 'لاہور']) assert.ok(got.includes(word), `Arabic-script word not extracted: ${word}`);
+      const letter = await renderLetterPdf('محمد علی', 'Dear team,\n\nسلام and hello.', 'm@example.com');
+      const lt = flat((await extractText(new Uint8Array(letter), { mergePages: true })).text as string);
+      assert.ok(lt.includes('Dear team') && lt.includes('سلام') && lt.includes('hello'));
+    });
+    await check('Arabic script: joined letter forms from the font, one-line runs in right-to-left word order, licences bundled', async () => {
+      const fontkit = createRequire(import.meta.url)('fontkit') as { create(b: Buffer): { layout(s: string): { glyphs: { name: string }[] } } };
+      const ar = fontkit.create(fs.readFileSync(path.join(PT.FONT_DIR, 'noto-sans-arabic-arabic-400-normal.woff')));
+      const names = ar.layout('محمد').glyphs.map((g) => g.name);
+      assert.ok(names.some((n) => /\.init$/.test(n)) && names.some((n) => /\.fina$/.test(n)), names.join(','));
+      assert.deepEqual(PT.splitRuns('Ali (محمد علی) Khan').map((r) => [r.face, r.text]), [['latin', 'Ali ('], ['arabic', 'محمد علی'], ['latin', ') Khan']]);
+      assert.equal(PT.visualOrder(' محمد علی '), ' علی محمد ');
+      assert.equal(PT.splitRuns('Łódź').map((r) => r.face).join(','), 'latin-ext,latin,latin-ext');
+      for (const f of ['LICENSE-NotoSans.txt', 'LICENSE-NotoSansArabic.txt']) assert.match(fs.readFileSync(path.join(PT.FONT_DIR, f), 'utf8'), /SIL Open Font License, Version 1\.1/);
+    });
+  }
 
   // ── Bandit ────────────────────────────────────────────────────────────────
   section('A04 writer: bandit learns from outcomes');

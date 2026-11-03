@@ -14,10 +14,10 @@ export const ScoutSettingsSchema = z.object({
   /** Detail requests per connector per run, across all its boards (later runs continue where this stops). */
   detailPerRun: z.number().int().min(0).max(20000).default(600),
   workdayPages: z.number().int().min(1).max(50).default(5),
-  /** Aggregator apply links followed per run to find the employer's own ATS URL. */
-  resolvePerRun: z.number().int().min(0).max(2000).default(150),
+  /** Aggregator listings looked up online per run to find the employer's own ATS URL (offline matches are free). */
+  resolvePerRun: z.number().int().min(0).max(2000).default(300),
   /** …and at most this many per source, so one aggregator can't spend the whole budget. */
-  resolvePerSource: z.number().int().min(0).max(2000).default(25),
+  resolvePerSource: z.number().int().min(0).max(2000).default(60),
   /** Cosine similarity at or above which two postings from the same company are one. */
   embedThreshold: z.number().min(0.5).max(1).default(0.92),
   freshHours: z.number().min(1).max(240).default(48),

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: an employer page (origin A) whose application lives in a CROSS-ORIGIN iframe
+  ({{ORIGIN_B}}/ats/_a06/iframe-form.html). Inside the frame the form is hidden behind a
+  "Start your application" button and moves on with a "Continue" button, so the browser agent
+  has to click controls that only exist in the other origin's document. Nothing here submits:
+  a submit inside the frame is reported to this page (window.__posted), as on gated.html.
+  Fictional employer. Local only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Careers - Larkfield Freight</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 860px; margin: 24px auto; color: #1f2937; }
+    iframe { display: block; width: 100%; height: 820px; border: 1px solid #d1d5db; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Junior Platform Engineer</h1>
+  <p>Larkfield Freight runs dispatch software for regional carriers. Our application form is hosted by our recruiting partner below.</p>
+  <iframe id="apply-frame" title="Application form" src="{{ORIGIN_B}}/ats/_a06/iframe-form.html"></iframe>
+  <script>
+    window.__posted = 0;
+    window.addEventListener('message', function (e) {
+      if (e.origin !== '{{ORIGIN_B}}') return;
+      if (e.data && e.data.type === 'larkfield-posted') window.__posted = (window.__posted || 0) + 1;
+    });
+  </script>
+</body>
+</html>

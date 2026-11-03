@@ -1,4 +1,4 @@
-import type { Page } from 'playwright-core';
+import type { Frame, Page } from 'playwright-core';
 import type { Recipe, RecipeStep } from '../contracts/forms.ts';
 import { type ExtractedField, extractStep, frameFor } from '../forms/extract.ts';
 import { withSubmitAllowed } from '../forms/guard.ts';
@@ -87,16 +87,35 @@ export async function replayRecipe(
     pending = [];
   };
 
+  /** The control in the main document first, then in child frames (an embedded ATS). */
+  const findControl = async (s: RecipeStep): Promise<{ frame: Frame; ref: string } | null> => {
+    const main = page.mainFrame();
+    for (const frame of [main, ...page.frames().filter((f) => f !== main && !f.isDetached())]) {
+      const ref = await agentOp<string | null>(frame, 'find', { selectors: s.selectors }).catch(() => null);
+      if (ref) return { frame, ref };
+    }
+    return null;
+  };
+
   const click = async (s: RecipeStep): Promise<boolean> => {
     aborted();
-    const ref = await agentOp<string | null>(page.mainFrame(), 'find', { selectors: s.selectors }).catch(() => null);
-    if (!ref) {
+    const hit = await findControl(s);
+    if (!hit) {
       problems.push(`control not found: ${s.labelNorm ?? s.selectors[0] ?? s.action}`);
       return false;
     }
-    const snap = await agentOp<Snapshot>(page.mainFrame(), 'snapshot', { maxText: 10 }).catch(() => null);
+    const { frame, ref } = hit;
+    const snap = await agentOp<Snapshot>(frame, 'snapshot', { maxText: 10 }).catch(() => null);
     const c = snap?.clickables.find((x) => x.ref === ref);
-    const verdict = c ? clickVerdict(c, opts.policy) : ({ ok: false, why: 'control vanished' } as const);
+    let host = '';
+    try {
+      host = frame === page.mainFrame() ? '' : new URL(frame.url()).host.toLowerCase();
+    } catch {
+      host = '';
+    }
+    // A link inside an embedded frame navigates that frame, so the frame's own host is allowed for it.
+    const policy = host ? { ...opts.policy, hosts: new Set([...opts.policy.hosts, host]) } : opts.policy;
+    const verdict = c ? clickVerdict(c, policy) : ({ ok: false, why: 'control vanished' } as const);
     if (!verdict.ok) {
       problems.push(`refused to click "${c?.name ?? ref}": ${verdict.why}`);
       return false;
@@ -111,7 +130,7 @@ export async function replayRecipe(
         }
       }
     }
-    const loc = page.locator(`[data-bureau-agent="${ref}"]`).first();
+    const loc = frame.locator(`[data-bureau-agent="${ref}"]`).first();
     const go = () => loc.click({ timeout: 5_000 }).then(() => true).catch(() => false);
     const ok = s.action === 'next' || verdict.next ? await withSubmitAllowed(page, go) : await go();
     await page.waitForLoadState('domcontentloaded', { timeout: 8_000 }).catch(() => {});

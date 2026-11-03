@@ -265,7 +265,7 @@ export function VoiceBankEditor() {
 
 const ANSWER_GROUPS: [string, string[]][] = [
   ['Right to work', ['work_authorization', 'sponsorship', 'age_18', 'background_check', 'security_clearance', 'drivers_licence']],
-  ['Pay and start date', ['expected_salary', 'current_salary', 'start_date']],
+  ['Pay and start date', ['expected_salary', 'current_salary', 'notice_period', 'start_date']],
   ['Where and how you work', ['relocation', 'onsite_hybrid', 'remote', 'tz_overlap', 'timezone', 'travel', 'current_location', 'full_time', 'contract_work', 'shifts']],
   ['Experience and education', ['years_experience', 'has_experience', 'degree_completion', 'highest_education', 'languages', 'previously_employed', 'noncompete']],
   ['Contact and links', ['full_name', 'email', 'phone', 'linkedin', 'github', 'portfolio']],

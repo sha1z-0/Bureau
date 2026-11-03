@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--
+  Fixture: Oracle Taleo Enterprise career section application
+  (<tenant>.taleo.net/careersection/<section>/jobapply.ftl?job=<id>&lang=en).
+  Reproduces:
+   - the login wall: "Returning User" form#loginForm (User Name, Password, Login) and the
+     "New User" link to form#registerForm (User Name, Password, Re-enter Password, Email Address,
+     terms acceptance, Register). Accounts live on the fixture server (/__account/{{FORM_ID}}/*);
+     "User name is not available" when it is taken. Signing in lasts for the browser session.
+   - the jobapply.ftl wizard with its train of steps and the long JSF-style ids
+     (et-ef-content-ftf-...): Privacy Agreement → Resume Upload → General Profile →
+     Job-Specific Questions → Diversity → eSignature → Review and Submit;
+   - "Save and Continue" (input#et-ef-content-ftf-saveContinueCmdBottom), "Save as Draft" and "Quit";
+   - General Profile: Country select that reloads the State/Province list (Pakistan → provinces);
+   - questions as selects with "Select..." placeholders and a radio group; Diversity radios with
+     decline answers; eSignature full name with a read-only date; a field-level
+     <span class="errorMessage"> and a top error banner role=alert;
+   - Review and Submit lists every answer and shows the "Submit" button.
+  The final Submit is one multipart POST (/__submit/{{FORM_ID}}) of all steps and the resume.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Job Application - Junior Backend Developer (2400123)</title>
+  <style>
+    body { margin: 0; font-family: Verdana, Arial, sans-serif; font-size: 12px; color: #333; background: #e9edf1; }
+    #header { background: #3a5370; color: #fff; padding: 12px 18px; font-size: 18px; }
+    #main { max-width: 960px; margin: 14px auto; background: #fff; border: 1px solid #c3ccd5; padding: 16px 20px; }
+    h1 { font-size: 16px; color: #3a5370; margin: 0 0 10px; }
+    h2 { font-size: 14px; color: #3a5370; border-bottom: 1px solid #c3ccd5; padding-bottom: 4px; }
+    .train { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; padding: 0; margin: 0 0 14px; }
+    .train li { padding: 4px 8px; background: #eef1f4; color: #667; font-size: 11px; }
+    .train li.selected { background: #3a5370; color: #fff; }
+    .row { display: grid; grid-template-columns: 250px 1fr; gap: 8px; margin-bottom: 10px; align-items: start; }
+    .row > label, .row > .lbl { padding-top: 4px; }
+    .mandatory { color: #c00; }
+    input[type=text], input[type=email], input[type=password], input[type=tel], select { box-sizing: border-box; width: 300px; padding: 3px 5px; border: 1px solid #8c9db0; font: inherit; }
+    .errorMessage { display: block; color: #c00; font-size: 11px; }
+    .errorBanner { display: none; border: 1px solid #c00; background: #fdeaea; color: #900; padding: 8px; margin-bottom: 10px; }
+    .buttons { margin-top: 16px; display: flex; gap: 8px; }
+    .buttons input { padding: 4px 12px; border: 1px solid #8c9db0; background: linear-gradient(#fdfdfd, #dfe5eb); color: #23364a; font: inherit; cursor: pointer; }
+    .privacy { max-height: 140px; overflow: auto; border: 1px solid #c3ccd5; padding: 8px; margin-bottom: 10px; line-height: 1.5; }
+    .radio-list label { display: block; margin-bottom: 3px; }
+    .review dt { font-weight: bold; margin-top: 6px; }
+    .review dd { margin: 0 0 0 12px; }
+    .auth { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .auth fieldset { border: 1px solid #c3ccd5; padding: 12px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="header">Northbeam Logistics Careers</div>
+  <div id="main">
+    <h1>Job Application: Junior Backend Developer (2400123)</h1>
+
+    <div id="authPanel" hidden>
+      <div class="errorBanner" id="authError" role="alert"></div>
+      <form id="loginForm" name="loginForm" action="/careersection/2/login.jsf" method="post" novalidate>
+        <div class="auth">
+          <fieldset>
+            <legend>Returning User</legend>
+            <div class="row"><label for="dialogTemplate-dialogForm-login-name1">User Name</label><input type="text" id="dialogTemplate-dialogForm-login-name1" name="dialogTemplate-dialogForm-login-name1" autocomplete="username"></div>
+            <div class="row"><label for="dialogTemplate-dialogForm-login-password">Password</label><input type="password" id="dialogTemplate-dialogForm-login-password" name="dialogTemplate-dialogForm-login-password" autocomplete="current-password"></div>
+            <div class="buttons"><input type="submit" id="dialogTemplate-dialogForm-login-defaultCmd" value="Login"></div>
+            <p><a href="#" onclick="return false">Forgot your user name?</a> · <a href="#" onclick="return false">Forgot your password?</a></p>
+          </fieldset>
+          <fieldset>
+            <legend>New User</legend>
+            <p>If you are a new user, you must register before applying. Your user name and password let you check the status of your applications.</p>
+            <p><a href="#register" id="dialogTemplate-dialogForm-login-register">New User</a></p>
+          </fieldset>
+        </div>
+      </form>
+      <form id="registerForm" name="registerForm" action="/careersection/2/register.jsf" method="post" novalidate hidden>
+        <h2>New User Registration</h2>
+        <div class="row"><label for="dialogTemplate-dialogForm-defaultCreateAccount-userName">User Name <span class="mandatory">*</span></label><input type="text" id="dialogTemplate-dialogForm-defaultCreateAccount-userName" name="dialogTemplate-dialogForm-defaultCreateAccount-userName" maxlength="100"></div>
+        <div class="row"><label for="dialogTemplate-dialogForm-defaultCreateAccount-password">Password <span class="mandatory">*</span></label><input type="password" id="dialogTemplate-dialogForm-defaultCreateAccount-password" name="dialogTemplate-dialogForm-defaultCreateAccount-password" autocomplete="new-password"></div>
+        <div class="row"><label for="dialogTemplate-dialogForm-defaultCreateAccount-passwordConfirm">Re-enter Password <span class="mandatory">*</span></label><input type="password" id="dialogTemplate-dialogForm-defaultCreateAccount-passwordConfirm" name="dialogTemplate-dialogForm-defaultCreateAccount-passwordConfirm" autocomplete="new-password"></div>
+        <div class="row"><label for="dialogTemplate-dialogForm-defaultCreateAccount-email">Email Address <span class="mandatory">*</span></label><input type="email" id="dialogTemplate-dialogForm-defaultCreateAccount-email" name="dialogTemplate-dialogForm-defaultCreateAccount-email"></div>
+        <div class="row"><span class="lbl"></span><label><input type="checkbox" id="dialogTemplate-dialogForm-defaultCreateAccount-agreeTerms" name="dialogTemplate-dialogForm-defaultCreateAccount-agreeTerms"> I have read and agree to the terms of use <span class="mandatory">*</span></label></div>
+        <p>Passwords must be at least 8 characters with a letter, a number and a symbol.</p>
+        <div class="buttons"><input type="submit" id="dialogTemplate-dialogForm-defaultCreateAccount-register" value="Register"><input type="button" id="backToLogin" value="Cancel"></div>
+      </form>
+    </div>
+
+    <div id="appPanel" hidden>
+      <ol class="train" id="train"><li>Privacy Agreement</li><li>Resume Upload</li><li>General Profile</li><li>Job-Specific Questions</li><li>Diversity</li><li>eSignature</li><li>Review and Submit</li></ol>
+      <div class="errorBanner" id="errorBanner" role="alert">The page contains errors. Please correct them.</div>
+      <form id="et-ef" name="et-ef" action="/careersection/2/jobapply.jsf" method="post" enctype="multipart/form-data" novalidate>
+        <div class="page" data-step="0">
+          <h2>Privacy Agreement</h2>
+          <div class="privacy">Northbeam Logistics collects the personal information you provide to assess your application and to contact you. It is kept for 24 months and is never sold. You can ask for a copy or for its deletion at any time by writing to privacy@northbeam.example.com.</div>
+          <div class="row"><span class="lbl"></span><div><label><input type="checkbox" id="et-ef-content-ftf-gp-j_id_id8pc9-page_0-agreementPage-acceptedTerms" name="privacyAccepted" value="Yes" data-req="1"> I have read and accept the Privacy Agreement <span class="mandatory">*</span></label><span class="errorMessage"></span></div></div>
+        </div>
+        <div class="page" data-step="1" hidden>
+          <h2>Resume Upload</h2>
+          <p>Attach your resume. Accepted formats: .doc, .docx, .pdf, .rtf, .txt (max 5 MB).</p>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_1-attachedFilesBlock-uploadedFile">Resume <span class="mandatory">*</span></label><div><input type="file" id="et-ef-content-ftf-gp-j_id_id8pc9-page_1-attachedFilesBlock-uploadedFile" name="resumeFile" accept=".doc,.docx,.pdf,.rtf,.txt" data-req="1"><div id="attachedList">No attached files.</div><span class="errorMessage"></span></div></div>
+        </div>
+        <div class="page" data-step="2" hidden>
+          <h2>General Profile</h2>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_FirstName">First Name <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_FirstName" name="FirstName" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_MiddleInitial">Middle Initial</label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_MiddleInitial" name="MiddleInitial" maxlength="1"></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_LastName">Last Name <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_LastName" name="LastName" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_EmailAddress">Email Address <span class="mandatory">*</span></label><div><input type="email" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_EmailAddress" name="EmailAddress" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_MobilePhone">Cellular Phone <span class="mandatory">*</span></label><div><input type="tel" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_MobilePhone" name="MobilePhone" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_Address">Address <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_Address" name="Address" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_City">City <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_City" name="City" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-0">Country <span class="mandatory">*</span></label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-0" name="Country" data-req="1"><option value="">Select...</option></select><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-1">State/Province <span class="mandatory">*</span></label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-1" name="StateProvince" data-req="1" disabled><option value="">Select...</option></select><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ZipCode">Zip/Postal Code <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ZipCode" name="ZipCode" data-req="1"><span class="errorMessage"></span></div></div>
+        </div>
+        <div class="page" data-step="3" hidden>
+          <h2>Job-Specific Questions</h2>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q1">Are you authorized to work in Pakistan? <span class="mandatory">*</span></label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q1" name="Q1_AuthorizedPK" data-req="1"><option value="">Select...</option><option>Yes</option><option>No</option></select><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q2">Will you now or in the future require sponsorship for employment visa status? <span class="mandatory">*</span></label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q2" name="Q2_Sponsorship" data-req="1"><option value="">Select...</option><option>Yes</option><option>No</option></select><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q3">What is your highest level of education? <span class="mandatory">*</span></label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q3" name="Q3_Education" data-req="1"><option value="">Select...</option><option>High School Diploma</option><option>Associate's Degree</option><option>Bachelor's Degree</option><option>Master's Degree</option><option>Doctorate</option></select><span class="errorMessage"></span></div></div>
+          <div class="row"><span class="lbl" id="q4_l">Are you at least 18 years of age? <span class="mandatory">*</span></span><div class="radio-list" role="radiogroup" aria-labelledby="q4_l"><label><input type="radio" name="Q4_Over18" value="Yes" data-req="1"> Yes</label><label><input type="radio" name="Q4_Over18" value="No"> No</label><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q5">What are your salary expectations? <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q5" name="Q5_Salary" data-req="1" maxlength="100"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q6">Are you willing to relocate?</label><div><select id="et-ef-content-ftf-gp-j_id_id8pc9-page_3-qq-q6" name="Q6_Relocate"><option value="">Select...</option><option>Yes</option><option>No</option></select></div></div>
+        </div>
+        <div class="page" data-step="4" hidden>
+          <h2>Diversity</h2>
+          <p>Northbeam Logistics is an equal opportunity employer. Completing this section is voluntary.</p>
+          <div class="row"><span class="lbl" id="d1_l">Gender</span><div class="radio-list" role="radiogroup" aria-labelledby="d1_l"><label><input type="radio" name="Gender" value="Female"> Female</label><label><input type="radio" name="Gender" value="Male"> Male</label><label><input type="radio" name="Gender" value="Decline to self-identify"> I choose not to disclose</label></div></div>
+          <div class="row"><span class="lbl" id="d2_l">Race/Ethnicity</span><div class="radio-list" role="radiogroup" aria-labelledby="d2_l"><label><input type="radio" name="Ethnicity" value="Asian"> Asian</label><label><input type="radio" name="Ethnicity" value="White"> White</label><label><input type="radio" name="Ethnicity" value="Other"> Other</label><label><input type="radio" name="Ethnicity" value="Decline to self-identify"> I choose not to disclose</label></div></div>
+          <div class="row"><span class="lbl" id="d3_l">Protected Veteran Status</span><div class="radio-list" role="radiogroup" aria-labelledby="d3_l"><label><input type="radio" name="Veteran" value="Protected veteran"> I identify as one or more of the classifications of protected veteran</label><label><input type="radio" name="Veteran" value="Not a protected veteran"> I am not a protected veteran</label><label><input type="radio" name="Veteran" value="Decline to self-identify"> I don't wish to answer</label></div></div>
+          <div class="row"><span class="lbl" id="d4_l">Disability Status</span><div class="radio-list" role="radiogroup" aria-labelledby="d4_l"><label><input type="radio" name="Disability" value="Yes"> Yes, I have a disability (or previously had a disability)</label><label><input type="radio" name="Disability" value="No"> No, I do not have a disability</label><label><input type="radio" name="Disability" value="Decline to self-identify"> I do not want to answer</label></div></div>
+        </div>
+        <div class="page" data-step="5" hidden>
+          <h2>eSignature</h2>
+          <p>By entering my full name below I certify that the information in this application is complete and correct.</p>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_5-esignatureBlock-fullName">Full Name <span class="mandatory">*</span></label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_5-esignatureBlock-fullName" name="eSignatureFullName" data-req="1"><span class="errorMessage"></span></div></div>
+          <div class="row"><label for="et-ef-content-ftf-gp-j_id_id8pc9-page_5-esignatureBlock-date">Date</label><div><input type="text" id="et-ef-content-ftf-gp-j_id_id8pc9-page_5-esignatureBlock-date" name="eSignatureDate" readonly></div></div>
+        </div>
+        <div class="page" data-step="6" hidden>
+          <h2>Review and Submit</h2>
+          <p>Review your application. Use the train above to go back and correct anything before you submit.</p>
+          <dl class="review" id="review"></dl>
+        </div>
+        <div class="buttons">
+          <input type="button" id="et-ef-content-ftf-previousCmdBottom" value="Previous" hidden>
+          <input type="submit" id="et-ef-content-ftf-saveContinueCmdBottom" value="Save and Continue">
+          <input type="submit" id="et-ef-content-ftf-submitCmdBottom" value="Submit" hidden>
+          <input type="button" id="et-ef-content-ftf-saveDraftCmdBottom" value="Save as Draft">
+          <input type="button" id="et-ef-content-ftf-quitCmdBottom" value="Quit">
+        </div>
+      </form>
+    </div>
+  </div>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var KEY = 'taleo-session-' + FORM_ID;
+  var $ = function (id) { return document.getElementById(id); };
+  var auth = $('authPanel'), app = $('appPanel'), loginForm = $('loginForm'), registerForm = $('registerForm'), authError = $('authError');
+  function signedIn() { try { return !!sessionStorage.getItem(KEY); } catch (e) { return false; } }
+  function enter(user) { try { sessionStorage.setItem(KEY, user); } catch (e) {} startApp(); }
+  function authFail(msg) { authError.textContent = msg; authError.style.display = 'block'; }
+  function post(path, body) {
+    return fetch('/__account/' + FORM_ID + '/' + path, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(body) }).then(function (r) { return r.json().then(function (j) { j.status = r.status; return j; }); });
+  }
+  $('dialogTemplate-dialogForm-login-register').addEventListener('click', function (e) { e.preventDefault(); loginForm.hidden = true; registerForm.hidden = false; authError.style.display = 'none'; });
+  $('backToLogin').addEventListener('click', function () { registerForm.hidden = true; loginForm.hidden = false; authError.style.display = 'none'; });
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var u = $('dialogTemplate-dialogForm-login-name1').value.trim(), p = $('dialogTemplate-dialogForm-login-password').value;
+    if (!u || !p) return authFail('Please enter your user name and password.');
+    post('login', { username: u, password: p }).then(function (r) { if (r.ok) enter(u); else authFail('Invalid user name or password. Please try again.'); });
+  });
+  registerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var u = $('dialogTemplate-dialogForm-defaultCreateAccount-userName').value.trim();
+    var p = $('dialogTemplate-dialogForm-defaultCreateAccount-password').value, p2 = $('dialogTemplate-dialogForm-defaultCreateAccount-passwordConfirm').value;
+    var em = $('dialogTemplate-dialogForm-defaultCreateAccount-email').value.trim();
+    if (!u || !p || !em) return authFail('Please complete all mandatory fields.');
+    if (p !== p2) return authFail('The passwords do not match.');
+    if (p.length < 8 || !/[A-Za-z]/.test(p) || !/\d/.test(p) || !/[^A-Za-z0-9]/.test(p)) return authFail('The password does not meet the password policy.');
+    if (!$('dialogTemplate-dialogForm-defaultCreateAccount-agreeTerms').checked) return authFail('You must accept the terms of use.');
+    post('register', { username: u, email: em, password: p }).then(function (r) {
+      if (r.ok) return enter(u);
+      authFail(r.status === 409 ? 'User name is not available. Please choose a different one.' : 'Registration failed.');
+    });
+  });
+
+  // ── The application wizard.
+  var form = $('et-ef');
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var train = document.querySelectorAll('#train li');
+  var step = 0;
+  var PROVINCES = { Pakistan: ['Azad Kashmir', 'Balochistan', 'Gilgit-Baltistan', 'Islamabad Capital Territory', 'Khyber Pakhtunkhwa', 'Punjab', 'Sindh'], India: ['Delhi', 'Karnataka', 'Maharashtra', 'Punjab', 'Tamil Nadu'], 'United Kingdom': ['England', 'Northern Ireland', 'Scotland', 'Wales'], 'United States': ['California', 'New York', 'Texas', 'Washington'] };
+  var country = $('et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-0');
+  var state = $('et-ef-content-ftf-gp-j_id_id8pc9-page_2-cpi-cfrmsub-frm-dv_cs_candidate_personal_info_ResidenceLocation-1');
+  ['Bangladesh', 'Canada', 'India', 'Pakistan', 'United Arab Emirates', 'United Kingdom', 'United States'].forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; country.appendChild(o); });
+  country.addEventListener('change', function () {
+    // The province list reloads from the server after a country change (a short delay, like the real partial refresh).
+    state.disabled = true;
+    state.innerHTML = '<option value="">Select...</option>';
+    setTimeout(function () {
+      (PROVINCES[country.value] || []).forEach(function (p) { var o = document.createElement('option'); o.value = p; o.textContent = p; state.appendChild(o); });
+      state.disabled = !country.value;
+    }, 250);
+  });
+  var resume = $('et-ef-content-ftf-gp-j_id_id8pc9-page_1-attachedFilesBlock-uploadedFile');
+  resume.addEventListener('change', function () { $('attachedList').textContent = resume.files.length ? 'Attached: ' + resume.files[0].name : 'No attached files.'; });
+  function blank(el) {
+    if (el.type === 'radio' || el.type === 'checkbox') return !form.querySelector('[name="' + el.name + '"]:checked');
+    if (el.type === 'file') return !el.files.length;
+    return !String(el.value || '').trim();
+  }
+  function validate(n) {
+    var bad = 0;
+    pages[n].querySelectorAll('[data-req]').forEach(function (el) {
+      var msg = blank(el) ? 'This field is mandatory.' : (el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) ? 'The email address is not valid.' : '';
+      var box = el.closest('.row').querySelector('.errorMessage');
+      if (box) box.textContent = msg;
+      if (msg) bad++;
+    });
+    $('errorBanner').style.display = bad ? 'block' : 'none';
+    return !bad;
+  }
+  function review() {
+    var out = '';
+    pages.slice(0, 6).forEach(function (p) {
+      p.querySelectorAll('input, select').forEach(function (el) {
+        if (el.type === 'radio' && !el.checked) return;
+        var label = el.type === 'radio' ? (el.closest('.row').querySelector('.lbl') || {}).textContent : (el.labels && el.labels[0] ? el.labels[0].textContent : el.name);
+        var v = el.type === 'file' ? (el.files[0] ? el.files[0].name : '') : el.type === 'checkbox' ? (el.checked ? 'Yes' : 'No') : el.value;
+        if (v) out += '<dt>' + String(label).replace(/\*/g, '').trim() + '</dt><dd>' + String(v).replace(/[<>&]/g, '') + '</dd>';
+      });
+    });
+    $('review').innerHTML = out;
+  }
+  function show(n) {
+    step = n;
+    pages.forEach(function (p, i) { p.hidden = i !== n; });
+    Array.prototype.forEach.call(train, function (li, i) { li.className = i === n ? 'selected' : ''; });
+    var last = n === pages.length - 1;
+    $('et-ef-content-ftf-saveContinueCmdBottom').hidden = last;
+    $('et-ef-content-ftf-submitCmdBottom').hidden = !last;
+    $('et-ef-content-ftf-previousCmdBottom').hidden = n === 0;
+    if (n === 5) $('et-ef-content-ftf-gp-j_id_id8pc9-page_5-esignatureBlock-date').value = new Date().toLocaleDateString('en-US');
+    if (last) review();
+    window.scrollTo(0, 0);
+  }
+  $('et-ef-content-ftf-previousCmdBottom').addEventListener('click', function () { if (step > 0) show(step - 1); });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (step < pages.length - 1) {
+      if (!validate(step)) return;
+      return show(step + 1);
+    }
+    for (var i = 0; i < pages.length - 1; i++) if (!validate(i)) return show(i);
+    $('et-ef-content-ftf-submitCmdBottom').disabled = true;
+    var fd = new FormData(form);
+    fd.set('candidateUser', sessionStorage.getItem(KEY) || '');
+    fetch('/__submit/' + FORM_ID, { method: 'POST', body: fd, headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.ok && res.redirect) return location.assign(res.redirect);
+        $('et-ef-content-ftf-submitCmdBottom').disabled = false;
+        $('errorBanner').textContent = 'The application could not be submitted: ' + (res.errors || []).join('; ');
+        $('errorBanner').style.display = 'block';
+      });
+  });
+  function startApp() { auth.hidden = true; app.hidden = false; show(0); }
+  if (signedIn()) startApp();
+  else auth.hidden = false;
+})();
+</script>
+</body>
+</html>

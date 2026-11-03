@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--
+  Fixture: iCIMS career portal job page (careers-<tenant>.icims.com/jobs/<id>/<slug>/job).
+  The real portal is two documents: the branded outer shell and the job content in
+  iframe#icims_content_iframe (same URL plus ?in_iframe=1), resized by postMessage
+  (iframeResizer). This one file renders either, depending on in_iframe=1.
+  Inner view: .iCIMS_JobHeaderTable meta rows, description sections, and the
+  a.iCIMS_ApplyOnlineButton "Apply for this job online" link that navigates the FRAME to
+  .../login?in_iframe=1 (candidate.html). Also the "Share" / "Back to search results"
+  links an engine must not mistake for applying.
+  Fictional employer (Northbeam Logistics). Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Careers at Northbeam Logistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #222; background: #f3f5f7; }
+    .iCIMS_Header { background: #0d3b66; color: #fff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .iCIMS_Header a { color: #fff; margin-left: 18px; font-size: 14px; }
+    .iCIMS_Logo { font-size: 22px; font-weight: bold; letter-spacing: .5px; }
+    #icims_content_iframe { display: block; width: 100%; max-width: 1100px; margin: 0 auto; border: 0; height: 900px; background: #fff; }
+    .iCIMS_Footer { text-align: center; font-size: 12px; color: #667; padding: 18px; }
+    .iCIMS_MainWrapper { max-width: 980px; margin: 0 auto; padding: 24px; background: #fff; }
+    .iCIMS_Header_Title { font-size: 26px; margin: 0 0 12px; color: #0d3b66; }
+    .iCIMS_JobHeaderTable { display: grid; grid-template-columns: 160px 1fr; gap: 6px 12px; font-size: 14px; margin-bottom: 18px; }
+    .iCIMS_JobHeaderTable dt { color: #556; }
+    .iCIMS_InfoMsg_Job { line-height: 1.55; font-size: 15px; }
+    .iCIMS_JobOptions { margin: 22px 0; display: flex; gap: 16px; align-items: center; }
+    .iCIMS_PrimaryButton { display: inline-block; background: #f28c28; color: #fff; padding: 12px 22px; border-radius: 3px; text-decoration: none; font-weight: bold; }
+    .iCIMS_SecondaryLink { color: #0d3b66; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  'use strict';
+  var JOBS = {
+    '4821': { title: 'Junior Software Engineer', category: 'Engineering', location: 'PK-PB-Lahore' },
+    '4907': { title: 'Junior Frontend Developer', category: 'Engineering', location: 'PK-PB-Lahore' }
+  };
+  var m = location.pathname.match(/\/jobs\/(\d+)\//);
+  var job = JOBS[m ? m[1] : '4821'] || JOBS['4821'];
+  var app = document.getElementById('app');
+  var inFrame = /[?&]in_iframe=1/.test(location.search);
+  if (!inFrame) {
+    document.title = job.title + ' in Lahore, Pakistan | Careers at Northbeam Logistics';
+    app.innerHTML =
+      '<header class="iCIMS_Header"><span class="iCIMS_Logo">NORTHBEAM LOGISTICS</span><nav><a href="#">Search Jobs</a><a href="#">Join Our Talent Community</a><a href="#">Log back in!</a></nav></header>' +
+      '<iframe id="icims_content_iframe" title="iCIMS Content Frame" scrolling="no" src="' + location.pathname + '?in_iframe=1"></iframe>' +
+      '<footer class="iCIMS_Footer">Applicant Tracking Software powered by iCIMS · www.icims.com</footer>';
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.type === 'icims-resize') document.getElementById('icims_content_iframe').style.height = Math.max(600, e.data.height + 40) + 'px';
+    });
+    return;
+  }
+  document.title = job.title + ' | Northbeam Logistics';
+  app.innerHTML =
+    '<div class="iCIMS_MainWrapper">' +
+    '<a class="iCIMS_SecondaryLink" href="#">« Back to search results</a>' +
+    '<h1 class="iCIMS_Header_Title">' + job.title + '</h1>' +
+    '<dl class="iCIMS_JobHeaderTable"><dt>Job ID</dt><dd>2025-' + (m ? m[1] : '4821') + '</dd><dt>Job Locations</dt><dd>' + job.location + '</dd><dt>Category</dt><dd>' + job.category + '</dd><dt>Type</dt><dd>Regular Full-Time</dd></dl>' +
+    '<div class="iCIMS_InfoMsg_Job"><h2>Overview</h2><p>Northbeam Logistics moves freight for 4,000 shippers across South Asia. Our Lahore engineering hub builds the routing and tracking platform in TypeScript, Node.js and PostgreSQL.</p>' +
+    '<h2>Responsibilities</h2><ul><li>Build and maintain services and web interfaces with the platform team.</li><li>Write tests, review code and help on-call during business hours.</li></ul>' +
+    '<h2>Qualifications</h2><ul><li>BS in Computer Science or equivalent experience.</li><li>1-3 years with TypeScript or JavaScript, SQL and Git.</li></ul></div>' +
+    '<div class="iCIMS_JobOptions"><a class="iCIMS_PrimaryButton iCIMS_ApplyOnlineButton" href="login?in_iframe=1" title="Apply for this job online">Apply for this job online</a>' +
+    '<a class="iCIMS_SecondaryLink" href="#" onclick="return false">Share on your newsfeed</a><a class="iCIMS_SecondaryLink" href="#" onclick="return false">Refer a friend</a></div>' +
+    '</div>';
+  var post = function () { try { parent.postMessage({ type: 'icims-resize', height: document.documentElement.scrollHeight }, '*'); } catch (e) {} };
+  window.addEventListener('load', post);
+  setTimeout(post, 50);
+})();
+</script>
+</body>
+</html>

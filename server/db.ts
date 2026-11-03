@@ -393,6 +393,17 @@ addColumn('unknown_questions', 'answered_at', 'TEXT');
 addColumn('unknown_questions', 'answer_id', 'TEXT');
 db.exec('CREATE INDEX IF NOT EXISTS profile_facts_source ON profile_facts(source, active)');
 
+// API rate-limit counters (A07): one row per bucket ("req:<keyId>", "ai:<keyId>", "fail:<addr>") and time slot, so
+// limits hold across restarts and across processes (the HTTP server and each stdio MCP process share them).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS api_rate_windows (
+    bucket TEXT NOT NULL,
+    slot   INTEGER NOT NULL,
+    count  INTEGER NOT NULL,
+    PRIMARY KEY (bucket, slot)
+  ) WITHOUT ROWID;
+`);
+
 export const now = () => new Date().toISOString();
 
 type Row = Record<string, SQLInputValue>;

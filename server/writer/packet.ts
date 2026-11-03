@@ -62,6 +62,8 @@ export interface WriterNotes {
   cvPages: number;
   cvChanges: string[];
   steps: WriterStep[];
+  /** Present when the letter was skipped because the form has no field for one (WriteOptions.letter 'auto'). */
+  letter?: { needed: false; reason: string; source: string | null };
 }
 
 export interface AuditIssueV1 {
@@ -172,13 +174,14 @@ export function saveApplication(input: SaveInput, reuseId?: string): string {
   });
 }
 
-/** Render the CV and letter PDFs into data/packets/<applicationId>/. */
-export async function renderPacketFiles(applicationId: string, cv: TailoredCv, letter: string, paper: 'A4' | 'LETTER'): Promise<{ cvPdfPath: string; letterPdfPath: string; cvPages: number }> {
+/** Render the CV and letter PDFs into data/packets/<applicationId>/. No letter (null): no letter PDF, letterPdfPath ''. */
+export async function renderPacketFiles(applicationId: string, cv: TailoredCv, letter: string | null, paper: 'A4' | 'LETTER'): Promise<{ cvPdfPath: string; letterPdfPath: string; cvPages: number }> {
   const dir = path.join(PACKETS_DIR, applicationId);
   fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   const cvPdf = await renderCvPdfWithPages(cv, paper);
   const cvPdfPath = path.join(dir, cvFilename(cv.name));
   fs.writeFileSync(cvPdfPath, cvPdf.buffer);
+  if (letter === null) return { cvPdfPath, letterPdfPath: '', cvPages: cvPdf.pages };
   const contact = [cv.contact.email, cv.contact.phone, cv.contact.location].filter(Boolean).join(' | ');
   const letterPdfPath = path.join(dir, letterFilename(cv.name));
   fs.writeFileSync(letterPdfPath, await renderLetterPdf(cv.name, letter, contact));
@@ -259,7 +262,9 @@ export function loadPacket(applicationId: string): ApplicationPacket | null {
   let quality = writer.quality;
   const gated = get<{ text: string }>('SELECT text FROM letter_variants WHERE id = ?', row.variant_id ?? '')?.text;
   const gatedSubject = writer.subjects[writer.subjectIndex];
-  if (gated !== row.cover_letter || (gatedSubject !== undefined && gatedSubject !== row.subject)) {
+  // A packet written without a letter (the form has no field for one) has nothing to re-gate until someone adds one.
+  const noLetter = writer.letter?.needed === false && !row.cover_letter && !row.subject;
+  if (!noLetter && (gated !== row.cover_letter || (gatedSubject !== undefined && gatedSubject !== row.subject))) {
     const again = regate(row, writer);
     if (!again || !again.lint.pass || !again.truth.pass) return null;
     quality = { critic: writer.quality.critic, lint: again.lint, truth: again.truth };

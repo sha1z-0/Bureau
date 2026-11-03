@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+  A06 fixture: the recruiting partner's form, served from origin B and embedded cross-origin by
+  iframe-host.html. Step 0: a "Start your application" button (role=button div). Step 1: name and
+  email, then "Continue". Step 2: phone, CV, privacy consent and "Submit application" (which only
+  the form engine's verified submit may press). Fictional. Local only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Larkfield Freight - Application</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; color: #1f2937; }
+    .cta, button { display: inline-block; background: #0f766e; color: #fff; padding: 9px 16px; border-radius: 6px; cursor: pointer; border: 0; font: inherit; }
+    .field { margin: 12px 0; } label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input[type=text], input[type=email], input[type=tel] { width: 100%; max-width: 420px; padding: 6px; box-sizing: border-box; }
+    .err { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h2>Apply: Junior Platform Engineer</h2>
+  <div class="cta" role="button" tabindex="0" id="start">Start your application</div>
+  <form id="lf" hidden novalidate>
+    <section id="s1">
+      <h3>About you</h3>
+      <div class="field"><label for="lf-first">First name *</label><input id="lf-first" name="first" type="text" required></div>
+      <div class="field"><label for="lf-last">Last name *</label><input id="lf-last" name="last" type="text" required></div>
+      <div class="field"><label for="lf-email">Email *</label><input id="lf-email" name="email" type="email" required></div>
+      <button type="button" id="continue">Continue</button>
+    </section>
+    <section id="s2" hidden>
+      <h3>Contact and CV</h3>
+      <div class="field"><label for="lf-phone">Phone *</label><input id="lf-phone" name="phone" type="tel" required></div>
+      <div class="field"><label for="lf-cv">Resume/CV *</label><input id="lf-cv" name="cv" type="file" required></div>
+      <div class="field"><label><input id="lf-privacy" name="privacy" type="checkbox" required> I agree to the privacy notice *</label></div>
+      <p class="err" id="err" hidden></p>
+      <button type="submit">Submit application</button>
+    </section>
+  </form>
+  <div id="done" hidden><h3>Thank you for applying!</h3></div>
+  <script>
+    (function () {
+      var start = document.getElementById('start'), form = document.getElementById('lf');
+      function open() { form.hidden = false; start.style.display = 'none'; }
+      start.addEventListener('click', open);
+      start.addEventListener('keydown', function (e) { if (e.key === 'Enter') open(); });
+      document.getElementById('continue').addEventListener('click', function () {
+        var miss = Array.prototype.filter.call(document.querySelectorAll('#s1 [required]'), function (el) { return !el.value; });
+        if (miss.length) return;
+        document.getElementById('s1').hidden = true;
+        document.getElementById('s2').hidden = false;
+      });
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var missing = Array.prototype.filter.call(form.querySelectorAll('#s2 [required]'), function (el) { return el.type === 'checkbox' ? !el.checked : el.type === 'file' ? !el.files.length : !el.value; });
+        if (missing.length) { var er = document.getElementById('err'); er.hidden = false; er.textContent = 'Please complete every required field.'; return; }
+        try { parent.postMessage({ type: 'larkfield-posted' }, '*'); } catch (x) {}
+        form.hidden = true;
+        document.getElementById('done').hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

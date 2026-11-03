@@ -1,0 +1,49 @@
+{
+  "_comment": "Staged replica (fixtures/ats/_staged/server.ts): same FormSpec as a manifest.json, kept out of the e2e until its job's Claude requests are recorded. Rename to manifest.json to promote (and port the /__account endpoints to a fixture-routes module).",
+  "forms": [
+    {
+      "id": "successfactors-career",
+      "ats": "successfactors",
+      "title": "SAP SuccessFactors candidate site: Apply now, data privacy consent, sign in / Create an Account, one-page application",
+      "route": "/career4.successfactors.com/career",
+      "file": "successfactors/career.html",
+      "confirmationFile": "successfactors/confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "steps": 1,
+      "login": true,
+      "required": ["firstName", "lastName", "contactEmail", "cellPhone", "address", "city", "country", "resume", "custAuthorizedPK", "custSponsorship", "custYears", "custRemote", "candidateAccount", "accountCountry"],
+      "expect": {
+        "firstName": "profile:firstName",
+        "lastName": "profile:lastName",
+        "contactEmail": "profile:email",
+        "cellPhone": "profile:phone",
+        "address": "profile:addressLine1",
+        "city": "profile:city",
+        "zip": "profile:postalCode",
+        "country": "profile:country",
+        "resume": "file:cv",
+        "custAuthorizedPK": "answer:authorizedToWorkPakistan",
+        "custSponsorship": "answer:needsSponsorship",
+        "custYears": "=1-3",
+        "custRemote": "answer:remoteOk",
+        "custHeard": "oneOf:Job Board|Company Website",
+        "eeoGender": "decline",
+        "eeoVeteran": "decline",
+        "candidateAccount": "nonempty",
+        "accountCountry": "profile:country",
+        "jobAlertsOptIn": "=false"
+      },
+      "quirks": [
+        "one client-rendered document: job listing → 'Apply now' → Data Privacy Consent Statement dialog (Accept / Decline) → login wall → application",
+        "form#loginForm (Email, Password, Sign In) and 'Create an Account' → form#createAccountForm with fbclc_* ids: Email, Retype Email, Choose Password, Retype Password, First Name, Last Name, Country/Region of Residence, a job-alerts opt-in that must stay unticked",
+        "'An account with this email already exists' when the email is taken; the session lasts for the browser session",
+        "application name and email prefilled from the account; Country/Region is an SF combobox (input role=combobox + listbox) whose value lives in a hidden input",
+        "'Upload a Resume' button over a hidden file input next to 'Paste resume'; optional cover letter text",
+        "'No Selection' placeholder options, a radio question, EEO selects with 'Prefer not to say'",
+        "'Save Draft' / 'Cancel' next to the final 'Apply' button; field-level .sfError role=alert"
+      ],
+      "reference": "Public SuccessFactors candidate sites (career<N>.successfactors.com/career?company=…&career_job_req_id=…), studied read-only",
+      "job": { "company": "Northbeam Logistics", "title": "Junior Software Engineer", "location": "Lahore, Pakistan" }
+    }
+  ]
+}

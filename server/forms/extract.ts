@@ -34,6 +34,8 @@ export interface StepExtract {
   adders: (RawAdder & { frame: string })[];
   applies: (RawApply & { frame: string })[];
   frames: FrameNote[];
+  /** Required fields inside closed shadow roots: nothing can fill or read them, so the step cannot verify. */
+  unreachable: ExtractedField[];
   url: string;
   title: string;
 }
@@ -127,7 +129,7 @@ function toField(raw: RawField, step: number, frame: string): ExtractedField {
 
 /** Every field, button and frame on the current step. */
 export async function extractStep(page: Page, step = 0): Promise<StepExtract> {
-  const out: StepExtract = { fields: [], navs: [], adders: [], applies: [], frames: [], url: page.url(), title: '' };
+  const out: StepExtract = { fields: [], navs: [], adders: [], applies: [], frames: [], unreachable: [], url: page.url(), title: '' };
   const mainOrigin = safeOrigin(page.url());
   for (const frame of page.frames()) {
     if (frame.isDetached()) continue;
@@ -151,7 +153,7 @@ export async function extractStep(page: Page, step = 0): Promise<StepExtract> {
     }
     if (!res) continue;
     if (isMain) out.title = res.title;
-    for (const f of res.fields) out.fields.push(toField(f, step, key));
+    for (const f of res.fields) (f.meta.unreachable ? out.unreachable : out.fields).push(toField(f, step, key));
     for (const n of res.navs) out.navs.push({ ...n, frame: key });
     for (const a of res.adders) out.adders.push({ ...a, frame: key });
     for (const a of res.applies) out.applies.push({ ...a, frame: key });

@@ -8,8 +8,9 @@ import type { Frame } from 'playwright-core';
  * Ops:
  *  - snapshot  a compact accessibility view of the page: headings, every visible
  *              clickable control (stamped `data-bureau-agent="k<n>"`, stable across
- *              calls in one document) with its role, name, href and selector
- *              candidates, and the visible text.
+ *              calls in one document; open shadow roots included, after the light DOM)
+ *              with its role, name, href and selector candidates, and the visible text.
+ *              Run per frame: the loop adds child frames' controls as `k<n>@<frame>`.
  *  - scan      all text a page could use to talk to an AI, hidden or not: body text
  *              (including display:none and off-screen blocks), placeholders,
  *              aria-labels, titles, option labels and HTML comments. Used only to
@@ -40,9 +41,29 @@ export const AGENT_LIB = String.raw`(op, arg) => {
     if (t === 'BUTTON' || t === 'SUMMARY' || (t === 'INPUT' && /^(submit|button)$/i.test(el.type))) return 'button';
     return 'button';
   }
+  /** Light-DOM text a <slot> shows inside a shadow-root button (innerText does not see it). */
+  function slotted(el) {
+    let out = '';
+    for (const sl of Array.from(el.querySelectorAll('slot'))) for (const n of sl.assignedNodes({ flatten: true })) out += ' ' + (n.textContent || '');
+    return norm(out);
+  }
   function nameOf(el) {
     const t = el.tagName === 'INPUT' ? el.value : (el.innerText || el.textContent);
-    return norm(t) || norm(el.getAttribute('aria-label')) || norm(el.getAttribute('title'));
+    const inShadow = el.getRootNode && el.getRootNode() !== document;
+    return norm(t) || norm(el.getAttribute('aria-label')) || norm(el.getAttribute('title')) || (inShadow ? slotted(el) || norm(el.getRootNode().host && el.getRootNode().host.getAttribute('aria-label')) : '');
+  }
+  /** querySelectorAll over the document, then inside open shadow roots (document order first, so plain pages are unchanged). */
+  function deepQuery(sel) {
+    const out = Array.from(document.querySelectorAll(sel));
+    const walk = (root) => {
+      for (const el of Array.from(root.querySelectorAll('*'))) {
+        if (!el.shadowRoot) continue;
+        for (const x of Array.from(el.shadowRoot.querySelectorAll(sel))) out.push(x);
+        walk(el.shadowRoot);
+      }
+    };
+    walk(document);
+    return out;
   }
   const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   function selectorsOf(el, role, name) {
@@ -64,7 +85,7 @@ export const AGENT_LIB = String.raw`(op, arg) => {
   }
   function clickables() {
     const out = [];
-    for (const el of Array.from(document.querySelectorAll(CLICK_SEL))) {
+    for (const el of deepQuery(CLICK_SEL)) {
       if (!visible(el) || el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
       if (el.closest('[role="listbox"], [role="menu"]')) continue;
       const name = nameOf(el).slice(0, 90);
@@ -116,7 +137,7 @@ export const AGENT_LIB = String.raw`(op, arg) => {
         continue;
       }
       let els = [];
-      try { els = Array.from(document.querySelectorAll(s)); } catch (e) { els = []; }
+      try { els = deepQuery(s); } catch (e) { els = []; }
       const el = els.find(visible);
       if (el) {
         const ref = el.getAttribute('data-bureau-agent');
@@ -129,6 +150,7 @@ export const AGENT_LIB = String.raw`(op, arg) => {
 }`;
 
 export interface Clickable {
+  /** `k<n>` in the main document; `k<n>@<frame key>` inside a child frame (e.g. a cross-origin ATS embed). */
   ref: string;
   role: string;
   name: string;
@@ -139,6 +161,10 @@ export interface Clickable {
   inForm: boolean;
   expanded: string;
   selectors: string[];
+  /** The child frame holding the control (A05 frame key, e.g. `b1x`); absent in the main document. */
+  frame?: string;
+  /** That frame's host, shown to the model so it knows the control sits in an embedded page. */
+  frameHost?: string;
 }
 
 export interface Snapshot {

@@ -12,7 +12,7 @@ import { proofShot, stepShot, writeRunFiles } from './artifacts.ts';
 import { guardedContext, launchBrowser, leaseBrowser } from './browser.ts';
 import type { Candidate } from './candidate.ts';
 import { detectOnPage, effectiveUrl } from './detect.ts';
-import { type ExtractedField, extractStep, formPresent, frameByKey, frameFor, type StepExtract } from './extract.ts';
+import { type ExtractedField, extractStep, formPresent, frameByKey, frameFor, frameKey as frameKeyOf, type StepExtract } from './extract.ts';
 import { fillField, type FileSet } from './handlers/index.ts';
 import { readField } from './handlers/common.ts';
 import { probeOptions } from './handlers/combobox.ts';
@@ -66,6 +66,8 @@ interface StepRecord {
   shot: string | null;
   /** Fields committed into saved entry cards (their inputs are gone or empty by design). */
   saved?: Set<string>;
+  /** Required fields in closed shadow roots on this step (never fillable: no repair pass, no agent). */
+  opaque?: number;
 }
 
 interface Run {
@@ -461,6 +463,14 @@ async function fillStep(r: Run, step: number): Promise<{ rec: StepRecord; ex: St
     }
     v.verified = v.problems.length === 0;
   }
+  // A required field in a closed shadow root: nothing can type into it or read it back, so this step can never be
+  // verified (and the page would refuse the submit anyway). Logged as a failed field; the run parks as needs_you.
+  for (const f of live.unreachable) {
+    v.fieldLog.push({ signature: f.signature, label: f.label, kind: f.kind, required: true, source: null, key: null, intended: null, readBack: null, ok: false, note: 'closed shadow root' });
+    v.problems.push(`${f.label || 'a required field'}: inside a closed shadow root, so Bureau cannot fill it or read it back`);
+    v.verified = false;
+  }
+  rec.opaque = live.unreachable.length;
   rec.log = v.fieldLog;
   rec.verified = v.verified;
   rec.problems = v.problems;
@@ -750,7 +760,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
         }
       }
       let { rec, ex } = await fillStep(r, step);
-      if (!rec.verified && !r.unknown.size) {
+      if (!rec.verified && !r.unknown.size && !rec.opaque) {
         // One repair pass: fields that did not stick (re-renders, traps that clear values) get filled again.
         r.shots.pop();
         ({ rec, ex } = await fillStep(r, step));
@@ -789,7 +799,8 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     const problems = r.steps.flatMap((s) => s.problems);
     let verified = r.steps.length > 0 && r.steps.every((s) => s.verified) && !r.unknown.size && !!finalNav;
     // Generic forms, and recipes that no longer get through, too (A06 compiles the agent's repaired run into a new version).
-    if (!verified && (r.via === 'generic' || r.via === 'recipe') && !r.unknown.size && stopReason !== 'stuck' && opts.allowAgent !== false) {
+    const opaque = r.steps.some((s) => s.opaque);
+    if (!verified && (r.via === 'generic' || r.via === 'recipe') && !r.unknown.size && !opaque && stopReason !== 'stuck' && opts.allowAgent !== false) {
       const res = await tryAgent(r, r.steps.at(-1)?.fields ?? []);
       if (res?.status === 'done') {
         const last = r.steps.at(-1);
@@ -832,7 +843,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
 
     if (!verified) {
       keepOpen = !!opts.headful;
-      recordRecipe(r, false, problems.slice(0, 3).join('; '));
+      recordRecipe(r, false, opaque ? 'closed shadow root' : problems.slice(0, 3).join('; '));
       const why = problems.length ? problems.slice(0, 4).join('; ') : stopReason === 'no_submit' ? 'no submit button found' : 'could not verify every field';
       return finish(r, { status: 'needs_you', reason: `Could not verify the form: ${why}`, shotPath: await proofShot(page, packet.applicationId), verified: false });
     }
@@ -897,11 +908,29 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
   async function login(r: Run): Promise<FillOutcome | null> {
     const sel: AccountSelectors = { ...DEFAULT_ACCOUNT_SELECTORS, ...(r.adapter.account?.selectors ?? {}) };
     // Account forms submit by design: the gate is open only for them.
-    const acct = await withSubmitAllowed(r.page, () => ensureAccount(r.page, { waitForCode: deps.waitForCode ?? realWaitForCode, email: jobSearchEmail }, sel));
+    const acct = await withSubmitAllowed(r.page, () => ensureAccount(r.page, { waitForCode: deps.waitForCode ?? realWaitForCode, email: jobSearchEmail, fillProfile: (frame) => accountProfile(r, frame) }, sel));
     if (!acct.ok) return finish(r, { status: 'needs_you', reason: acct.reason, shotPath: await proofShot(r.page, packet.applicationId) });
     r.notes.push(acct.created ? `created an account for ${acct.email}` : `signed in as ${acct.email}`);
     await settle(r.page, 500);
     return null;
+  }
+
+  /**
+   * The profile part of a create-account form (name, country of residence): filled from the
+   * candidate like any field. Email, user name and password boxes stay with the accounts flow,
+   * and nothing here is learned into a recipe or asked of the owner.
+   */
+  async function accountProfile(r: Run, frame: Frame) {
+    const key = frameKeyOf(r.page, frame);
+    const ex = await extract(r, 0);
+    const fields = ex.fields.filter((f) => (f.frame ?? 'b') === key && f.kind !== 'file' && f.kind !== 'email' && !/e-?mail|password|user ?name|login/i.test(f.label));
+    if (!fields.length) return;
+    const traceLen = r.trace.length;
+    const unknown = new Map(r.unknown);
+    await mapAndFill(r, 0, fields, { step: 0, fields: [], values: [], log: [], verified: false, problems: [], shot: null });
+    r.trace.length = traceLen;
+    r.unknown = unknown;
+    dbg(r, `account form: filled ${fields.length} profile field(s)`);
   }
 
   async function agentOrNeedsYou(r: Run, fields: FormField[], why: string): Promise<FillOutcome | null> {
@@ -963,7 +992,7 @@ function recordRecipe(r: Run, verified: boolean, detail = '') {
         }
       }
       // Failures that are not the recipe's fault (unknown questions, CAPTCHAs) don't count against it.
-      if (detail === 'unknown questions' || detail === 'captcha') return;
+      if (detail === 'unknown questions' || detail === 'captcha' || detail === 'closed shadow root') return;
       recordRecipeRun(r.recipe.id, verified, detail || (verified ? 'verified' : 'not verified'));
       return;
     }

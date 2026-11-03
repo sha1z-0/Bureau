@@ -363,6 +363,29 @@ export default async function a07Api({ check, section, sandbox, sharedBrowser }:
       resetRateLimits();
     });
 
+    await check('rate-limit counts live in sqlite: a fresh process (a restart) still sees them; old windows are pruned', async () => {
+      resetRateLimits();
+      run('INSERT INTO api_rate_windows (bucket, slot, count) VALUES (?, ?, 5)', 'req:gone', Date.now() - 2 * 3_600_000);
+      saveRateLimitSettings({ perKey: { [keyB.info.id]: { perMinute: 3 } } });
+      try {
+        for (let i = 0; i < 3; i++) assert.equal((await call('GET', '/api/v1/health', { key: keyB.key })).status, 200);
+        assert.equal(get<{ n: number }>("SELECT COUNT(*) AS n FROM api_rate_windows WHERE bucket = 'req:gone'")!.n, 0, 'windows older than an hour are pruned');
+        assert.equal(get<{ n: number }>('SELECT SUM(count) AS n FROM api_rate_windows WHERE bucket = ?', `req:${keyB.info.id}`)!.n, 3, 'one counted call per request');
+        // A new process on the same database: what a restart (or a stdio MCP process) would see.
+        const child = path.join(sandbox, 'a07-ratelimit-child.mts');
+        fs.writeFileSync(child, `const r = await import(${JSON.stringify(new URL('../../server/api/ratelimit.ts', import.meta.url).href)});\nconsole.log(JSON.stringify(r.takeRequest(process.argv[2])));\n`);
+        const { execFileSync } = await import('node:child_process');
+        const out = execFileSync(process.execPath, [path.join(ROOT, 'node_modules', 'tsx', 'dist', 'cli.mjs'), child, keyB.info.id], { cwd: ROOT, env: process.env, encoding: 'utf8' });
+        const res = JSON.parse(out.trim().split('\n').at(-1)!) as { ok: boolean; retryAfterSec?: number };
+        assert.equal(res.ok, false, `the fresh process kept the count: ${out}`);
+        assert.ok(res.retryAfterSec! >= 1 && res.retryAfterSec! <= 60);
+        assert.equal((await call('GET', '/api/v1/health', { key: keyB.key })).status, 429);
+      } finally {
+        saveRateLimitSettings({ ...DEFAULT_LIMITS, perKey: {} });
+        resetRateLimits();
+      }
+    });
+
     await check('off-loopback callers are refused until a passphrase is set; CORS is off unless allow-listed', async () => {
       const far = await call('GET', '/api/v1/health', { key: keyA.key, remote: '10.1.2.3' });
       assert.equal(far.status, 403);

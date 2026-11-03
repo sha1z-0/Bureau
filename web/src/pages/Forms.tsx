@@ -212,7 +212,7 @@ function RunDrawer({ id, onClose }: { id: string; onClose: () => void }) {
   );
 }
 
-/** Coverage by ATS: adapters, recipes and the last 30 days of runs, in one table. */
+/** Coverage by ATS: adapters, recipes and the last 30 days of runs, rehearsals and live submissions apart. */
 function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: RecipeRow[] }) {
   const atsSet = new Set<string>([...summary.adapters.map((a) => a.ats), ...recipes.map((r) => r.ats), ...summary.last30Days.map((r) => r.ats)]);
   const rows = [...atsSet]
@@ -224,12 +224,15 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
     })
     .sort((a, b) => (b.runs?.runs ?? 0) - (a.runs?.runs ?? 0) || b.recipes - a.recipes || atsLabel(a.ats).localeCompare(atsLabel(b.ats)));
   const total = Object.values(summary.recipes).reduce((n, v) => n + (v ?? 0), 0);
+  const liveRuns = summary.last30Days.reduce((n, r) => n + (r.live?.runs ?? 0), 0);
+  const liveSent = summary.last30Days.reduce((n, r) => n + (r.live?.submitted ?? 0), 0);
   return (
     <div className="stack" style={{ gap: 'var(--s-4)' }}>
       <div className="stats">
         <Stat label="Adapters" value={summary.adapters.length} sub="ATS families with hand-written support" />
         <Stat label="Recipes" value={total} sub={`${summary.recipes.active ?? 0} active, ${summary.recipes.demoted ?? 0} demoted`} />
         <Stat label="Label variants known" value={summary.synonyms.toLocaleString()} sub="Ways a form asks for the same thing" />
+        <Stat label="Live success, 30 days" value={liveRuns ? pct(liveSent / liveRuns) : '–'} sub={liveRuns ? `${liveSent} of ${liveRuns} live runs sent` : 'No live runs yet'} />
       </div>
       <section className="card table-wrap">
         <table className="table">
@@ -240,8 +243,9 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
               <th className="num">Recipes</th>
               <th className="num">Active</th>
               <th className="num">Filled, 30 days</th>
-              <th className="num hide-phone">Verified</th>
-              <th className="num">Success</th>
+              <th className="num hide-phone">Rehearsals verified</th>
+              <th className="num hide-phone">Live sent</th>
+              <th className="num">Live success</th>
             </tr>
           </thead>
           <tbody>
@@ -252,8 +256,9 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
                 <td className="num">{c.recipes}</td>
                 <td className="num">{c.active}</td>
                 <td className="num">{c.runs?.runs ?? 0}</td>
-                <td className="num hide-phone">{c.runs?.verified ?? 0}</td>
-                <td className="num">{c.runs?.runs ? pct(c.runs.successRate) : '–'}</td>
+                <td className="num hide-phone">{c.runs?.rehearsal?.runs ? `${c.runs.rehearsal.verified} of ${c.runs.rehearsal.runs}` : '–'}</td>
+                <td className="num hide-phone">{c.runs?.live?.runs ? `${c.runs.live.submitted} of ${c.runs.live.runs}` : '–'}</td>
+                <td className="num">{pct(c.runs?.live?.rate)}</td>
               </tr>
             ))}
           </tbody>
@@ -265,7 +270,7 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
         ) : null}
       </section>
       <p className="faint" style={{ fontSize: 'var(--t-xs)' }}>
-        Success counts runs that were sent or rehearsed without a problem.
+        Rehearsals fill and verify a form without sending it. Live success counts only real submissions: runs allowed to send that the employer confirmed.
       </p>
     </div>
   );

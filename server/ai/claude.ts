@@ -266,14 +266,14 @@ export function monthSpend(): number {
   return Number(row?.total ?? 0);
 }
 
-function guardBudget() {
+export function guardBudget() {
   const { monthlyBudgetUsd } = aiSettings();
   if (monthlyBudgetUsd > 0 && monthSpend() >= monthlyBudgetUsd) {
     throw new AppError(402, 'BUDGET', `Monthly AI budget of $${monthlyBudgetUsd} reached. Raise it in Settings to continue.`);
   }
 }
 
-interface Usage {
+export interface Usage {
   input_tokens: number;
   output_tokens: number;
   cache_read_input_tokens?: number | null;
@@ -287,7 +287,26 @@ export function withCampaign<T>(campaignId: string | null, fn: () => T): T {
   return aiScope.run({ campaignId }, fn);
 }
 
-function meter(task: Task, model: string, usage: Usage) {
+/** The campaign the current AI work is for (set by withCampaign), if any. */
+export function currentCampaignId(): string | null {
+  return aiScope.getStore()?.campaignId ?? null;
+}
+
+/** The effort a task runs at by default. */
+export function effortFor(task: Task): Effort {
+  return DEFAULT_EFFORT[task];
+}
+
+/**
+ * Record a call's cost. `priceFactor` scales every token price (0.5 for the
+ * Message Batches API); `campaignId` tags spend that is collected outside the
+ * campaign's own async scope (batch results arrive later).
+ */
+export function meterUsage(task: Task, model: string, usage: Usage, opts: { priceFactor?: number; campaignId?: string | null } = {}) {
+  meter(task, model, usage, opts.priceFactor ?? 1, opts.campaignId === undefined ? aiScope.getStore()?.campaignId ?? null : opts.campaignId);
+}
+
+function meter(task: Task, model: string, usage: Usage, priceFactor = 1, campaignId: string | null = aiScope.getStore()?.campaignId ?? null) {
   const price = MODEL_CHOICES.find((m) => m.id === model) ?? MODEL_CHOICES[0];
   const cacheRead = usage.cache_read_input_tokens ?? 0;
   const cacheWrite = usage.cache_creation_input_tokens ?? 0;
@@ -296,7 +315,8 @@ function meter(task: Task, model: string, usage: Usage) {
     (usage.input_tokens * price.input +
       cacheWrite * price.input * 1.25 +
       cacheRead * price.cacheRead +
-      usage.output_tokens * price.output) /
+      usage.output_tokens * price.output) *
+      priceFactor /
       1_000_000 +
     searches * 0.01;
   run(
@@ -311,7 +331,7 @@ function meter(task: Task, model: string, usage: Usage) {
     cacheWrite,
     searches,
     cost,
-    aiScope.getStore()?.campaignId ?? null,
+    campaignId,
   );
 }
 

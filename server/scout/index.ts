@@ -15,7 +15,7 @@ import { mineResearch, weeklyDiscovery } from './discovery.ts';
 import { addHealthCounts, recordHealth, sourceHealth, type SourceHealth } from './health.ts';
 import { addStats, emptyStats, ingestJobs, isKnownUrl, sweepStale, type DedupeStats, type IngestResult } from './ingest.ts';
 import { discoverUrls, recordBoard, seedRegistry, targetsForAts } from './registry.ts';
-import { resolveApplyUrls, type ResolveStats } from './resolve.ts';
+import { emptyResolveStats, resolveApplyUrls, type ResolveStats } from './resolve.ts';
 import { scoutSettings } from './settings.ts';
 
 /**
@@ -200,7 +200,7 @@ async function pipeline(id: string, startedAt: string, t0: number, opts: ScoutOp
   let stats = emptyStats();
   const added: string[] = [];
   const outcomes: Record<string, ConnectorOutcome> = {};
-  const resolveStats: ResolveStats = { tried: 0, resolved: 0, skippedKnown: 0, failed: 0 };
+  const resolveStats: ResolveStats = emptyResolveStats();
   const resolveBudget = { left: settings.resolvePerRun };
   const resolveDeadline = Date.now() + 8 * 60_000;
   let discovered = 0;
@@ -368,7 +368,7 @@ async function pipeline(id: string, startedAt: string, t0: number, opts: ScoutOp
   );
   log(
     `Registry: ${boardsPolled} boards polled, ${discovered} new boards discovered, ${signals} hiring signals · ` +
-      `resolver ${resolveStats.resolved}/${resolveStats.tried} · ${uniqueLast24h} unique postings found in the last 24h · ${(result.ms / 1000).toFixed(0)}s`,
+      `resolver ${resolveStats.resolved} to an ATS posting (${resolveStats.offline} offline) + ${resolveStats.employerSite} to the employer's site, ${resolveStats.tried} looked up · ${uniqueLast24h} unique postings found in the last 24h · ${(result.ms / 1000).toFixed(0)}s`,
   );
   setSetting('scout.lastRun', { ...result, added: result.added.slice(0, 2000) });
   emit({ type: 'activity', message: `Scout found ${added.length} new roles (${found} postings from ${active.length} sources)` });

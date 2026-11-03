@@ -31,7 +31,7 @@ export interface AtsHit {
 
 /** Hosts that are job boards or ATSs themselves, never an employer's own domain. */
 export const ATS_HOST_RE =
-  /(^|\.)(greenhouse\.io|lever\.co|ashbyhq\.com|myworkdayjobs\.com|myworkdaysite\.com|smartrecruiters\.com|workable\.com|recruitee\.com|personio\.(de|com)|teamtailor\.com|bamboohr\.com|breezy\.hr|applytojob\.com|jazz\.co|jazzhr\.com|rippling\.com|pinpointhq\.com|comeet\.com|comeet\.co|icims\.com|taleo\.net|successfactors\.(com|eu)|jobs\.sap\.com|oraclecloud\.com|jobvite\.com|eightfold\.ai|ultipro\.com|paylocity\.com|dayforcehcm\.com|adp\.com)$/i;
+  /(^|\.)(greenhouse\.io|lever\.co|ashbyhq\.com|myworkdayjobs\.com|myworkdaysite\.com|smartrecruiters\.com|workable\.com|recruitee\.com|personio\.(de|com)|teamtailor\.com|bamboohr\.com|breezy\.hr|applytojob\.com|jazz\.co|jazzhr\.com|rippling\.com|pinpointhq\.com|comeet\.com|comeet\.co|icims\.com|taleo\.net|successfactors\.(com|eu)|sapsf\.(com|eu)|jobs\.sap\.com|oraclecloud\.com|jobvite\.com|eightfold\.ai|ultipro\.com|paylocity\.com|dayforcehcm\.com|adp\.com)$/i;
 
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const RESERVED = new Set(['embed', 'v1', 'api', 'jobs', 'job', 'apply', 'careers', 'en', 'search', 'login', 'signup', 'www', '']);
@@ -275,6 +275,11 @@ export function detectAts(rawUrl: string): AtsHit | null {
   }
 
   // ── Taleo ─────────────────────────────────────────────────────────────
+  // Taleo Business Edition: <pod>.tbe.taleo.net/<pod>/ats/careers/...?org=ACME&rid=123
+  if (/\.tbe\.taleo\.net$/.test(host)) {
+    const org = q.get('org');
+    return hit('taleo', org ? `tbe:${org}` : null, q.get('rid'), null);
+  }
   const tal = host.match(/^([a-z0-9-]+)\.taleo\.net$/);
   if (tal) {
     const section = parts[0] === 'careersection' ? parts[1] : null;
@@ -283,7 +288,7 @@ export function detectAts(rawUrl: string): AtsHit | null {
   }
 
   // ── SuccessFactors ────────────────────────────────────────────────────
-  if (/(^|\.)successfactors\.(com|eu)$/.test(host) || /(^|\.)jobs\.sap\.com$/.test(host) || q.get('ats') === 'successfactors') {
+  if (/(^|\.)(successfactors|sapsf)\.(com|eu)$/.test(host) || /(^|\.)jobs\.sap\.com$/.test(host) || q.get('ats') === 'successfactors') {
     const company = q.get('company');
     const token = company ? `${company}@${host}` : null;
     const id = q.get('career_job_req_id') ?? parts.find((s) => /^\d{6,}$/.test(s)) ?? null;

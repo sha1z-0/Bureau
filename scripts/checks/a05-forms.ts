@@ -72,6 +72,12 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
     assert.equal(detectAts('https://careers.example.com/apply', '<div data-automation-id="pageFooterNextButton"></div>'), 'workday');
     assert.equal(detectAts('https://careers.example.com/apply', '<html><body>nothing</body></html>'), null);
   });
+  await check('detects iCIMS, Taleo and SuccessFactors from their replica URLs, embeds and DOM', () => {
+    assert.equal(detectAts('http://127.0.0.1:5555/careers-northbeam.icims.com/jobs/4821/junior-software-engineer/job'), 'icims');
+    assert.equal(detectAts('https://northbeam.taleo.net/careersection/2/jobapply.ftl?job=2400123&lang=en'), 'taleo');
+    assert.equal(detectAts('https://career4.successfactors.com/career?company=northbeam&career_job_req_id=10432'), 'successfactors');
+    assert.equal(detectAts('https://careers.example.com/jobs/1', '<iframe id="icims_content_iframe" src="https://careers-x.icims.com/jobs/1/job?in_iframe=1">'), 'icims');
+  });
   await check('candidate facts: location, phone and degree splits', () => {
     assert.deepEqual(splitLocation('Lahore, Pakistan'), { city: 'Lahore', state: '', country: 'Pakistan' });
     assert.deepEqual(splitLocation('Austin, TX'), { city: 'Austin', state: 'TX', country: 'United States' });
@@ -174,6 +180,13 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
     // Mapped alone (a later pass), the numbered panel still gets its own link.
     assert.equal((await mapFieldsWith([b], packet, { deps: d3, job, context: [a, b, li] }))[0]?.value, 'https://ada.example.com');
   });
+  await check('"Address" next to its own City box is the street line; alone it is where the candidate lives', async () => {
+    const d4 = { ...deps, answerFor: async (q: string) => (/street address/i.test(q) ? { value: '14 Example Street', source: 'answer_bank' as const, confidence: 0.97, key: 'ab-street' } : null) };
+    const addr = field('Address', 'text', { id: 'addr' });
+    const city = field('City', 'text', { id: 'city' });
+    assert.equal((await mapFieldsWith([addr], packet, { deps: d4, job, context: [addr, city] }))[0]?.value, '14 Example Street');
+    assert.equal((await mapFieldsWith([addr], packet, { deps: d4, job }))[0]?.value, 'London, UK');
+  });
   await check('mapFields is side-effect free (no unknown question recorded)', async () => {
     const before = Number(get<{ n: number }>('SELECT COUNT(*) AS n FROM unknown_questions')?.n ?? 0);
     await mapFieldsWith([field('A question nobody can answer?', 'text')], packet, { deps, job });
@@ -236,6 +249,21 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
     assert.ok(ADAPTERS.length >= 10, `${ADAPTERS.length}`);
     for (const a of ['greenhouse', 'lever', 'ashby', 'workable', 'smartrecruiters', 'recruitee', 'personio', 'teamtailor', 'bamboohr', 'breezy', 'workday']) assert.ok(ADAPTERS.some((x) => x.ats === a), a);
     assert.ok(ADAPTERS.find((a) => a.ats === 'workday')?.account);
+    for (const a of ['icims', 'taleo', 'successfactors']) assert.ok(ADAPTERS.find((x) => x.ats === a)?.account && !/best effort/i.test(ADAPTERS.find((x) => x.ats === a)!.name), a);
+  });
+
+  await check('a required date that wants a month the profile lacks goes to the owner (never an invented January)', async () => {
+    const edu = { meta: { group: { name: 'education', index: 0 } } };
+    const asked = await one(field('From', 'date', edu as never));
+    assert.ok(asked?.unknown && !asked.value, `year-only education start in a date input: ${JSON.stringify(asked)}`);
+    assert.match(asked!.reason ?? '', /only the year/);
+    assert.ok((await one(field('Start date', 'text', { meta: { ...edu.meta, format: 'MM/YYYY' } } as never)))?.unknown, 'an MM/YYYY mask is a month field too');
+    const grad = await one(field('Graduation date', 'date'));
+    assert.ok(grad?.unknown && grad.value !== '2021', `graduation year alone in a date input: ${JSON.stringify(grad)}`);
+    // A year field takes the year; a month the profile states is used as it is.
+    const years = ['2017', '2018', '2019', '2020', '2021', '2022'];
+    assert.equal((await one(field('Start year', 'select', { options: years, meta: edu.meta } as never)))?.value, '2018');
+    assert.equal((await one(field('From', 'date', { meta: { group: { name: 'work', index: 0 } } } as never)))?.value, '2022-01');
   });
 
   // ── The engine on A11's replicas ──────────────────────────────────────────
@@ -435,6 +463,99 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
       void page;
     });
 
+    section('A05 forms: iCIMS, Taleo, SuccessFactors and shadow-root replicas (staged, fixtures/ats/*/staged.json)');
+    const { startStagedReplicas } = await import('../../fixtures/ats/_staged/server.ts');
+    const sx = await startStagedReplicas({ quiet: true });
+    process.env.BUREAU_FIXTURE_ORIGINS = `${fx.originA},${fx.originB},${sx.originA},${sx.originB}`;
+    try {
+      type Staged = { rehearsal: Out; live: Out; finals: import('../e2e/expect.ts').Submission[] };
+      const staged = new Map<string, Staged>();
+      const stagedJob = (id: string, tag = '') => {
+        const f = sx.form(id);
+        const jobId = insertJob({ fingerprint: `a05:staged:${id}${tag}`, title: f.job.title, company: f.job.company, url: sx.url(id), ats: f.ats, campaignId: null });
+        return fallbackPacket(jobId, 'a05', sandbox);
+      };
+      const failed = (err: unknown): Out => ({ status: 'failed', reason: (err as Error).message, shotPath: null, shots: [], answers: [], verified: false, unknownQuestions: [], fieldLog: [], ats: null, via: null, recipeId: null, url: null });
+      const squeue = sx.forms.map((f) => f.id);
+      await Promise.all(
+        Array.from({ length: 3 }, async () => {
+          for (let id = squeue.shift(); id; id = squeue.shift()) {
+            // Rehearse, then send for real: the replica's own server records exactly what arrived.
+            const p = stagedJob(id);
+            const rehearsal = await runFill(p, { submit: false, onUnknown: 'skip', allowAgent: false }, engineDeps).catch(failed);
+            const before = sx.submissions({ formId: id }).at(-1)?.seq ?? 0;
+            const live = await runFill(p, { submit: true, onUnknown: 'skip', allowAgent: false }, engineDeps).catch(failed);
+            staged.set(id, { rehearsal, live, finals: sx.submissions({ formId: id, final: true }).filter((x) => x.seq > before) });
+          }
+        }),
+      );
+      for (const f of sx.forms) {
+        const want = f.expectedOutcome;
+        await check(`${f.ats === 'widget' ? 'staged widget' : 'adapter'}: ${f.id} (${f.ats}) → ${want === 'submitted' ? 'rehearsed ≥95% verified, then submitted with every expected value' : want}`, () => {
+          const { rehearsal, live, finals } = staged.get(f.id)!;
+          if (want === 'needs_you') {
+            for (const o of [rehearsal, live]) assert.equal(o.status, 'needs_you', o.reason);
+            assert.equal(finals.length, 0, 'nothing may be sent');
+            return;
+          }
+          assert.equal(rehearsal.status, 'rehearsed', rehearsal.reason);
+          assert.ok(ratio(rehearsal) >= 0.95, `${(ratio(rehearsal) * 100).toFixed(0)}%: ${rehearsal.fieldLog.filter((e) => !e.ok).map((e) => e.label).join(', ')}`);
+          if (f.ats !== 'widget') assert.ok(rehearsal.via === 'adapter' || rehearsal.via === 'recipe', `via ${rehearsal.via}`);
+          assert.equal(live.status, 'submitted', live.reason);
+          assert.equal(finals.length, 1, `${finals.length} final submissions`);
+          assert.ok(finals[0].valid, finals[0].errors.join('; '));
+          const exp = checkExpectations(f, finals[0], loadExpected());
+          const bad = exp.filter((e) => !e.ok);
+          assert.deepEqual(bad.filter((e) => /^(profile:|file:)/.test(e.rule) || e.rule === 'empty'), [], JSON.stringify(bad));
+          assert.ok((exp.length - bad.length) / exp.length >= 0.95, JSON.stringify(bad));
+        });
+      }
+      await check('Taleo / SuccessFactors: the account is created once (vault password) and reused by the next run', () => {
+        for (const [id, domain] of [['taleo-careersection', 'northbeam.taleo.net'], ['successfactors-career', 'career4.successfactors.com']] as const) {
+          assert.ok(getAccount(domain), `${domain} account stored`);
+          assert.equal(sx.accounts(id).length, 1, `one account on the ${id} replica`);
+          assert.equal(staged.get(id)!.live.status, 'submitted', 'the second run signed in with the stored account');
+        }
+      });
+      await check('iCIMS embedded cross-origin: Apply, Next and Submit are all inside the origin-B frame; the host newsletter box is left alone', () => {
+        const { live, finals } = staged.get('icims-embedded')!;
+        assert.equal(live.status, 'submitted', live.reason);
+        assert.equal(finals[0]?.origin, 'b', 'the submission came from the embedded frame');
+        assert.ok(!live.answers.some((a) => /news/i.test(a.label)), JSON.stringify(live.answers.map((a) => a.label)));
+      });
+      await check('closed shadow root: the required field is named in the reason, logged as unfillable, never asked of the owner', () => {
+        const { rehearsal } = staged.get('widget-shadow-closed-required')!;
+        assert.match(rehearsal.reason, /Preferred first name: inside a closed shadow root/);
+        assert.ok(rehearsal.fieldLog.some((e) => e.note === 'closed shadow root' && !e.ok));
+        assert.equal(rehearsal.unknownQuestions.length, 0, 'not an answer-bank question: an answer would not help');
+      });
+      await check('Taleo account Bureau has no password for (made by hand): "already exists" → needs_you, nothing sent', async () => {
+        run("DELETE FROM site_accounts WHERE domain = 'northbeam.taleo.net'");
+        const before = sx.submissions({ formId: 'taleo-careersection' }).length;
+        const out = await runFill(stagedJob('taleo-careersection', ':handmade'), { submit: true, onUnknown: 'skip', allowAgent: false }, engineDeps);
+        assert.equal(out.status, 'needs_you', out.reason);
+        assert.match(out.reason, /already exists/);
+        assert.equal(sx.submissions({ formId: 'taleo-careersection' }).length, before);
+        assert.equal(getAccount('northbeam.taleo.net'), null, 'no half-made account is kept');
+      });
+      await check('the accounts flow does not mistake a zip-code box for an email-verification form', async () => {
+        const { authView } = await import('../../server/forms/accounts.ts');
+        const ctx = await browser.newContext();
+        try {
+          const page = await ctx.newPage();
+          await page.setContent('<form><input name="ZipCode"><input name="City"></form>');
+          assert.equal(await authView(page), null);
+          await page.setContent('<form><input name="verificationCode"></form>');
+          assert.equal(await authView(page), 'verify');
+        } finally {
+          await ctx.close();
+        }
+      });
+    } finally {
+      process.env.BUREAU_FIXTURE_ORIGINS = `${fx.originA},${fx.originB}`;
+      await sx.close();
+    }
+
     section('A05 forms: routes');
     await check('GET /api/forms/summary, /recipes, /runs', async () => {
       const Fastify = (await import('fastify')).default;
@@ -450,6 +571,37 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
       assert.equal((await app.inject({ method: 'GET', url: `/api/forms/runs/${runs.runs[0].id}` })).statusCode, 200);
       assert.equal((await app.inject({ method: 'GET', url: '/api/forms/runs/..%2F..%2Fsecret/shots/x.jpg' })).statusCode >= 400, true);
       await app.close();
+    });
+    await check('coverage keeps rehearsals and live runs apart: the live rate counts only real submissions', async () => {
+      const Fastify = (await import('fastify')).default;
+      const { formsRoutes } = await import('../../server/forms/routes.ts');
+      const at = new Date().toISOString();
+      const rows: [number, string, number, string][] = [
+        [0, 'rehearsed', 1, 'Rehearsal: filled and verified, not submitted.'],
+        [0, 'rehearsed', 1, 'Rehearsal: filled and verified, not submitted.'],
+        [0, 'needs_you', 0, 'Could not verify the form'],
+        [1, 'submitted', 1, 'Submitted.'],
+        [1, 'needs_you', 1, 'Submitted, but no confirmation appeared.'],
+        [1, 'skipped', 0, 'Already submitted: Bureau never applies twice.'],
+      ];
+      const ids = rows.map(([submit, status, verified, reason], i) => {
+        const id = `a05-split-${i}`;
+        run('INSERT INTO form_runs (id, ats, submit, status, verified, reason, started_at) VALUES (?, ?, ?, ?, ?, ?, ?)', id, 'a05split', submit, status, verified, reason, at);
+        return id;
+      });
+      const app = Fastify();
+      await app.register(formsRoutes);
+      try {
+        type Row = { ats: string; runs: number; rehearsal: { runs: number; verified: number; rate: number | null }; live: { runs: number; submitted: number; rate: number | null } };
+        const sum = (await app.inject({ method: 'GET', url: '/api/forms/summary' })).json() as { last30Days: Row[] };
+        const row = sum.last30Days.find((r) => r.ats === 'a05split')!;
+        assert.equal(row.runs, 6);
+        assert.deepEqual(row.rehearsal, { runs: 3, verified: 2, rate: 0.67 });
+        assert.deepEqual(row.live, { runs: 2, submitted: 1, rate: 0.5 }, 'a verified rehearsal never counts as sent; the never-twice skip is not an attempt');
+      } finally {
+        await app.close();
+        for (const id of ids) run('DELETE FROM form_runs WHERE id = ?', id);
+      }
     });
   } finally {
     // Leave the shared sandbox as found: later modules (the digest) count today's active recipes.

@@ -1,7 +1,7 @@
 /**
  * Question normalisation for the answer bank: the same question arrives in a
- * hundred wordings ("notice period", "when can you start", "earliest start
- * date *"). We clean the text, detect a known intent with its slot (the skill
+ * hundred wordings ("when can you start", "earliest start date *", "your
+ * availability to join"). We clean the text, detect a known intent with its slot (the skill
  * in "years of React experience", the currency in "expected salary (PKR)", the
  * country in "right to work in the UK"), and fall back to cleaned words for
  * everything else.
@@ -12,6 +12,7 @@ export type IntentKey =
   | 'work_authorization'
   | 'tz_overlap'
   | 'timezone'
+  | 'notice_period'
   | 'start_date'
   | 'expected_salary'
   | 'current_salary'
@@ -79,11 +80,17 @@ const DEFS: IntentDef[] = [
     re: [/\boverlap\b/, /\b(est|edt|pst|pdt|cst|cet|gmt|utc|eastern|pacific|central european)\b.*\b(hours|time)\b.*\b(work|available|availability)\b/, /\b(work|available)\b.*\b(est|pst|cet|gmt|utc|eastern|pacific)\b (business |working )?hours\b/],
   },
   { key: 'timezone', canonical: 'time zone', re: [/\btime ?zone\b/] },
+  // A notice period ("one month") and a start date ("1 December") are different facts: two intents, so saving one
+  // never replaces the other. Listed first, so "notice period / earliest start date" reads as the notice period.
+  {
+    key: 'notice_period',
+    canonical: 'notice period',
+    re: [/\bnotice period\b/, /\bhow much notice\b/,/\bnotice (do|would|will) you (need|have) to (give|serve)\b/, /\b(serving|serve) (your |a |any )?notice\b/, /^(your )?notice( required)?$/],
+  },
   {
     key: 'start_date',
     canonical: 'start date',
     re: [
-      /\bnotice period\b/,
       /\bwhen (can|could|would|will) you (start|join|begin|commence)\b/,
       /\b(earliest|soonest)\b.*\b(start|join|begin|joining|commence)\b/,
       /\b(earliest|soonest) (possible )?(date|availability)\b/,

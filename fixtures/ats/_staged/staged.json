@@ -1,0 +1,54 @@
+{
+  "_comment": "Staged widget pages (fixtures/ats/_staged/server.ts): same FormSpec as a manifest.json, kept out of the e2e. Served by server.ts in this folder.",
+  "forms": [
+    {
+      "id": "widget-shadow-open-wizard",
+      "ats": "widget",
+      "title": "Two-step wizard built from web components: fields and Next/Submit buttons inside open (nested) shadow roots",
+      "route": "/careers.quillfeather.example.com/apply/shadow-open",
+      "file": "_staged/shadow-wizard.html",
+      "confirmationText": "Application submitted to Quillfeather Studio",
+      "steps": 2,
+      "required": ["first_name", "last_name", "country", "work_auth_pk", "email", "phone", "resume", "privacy_consent"],
+      "expect": {
+        "first_name": "profile:firstName",
+        "last_name": "profile:lastName",
+        "country": "profile:country",
+        "work_auth_pk": "answer:authorizedToWorkPakistan",
+        "email": "profile:email",
+        "phone": "profile:phone",
+        "linkedin": "profile:linkedin",
+        "resume": "file:cv",
+        "privacy_consent": "true"
+      },
+      "quirks": [
+        "every control is two or three open shadow roots deep (wizard → step slot → field component), labelled by a shadow-scoped <label for>",
+        "Next / Back / 'Submit application' are <qf-button> hosts: the <button> is in the open root and its text comes through a <slot>",
+        "shadow-DOM controls do not join the outer form: the page gathers component values itself and posts multipart"
+      ],
+      "reference": "Lightning Web Components / Shoelace style career sites",
+      "job": { "company": "Quillfeather Studio", "title": "Junior Web Engineer", "location": "Remote, Pakistan" }
+    },
+    {
+      "id": "widget-shadow-closed-required",
+      "ats": "widget",
+      "title": "The same wizard with one REQUIRED field in a CLOSED, non-form-associated shadow root (unreachable)",
+      "route": "/careers.quillfeather.example.com/apply/shadow-closed",
+      "file": "_staged/shadow-wizard.html",
+      "confirmationText": "Application submitted to Quillfeather Studio",
+      "steps": 2,
+      "expectedOutcome": "needs_you",
+      "required": ["first_name", "last_name", "country", "work_auth_pk", "email", "phone", "resume", "privacy_consent", "preferred_name"],
+      "expect": {
+        "first_name": "profile:firstName",
+        "preferred_name": "profile:preferredName"
+      },
+      "quirks": [
+        "<qf-secure-field label='Preferred first name *' required>: attachShadow({mode:'closed'}), not form-associated, so no locator reaches its input and nothing outside the component can read its value",
+        "the page refuses to submit while it is empty: the honest outcome is needs_you with nothing sent"
+      ],
+      "reference": "Closed-mode web components (rare, but used by some embedded identity widgets)",
+      "job": { "company": "Quillfeather Studio", "title": "Junior Web Engineer", "location": "Remote, Pakistan" }
+    }
+  ]
+}

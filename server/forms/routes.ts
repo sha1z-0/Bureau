@@ -15,7 +15,8 @@ import './schema.ts';
 /**
  * UI-facing routes (A05). Everything under /api/forms.
  *
- *   GET  /api/forms/summary                  adapters, synonym count, recipes by status, 30-day success by ATS
+ *   GET  /api/forms/summary                  adapters, synonym count, recipes by status, 30 days by ATS:
+ *                                            rehearsals (verified / runs) and live runs (submitted / attempts) apart
  *   GET  /api/forms/recipes                  every recipe (all versions) with run counts
  *   GET  /api/forms/recipes/:id              one recipe plus its last runs
  *   PUT  /api/forms/recipes/:id/status       { status: candidate|shadow|active|demoted }
@@ -72,15 +73,30 @@ const SHOT_NAME = /^[\w-][\w.-]{0,100}\.jpg$/;
 export async function formsRoutes(app: FastifyInstance) {
   app.get('/api/forms/summary', async () => {
     const recipes = all<{ status: string; n: number }>('SELECT status, COUNT(*) AS n FROM form_recipes GROUP BY status');
-    const byAts = all<{ ats: string | null; runs: number; ok: number; verified: number }>(
-      "SELECT ats, COUNT(*) AS runs, SUM(CASE WHEN status IN ('submitted','rehearsed') THEN 1 ELSE 0 END) AS ok, SUM(verified) AS verified FROM form_runs WHERE started_at >= ? GROUP BY ats",
+    // Rehearsals (submit = 0: fill and verify, never send) and live runs (submit = 1: allowed to send) are kept
+    // apart: a rehearsal that verifies says nothing about whether the employer received anything. The live rate
+    // counts real submissions over live attempts; "never twice" skips are not attempts.
+    const byAts = all<{ ats: string | null; runs: number; verified: number; rehearsals: number; rehearsals_ok: number; live: number; live_ok: number }>(
+      `SELECT ats, COUNT(*) AS runs, SUM(verified) AS verified,
+              SUM(CASE WHEN submit = 0 THEN 1 ELSE 0 END) AS rehearsals,
+              SUM(CASE WHEN submit = 0 AND verified = 1 THEN 1 ELSE 0 END) AS rehearsals_ok,
+              SUM(CASE WHEN submit = 1 AND NOT (status = 'skipped' AND COALESCE(reason, '') LIKE 'Already submitted%') THEN 1 ELSE 0 END) AS live,
+              SUM(CASE WHEN submit = 1 AND status = 'submitted' THEN 1 ELSE 0 END) AS live_ok
+         FROM form_runs WHERE started_at >= ? GROUP BY ats`,
       new Date(Date.now() - 30 * 86_400_000).toISOString(),
     );
+    const rate = (ok: number, n: number) => (n ? Math.round((ok / n) * 100) / 100 : null);
     return {
       adapters: ADAPTERS.map((a) => ({ ats: a.ats, name: a.name, accounts: !!a.account })),
       synonyms: synonymCount(),
       recipes: Object.fromEntries(recipes.map((r) => [r.status, r.n])),
-      last30Days: byAts.map((r) => ({ ats: r.ats ?? 'unknown', runs: r.runs, ok: r.ok, verified: r.verified, successRate: r.runs ? Math.round((r.ok / r.runs) * 100) / 100 : 0 })),
+      last30Days: byAts.map((r) => ({
+        ats: r.ats ?? 'unknown',
+        runs: r.runs,
+        verified: r.verified ?? 0,
+        rehearsal: { runs: r.rehearsals ?? 0, verified: r.rehearsals_ok ?? 0, rate: rate(r.rehearsals_ok ?? 0, r.rehearsals ?? 0) },
+        live: { runs: r.live ?? 0, submitted: r.live_ok ?? 0, rate: rate(r.live_ok ?? 0, r.live ?? 0) },
+      })),
     };
   });
 

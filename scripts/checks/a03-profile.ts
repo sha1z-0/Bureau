@@ -534,7 +534,48 @@ export default async function a03({ check, section }: Harness) {
     assert.equal(detectIntent('Current and expected CTC'), null);
     assert.equal(detectIntent('Years of Node.js experience')?.skill, 'node');
     assert.equal(detectIntent('What programming languages do you know?'), null);
-    assert.equal(normalizeQuestion('What is your notice period?'), normalizeQuestion('When can you start? *'));
+    assert.notEqual(normalizeQuestion('What is your notice period?'), normalizeQuestion('When can you start? *'));
+  });
+
+  await check('notice period and start date are separate answers; a start-date question falls back to the notice period in words', async () => {
+    for (const q of ['Notice period (in weeks)', 'How much notice do you need to give?', 'How soon could you join us? Notice period', 'What is your notice period / earliest start date?'])
+      assert.equal(detectIntent(q)?.key, 'notice_period', q);
+    for (const q of ['When can you start?', 'Earliest start date', 'What is the earliest date you could join us?']) assert.equal(detectIntent(q)?.key, 'start_date', q);
+    assert.ok(answers.COMMON_QUESTIONS.includes('What is your notice period?') && answers.COMMON_QUESTIONS.includes('What is your earliest start date?'));
+    const start = answers.upsertAnswer({ question: 'What is your earliest start date?', answer: '2026-12-01' });
+    try {
+      assert.equal((await P.answerFor('What is your notice period?'))?.value, 'Two weeks', 'saving a start date keeps the notice period');
+      assert.equal((await P.answerFor('When can you start?'))?.value, '2026-12-01');
+      assert.equal((await P.answerFor('Earliest start date', { fieldKind: 'date' }))?.value, '2026-12-01');
+    } finally {
+      answers.updateAnswer(start.id, { answer: '' }); // back to the seeded placeholder
+    }
+    const fallback = await P.answerFor('When can you start?');
+    assert.equal(fallback?.value, 'Two weeks', 'no start date saved: the notice period, in words');
+    assert.ok(fallback!.confidence >= 0.7 && fallback!.confidence < 0.92, 'a notch less certain than a real start-date answer');
+    assert.equal(await P.answerFor('Earliest start date', { fieldKind: 'date' }), null, 'a date field never gets the notice period');
+  });
+
+  await check('a notice period saved under the old shared key ("start date") is re-keyed and keeps resolving', async () => {
+    const dublin = jobIn('Dublin, Ireland');
+    const id = crypto.randomUUID();
+    run("INSERT INTO answer_bank (id, question_norm, question_raw, answer, scope, source, created_at, updated_at) VALUES (?, 'start date', 'What is your notice period?', 'Six weeks', ?, 'owner', ?, ?)", id, JSON.stringify({ countries: ['ireland'] }), now(), now());
+    const setNormVersion = (v: number) => run("INSERT INTO settings (key, value) VALUES ('profile.answerNormVersion', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", String(v));
+    setNormVersion(1);
+    try {
+      answers.migrateNorms(true);
+      assert.equal(get<{ question_norm: string }>('SELECT question_norm FROM answer_bank WHERE id = ?', id)?.question_norm, 'notice period');
+      assert.equal(get<{ value: string }>("SELECT value FROM settings WHERE key = 'profile.answerNormVersion'")?.value, '2');
+      // Saving a start date for the same scope no longer replaces it.
+      const start = answers.upsertAnswer({ question: 'When can you start?', answer: '2027-01-11', scope: { countries: ['Ireland'] } });
+      assert.ok(answers.getAnswer(id), 'the old notice-period row survives a start-date save');
+      assert.equal((await P.answerFor('What is your notice period?', { jobId: dublin }))?.value, 'Six weeks');
+      assert.equal((await P.answerFor('When can you start?', { jobId: dublin }))?.value, '2027-01-11');
+      run('DELETE FROM answer_bank WHERE id = ?', start.id);
+    } finally {
+      run('DELETE FROM answer_bank WHERE id = ?', id);
+      setNormVersion(2);
+    }
   });
 
   // ── Unknown questions, end to end ──────────────────────────────────────────

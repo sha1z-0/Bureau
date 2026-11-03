@@ -1,0 +1,116 @@
+{
+  "_comment": "Staged replicas (fixtures/ats/_staged/server.ts): same FormSpec as a manifest.json, kept out of the e2e until their job's Claude requests are recorded. Rename to manifest.json to promote.",
+  "forms": [
+    {
+      "id": "icims-portal",
+      "ats": "icims",
+      "title": "iCIMS career portal: content iframe, email-first login, profile / questions / EEO / eSignature wizard",
+      "route": "/careers-northbeam.icims.com/jobs/4821/junior-software-engineer/job",
+      "file": "icims/portal.html",
+      "extraRoutes": [
+        { "route": "/careers-northbeam.icims.com/jobs/4821/junior-software-engineer/login", "file": "icims/candidate.html" },
+        { "route": "/careers-northbeam.icims.com/jobs/4821/junior-software-engineer/candidate", "file": "icims/candidate.html" }
+      ],
+      "confirmationFile": "icims/confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "steps": 5,
+      "required": [
+        "loginField", "privacyPolicyAccepted",
+        "PersonProfileFields.FirstName", "PersonProfileFields.LastName", "PersonProfileFields.Email", "PersonProfileFields.PhoneType", "PersonProfileFields.PhoneNumber",
+        "PersonProfileFields.AddressStreet1", "PersonProfileFields.AddressCity", "PersonProfileFields.AddressState", "PersonProfileFields.AddressZip", "PersonProfileFields.AddressCountry",
+        "PersonProfileFields.Source", "PersonProfileFields.Resume",
+        "rcf3048", "rcf3049", "rcf3050", "rcf3051", "rcf3052", "rcf3053",
+        "eSignature.Certify", "eSignature.FullName", "eSignature.Date"
+      ],
+      "expect": {
+        "loginField": "profile:email",
+        "privacyPolicyAccepted": "true",
+        "PersonProfileFields.FirstName": "profile:firstName",
+        "PersonProfileFields.MiddleName": "empty",
+        "PersonProfileFields.LastName": "profile:lastName",
+        "PersonProfileFields.Email": "profile:email",
+        "PersonProfileFields.PhoneType": "=Mobile",
+        "PersonProfileFields.PhoneNumber": "profile:phone",
+        "PersonProfileFields.AddressStreet1": "profile:addressLine1",
+        "PersonProfileFields.AddressCity": "profile:city",
+        "PersonProfileFields.AddressState": "profile:region",
+        "PersonProfileFields.AddressZip": "profile:postalCode",
+        "PersonProfileFields.AddressCountry": "profile:country",
+        "rcf1201": "profile:linkedin",
+        "PersonProfileFields.Source": "oneOf:Job Board|Company Website",
+        "PersonProfileFields.Resume": "file:cv",
+        "rcf3048": "answer:authorizedToWorkPakistan",
+        "rcf3049": "answer:needsSponsorship",
+        "rcf3050": "=1-2 years",
+        "rcf3051": "answer:over18",
+        "rcf3052": "answer:previouslyEmployed",
+        "rcf3053": "answer:noticePeriod",
+        "rcf3054": "answer:openToRelocation",
+        "PersonProfileFields.Gender": "decline",
+        "PersonProfileFields.Race": "decline",
+        "PersonProfileFields.Veteran": "decline",
+        "PersonProfileFields.DisabilityStatus": "decline",
+        "eSignature.Certify": "true",
+        "eSignature.FullName": "profile:fullName",
+        "eSignature.Date": "nonempty"
+      },
+      "quirks": [
+        "two documents: the branded portal shell and iframe#icims_content_iframe (same URL + ?in_iframe=1), resized by postMessage",
+        "'Apply for this job online' is a link inside the frame that navigates the frame to .../login?in_iframe=1",
+        "email-first login for new candidates (email + privacy acceptance, input[type=submit] value=Next); the URL then becomes .../candidate?from=login",
+        "ids like -1_PersonProfileFields.FirstName (dots and a leading -1_), names PersonProfileFields.*, custom questions rcf<NNNN>",
+        "'— Make a Selection —' placeholder options; Country is an iCIMS dropdown button (aria-haspopup=listbox) over a hidden native select",
+        "phone type + phone number; resume input hidden behind an Upload button with a filename chip",
+        "EEO selects with 'I do not wish to self-identify'; eSignature step: certification checkbox, full legal name, date signed",
+        "per-field .iCIMS_ErrorMessage and a role=alert error summary; Previous / Next inputs; the last step's button reads Submit"
+      ],
+      "reference": "Public iCIMS career portals (careers-<tenant>.icims.com/jobs/<id>/<slug>/job and ?in_iframe=1 content), studied read-only",
+      "job": { "company": "Northbeam Logistics", "title": "Junior Software Engineer", "location": "Lahore, Pakistan" }
+    },
+    {
+      "id": "icims-embedded",
+      "ats": "icims",
+      "title": "Employer careers page (origin A) embedding the iCIMS job and application from origin B (cross-origin iframe)",
+      "route": "/careers.northbeam.example.com/jobs/4907",
+      "file": "icims/embed-careers.html",
+      "extraRoutes": [
+        { "route": "/careers-northbeam.icims.com/jobs/4907/junior-frontend-developer/job", "file": "icims/portal.html" },
+        { "route": "/careers-northbeam.icims.com/jobs/4907/junior-frontend-developer/login", "file": "icims/candidate.html" },
+        { "route": "/careers-northbeam.icims.com/jobs/4907/junior-frontend-developer/candidate", "file": "icims/candidate.html" }
+      ],
+      "confirmationFile": "icims/confirmation.html",
+      "confirmationText": "Thank you for applying",
+      "steps": 5,
+      "required": [
+        "loginField", "privacyPolicyAccepted",
+        "PersonProfileFields.FirstName", "PersonProfileFields.LastName", "PersonProfileFields.Email", "PersonProfileFields.PhoneType", "PersonProfileFields.PhoneNumber",
+        "PersonProfileFields.AddressStreet1", "PersonProfileFields.AddressCity", "PersonProfileFields.AddressState", "PersonProfileFields.AddressZip", "PersonProfileFields.AddressCountry",
+        "PersonProfileFields.Source", "PersonProfileFields.Resume",
+        "rcf3048", "rcf3049", "rcf3050", "rcf3051", "rcf3052", "rcf3053",
+        "eSignature.Certify", "eSignature.FullName", "eSignature.Date"
+      ],
+      "expect": {
+        "loginField": "profile:email",
+        "PersonProfileFields.FirstName": "profile:firstName",
+        "PersonProfileFields.LastName": "profile:lastName",
+        "PersonProfileFields.Email": "profile:email",
+        "PersonProfileFields.PhoneNumber": "profile:phone",
+        "PersonProfileFields.AddressCity": "profile:city",
+        "PersonProfileFields.AddressCountry": "profile:country",
+        "PersonProfileFields.Resume": "file:cv",
+        "rcf3048": "answer:authorizedToWorkPakistan",
+        "rcf3049": "answer:needsSponsorship",
+        "PersonProfileFields.Gender": "decline",
+        "eSignature.Certify": "true",
+        "eSignature.FullName": "profile:fullName"
+      },
+      "quirks": [
+        "the whole application (fields, Apply link, Next and Submit buttons, confirmation) lives in a CROSS-ORIGIN iframe ({{ORIGIN_B}}) on the employer's page",
+        "the host page has its own newsletter email box, which is not part of the application",
+        "frame height follows postMessage events (origin-checked)"
+      ],
+      "reference": "iCIMS iframe integration on employer career sites",
+      "job": { "company": "Northbeam Logistics", "title": "Junior Frontend Developer", "location": "Lahore, Pakistan" }
+    }
+  ]
+}

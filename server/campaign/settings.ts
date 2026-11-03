@@ -19,6 +19,17 @@ export const AutopilotSettingsSchema = z.object({
   maxAttempts: z.number().int().min(1).max(10),
   /** Prefer jobs whose employer is in business hours right now (when its zone is known). */
   preferEmployerHours: z.boolean(),
+  /**
+   * Score matches through the Message Batches API (half price; answers usually within the hour,
+   * at most 24 h). Off: every assessment is a normal call, as before. See batchMatch.ts.
+   */
+  batchMatching: z.boolean().default(false),
+  /**
+   * Skip the cover letter when it is known before writing that the job's form has no field for one
+   * (CV and short answers are still written; email applications always get a letter). See
+   * server/writer/letterNeed.ts. Off: every packet has a letter, as before.
+   */
+  skipUnneededLetters: z.boolean().default(false),
 });
 export type AutopilotSettings = z.infer<typeof AutopilotSettingsSchema>;
 
@@ -32,6 +43,8 @@ export const DEFAULT_AUTOPILOT: AutopilotSettings = {
   keepAwake: true,
   maxAttempts: 3,
   preferEmployerHours: true,
+  batchMatching: false,
+  skipUnneededLetters: false,
 };
 
 export function autopilotSettings(): AutopilotSettings {

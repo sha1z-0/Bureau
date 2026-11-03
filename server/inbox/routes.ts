@@ -11,6 +11,7 @@ import { pollInbox } from './index.ts';
 import { classCounts, getMessage, listMessages, saveMessage, type StoredMessage } from './messages.ts';
 import { forgetMailbox, imapPassword, inboxSettings, InboxSettingsPatch, InboxSettingsSchema, publicInboxSettings, saveInboxSettings } from './settings.ts';
 import { advanceStage, recordOutcome, setStageManually } from './stage.ts';
+import { ownerTimeZone, showTime } from './when.ts';
 
 /**
  * UI-facing routes for the job-search mailbox (A09). Everything lives under
@@ -50,13 +51,20 @@ const ListQuery = z.object({
 
 const yes = (v: string | undefined) => v === '1' || v === 'true';
 
-/** Messages as the UI sees them: plus the linked application's job id, so a row can open the job. */
-function withJob<T extends StoredMessage>(items: T[]): (T & { jobId: string | null })[] {
+/**
+ * Messages as the UI sees them: plus the linked application's job id, so a row can open the job, and the interview
+ * time in the owner's zone (`interviewShown`).
+ */
+function withJob<T extends StoredMessage>(items: T[]): (T & { jobId: string | null; interviewShown: string | null })[] {
   const ids = [...new Set(items.map((m) => m.applicationId).filter((x): x is string => !!x))];
   const jobs = new Map(
     ids.length ? all<{ id: string; job_id: string }>(`SELECT id, job_id FROM applications WHERE id IN (${ids.map(() => '?').join(',')})`, ...ids).map((r) => [r.id, r.job_id]) : [],
   );
-  return items.map((m) => ({ ...m, jobId: (m.applicationId && jobs.get(m.applicationId)) || null }));
+  return items.map((m) => ({
+    ...m,
+    jobId: (m.applicationId && jobs.get(m.applicationId)) || null,
+    interviewShown: m.interviewDate ? showTime(m.interviewDate, m.interviewAt, ownerTimeZone(m.applicationId)) : null,
+  }));
 }
 
 const Correction = z.object({

@@ -1265,6 +1265,241 @@ export default async function a08Campaign({ check, section }: Harness) {
     run("UPDATE campaigns SET status = 'ended' WHERE id = ?", c.id);
   });
 
+  // ── Batch matching (Message Batches API) ──────────────────────────────────
+  section('A08 campaign: batch matching (Message Batches API, fake client and replay)');
+  {
+    const { createBatchMatcher, matchViaBatch } = await import('../../server/campaign/batchMatch.ts');
+    const { BATCH_PRICE_FACTOR } = await import('../../server/ai/batch.ts');
+    const { withCampaign, modelFor, MODEL_CHOICES } = await import('../../server/ai/claude.ts');
+    const { matchJobs } = await import('../../server/match/index.ts');
+    const { defaultMatchConfig } = await import('../../server/match/settings.ts');
+    const { FIXTURE_ASSESSMENTS, FIXTURE_JOBS, FIXTURE_NOW, TEST_PROFILE } = await import('../../server/match/fixtures.ts');
+    type BatchApi = import('../../server/ai/batch.ts').BatchApi;
+    type BatchCreateParams = Parameters<BatchApi['create']>[0];
+    type MatchJob = import('../../server/match/jobs.ts').MatchJob;
+    type StructuredFn = import('../../server/match/assessment.ts').StructuredFn;
+
+    const keys = Object.keys(FIXTURE_JOBS) as (keyof typeof FIXTURE_JOBS)[];
+    const insertMatchJob = (j: MatchJob) => {
+      run(
+        `INSERT OR REPLACE INTO jobs (id, fingerprint, source, url, title, company, company_id, location, remote, category, description_text,
+           salary_min, salary_max, salary_currency, posted_at, found_at, prefilter_score, legitimacy, priority, status, updated_at)
+         VALUES (?, ?, 'test', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        j.id, `fp-${j.id}`, j.url, j.title, j.company, j.companyId, j.location, j.remote ? 1 : 0, j.category, j.descriptionText,
+        j.salaryMin, j.salaryMax, j.salaryCurrency, j.postedAt, j.foundAt, j.prefilterScore, j.legitimacy, j.priority, j.status, dbNow(),
+      );
+      return j.id;
+    };
+    /** Copies of the three fixture postings under new ids and URLs (so their prompts are new requests). */
+    const copies = (tag: string, only: (keyof typeof FIXTURE_JOBS)[] = keys) =>
+      only.map((k) => insertMatchJob({ ...FIXTURE_JOBS[k], id: `a08b-${tag}-${k}`, url: `https://jobs.example.com/a08b-${tag}-${k}` }));
+    /** The recorded assessment for every posting in a prompt, keyed by its position. */
+    const answerFor = (content: string) => ({
+      results: [...content.matchAll(/<job_posting id="(\d+)">\s*Title: ([^\n]*)/g)].flatMap((m) => {
+        const k = keys.find((key) => m[2].includes(FIXTURE_JOBS[key].title));
+        return k ? [{ ...FIXTURE_ASSESSMENTS[k], id: m[1] }] : [];
+      }),
+    });
+    const contentOf = (p: BatchCreateParams['requests'][number]) => String(p.params.messages[0].content);
+
+    let t = Date.parse('2026-11-03T10:00:00Z');
+    const S = {
+      creates: [] as BatchCreateParams[],
+      retrieves: 0,
+      ended: new Set<string>(),
+      failTitle: '' as string,
+      createError: null as Error | null,
+      created: new Map<string, number>(),
+    };
+    const batchObj = (id: string) =>
+      ({
+        id,
+        type: 'message_batch',
+        processing_status: S.ended.has(id) ? 'ended' : 'in_progress',
+        created_at: new Date(S.created.get(id)!).toISOString(),
+        expires_at: new Date(S.created.get(id)! + 24 * HOUR).toISOString(),
+        ended_at: null,
+        archived_at: null,
+        cancel_initiated_at: null,
+        results_url: null,
+        request_counts: { processing: 0, succeeded: 0, errored: 0, canceled: 0, expired: 0 },
+      }) as never;
+    const api: BatchApi = {
+      async create(p) {
+        if (S.createError) throw S.createError;
+        S.creates.push(p);
+        const id = `msgbatch_a08_${S.creates.length}`;
+        S.created.set(id, t);
+        return batchObj(id);
+      },
+      async retrieve(id) {
+        S.retrieves++;
+        if (!S.created.has(id)) throw Object.assign(new Error('not found'), { status: 404 });
+        return batchObj(id);
+      },
+      async results(id) {
+        const p = S.creates[Number(id.split('_').pop()) - 1];
+        return (async function* () {
+          for (const r of p.requests) {
+            if (S.failTitle && contentOf(r).includes(S.failTitle)) {
+              yield { custom_id: r.custom_id, result: { type: 'errored', error: { type: 'error', error: { type: 'api_error', message: 'boom' } } } } as never;
+              continue;
+            }
+            yield {
+              custom_id: r.custom_id,
+              result: {
+                type: 'succeeded',
+                message: { id: 'msg', type: 'message', role: 'assistant', model: 'claude-haiku-5-5', content: [{ type: 'text', text: JSON.stringify(answerFor(contentOf(r))) }], stop_reason: 'end_turn', stop_sequence: null, usage: { input_tokens: 1_000_000, output_tokens: 0 } },
+              },
+            } as never;
+          }
+        })();
+      },
+    };
+    let directCalls = 0;
+    const direct = (async (o: Parameters<StructuredFn>[0]) => {
+      directCalls++;
+      return answerFor(String(o.content));
+    }) as StructuredFn;
+    const matcher = () => createBatchMatcher({ api: () => api, now: () => t, direct });
+    const cfgB = defaultMatchConfig(TEST_PROFILE, FIXTURE_NOW);
+    const optsB = { profile: TEST_PROFILE, now: FIXTURE_NOW, skipFilters: true, movePipeline: false, assessLimit: 10, campaignId: 'camp-batch' };
+    const cycle = (bm: ReturnType<typeof matcher>, ids: string[], batchSize = 1) =>
+      withCampaign('camp-batch', () => matchViaBatch(bm, (seams) => matchJobs(ids, cfgB, { ...optsB, batchSize, ...seams })));
+    const usageRows = () => all<{ cost_usd: number; campaign_id: string | null; model: string }>("SELECT cost_usd, campaign_id, model FROM ai_usage WHERE task = 'match' ORDER BY id");
+
+    const ids = copies('a');
+    const bm = matcher();
+    const usage0 = usageRows().length;
+    let firstBatch = '';
+    await check('first cycle: every assessment is queued and sent as one batch; the jobs wait (no direct call)', async () => {
+      const out = await cycle(bm, ids);
+      assert.equal(out.length, 0);
+      assert.equal(directCalls, 0);
+      assert.equal(S.creates.length, 1);
+      assert.equal(S.creates[0].requests.length, 3);
+      firstBatch = get<{ id: string }>("SELECT id FROM ai_batches WHERE status = 'in_progress'")!.id;
+      const rows = all<{ status: string; campaign_id: string }>('SELECT status, campaign_id FROM ai_batch_requests WHERE batch_id = ?', firstBatch);
+      assert.deepEqual(rows.map((r) => [r.status, r.campaign_id]), [['pending', 'camp-batch'], ['pending', 'camp-batch'], ['pending', 'camp-batch']]);
+    });
+    await check('a batched request is the direct call minus the server-side fallback: model, cached system blocks, effort, schema, max_tokens', () => {
+      for (const r of S.creates[0].requests) {
+        const p = r.params as unknown as Record<string, unknown> & { system: { cache_control?: unknown }[]; output_config: { effort: string; format: { type: string } } };
+        assert.match(r.custom_id, /^match_[0-9a-f]{40}$/);
+        assert.equal(p.model, modelFor('match'));
+        assert.equal(p.max_tokens, 16000);
+        assert.ok(!('fallbacks' in p) && !('betas' in p));
+        assert.equal(p.system.length, 2);
+        assert.ok(p.system.every((b) => (b.cache_control as { type: string }).type === 'ephemeral'), 'prompt-cache breakpoints kept');
+        assert.equal(p.output_config.effort, 'low');
+        assert.equal(p.output_config.format.type, 'json_schema');
+      }
+    });
+    await check('polls politely: not before the batch is due, and waiting jobs are never sent twice', async () => {
+      t += 30_000;
+      assert.equal((await cycle(bm, ids)).length, 0);
+      assert.equal(S.retrieves, 0, 'checked before it was due');
+      t += 2 * MIN;
+      assert.equal((await cycle(bm, ids)).length, 0);
+      assert.equal(S.retrieves, 1);
+      assert.equal(S.creates.length, 1, 'a waiting job was queued again');
+      assert.equal(directCalls, 0);
+    });
+    await check('after a restart the batch is resumed from sqlite; answers are found by job even in a differently made batch', async () => {
+      S.ended.add(firstBatch);
+      t += 2 * MIN;
+      const bm2 = matcher(); // a new process: nothing in memory
+      const out = (await cycle(bm2, ids, 3)) as { jobId: string; screenPassScore: number }[];
+      assert.equal(out.length, 3);
+      assert.equal(directCalls, 0);
+      assert.equal(S.creates.length, 1);
+      assert.equal(get<{ status: string }>('SELECT status FROM ai_batches WHERE id = ?', firstBatch)?.status, 'ended');
+      // The same answers taken directly score the same.
+      const plain = (await matchJobs(ids, cfgB, { ...optsB, batchSize: 1, structuredFn: direct })) as { jobId: string; screenPassScore: number }[];
+      directCalls = 0;
+      for (const r of plain) assert.equal(out.find((o) => o.jobId === r.jobId)?.screenPassScore, r.screenPassScore, r.jobId);
+    });
+    await check('batch answers are metered at half price against the campaign that queued them', () => {
+      const rows = usageRows().slice(usage0);
+      assert.equal(rows.length, 3);
+      const haiku = MODEL_CHOICES.find((m) => m.id === 'claude-haiku-5-5')!;
+      for (const r of rows) {
+        assert.equal(r.campaign_id, 'camp-batch');
+        assert.ok(Math.abs(r.cost_usd - haiku.input * BATCH_PRICE_FACTOR) < 1e-9, String(r.cost_usd));
+      }
+    });
+    await check('an errored answer falls back to a normal call for that job only', async () => {
+      const more = copies('b');
+      directCalls = 0;
+      assert.equal((await cycle(bm, more)).length, 0);
+      const id = `msgbatch_a08_${S.creates.length}`;
+      S.failTitle = FIXTURE_JOBS.inflated.title;
+      S.ended.add(id);
+      t += 2 * MIN;
+      const out = await cycle(bm, more);
+      S.failTitle = '';
+      assert.equal(out.length, 3);
+      assert.equal(directCalls, 1);
+    });
+    await check('a batch that never ends is given up after it expires (normal calls instead)', async () => {
+      const late = copies('c', ['strong']);
+      directCalls = 0;
+      assert.equal((await cycle(bm, late)).length, 0);
+      const id = `msgbatch_a08_${S.creates.length}`;
+      t += 25 * HOUR;
+      const out = await cycle(bm, late);
+      assert.equal(out.length, 1);
+      assert.equal(directCalls, 1);
+      assert.equal(get<{ status: string }>('SELECT status FROM ai_batches WHERE id = ?', id)?.status, 'failed');
+    });
+    await check('a batch that cannot be created switches batching off for an hour (normal calls), then back on', async () => {
+      const down = copies('d', ['strong']);
+      directCalls = 0;
+      S.createError = new Error('503 overloaded');
+      assert.equal((await cycle(bm, down)).length, 0);
+      S.createError = null;
+      assert.equal((await cycle(bm, down)).length, 1);
+      assert.equal(directCalls, 1);
+      t += 61 * MIN;
+      const after = copies('e', ['strong']);
+      const n = S.creates.length;
+      assert.equal((await cycle(bm, after)).length, 0);
+      assert.equal(S.creates.length, n + 1);
+    });
+    await check('replay mode: the batch path runs offline on the recorded answers and matches the direct replay', async () => {
+      const real = keys.map((k) => insertMatchJob({ ...FIXTURE_JOBS[k] }));
+      const rbm = createBatchMatcher({ now: () => t }); // default client: the replay stand-in under BUREAU_REPLAY=1
+      const before = usageRows().length;
+      assert.equal((await cycle(rbm, real)).length, 0);
+      t += 2 * MIN;
+      const out = (await cycle(rbm, real)) as { jobId: string; screenPassScore: number }[];
+      assert.equal(out.length, 3);
+      assert.equal(usageRows().length - before, 3);
+      const plain = (await matchJobs(real, cfgB, { ...optsB, batchSize: 1 })) as { jobId: string; screenPassScore: number }[];
+      for (const r of plain) assert.equal(out.find((o) => o.jobId === r.jobId)?.screenPassScore, r.screenPassScore, r.jobId);
+      // Same tokens, half the price.
+      const batchCost = usageRows().slice(before, before + 3).reduce((a, r) => a + r.cost_usd, 0);
+      const directCost = usageRows().slice(before + 3).reduce((a, r) => a + r.cost_usd, 0);
+      assert.ok(Math.abs(batchCost - directCost * BATCH_PRICE_FACTOR) < 1e-9, `${batchCost} vs ${directCost}`);
+    });
+    await check('the autopilot brings a match cycle forward while a batch is due a check (off by default)', async () => {
+      const counts: number[] = [];
+      for (const ready of [false, true]) {
+        let calls = 0;
+        const { engine, clock, c } = scenario({ over: { pendingForMatch: () => ['a08b-x'], match: async () => (calls++, []), batchReady: () => ready } });
+        engine.startCampaign(c.id);
+        await runUntil(engine, clock, clock.now() + 10 * MIN);
+        engine.stop();
+        counts.push(calls);
+      }
+      assert.equal(counts[0], 2, JSON.stringify(counts));
+      assert.ok(counts[1] >= 5, String(counts[1]));
+      const { autopilotSettings } = await import('../../server/campaign/settings.ts');
+      assert.equal(autopilotSettings().batchMatching, false);
+      assert.equal(autopilotSettings().skipUnneededLetters, false);
+    });
+  }
+
   // Leave nothing running for later check files.
   isolate();
   clearTelegram();

@@ -175,6 +175,8 @@ export default async function scout({ check, section }: Harness) {
     ['https://careers.garmin.com/jobs/18475?icims=1', 'icims', null, '18475'],
     ['https://textron.taleo.net/careersection/textron/jobdetail.ftl?job=342666', 'taleo', 'textron/textron', '342666'],
     ['https://career4.successfactors.com/career?company=acmecorp&career_job_req_id=123456', 'successfactors', 'acmecorp@career4.successfactors.com', '123456'],
+    ['https://career5.sapsf.eu/career?company=acmeP&career_job_req_id=12345', 'successfactors', 'acmeP@career5.sapsf.eu', '12345'],
+    ['https://chp.tbe.taleo.net/chp04/ats/careers/v2/viewRequisition?org=ACME&cws=39&rid=123', 'taleo', 'tbe:ACME', '123'],
     ['https://eedu.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1003/job/202601653', 'other', 'eedu.fa.em3.oraclecloud.com/CX_1003', '202601653'],
     ['https://jobs.jobvite.com/iboss/job/orvdAfwt?nl=1', 'other', 'iboss', 'orvdAfwt'],
     ['https://www.linkedin.com/jobs/view/123456', null, null, null],
@@ -478,17 +480,20 @@ export default async function scout({ check, section }: Harness) {
     assert.equal(b.company.atsToken, 'acmeco');
   });
   await check('resolver follows an aggregator link to the employer ATS (robots-checked)', async () => {
+    const seen: string[] = [];
     http.setTransport(async (url) => {
+      seen.push(url);
       if (url.endsWith('/robots.txt')) return { ok: false, status: 404, url, contentType: 'text/plain', text: () => '', json: <T>() => ({}) as T };
       const html = '<html><body><a class="apply" href="https://jobs.lever.co/resolvedco/22222222-2222-4222-8222-222222222222/apply">Apply</a></body></html>';
       return { ok: true, status: 200, url, contentType: 'text/html', text: () => html, json: <T>() => ({}) as T };
     });
-    const job: RawJob = { source: 'remotive', externalId: '1', title: 'Engineer', company: 'ResolvedCo', location: '', remote: true, url: 'https://remotive.com/remote-jobs/software-dev/engineer-1' };
+    const job: RawJob = { source: 'nichefeeds', externalId: '1', title: 'Engineer', company: 'ResolvedCo', location: '', remote: true, url: 'https://jobspresso.co/job/engineer-1' };
     const st = await resolveApplyUrls([job], { budget: { left: 5 }, deadline: Date.now() + 10_000 });
     assert.equal(st.resolved, 1);
     assert.equal(job.applyUrl, 'https://jobs.lever.co/resolvedco/22222222-2222-4222-8222-222222222222/apply');
     const skip: RawJob = { ...job, url: 'https://www.linkedin.com/jobs/view/1' };
-    assert.equal((await resolveApplyUrls([skip], { budget: { left: 5 }, deadline: Date.now() + 10_000 })).tried, 0, 'guest-search pages are never fetched');
+    await resolveApplyUrls([skip], { budget: { left: 5 }, deadline: Date.now() + 10_000 });
+    assert.ok(!seen.some((u) => /linkedin\.com/.test(u)), 'guest-search pages are never fetched');
   });
   // Restore the fixture transport for the rest.
   http.setTransport(async (url) => {
@@ -504,6 +509,204 @@ export default async function scout({ check, section }: Harness) {
     }));
     assert.equal(r.ran, true);
     assert.equal(r.added, 2);
+  });
+
+  // ── Resolver: aggregator listing → employer ATS posting ───────────────────
+  section('Scout · resolver (fixtures/resolver/)');
+  const RESOLVER = path.resolve(FEEDS, '..', 'resolver');
+  const fx = (name: string) => fs.readFileSync(path.join(RESOLVER, name), 'utf8');
+  const { clearBoardCache } = await import('../../server/sources/boardSearch.ts');
+  const resolver = await import('../../server/scout/resolve.ts');
+  type Route = { re: RegExp; file?: string; body?: string; status?: number; landsOn?: string };
+  /** Recorded transport for the resolver: robots.txt allows everything, unmatched URLs are 404s. */
+  const resolverTransport = (routes: Route[], seen: string[]) =>
+    http.setTransport(async (url) => {
+      seen.push(url);
+      const r = routes.find((x) => x.re.test(url));
+      const body = r ? (r.file ? fx(r.file) : (r.body ?? '')) : 'not found';
+      const status = r ? (r.status ?? 200) : 404;
+      const final = r?.landsOn ?? url;
+      const contentType = /^\s*[[{]/.test(body) ? 'application/json' : 'text/html';
+      return { ok: status < 400, status, url: final, contentType, text: () => body, json: <T>() => JSON.parse(body) as T };
+    });
+  const listing = (over: Partial<RawJob>): RawJob => ({ source: 'weworkremotely', externalId: over.url ?? 'x', title: 'Engineer', company: 'Nobody', location: '', remote: true, url: 'https://example.org/x', ...over });
+  const opts = (over: Partial<Parameters<typeof resolveApplyUrls>[1]> = {}) => ({ budget: { left: 10 }, deadline: Date.now() + 30_000, lookups: true, ...over });
+
+  await check('titles: board noise is stripped; seniority must agree; location breaks ties', () => {
+    assert.equal(resolver.cleanTitle('Senior Integration Developer | 55-69K 🇫🇮'), 'Senior Integration Developer');
+    assert.equal(resolver.cleanTitle('Software Engineer I - Remote - Nationwide'), 'Software Engineer I');
+    assert.equal(resolver.cleanTitle('Junior Backend Engineer (Remote)'), 'Junior Backend Engineer');
+    assert.ok(resolver.titleMatch('Senior Engineer (.NET)', 'Senior Software Engineer (.NET)') >= 0.7);
+    assert.ok(resolver.titleMatch('Sr. Frontend Dev', 'Senior Front-End Developer') === 1);
+    assert.equal(resolver.titleMatch('Backend Engineer', 'Senior Backend Engineer'), 0, 'senior vs not');
+    assert.equal(resolver.titleMatch('Software Engineer II', 'Software Engineer III'), 0, 'level II vs III');
+    assert.ok(resolver.titleMatch('Software Engineer', 'Software Engineer, Payments') < 0.7, 'a specialised role is not the generic one');
+    const board = JSON.parse(fx('greenhouse-lumenfield.json')) as { jobs: { id: number; title: string; location: { name: string } }[] };
+    const postings = board.jobs.map((j) => ({ title: j.title, location: j.location.name, url: `https://job-boards.greenhouse.io/lumenfield/jobs/${j.id}` }));
+    assert.equal(resolver.matchPosting('Backend Engineer', 'Lahore', postings)?.url, 'https://job-boards.greenhouse.io/lumenfield/jobs/7100203');
+    assert.equal(resolver.matchPosting('Backend Engineer', 'London', postings)?.url, 'https://job-boards.greenhouse.io/lumenfield/jobs/7100202');
+    assert.equal(resolver.matchPosting('Staff Backend Engineer', '', postings), null);
+    assert.deepEqual(resolver.slugGuesses('Quarry Labs, Inc.'), ['quarrylabs', 'quarry']);
+    assert.deepEqual(resolver.slugGuesses('Kiagu Studios'), ['kiagustudios', 'kiagu-studios']);
+    assert.deepEqual(resolver.slugGuesses('Unknown'), ['unknown']);
+  });
+  await check('offline: a posting already stored from the company ATS is matched by title, with no request', async () => {
+    const seen: string[] = [];
+    resolverTransport([], seen);
+    ingestSync(
+      [{ source: 'greenhouse', externalId: 'sw:1', title: 'Senior Backend Engineer', company: 'Stillwater Analytics', location: 'Remote', remote: true, url: 'https://job-boards.greenhouse.io/stillwater/jobs/5550001', applyUrl: 'https://job-boards.greenhouse.io/stillwater/jobs/5550001', ats: 'greenhouse', descriptionText: 'Build APIs in Go and Postgres.' }],
+      { maxAgeDays: 3650 },
+    );
+    const job = listing({ source: 'jobspy-linkedin', url: 'https://www.linkedin.com/jobs/view/990001', company: 'Stillwater Analytics Inc.', title: 'Sr. Backend Engineer (Remote)' });
+    const st = await resolveApplyUrls([job], opts({ lookups: false }));
+    assert.equal(job.applyUrl, 'https://job-boards.greenhouse.io/stillwater/jobs/5550001');
+    assert.deepEqual([st.resolved, st.offline, st.tried], [1, 1, 0]);
+    assert.equal(seen.length, 0);
+    // The listing's own text naming exactly one ATS posting is enough too.
+    const hn = listing({ source: 'hackernews', url: 'https://news.ycombinator.com/item?id=1', company: 'Kestrel', descriptionText: 'Kestrel | Remote | Apply: https://jobs.ashbyhq.com/kestrel/3c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5' });
+    await resolveApplyUrls([hn], opts({ lookups: false }));
+    assert.equal(hn.applyUrl, 'https://jobs.ashbyhq.com/kestrel/3c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5');
+  });
+  await check('registry board: a LinkedIn/Bayt listing is matched on the company ATS board API, never on LinkedIn', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport([{ re: /^https:\/\/boards-api\.greenhouse\.io\/v1\/boards\/lumenfield\/jobs$/, file: 'greenhouse-lumenfield.json' }], seen);
+    registry.upsertCompany({ ats: 'greenhouse', token: 'lumenfield', name: 'Lumenfield', discoveredVia: 'test' });
+    const a = listing({ source: 'jobspy-linkedin', url: 'https://www.linkedin.com/jobs/view/990002', company: 'Lumenfield', title: 'Backend Engineer', location: 'Lahore, Punjab, Pakistan' });
+    const b = listing({ source: 'jobspy-bayt', url: 'https://www.bayt.com/en/uae/jobs/engineering-manager-990003', company: 'LumenField', title: 'Engineering Manager - Payments' });
+    const st = await resolveApplyUrls([a, b], opts());
+    assert.equal(a.applyUrl, 'https://job-boards.greenhouse.io/lumenfield/jobs/7100203', 'same title in two cities: the listing location picks');
+    assert.equal(b.applyUrl, 'https://job-boards.greenhouse.io/lumenfield/jobs/7100204');
+    assert.equal(st.boards, 2);
+    assert.equal(seen.filter((u) => /greenhouse/.test(u)).length, 1, 'one board request serves both listings');
+    assert.ok(!seen.some((u) => /linkedin|bayt/.test(u)));
+  });
+  await check('listing page: board embed searched by title; Arbeitnow /apply hop; outbound apply link followed one hop', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport(
+      [
+        { re: /^https:\/\/jobspresso\.co\/job\/data-platform/, file: 'listing-embed.html' },
+        { re: /^https:\/\/boards-api\.greenhouse\.io\/v1\/boards\/lumenfield\/jobs$/, file: 'greenhouse-lumenfield.json' },
+        { re: /^https:\/\/www\.arbeitnow\.com\/jobs\/companies\/fjordline\/platform-engineer-berlin-123\/apply$/, body: '<html></html>', landsOn: 'https://jobs.ashbyhq.com/fjordline/4d5e6f70-8192-4a3b-9c4d-5e6f708192a3/application?utm_source=arbeitnow' },
+        { re: /^https:\/\/larajobs\.com\/job\/4410$/, file: 'listing-outbound.html' },
+        { re: /^https:\/\/larajobs\.com\/jobs\/4410\/go/, body: '<html></html>', landsOn: 'https://jobs.lever.co/brackenridge/7a6b5c4d-3e2f-4a1b-9c8d-7e6f5a4b3c2d' },
+      ],
+      seen,
+    );
+    const embed = listing({ source: 'nichefeeds', url: 'https://jobspresso.co/job/data-platform-engineer', company: 'Lumenfield Ltd', title: 'Data Platform Engineer' });
+    const hop = listing({ source: 'arbeitnow', url: 'https://www.arbeitnow.com/jobs/companies/fjordline/platform-engineer-berlin-123', company: 'Fjordline', title: 'Platform Engineer' });
+    const out = listing({ source: 'nichefeeds', url: 'https://larajobs.com/job/4410', company: 'Brackenridge', title: 'Mobile Engineer' });
+    const st = await resolveApplyUrls([embed, hop, out], opts());
+    assert.equal(embed.applyUrl, 'https://job-boards.greenhouse.io/lumenfield/jobs/7100205');
+    assert.equal(hop.applyUrl, 'https://jobs.ashbyhq.com/fjordline/4d5e6f70-8192-4a3b-9c4d-5e6f708192a3/application?utm_source=arbeitnow');
+    assert.ok(!seen.includes('https://www.arbeitnow.com/jobs/companies/fjordline/platform-engineer-berlin-123'), 'the /apply hop saves the listing fetch');
+    assert.equal(out.applyUrl, 'https://jobs.lever.co/brackenridge/7a6b5c4d-3e2f-4a1b-9c8d-7e6f5a4b3c2d');
+    assert.ok(!seen.some((u) => /signup|post-a-job|auto-apply|login|twitter/.test(u)), 'sign-up, auto-apply and social links are never followed');
+    assert.ok(seen.some((u) => u === 'https://larajobs.com/robots.txt'), 'robots.txt checked before scraping');
+    assert.equal(st.resolved, 3);
+  });
+  await check('employer site: an outbound apply link that lands off any ATS is kept, counted apart', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport(
+      [
+        { re: /^https:\/\/larajobs\.com\/job\/4412$/, file: 'listing-outbound.html' },
+        { re: /^https:\/\/larajobs\.com\/jobs\/4410\/go/, file: 'employer-site-page.html', landsOn: 'https://careers.brackenridge.example/jobs/mobile-engineer' },
+      ],
+      seen,
+    );
+    const job = listing({ source: 'nichefeeds', url: 'https://larajobs.com/job/4412', company: 'Brackenridge Mobile', title: 'Mobile Engineer' });
+    const st = await resolveApplyUrls([job], opts());
+    assert.equal(job.applyUrl, 'https://careers.brackenridge.example/jobs/mobile-engineer');
+    assert.deepEqual([st.resolved, st.employerSite], [0, 1]);
+    assert.ok(!seen.some((u) => /\/apply$/.test(u) && /brackenridge/.test(u)), 'the employer form itself is never posted to');
+  });
+  await check('name guess: Greenhouse/Lever/Ashby/Workable slugs tried once per company (cached); a close title is required', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport([{ re: /^https:\/\/api\.lever\.co\/v0\/postings\/quarrylabs\?mode=json$/, file: 'lever-quarrylabs.json' }], seen);
+    const found: string[] = [];
+    const a = listing({ source: 'remotive', url: 'https://remotive.com/remote-jobs/software-development/senior-flutter-developer-1', company: 'Quarry Labs', title: 'Senior Flutter Developer (Remote)' });
+    const st = await resolveApplyUrls([a], opts({ discover: (u) => found.push(...u) }));
+    assert.equal(a.applyUrl, 'https://jobs.lever.co/quarrylabs/5b1c9d2e-0f3a-4b7c-9e21-6a4d8f0c1b23');
+    assert.equal(st.boards, 1);
+    assert.deepEqual(found, ['https://jobs.lever.co/quarrylabs'], 'a matched guessed board joins the registry');
+    assert.ok(!seen.some((u) => /remotive\.com/.test(u)), 'script-only boards are not scraped');
+    // Same company again: the guess is cached; only an unmatched generic title, so nothing is resolved.
+    clearBoardCache();
+    seen.length = 0;
+    const b = listing({ source: 'weworkremotely', url: 'https://weworkremotely.com/remote-jobs/quarry-labs-staff-engineer', company: 'Quarry Labs', title: 'Staff Software Engineer' });
+    const st2 = await resolveApplyUrls([b], opts());
+    assert.equal(st2.resolved, 0);
+    assert.equal(b.applyUrl, undefined);
+    assert.ok(!seen.some((u) => /greenhouse|ashbyhq|workable/.test(u)), `no new slug guesses: ${seen.join(', ')}`);
+  });
+  await check('a 429 cools that ATS off for the run and is never cached as "no board"', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport([{ re: /apply\.workable\.com\/api\/v1\/widget\/accounts\//, body: '{"error":"Too many requests"}', status: 429 }], seen);
+    const a = listing({ source: 'remotive', url: 'https://remotive.com/remote-jobs/software-development/qa-engineer-71', company: 'Halyard Health Tech', title: 'QA Engineer' });
+    const b = listing({ source: 'remotive', url: 'https://remotive.com/remote-jobs/software-development/qa-engineer-72', company: 'Marlin Freight', title: 'QA Engineer' });
+    await resolveApplyUrls([a], opts());
+    await resolveApplyUrls([b], opts());
+    assert.equal(seen.filter((u) => /workable/.test(u)).length, 1, 'one 429, then no more Workable requests');
+    assert.equal(get('SELECT 1 AS x FROM resolver_cache WHERE key = ?', 'co:halyardhealthtech'), undefined, 'an unsure guess is retried next run');
+    assert.equal(get('SELECT 1 AS x FROM resolver_cache WHERE key = ?', `job:${a.url}`), undefined, 'and so is the listing');
+  });
+  await check('careers page: JobSpy company_url_direct → ATS embed on the employer site → posting by title', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport(
+      [
+        { re: /^https:\/\/tidewater\.example\/careers$/, file: 'careers-tidewater.html' },
+        { re: /^https:\/\/api\.ashbyhq\.com\/posting-api\/job-board\/tidewater$/, file: 'ashby-tidewater.json' },
+      ],
+      seen,
+    );
+    const raw = jobspyRowToRaw({ site: 'linkedin', job_url: 'https://www.linkedin.com/jobs/view/990010', title: 'Machine Learning Engineer', company: 'Tidewater Analytics Group', company_url: 'https://www.linkedin.com/company/tidewater', company_url_direct: 'https://www.tidewater.example', location: 'Remote' })!;
+    assert.equal(raw.companyDomain, 'tidewater.example');
+    const st = await resolveApplyUrls([raw], opts());
+    assert.equal(raw.applyUrl, 'https://jobs.ashbyhq.com/tidewater/0c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5');
+    assert.equal(st.boards, 1);
+    assert.ok(seen.includes('https://tidewater.example/robots.txt'));
+    // An Indeed row whose job_url_direct already is the posting is left alone.
+    const direct = jobspyRowToRaw({ site: 'indeed', job_url: 'https://www.indeed.com/viewjob?jk=1', job_url_direct: 'https://boards.greenhouse.io/doordash/jobs/6123456', title: 'Software Engineer', company: 'DoorDash' })!;
+    seen.length = 0;
+    const st2 = await resolveApplyUrls([direct], opts());
+    assert.deepEqual([st2.tried, st2.resolved, seen.length], [0, 0, 0]);
+  });
+  await check('cache: a resolved listing is answered from resolver_cache next run, with no request', async () => {
+    clearBoardCache();
+    const seen: string[] = [];
+    resolverTransport([], seen);
+    const again = listing({ source: 'nichefeeds', url: 'https://larajobs.com/job/4410', company: 'Brackenridge', title: 'Mobile Engineer' });
+    const st = await resolveApplyUrls([again], opts());
+    assert.equal(again.applyUrl, 'https://jobs.lever.co/brackenridge/7a6b5c4d-3e2f-4a1b-9c8d-7e6f5a4b3c2d');
+    assert.deepEqual([st.resolved, st.offline, seen.length], [1, 1, 0]);
+  });
+  await check('replay (BUREAU_REPLAY=1, live transport, the e2e): no new lookups; budget and deadline bound the rest', async () => {
+    const seen: string[] = [];
+    resolverTransport([], seen);
+    assert.equal(resolver.lookupsAllowed(), true, 'a test transport may be used');
+    http.setTransport(null);
+    assert.equal(process.env.BUREAU_REPLAY, '1');
+    assert.equal(resolver.lookupsAllowed(), false, 'replay with the live transport: only recorded feeds');
+    resolverTransport([], seen);
+    // With lookups off, a LinkedIn listing of a registry company makes no request at all.
+    const job = listing({ source: 'jobspy-linkedin', url: 'https://www.linkedin.com/jobs/view/990020', company: 'Lumenfield', title: 'Principal Engineer' });
+    const st = await resolveApplyUrls([job], opts({ lookups: false }));
+    assert.deepEqual([st.tried, seen.length], [0, 0]);
+    // Budget 0: nothing goes online.
+    const many = [1, 2, 3].map((n) => listing({ source: 'nichefeeds', url: `https://jobspresso.co/job/budget-${n}`, company: `Budget Co ${n}`, title: 'Engineer' }));
+    const st0 = await resolveApplyUrls(many, opts({ budget: { left: 0 } }));
+    assert.deepEqual([st0.tried, seen.length], [0, 0]);
+  });
+  http.setTransport(async (url) => {
+    requested.push(url);
+    const hit = ROUTES.find(([re]) => re.test(url));
+    const body = hit ? (hit[1] ? feed(hit[1]) : (hit[2] ?? '')) : 'not found';
+    return { ok: !!hit, status: hit ? 200 : 404, url, contentType: /<html/i.test(body) ? 'text/html' : 'application/json', text: () => body, json: <T>() => JSON.parse(body) as T };
   });
 
   // ── JobSpy, end-to-end run, health, routes ────────────────────────────────

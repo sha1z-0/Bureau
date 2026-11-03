@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--
+  Fixture: iCIMS candidate application flow inside the portal's content iframe
+  (careers-<tenant>.icims.com/jobs/<id>/<slug>/login?in_iframe=1, then .../candidate?...).
+  Reproduces:
+   - the email-first "login" step (no password for a new candidate): input#email
+     name=loginField + the privacy-policy acceptance checkbox, input[type=submit] value "Next";
+     the URL then changes to .../candidate?in_iframe=1&from=login (history.replaceState);
+   - the profile step: iCIMS field ids "-1_PersonProfileFields.<Name>" with name
+     "PersonProfileFields.<Name>", .iCIMS_TableRow rows with <label> + .field-required "*",
+     "— Make a Selection —" placeholder options, the Country select hidden behind an
+     iCIMS dropdown button (aria-haspopup=listbox over the native <select>), phone type + number,
+     resume upload "Resume/CV" with the "Upload" button over input[type=file];
+   - the questions step: custom "rcf<NNNN>" fields (radio Yes/No, selects, text);
+   - the EEO step: voluntary self-identification selects with decline options;
+   - the eSignature step: certification checkbox, typed full legal name, date signed;
+   - progress bar .iCIMS_ProgressBar, per-field .iCIMS_ErrorMessage role=alert, a form-level
+     error summary, "Previous" / "Next" input buttons, the final "Submit" input button.
+  The final submit is one multipart POST (/__submit/{{FORM_ID}}) of every step's fields
+  and the resume; the frame then shows the confirmation page.
+  Fictional employer. Local fixture only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Candidate Profile | Northbeam Logistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #222; background: #fff; }
+    .iCIMS_MainWrapper { max-width: 980px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 24px; color: #0d3b66; margin: 0 0 6px; }
+    h2 { font-size: 18px; color: #0d3b66; border-bottom: 1px solid #dde3ea; padding-bottom: 6px; }
+    .iCIMS_ProgressBar { display: flex; gap: 6px; list-style: none; padding: 0; margin: 12px 0 20px; font-size: 12px; }
+    .iCIMS_ProgressBar li { flex: 1; padding: 6px; background: #eef1f4; text-align: center; color: #667; }
+    .iCIMS_ProgressBar li[aria-current=step] { background: #0d3b66; color: #fff; }
+    .iCIMS_TableRow { display: grid; grid-template-columns: 260px 1fr; gap: 10px; align-items: start; margin-bottom: 14px; }
+    .iCIMS_TableRow > label, .iCIMS_TableRow > .iCIMS_Label { font-size: 14px; padding-top: 6px; }
+    .field-required { color: #c00; margin-left: 2px; }
+    input[type=text], input[type=email], input[type=tel], input[type=url], input[type=date], select, textarea { box-sizing: border-box; width: 100%; max-width: 420px; padding: 7px 9px; border: 1px solid #aab4bf; border-radius: 2px; font: inherit; font-size: 14px; }
+    .iCIMS_ErrorMessage { color: #c00; font-size: 12px; margin-top: 3px; }
+    .iCIMS_ErrorSummary { border: 1px solid #c00; background: #fff4f4; color: #900; padding: 10px; margin-bottom: 14px; display: none; }
+    .iCIMS_Buttons { margin-top: 22px; display: flex; gap: 12px; }
+    .iCIMS_Buttons input { padding: 9px 22px; font-size: 14px; border: 0; border-radius: 3px; cursor: pointer; }
+    .iCIMS_PrimaryButton { background: #f28c28; color: #fff; }
+    .iCIMS_SecondaryButton { background: #e3e7eb; color: #223; }
+    .radios label { margin-right: 16px; font-size: 14px; }
+    .icims-dd { position: relative; max-width: 420px; }
+    .icims-dd > button { width: 100%; text-align: left; padding: 7px 9px; border: 1px solid #aab4bf; background: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+    .icims-dd ul { position: absolute; z-index: 5; left: 0; right: 0; max-height: 220px; overflow: auto; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #aab4bf; }
+    .icims-dd li { padding: 6px 9px; cursor: pointer; font-size: 14px; }
+    .icims-dd li[aria-selected=true], .icims-dd li:hover { background: #e8f0f8; }
+    .sr-select { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .upload { display: flex; gap: 10px; align-items: center; }
+    .upload input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .upload .chip { font-size: 13px; color: #335; }
+    .section[hidden] { display: none; }
+    .help { font-size: 12px; color: #667; margin-top: 3px; }
+  </style>
+</head>
+<body>
+<div class="iCIMS_MainWrapper">
+  <h1 id="jobTitle">Junior Software Engineer</h1>
+  <ol class="iCIMS_ProgressBar" id="progress">
+    <li>Login</li><li>Candidate Profile</li><li>Questions</li><li>Voluntary Self-Identification</li><li>eSignature</li>
+  </ol>
+  <div class="iCIMS_ErrorSummary" id="summary" role="alert"></div>
+  <form id="cp_form" method="post" action="#" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="hashed" value="-435812201">
+    <input type="hidden" name="jobId" id="jobIdHidden" value="">
+
+    <div class="section" data-step="0">
+      <h2>Please Enter Your Information</h2>
+      <p class="help">New and returning candidates: enter your email address to begin. Returning candidates will be asked to verify their identity.</p>
+      <div class="iCIMS_TableRow">
+        <label for="email">Email Address<span class="field-required">*</span></label>
+        <div><input type="email" id="email" name="loginField" autocomplete="email" required><div class="iCIMS_ErrorMessage"></div></div>
+      </div>
+      <div class="iCIMS_TableRow">
+        <span class="iCIMS_Label"></span>
+        <div><label><input type="checkbox" id="accept_gdpr" name="privacyPolicyAccepted" value="1" required> I have read and accept the <a href="#" onclick="return false">Privacy Policy</a><span class="field-required">*</span></label><div class="iCIMS_ErrorMessage"></div></div>
+      </div>
+    </div>
+
+    <div class="section" data-step="1" hidden>
+      <h2>Candidate Profile</h2>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.FirstName">First Name<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.FirstName" name="PersonProfileFields.FirstName" required maxlength="50"><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.MiddleName">Middle Name</label><div><input type="text" id="-1_PersonProfileFields.MiddleName" name="PersonProfileFields.MiddleName" maxlength="50"></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.LastName">Last Name<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.LastName" name="PersonProfileFields.LastName" required maxlength="50"><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Email">Email<span class="field-required">*</span></label><div><input type="email" id="-1_PersonProfileFields.Email" name="PersonProfileFields.Email" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.PhoneType">Phone Type<span class="field-required">*</span></label><div><select id="-1_PersonProfileFields.PhoneType" name="PersonProfileFields.PhoneType" required><option value="">— Make a Selection —</option><option>Mobile</option><option>Home</option><option>Work</option></select><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.PhoneNumber">Phone Number<span class="field-required">*</span></label><div><input type="tel" id="-1_PersonProfileFields.PhoneNumber" name="PersonProfileFields.PhoneNumber" required><div class="help">Include your country code, e.g. +44 20 7946 0000</div><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.AddressStreet1">Address<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.AddressStreet1" name="PersonProfileFields.AddressStreet1" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.AddressCity">City<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.AddressCity" name="PersonProfileFields.AddressCity" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.AddressState">State/Province<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.AddressState" name="PersonProfileFields.AddressState" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.AddressZip">Zip/Postal Code<span class="field-required">*</span></label><div><input type="text" id="-1_PersonProfileFields.AddressZip" name="PersonProfileFields.AddressZip" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label id="countryLabel" for="-1_PersonProfileFields.AddressCountry">Country<span class="field-required">*</span></label>
+        <div><div class="icims-dd" id="countryDd">
+          <select class="sr-select" id="-1_PersonProfileFields.AddressCountry" name="PersonProfileFields.AddressCountry" required tabindex="-1" aria-hidden="true"><option value="">— Make a Selection —</option></select>
+          <button type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="countryLabel" id="countryBtn">— Make a Selection —</button>
+          <ul role="listbox" id="countryList" hidden></ul>
+        </div><div class="iCIMS_ErrorMessage"></div></div>
+      </div>
+      <div class="iCIMS_TableRow"><label for="rcf1201">LinkedIn Profile URL</label><div><input type="url" id="rcf1201" name="rcf1201"></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Source">How did you hear about us?<span class="field-required">*</span></label><div><select id="-1_PersonProfileFields.Source" name="PersonProfileFields.Source" required><option value="">— Make a Selection —</option><option>Company Website</option><option>Employee Referral</option><option>Job Board</option><option>LinkedIn</option><option>University / Career Fair</option><option>Other</option></select><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Resume">Resume/CV<span class="field-required">*</span></label>
+        <div><div class="upload"><input type="file" id="-1_PersonProfileFields.Resume" name="PersonProfileFields.Resume" accept=".pdf,.doc,.docx,.rtf,.txt" required><button type="button" class="iCIMS_SecondaryButton" onclick="document.getElementById('-1_PersonProfileFields.Resume').click()">Upload</button><span class="chip" id="resumeChip">No file selected</span></div><div class="help">Accepted: PDF, DOC, DOCX, RTF, TXT (max 5 MB)</div><div class="iCIMS_ErrorMessage"></div></div>
+      </div>
+    </div>
+
+    <div class="section" data-step="2" hidden>
+      <h2>Job-Specific Questions</h2>
+      <div class="iCIMS_TableRow"><span class="iCIMS_Label" id="rcf3048_l">Are you authorized to work in Pakistan?<span class="field-required">*</span></span><div class="radios" role="radiogroup" aria-labelledby="rcf3048_l"><label><input type="radio" name="rcf3048" value="Yes" required> Yes</label><label><input type="radio" name="rcf3048" value="No"> No</label><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="rcf3049">Will you now or in the future require sponsorship for employment visa status?<span class="field-required">*</span></label><div><select id="rcf3049" name="rcf3049" required><option value="">— Make a Selection —</option><option>Yes</option><option>No</option></select><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="rcf3050">How many years of professional software engineering experience do you have?<span class="field-required">*</span></label><div><select id="rcf3050" name="rcf3050" required><option value="">— Make a Selection —</option><option>Less than 1 year</option><option>1-2 years</option><option>3-5 years</option><option>More than 5 years</option></select><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><span class="iCIMS_Label" id="rcf3051_l">Are you at least 18 years of age?<span class="field-required">*</span></span><div class="radios" role="radiogroup" aria-labelledby="rcf3051_l"><label><input type="radio" name="rcf3051" value="Yes" required> Yes</label><label><input type="radio" name="rcf3051" value="No"> No</label><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><span class="iCIMS_Label" id="rcf3052_l">Have you previously worked for this company?<span class="field-required">*</span></span><div class="radios" role="radiogroup" aria-labelledby="rcf3052_l"><label><input type="radio" name="rcf3052" value="Yes" required> Yes</label><label><input type="radio" name="rcf3052" value="No"> No</label><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="rcf3053">What is your notice period?<span class="field-required">*</span></label><div><input type="text" id="rcf3053" name="rcf3053" required maxlength="100"><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="rcf3054">Are you willing to relocate?</label><div><select id="rcf3054" name="rcf3054"><option value="">— Make a Selection —</option><option>Yes</option><option>No</option></select></div></div>
+    </div>
+
+    <div class="section" data-step="3" hidden>
+      <h2>Voluntary Self-Identification</h2>
+      <p class="help">Northbeam Logistics is an equal opportunity employer. Providing this information is voluntary and will not affect your application.</p>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Gender">Gender</label><div><select id="-1_PersonProfileFields.Gender" name="PersonProfileFields.Gender"><option value="">— Make a Selection —</option><option>Female</option><option>Male</option><option>I do not wish to self-identify</option></select></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Race">Race/Ethnicity</label><div><select id="-1_PersonProfileFields.Race" name="PersonProfileFields.Race"><option value="">— Make a Selection —</option><option>Asian</option><option>Black or African American</option><option>Hispanic or Latino</option><option>White</option><option>Two or More Races</option><option>I do not wish to self-identify</option></select></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.Veteran">Veteran Status</label><div><select id="-1_PersonProfileFields.Veteran" name="PersonProfileFields.Veteran"><option value="">— Make a Selection —</option><option>I am a protected veteran</option><option>I am not a protected veteran</option><option>I do not wish to self-identify</option></select></div></div>
+      <div class="iCIMS_TableRow"><label for="-1_PersonProfileFields.DisabilityStatus">Disability Status</label><div><select id="-1_PersonProfileFields.DisabilityStatus" name="PersonProfileFields.DisabilityStatus"><option value="">— Make a Selection —</option><option>Yes, I have a disability (or previously had a disability)</option><option>No, I do not have a disability</option><option>I do not want to answer</option></select></div></div>
+    </div>
+
+    <div class="section" data-step="4" hidden>
+      <h2>eSignature</h2>
+      <p class="help">By typing your name below you certify that the information in this application is true and complete.</p>
+      <div class="iCIMS_TableRow"><span class="iCIMS_Label"></span><div><label><input type="checkbox" id="certify" name="eSignature.Certify" value="1" required> I certify that the information provided is accurate and complete<span class="field-required">*</span></label><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="eSignatureName">Full Legal Name<span class="field-required">*</span></label><div><input type="text" id="eSignatureName" name="eSignature.FullName" required><div class="iCIMS_ErrorMessage"></div></div></div>
+      <div class="iCIMS_TableRow"><label for="eSignatureDate">Date Signed<span class="field-required">*</span></label><div><input type="date" id="eSignatureDate" name="eSignature.Date" required><div class="iCIMS_ErrorMessage"></div></div></div>
+    </div>
+
+    <div class="iCIMS_Buttons">
+      <input type="button" class="iCIMS_SecondaryButton" id="prevBtn" value="Previous" hidden>
+      <input type="submit" class="iCIMS_PrimaryButton" id="nextBtn" value="Next">
+    </div>
+  </form>
+</div>
+<script>
+(function () {
+  'use strict';
+  var FORM_ID = '{{FORM_ID}}';
+  var JOBS = { '4821': 'Junior Software Engineer', '4907': 'Junior Frontend Developer' };
+  var jm = location.pathname.match(/\/jobs\/(\d+)\//);
+  document.getElementById('jobTitle').textContent = JOBS[jm ? jm[1] : '4821'] || JOBS['4821'];
+  document.getElementById('jobIdHidden').value = jm ? jm[1] : '';
+  var COUNTRIES = ['Australia', 'Bangladesh', 'Canada', 'Germany', 'India', 'Ireland', 'Pakistan', 'Philippines', 'Singapore', 'United Arab Emirates', 'United Kingdom', 'United States'];
+  var form = document.getElementById('cp_form');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var steps = document.querySelectorAll('#progress li');
+  var prev = document.getElementById('prevBtn');
+  var next = document.getElementById('nextBtn');
+  var summary = document.getElementById('summary');
+  var step = 0;
+
+  // iCIMS dropdown over the native select.
+  var sel = document.getElementById('-1_PersonProfileFields.AddressCountry');
+  var btn = document.getElementById('countryBtn');
+  var list = document.getElementById('countryList');
+  COUNTRIES.forEach(function (c, i) {
+    var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+    var li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = 'country_opt_' + i; li.textContent = c; li.dataset.value = c; list.appendChild(li);
+  });
+  function closeDd() { list.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function () { var open = list.hidden; list.hidden = !open; btn.setAttribute('aria-expanded', String(open)); });
+  list.addEventListener('click', function (e) {
+    var li = e.target.closest('li'); if (!li) return;
+    sel.value = li.dataset.value; btn.textContent = li.dataset.value;
+    Array.prototype.forEach.call(list.children, function (x) { x.setAttribute('aria-selected', String(x === li)); });
+    sel.dispatchEvent(new Event('change', { bubbles: true })); closeDd();
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest('#countryDd')) closeDd(); });
+  sel.addEventListener('change', function () { btn.textContent = sel.value || '— Make a Selection —'; });
+
+  var resume = document.getElementById('-1_PersonProfileFields.Resume');
+  resume.addEventListener('change', function () { document.getElementById('resumeChip').textContent = resume.files.length ? resume.files[0].name : 'No file selected'; });
+
+  function show(n) {
+    step = n;
+    sections.forEach(function (s, i) { s.hidden = i !== n; });
+    Array.prototype.forEach.call(steps, function (li, i) { if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); });
+    prev.hidden = n <= 1;
+    next.value = n === sections.length - 1 ? 'Submit' : 'Next';
+    next.id = n === sections.length - 1 ? 'submitBtn' : 'nextBtn';
+    summary.style.display = 'none';
+    if (n === 1) {
+      var em = document.getElementById('-1_PersonProfileFields.Email');
+      if (!em.value) em.value = document.getElementById('email').value;
+      history.replaceState(null, '', location.pathname.replace(/\/login$/, '/candidate') + '?in_iframe=1&from=login');
+    }
+    try { parent.postMessage({ type: 'icims-resize', height: document.documentElement.scrollHeight }, '*'); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  function blank(el) {
+    if (el.type === 'radio' || el.type === 'checkbox') return !form.querySelector('[name="' + CSS.escape(el.name) + '"]:checked');
+    if (el.type === 'file') return !el.files.length;
+    return !String(el.value || '').trim();
+  }
+  function validate(n) {
+    var bad = [];
+    sections[n].querySelectorAll('[required]').forEach(function (el) {
+      var box = el.closest('.iCIMS_TableRow').querySelector('.iCIMS_ErrorMessage');
+      var miss = blank(el);
+      if (!miss && el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) miss = 'Please enter a valid email address.';
+      if (box && (el.type !== 'radio' || el === form.querySelector('[name="' + CSS.escape(el.name) + '"]'))) box.textContent = miss ? (typeof miss === 'string' ? miss : 'This field is required.') : '';
+      if (el.type !== 'file' && el.type !== 'radio' && el.type !== 'checkbox') el.setAttribute('aria-invalid', miss ? 'true' : 'false');
+      if (miss) bad.push(el.name);
+    });
+    if (bad.length) { summary.textContent = 'Please correct the errors below.'; summary.style.display = 'block'; }
+    return !bad.length;
+  }
+  prev.addEventListener('click', function () { if (step > 1) show(step - 1); });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!validate(step)) return;
+    if (step < sections.length - 1) return show(step + 1);
+    next.disabled = true;
+    var fd = new FormData(form);
+    fetch('/__submit/' + FORM_ID, { method: 'POST', body: fd, headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.ok && res.redirect) { location.assign(res.redirect); return; }
+        next.disabled = false;
+        summary.textContent = 'There was a problem submitting your application: ' + (res.errors || []).join('; ');
+        summary.style.display = 'block';
+      });
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

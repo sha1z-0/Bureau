@@ -62,7 +62,7 @@ function fieldLine(v: FieldView): string {
 }
 
 function controlLine(c: Clickable): string {
-  const extra = [c.expanded ? `expanded=${c.expanded}` : '', c.type ? `type=${c.type}` : '', c.href && !c.href.startsWith('javascript') ? `href="${clip(c.href, 80)}"` : ''].filter(Boolean).join(' ');
+  const extra = [c.expanded ? `expanded=${c.expanded}` : '', c.type ? `type=${c.type}` : '', c.href && !c.href.startsWith('javascript') ? `href="${clip(c.href, 80)}"` : '', c.frame ? `in_frame="${clip(c.frameHost ?? c.frame, 60)}"` : ''].filter(Boolean).join(' ');
   return `- ref=${c.ref} ${c.role} "${clip(c.name, 80)}"${extra ? ` ${extra}` : ''}`;
 }
 

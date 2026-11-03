@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Page, Route } from 'playwright-core';
+import type { Frame, Page, Route } from 'playwright-core';
 import { type AgentAction, AgentActionSchema, type AgentRunResult } from '../contracts/agent.ts';
 import type { FormField } from '../contracts/forms.ts';
 import type { AtsFamily } from '../contracts/job.ts';
@@ -9,7 +9,7 @@ import { get, now, run } from '../db.ts';
 import { emit } from '../services/bus.ts';
 import type { Candidate } from '../forms/candidate.ts';
 import { detectOnPage } from '../forms/detect.ts';
-import { type ExtractedField, extractStep, frameFor } from '../forms/extract.ts';
+import { type ExtractedField, extractStep, frameByKey, frameFor, type StepExtract } from '../forms/extract.ts';
 import { armSubmitGuard, withSubmitAllowed } from '../forms/guard.ts';
 import { fillField } from '../forms/handlers/index.ts';
 import { jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from '../forms/map.ts';
@@ -108,9 +108,52 @@ async function settle(page: Page, ms = 400) {
   await page.waitForTimeout(ms).catch(() => {});
 }
 
+/** The main document's step fingerprint, plus each child frame's (an embedded form moves inside its frame). */
 async function fingerprint(page: Page): Promise<string> {
-  const f = await inFrame<{ heads: string; ctl: number; step: string; url: string }>(page.mainFrame(), 'fingerprint').catch(() => null);
-  return f ? `${f.url}|${f.heads}|${f.step}|${f.ctl}` : '';
+  const fp = async (fr: Frame) => {
+    const f = await inFrame<{ heads: string; ctl: number; step: string; url: string }>(fr, 'fingerprint').catch(() => null);
+    return f ? `${f.url}|${f.heads}|${f.step}|${f.ctl}` : '';
+  };
+  const main = await fp(page.mainFrame());
+  const kids: string[] = [];
+  for (const fr of page.frames()) if (fr !== page.mainFrame() && !fr.isDetached()) kids.push(await fp(fr));
+  return kids.filter(Boolean).length ? `${main}#${kids.join('#')}` : main;
+}
+
+/**
+ * Controls, headings and text of the usable child frames (same- or cross-origin embeds; challenge and
+ * tracking frames are already skipped by A05's extraction). Refs become `k<n>@<frame key>`.
+ */
+async function frameSnapshots(page: Page, ex: StepExtract): Promise<{ controls: Clickable[]; headings: string[]; text: string }> {
+  const out = { controls: [] as Clickable[], headings: [] as string[], text: '' };
+  for (const note of ex.frames) {
+    if (note.skipped) continue;
+    const fr = frameByKey(page, note.key);
+    if (fr === page.mainFrame() || fr.isDetached()) continue;
+    const snap = await agentOp<Snapshot>(fr, 'snapshot', { maxText: 1500 }).catch(() => null);
+    if (!snap) continue;
+    let host = '';
+    try {
+      host = new URL(fr.url()).host;
+    } catch {
+      host = '';
+    }
+    for (const c of snap.clickables) out.controls.push({ ...c, ref: `${c.ref}@${note.key}`, frame: note.key, frameHost: host });
+    out.headings.push(...snap.headings);
+    if (snap.text) out.text += `\n[embedded frame ${host}]\n${snap.text}`;
+  }
+  return out;
+}
+
+/** Where a control lives: its frame and its in-document ref. */
+function controlTarget(page: Page, c: Clickable): { frame: Frame; ref: string } {
+  if (!c.frame) return { frame: page.mainFrame(), ref: c.ref };
+  return { frame: frameByKey(page, c.frame), ref: c.ref.slice(0, c.ref.indexOf('@')) };
+}
+
+/** A link inside an embedded frame navigates that frame: its own host is allowed for it (never for the main frame). */
+function policyForControl(policy: UrlPolicy, c: Clickable): UrlPolicy {
+  return c.frame && c.frameHost ? { ...policy, hosts: new Set([...policy.hosts, c.frameHost.toLowerCase()]) } : policy;
 }
 
 async function challengeOn(page: Page): Promise<string | null> {
@@ -326,6 +369,11 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
       const ex = await extractStep(page, pageStep);
       const fields = ex.fields.slice(0, 60);
       const snap = await agentOp<Snapshot>(page.mainFrame(), 'snapshot', { maxText: 3000 }).catch(() => ({ title: '', url: page.url(), headings: [], clickables: [], text: '' }) as Snapshot);
+      // Embedded application frames (an ATS iframe on a careers page): their buttons are controls too.
+      const framed = await frameSnapshots(page, ex);
+      const controls = framed.controls.length ? [...snap.clickables, ...framed.controls] : snap.clickables;
+      const headings = framed.headings.length ? [...snap.headings, ...framed.headings] : snap.headings;
+      const text = framed.text ? `${snap.text}${framed.text}` : snap.text;
       const scan: { where: string; text: string }[] = await agentOp<{ where: string; text: string }[]>(page.mainFrame(), 'scan').catch(() => []);
       for (const fr of page.frames()) {
         if (fr === page.mainFrame() || fr.isDetached() || !ex.frames.some((n) => n.url === fr.url() && !n.skipped)) continue;
@@ -347,7 +395,7 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
         const current = f.kind === 'file' ? (r?.value ?? '') : (r?.display || r?.value || '');
         return { field: f, current, suggest };
       });
-      const state: TurnState = { url: page.url(), fields: views, controls: snap.clickables, history, injections, notes: [...notes], catalogue: catalogue(vctx) };
+      const state: TurnState = { url: page.url(), fields: views, controls, history, injections, notes: [...notes], catalogue: catalogue(vctx) };
       const content = agentContent({
         job: job ? { title: job.title, company: job.company } : null,
         url: page.url(),
@@ -356,9 +404,9 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
         maxSteps,
         catalogue: state.catalogue,
         fields: views,
-        controls: snap.clickables,
-        headings: snap.headings,
-        text: snap.text,
+        controls,
+        headings,
+        text,
         history,
         notes,
         injection: injections.length > 0,
@@ -421,13 +469,13 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
         }
         case 'click':
         case 'next': {
-          let c = a.action === 'click' ? snap.clickables.find((x) => x.ref === a.target) : undefined;
-          if (a.action === 'next') c = snap.clickables.find((x) => x.ref === a.target) ?? snap.clickables.find((x) => NEXT_RE.test(x.name) && !FINAL_RE.test(x.name));
+          let c = a.action === 'click' ? controls.find((x) => x.ref === a.target) : undefined;
+          if (a.action === 'next') c = controls.find((x) => x.ref === a.target) ?? controls.find((x) => NEXT_RE.test(x.name) && !FINAL_RE.test(x.name));
           if (!c) {
             say(a.action === 'next' ? 'refused: no Next button here; use click with a control ref' : `refused: no control "${a.target.slice(0, 40)}"`);
             break;
           }
-          const verdict = clickVerdict(c, policy);
+          const verdict = clickVerdict(c, policyForControl(policy, c));
           if (!verdict.ok) {
             say(`refused: ${verdict.why}`);
             await rec.add({ action: 'click', labelNorm: labelNorm(c.name), widget: 'button', selectors: c.selectors, step: pageStep, ok: false, note: `refused: ${verdict.why}`.slice(0, 200) }, { shoot: false });
@@ -445,7 +493,8 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
             }
           }
           const before = await fingerprint(page);
-          const loc = page.locator(`[data-bureau-agent="${c.ref}"]`).first();
+          const target = controlTarget(page, c);
+          const loc = target.frame.locator(`[data-bureau-agent="${target.ref}"]`).first();
           const click = () => loc.click({ timeout: 5_000 }).then(() => true).catch(() => false);
           const clicked = verdict.next ? await withSubmitAllowed(page, click) : await click();
           await settle(page, 400);

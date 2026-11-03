@@ -130,6 +130,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     const C = W.customElements && W.customElements.get(tag);
     return !!(C && C.formAssociated);
   }
+  /**
+   * A custom element drawn by a CLOSED shadow root that is not a readable form-associated field:
+   * nothing outside the component can reach its input or read its value back, so a value typed
+   * into it could never be verified. Reported only when it is required (see extract).
+   */
+  function opaqueHost(el) {
+    const tag = el.tagName.toLowerCase();
+    if (tag.indexOf('-') < 0 || el.shadowRoot || !(W.customElements && W.customElements.get(tag))) return false;
+    if (el.querySelector(CONTROL_SEL) || closedField(el)) return false;
+    const r = el.getBoundingClientRect();
+    return r.height >= 12 && r.width >= 40;
+  }
   /** What a form-associated element contributes to its form (the only way to read a closed field). */
   function formValueOf(el) {
     const form = el.closest('form');
@@ -449,6 +461,17 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         out.push({ id, kind: 'text', rawLabel: raw, label, required: el.hasAttribute('required') || el.getAttribute('aria-required') === 'true' || requiredMark(raw), meta: { closed: true }, el, selectors: selectorsFor(el, label) });
         continue;
       }
+      // A required field Bureau cannot reach at all (a closed shadow root that is not form-associated):
+      // reported so the run stops before submit instead of sending a form the page will refuse.
+      if (!native && !custom && opaqueHost(el)) {
+        consumed.add(el);
+        const raw = norm(el.getAttribute('label')) || norm(el.getAttribute('aria-label')) || labelOf(el) || humanName(el.getAttribute('name') || tag.toLowerCase());
+        if (!visible(el) || !(el.hasAttribute('required') || el.getAttribute('aria-required') === 'true' || requiredMark(raw))) continue;
+        const id = stampField(el, prefix);
+        const label = cleanLabel(raw);
+        out.push({ id, kind: 'unknown', rawLabel: raw, label, required: true, meta: { closed: true, unreachable: true }, el, selectors: selectorsFor(el, label) });
+        continue;
+      }
       if (!native && !custom) continue;
       if (el.closest('[role="listbox"], [role="menu"], nav, header, footer, [data-bureau-ignore]')) continue;
       if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
@@ -672,10 +695,14 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const isBtn = t0 === 'BUTTON' || (t0 === 'INPUT' && /^(submit|button)$/i.test(b.type)) || b.getAttribute('role') === 'button' || t0 === 'A';
       if (!isBtn || !visible(b) || b.disabled || b.getAttribute('aria-disabled') === 'true') continue;
       if (b.closest('[role="listbox"], [role="menu"], [data-bureau-ignore]')) continue;
-      const t = norm(t0 === 'INPUT' ? b.value : (b.innerText || b.textContent)) || norm(b.getAttribute('aria-label'));
+      let t = norm(t0 === 'INPUT' ? b.value : (b.innerText || b.textContent)) || norm(b.getAttribute('aria-label'));
+      // A button in an open shadow root often shows light-DOM text through a <slot> (innerText misses it):
+      // such a button counts as wizard navigation (Next / Submit), never as an "Add" or "Apply" control.
+      const slotted = !t && rootOf(b) !== document;
+      if (slotted) t = ownText(b) || norm(rootOf(b).host && rootOf(b).host.getAttribute('aria-label'));
       if (!t || t.length > 70) continue;
       const da = b.getAttribute('data-automation-id') || '';
-      if (/^add\b(?!ress)/i.test(t.replace(/^[^a-z]+/i, '')) || /^add(Button)?$|-add$/i.test(da)) {
+      if (!slotted && (/^add\b(?!ress)/i.test(t.replace(/^[^a-z]+/i, '')) || /^add(Button)?$|-add$/i.test(da))) {
         const id = stampAttr(b, 'data-bureau-add', prefix + 'a');
         let ctx = t + ' ' + attrsOf(b) + ' ' + (b.getAttribute('data-test') || '') + ' ' + (b.getAttribute('data-ui') || '');
         let up = parentOf(b);
@@ -692,7 +719,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       else if (/^(review|review (my |your )?application)\b/i.test(t)) kind = 'review';
       else if (/^(submit|send|complete( application)?|finish|submit (my |your )?application|send application|apply now|apply)$/i.test(t) || /SubmitButton|submitButton/.test(da) || (t0 !== 'A' && b.type === 'submit' && !/^(next|continue|search|sign|log|create|verify|back|cancel)/i.test(t))) kind = 'submit';
       else if (/^(back|previous)\b/i.test(t)) kind = 'back';
-      if (/^(apply( now| for this (job|position|role)| to this (job|position))?|i'?m interested|apply manually|start (your )?application|apply for job)$/i.test(t) || /adventureButton|applyManually/.test(da)) {
+      if (!slotted && (/^(apply( now| for this (job|position|role)| to this (job|position))?|i'?m interested|apply manually|start (your )?application|apply for job)$/i.test(t) || /adventureButton|applyManually/.test(da))) {
         applies.push({ id: stampAttr(b, 'data-bureau-nav', prefix + 'n'), text: t, href: t0 === 'A' ? b.getAttribute('href') || '' : '', target: b.getAttribute('target') || '', inForm: !!b.closest('form'), da });
       }
       if (!kind) continue;
@@ -969,6 +996,10 @@ export interface RawField {
     hint?: string;
     native?: boolean;
     toggle?: boolean;
+    /** A form-associated custom element with a closed shadow root (typed into, read back through FormData). */
+    closed?: boolean;
+    /** A required field in a closed shadow root that cannot be filled or read back at all. */
+    unreachable?: boolean;
   };
   selectors: string[];
   order: number;

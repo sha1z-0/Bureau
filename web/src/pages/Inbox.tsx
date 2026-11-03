@@ -109,7 +109,7 @@ function MessageDrawer({ id, onClose }: { id: string; onClose: () => void }) {
                 ['Application', m.jobId ? <a href={`#/pipeline?job=${encodeURIComponent(m.jobId)}`}>Open the job</a> : m.applicationId ? 'Linked' : 'Not linked'],
                 ['Stage', m.stage ? `${plain(m.stage.from)} to ${plain(m.stage.to)}` : ''],
                 ['Reply by', m.deadline ? stamp(m.deadline) : ''],
-                ['Interview', m.interviewDate ? stamp(m.interviewDate) : ''],
+                ['Interview', m.interviewShown ?? (m.interviewDate ? stamp(m.interviewDate) : '')],
                 ['Crash plan', m.planId ? <a href={`#/learning?plan=${encodeURIComponent(m.planId)}`}>Open the plan</a> : ''],
               ]}
             />
