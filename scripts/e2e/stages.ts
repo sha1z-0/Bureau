@@ -14,6 +14,7 @@ import { bus, type BusEvent } from '../../server/services/bus.ts';
 import { get, now, run, setSetting } from '../../server/db.ts';
 import { canTransition, pipelineState, transition } from '../../server/campaign/pipeline.ts';
 import { activeClaim, claimJob, releaseClaim } from '../../server/campaign/claims.ts';
+import { recordStep } from '../../server/campaign/journal.ts';
 import { MatchResultSchema } from '../../server/contracts/match.ts';
 import { ApplicationPacketSchema, type ApplicationPacket } from '../../server/contracts/writer.ts';
 import { FillOutcomeSchema, type FillOutcome } from '../../server/contracts/forms.ts';
@@ -395,6 +396,8 @@ async function fill(ctx: E2EContext, f: FormSpec, submit: boolean): Promise<Fill
   );
   const outcome = FillOutcomeSchema.parse(res);
   settle(jobId, outcome);
+  // The campaign worker journals every send (the digest is built from that journal); this direct fill does the same.
+  if (outcome.status === 'submitted') recordStep(Date.now(), { campaignId: ctx.campaignId, jobId, step: 'submitted', status: 'ok', detail: { applicationId: packet.applicationId, channel: 'form', shot: outcome.shotPath ?? null } });
   return outcome;
 }
 
@@ -575,12 +578,13 @@ export const digest: Stage<E2EContext> = {
   title: 'Digest (A08): today’s report reflects the run',
   needs: ['submit'],
   run: async (ctx, s) => {
-    const build = await optionalExport<(campaignId: string, date?: string) => Promise<unknown>>([
+    const build = await optionalExport<(campaignId: string, date?: string) => Promise<{ id: string }>>([
       ['server/campaign/index.ts', 'buildCampaignDigest'],
     ]);
     if (!build) return s.pending('server/campaign has no buildDigest(campaignId, date?) yet (requests/A11.md §4)');
-    await build(ctx.campaignId);
-    const row = get<{ content: string }>('SELECT content FROM digests WHERE campaign_id = ? ORDER BY date DESC', ctx.campaignId);
+    // Read the digest just built: the autopilot may already have stored one earlier the same day.
+    const { id } = await build(ctx.campaignId);
+    const row = get<{ content: string }>('SELECT content FROM digests WHERE id = ?', id);
     assert.ok(row, 'digest stored');
     const text = row.content;
     const submitted = [...ctx.submits].filter(([, o]) => o.status === 'submitted').map(([id]) => id);

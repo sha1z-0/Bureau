@@ -1,0 +1,24 @@
+{
+  "task": "write_letter",
+  "hash": "9b70d1eaa6dcaee10bda5ef8",
+  "scenario": "e2e",
+  "label": "revise: Lumen Ledger",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 2700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "passagesUsed": [
+          "vb-hard-bug"
+        ],
+        "text": "Dear Lumen Ledger team,\n\nLumen Ledger's new matching rules, which learn from the matches accountants make by hand, caught my attention because reconciliation is the work I know best. I am applying for the Junior Backend Engineer role.\n\nAt Tessellate Labs I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL, which issues about 9,000 invoices a month. I also cut the nightly reconciliation job from 41 minutes to 6 by replacing row-by-row updates with set-based SQL and adding two partial indexes.\n\nOutside work I built ledger-lite, a double-entry bookkeeping API that enforces balanced journal entries with a database constraint. It has 140 stars on GitHub.\n\nWhen our VPS provider gave us two weeks to move, I moved four services to Docker Compose.\n\nCould we talk next week?\n\nBest regards,\nRania Haroon"
+      }
+    ]
+  }
+}

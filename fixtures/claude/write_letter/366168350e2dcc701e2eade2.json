@@ -23,9 +23,10 @@
         "strategy": "proof",
         "passagesUsed": [
           "vb-hard-bug",
-          "vb-proudest-project"
+          "vb-why-build",
+          "vb-failure"
         ],
-        "text": "Dear Lumen Ledger team,\n\nI cut a nightly reconciliation job at Tessellate Labs from 41 minutes to 6, and Lumen Ledger's matching engine is the kind of system I'd like to keep doing that for. The job had started overlapping with the morning invoice run, and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop. Set-based SQL and two partial indexes fixed it.\n\nI built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL, about 9,000 invoices a month for our logistics clients, and I moved four services to Docker Compose with a runbook the on-call rotation still uses.\n\nAt home I built ledger-lite, which pushes the balance rule into Postgres with a deferred constraint trigger.\n\nI'd be happy to share more about my experience in an interview.\n\nBest regards,\nRania Haroon"
+        "text": "Dear Lumen Ledger team,\n\nI cut a nightly reconciliation job at Tessellate Labs from 41 minutes to 6, and that's why I'm applying for the Junior Backend Engineer role on Lumen Ledger's matching engine. The job had started overlapping with the morning invoice run, and customers got duplicate reminders. I spent a day reading EXPLAIN output I only half understood. The real problem was boring: we updated rows one at a time inside a loop. I rewrote it as set-based SQL and added two partial indexes. Six minutes.\n\nThat's the work I do every day at Tessellate Labs, where I built and maintain the invoicing service in Node.js, TypeScript and PostgreSQL. It issues about 9,000 invoices a month. I also write the rollback before every migration, even for a two-line change.\n\nIt goes back further than work. My father kept his shop's accounts in a green register, and every Ramzan it stopped balancing and he'd sit up past sehri hunting for forty rupees. I still like that part best. Not the clever part. The part where someone stops staying up late.\n\nYour engineering post about moving candidate matching into PostgreSQL describes the part of the job I'd most like to work on.\n\nCould I walk someone on the team through the reconciliation fix on a short call?\n\nBest regards,\nRania Haroon"
       },
       {
         "strategy": "story",

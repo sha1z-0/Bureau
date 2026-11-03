@@ -1,0 +1,48 @@
+{
+  "task": "critic",
+  "hash": "8d6a8e1aebf7f9e18c0d3c2a",
+  "scenario": "e2e",
+  "label": "critic: Lumen Ledger",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4300,
+    "output_tokens": 700,
+    "cache_read_input_tokens": 3700,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "variants": [
+      {
+        "strategy": "hook",
+        "score": 6.2,
+        "scores": {
+          "specificity": 7,
+          "evidence": 8,
+          "voice": 5,
+          "clarity": 7.5,
+          "ask": 5,
+          "aiTells": 5
+        },
+        "demands": [
+          "Cut \"I believe my background in billing systems and my attention to detail make me a strong candidate\"; it is a stock line.",
+          "Cut \"I am a fast learner and I am comfortable with Docker\"; show it with the Docker Compose move instead.",
+          "Replace \"Thank you for your time, and I hope to hear from you soon\" with a concrete ask."
+        ]
+      },
+      {
+        "strategy": "proof",
+        "score": 8.4,
+        "scores": {
+          "specificity": 8.5,
+          "evidence": 9,
+          "voice": 8.5,
+          "clarity": 8,
+          "ask": 8,
+          "aiTells": 8.5
+        },
+        "demands": []
+      }
+    ],
+    "bestSubject": 0
+  }
+}

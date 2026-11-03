@@ -29,6 +29,6 @@ if [ ! -x "$VENV/bin/python" ]; then
   "$PY" -m venv "$VENV" || { echo "venv failed; on Debian/Ubuntu install python3-venv" >&2; exit 1; }
 fi
 "$VENV/bin/python" -m pip install --disable-pip-version-check --no-cache-dir --quiet --upgrade pip
-"$VENV/bin/python" -m pip install --disable-pip-version-check --no-cache-dir -r "$SIDECAR/requirements.txt"
+"$VENV/bin/python" -m pip install --disable-pip-version-check --no-cache-dir --prefer-binary -r "$SIDECAR/requirements.txt"
 ( cd "$SIDECAR" && "$VENV/bin/python" -m jobspy_cli --check )
 echo "JobSpy sidecar ready."

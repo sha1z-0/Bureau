@@ -74,6 +74,7 @@ const env: Record<string, string> = {
   BUREAU_DATA_DIR: path.join(sandbox, 'data'),
   BUREAU_STARTUP_DIR: path.join(sandbox, 'startup'),
   BUREAU_REPLAY: '1',
+  BUREAU_JOBSPY_PYTHON: 'none',
   BUREAU_EMBED: 'hash',
   BUREAU_MASTER_KEY: crypto.randomBytes(32).toString('base64'),
   BUREAU_FIXTURE_ORIGINS: `${fx.originA},${fx.originB}`,

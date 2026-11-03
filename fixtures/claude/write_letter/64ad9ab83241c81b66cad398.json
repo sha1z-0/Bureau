@@ -20,9 +20,10 @@
       {
         "strategy": "proof",
         "passagesUsed": [
-          "vb-learned-fast"
+          "vb-learned-fast",
+          "vb-learning-now"
         ],
-        "text": "Dear Harbor & Pine team,\n\nThe most relevant thing I've done for a Platform role is small but real: I moved four services from a hand-built VPS setup to Docker Compose with health checks and wrote the runbook our on-call rotation now uses. At Tessellate Labs I also built and maintain a Node.js and TypeScript invoicing service, about 9,000 invoices a month, and cut a nightly reconciliation job from 41 minutes to 6.\n\nI'm learning Go now and working through a Kubernetes course, though only on kind on my laptop.\n\nI don't have five years of experience, Kafka, or experience leading projects across teams. I'd still like to be considered for the entry-level opening.\n\nThank you for your consideration.\n\nBest regards,\nRania Haroon"
+        "text": "Dear Harbor & Pine Platform team,\n\nThe most relevant thing I've done for the Software Engineer I role on Platform is small but real: we moved four services to Docker Compose, and the runbook I wrote is the one our on-call rotation still uses. Nobody at work had written a Dockerfile when our VPS provider announced a migration with two weeks' notice. I volunteered, mostly because I didn't want to be the one restoring things by hand at 2am. I read the Compose docs on the bus and broke my laptop's networking twice.\n\nThat sits on two years of TypeScript services in production at Tessellate Labs, including the Node.js invoicing service behind about 9,000 invoices a month. I also review pull requests for the billing team and paired with two interns through their first month.\n\nThe posting asks for things I don't have yet. Right now I'm learning Go, porting the trial-balance endpoint from my ledger-lite project, and so far the answer is: more typing, fewer surprises. I'm also working through a Kubernetes course in the evenings, though I've only run it on kind on my own laptop. Nothing in production yet.\n\nCould we have a short call about what the first year on Platform looks like?\n\nBest regards,\nRania Haroon"
       },
       {
         "strategy": "story",

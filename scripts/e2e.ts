@@ -46,6 +46,8 @@ const childEnv: Record<string, string> = {
   BUREAU_DATA_DIR: dataDir,
   BUREAU_STARTUP_DIR: path.join(sandbox, 'startup'),
   BUREAU_REPLAY: '1',
+  // Offline: the JobSpy sidecar (when installed) would search the live web.
+  BUREAU_JOBSPY_PYTHON: 'none',
   BUREAU_EMBED: process.env.BUREAU_EMBED ?? 'hash',
   BUREAU_MASTER_KEY: masterKey,
   BUREAU_REPLAY_DUMP: path.join(sandbox, 'replay-misses'),

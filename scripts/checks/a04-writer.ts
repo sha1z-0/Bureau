@@ -323,7 +323,8 @@ export default async function a04({ check, section }: Harness) {
     assert.equal(packet!.mode, 'quality');
     assert.ok(packet!.quality.lint.pass);
     assert.ok(packet!.quality.truth.pass);
-    assert.equal(packet!.coverLetter, R.LETTER_STORY);
+    // Story (8.3, drafted with "crucial") and the revised hook (8.8) both clear the bar; the hook already passes the lint, so it wins.
+    assert.equal(packet!.coverLetter, R.LETTER_HOOK);
     assert.equal(packet!.subject, R.SUBJECTS[1]);
     assert.equal(packet!.outreach, R.OUTREACH);
     assert.equal(packet!.followUp, R.FOLLOW_UP);
@@ -364,7 +365,8 @@ export default async function a04({ check, section }: Harness) {
     assert.ok(q.writer.evidence!.items.every((i) => i.framing === 'omit' || i.factIds.length > 0));
     assert.ok(!q.writer.evidence!.items.flatMap((i) => i.factIds).includes('cv_0000000000000000'));
     assert.ok(q.writer.evidenceAdjustments.some((a) => /unread source/.test(a)));
-    assert.ok(q.writer.steps.some((s) => s.step === 'humanize' && /1 edit/.test(s.detail)));
+    // The chosen letter was lint-clean, so the humanizer had nothing to do (its edits are checked on the story letter below).
+    assert.ok(q.writer.steps.some((s) => s.step === 'humanize' && /no tells found/.test(s.detail)));
     assert.ok(q.writer.cvChanges.some((c) => /Kubernetes/.test(c)));
   });
   await check('the CV PDF is one page and round-trips through text extraction with every section intact', async () => {
@@ -381,7 +383,7 @@ export default async function a04({ check, section }: Harness) {
     assert.ok(got.indexOf('SUMMARY') < got.indexOf('EXPERIENCE') && got.indexOf('EXPERIENCE') < got.indexOf('EDUCATION'), 'reading order');
     assert.equal(applicationQuality(appId)!.writer.cvPages, 1);
     const letter = flat((await extractText(new Uint8Array(fs.readFileSync(packet!.letterPdfPath)), { mergePages: true })).text as string);
-    assert.ok(letter.includes(flat(R.LETTER_STORY.split('\n\n')[1])));
+    assert.ok(letter.includes(flat(R.LETTER_HOOK.split('\n\n')[1])));
   });
   await check('long CVs are trimmed until the rendered PDF measures one page', async () => {
     const long = structuredClone(cleanCv);
@@ -451,6 +453,12 @@ export default async function a04({ check, section }: Harness) {
     const before = W.loadVariants(appId);
     const was = before.find((v) => v.chosen)!;
     const other = before.find((v) => !v.chosen)!;
+    // The other variant is the story draft, still holding its "crucial": the lint refuses it and nothing changes.
+    await assert.rejects(() => chooseVariant(appId, other.id, fakeAi({ audit_choose: { issues: [] } })), (e: unknown) => e instanceof AppError && e.code === 'GATE_LINT');
+    assert.equal(get<{ variant_id: string }>('SELECT variant_id FROM applications WHERE id = ?', appId)!.variant_id, was.id);
+    // Once the variant reads as the humanized letter, the gates pass and the packet switches.
+    run('UPDATE letter_variants SET text = ? WHERE id = ?', R.LETTER_STORY, other.id);
+    other.text = R.LETTER_STORY;
     const res = await chooseVariant(appId, other.id, fakeAi({ audit_choose: { issues: [] } }));
     assert.equal(res.changed, true);
     assert.equal(get<{ variant_id: string }>('SELECT variant_id FROM applications WHERE id = ?', appId)!.variant_id, other.id);
@@ -486,6 +494,9 @@ export default async function a04({ check, section }: Harness) {
     return { r, calls };
   };
   const allLow = { variants: ['hook', 'proof', 'story'].map((strategy) => ({ strategy, score: 4.4, scores: { specificity: 4, evidence: 5, voice: 4, clarity: 5, ask: 4, aiTells: 4 }, demands: [] })), bestSubject: 0 };
+  // Only the story letter clears the critic, so the gates below run on it (a lint-clean hook would otherwise be preferred).
+  const storyCritic = (canned.critic as { variants: { strategy: string }[] }).variants.find((v) => v.strategy === 'story')!;
+  const storyOnly = { variants: allLow.variants.map((v) => (v.strategy === 'story' ? storyCritic : v)), bestSubject: 1 };
   await check('critic under 5 for every letter → skipped with the reason', async () => {
     const { calls } = await skippedRun({ critic: allLow }, /^critic: best letter scored 4\.4/);
     assert.ok(!calls.includes('revise') && !calls.includes('audit'));
@@ -497,14 +508,14 @@ export default async function a04({ check, section }: Harness) {
   });
   await check('a lint failure the targeted rewrite cannot fix → skipped', async () => {
     const bad = R.LETTER_STORY.replace('which is the part of this work I like most', "which I'm passionate about").replace('He still prints it out, though.', 'He still prints it out — every week — on paper.');
-    const { calls } = await skippedRun({ letters: withStory(bad), humanize: { edits: [] }, lint_fix: { edits: [] } }, /^lint: .*no_passionate/);
+    const { calls } = await skippedRun({ critic: storyOnly, letters: withStory(bad), humanize: { edits: [] }, lint_fix: { edits: [] } }, /^lint: .*no_passionate/);
     assert.ok(calls.includes('lint_fix'));
   });
   await check('a lint failure the targeted rewrite fixes → written', async () => {
     F.seedScenario();
     const bad = R.LETTER_STORY.replace('which is the part of this work I like most', "which I'm passionate about");
     const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, {
-      ai: fakeAi({ letters: withStory(bad), humanize: { edits: [] }, lint_fix: { edits: [{ find: "which I'm passionate about", replace: 'which is the part of this work I like most', reason: 'passionate' }] } }),
+      ai: fakeAi({ critic: storyOnly, letters: withStory(bad), humanize: { edits: [] }, lint_fix: { edits: [{ find: "which I'm passionate about", replace: 'which is the part of this work I like most', reason: 'passionate' }] } }),
       rng: seededRng(F.SEED),
     });
     assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
@@ -512,13 +523,13 @@ export default async function a04({ check, section }: Harness) {
   const invented = R.LETTER_STORY_DRAFT.replace('It posts about 400 entries a day', 'It posts about 4,000 entries a day');
   await check('an invented metric the rewrite does not remove → truth lock skips the job', async () => {
     const inventedFinal = invented.replace(R.HUMANIZE_FIND, R.HUMANIZE_REPLACE);
-    const { calls } = await skippedRun({ letters: withStory(invented), truth_fix: fixed(inventedFinal), audit_recheck: canned.audit }, /^truth lock: 4,000/);
+    const { calls } = await skippedRun({ critic: storyOnly, letters: withStory(invented), truth_fix: fixed(inventedFinal), audit_recheck: canned.audit }, /^truth lock: 4,000/);
     assert.deepEqual(calls.filter((c) => c.startsWith('audit')), ['audit', 'audit_recheck']);
   });
   await check('an invented metric fixed by the one rewrite → re-audited, re-scored and written', async () => {
     F.seedScenario();
     const calls: string[] = [];
-    const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: fakeAi({ letters: withStory(invented), truth_fix: fixed(R.LETTER_STORY), audit_recheck: canned.audit }, calls), rng: seededRng(F.SEED) });
+    const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { ai: fakeAi({ critic: storyOnly, letters: withStory(invented), truth_fix: fixed(R.LETTER_STORY), audit_recheck: canned.audit }, calls), rng: seededRng(F.SEED) });
     assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
     assert.ok(calls.includes('truth_fix') && calls.includes('critic_final'));
     assert.equal((r.result as { coverLetter: string }).coverLetter, R.LETTER_STORY);
@@ -528,7 +539,7 @@ export default async function a04({ check, section }: Harness) {
     await skippedRun({ audit: auditorHigh, truth_fix: fixed(R.LETTER_STORY), audit_recheck: auditorHigh }, /^truth lock: balance sheet/);
   });
   await check('a final critic score under 5 after edits → skipped (the gate holds on the saved text)', async () => {
-    await skippedRun({ critic_final: { variants: [{ strategy: 'story', score: 4.2, scores: { specificity: 4, evidence: 5, voice: 4, clarity: 5, ask: 4, aiTells: 4 }, demands: [] }], bestSubject: 1 } }, /^critic: final letter scored 4\.2/);
+    await skippedRun({ critic: storyOnly, critic_final: { variants: [{ strategy: 'story', score: 4.2, scores: { specificity: 4, evidence: 5, voice: 4, clarity: 5, ask: 4, aiTells: 4 }, demands: [] }], bestSubject: 1 } }, /^critic: final letter scored 4\.2/);
   });
   await check('volume mode: one letter, no critic or paid auditor, and one CV per role reused across jobs', async () => {
     F.seedScenario();

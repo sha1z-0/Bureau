@@ -404,7 +404,8 @@ export default async function a07Api({ check, section, sandbox, sharedBrowser }:
       assert.match(full, K.KEY_RE);
       const info = created.json.info as { id: string; prefix: string };
       const list = await ui('GET', '/api/agent-keys');
-      assert.ok(!JSON.stringify(list.json).includes(full.split('_')[2]), 'the secret is never listed again');
+      // The secret itself may contain "_", so take it from the key pattern, not split('_').
+      assert.ok(!JSON.stringify(list.json).includes(full.match(K.KEY_RE)![2]), 'the secret is never listed again');
       assert.ok((list.json.keys as { id: string }[]).some((k) => k.id === info.id));
       assert.equal((await call('GET', '/api/v1/health', { key: full })).status, 200);
       assert.equal((await ui('POST', '/api/agent-keys', { name: 'Bad', scopes: ['root'] })).status, 400);

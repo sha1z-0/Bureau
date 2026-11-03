@@ -4,7 +4,7 @@ Branch `v2`. Written at the end of Phase 3 (the live dry-run rehearsal). The spe
 
 ## 1. Summary
 
-Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboarding and profile sync, scout, matcher, writer, form engine, browser agent with recipe learning, the external API and MCP server, the campaign autopilot, inbox and follow-ups, the learning engine, digests and alerts, and the UI. The offline suites pass (587/587 self-checks; UI smoke 23 steps on v2, 39 with the wiring steps). The strict e2e result is in section 4. In Phase 3, Bureau ran on the owner's real profile against live sources in dry run, with every apply channel off. Nothing was submitted and no employer form was opened. The rehearsal found seven problems; all seven are fixed (section 5). Two choices differ from the spec on purpose: the owner set the recruiter-critic bar to 5/10 in quality mode (spec: 8), and the new default volume mode skips the critic and the paid auditor. Real Telegram, IMAP and SMTP have not been tested live, and JobSpy is not installed on this machine. The app is ready for the owner to start a live campaign (section 7).
+Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboarding and profile sync, scout, matcher, writer, form engine, browser agent with recipe learning, the external API and MCP server, the campaign autopilot, inbox and follow-ups, the learning engine, digests and alerts, and the UI. The offline suites pass (588/588 self-checks; UI smoke 39 steps). The strict e2e result is in section 4. In Phase 3, Bureau ran on the owner's real profile against live sources in dry run, with every apply channel off. Nothing was submitted and no employer form was opened. The rehearsal found seven problems; all seven are fixed (section 5). Two choices differ from the spec on purpose: the owner set the recruiter-critic bar to 5/10 in quality mode (spec: 8), and the new default volume mode skips the critic and the paid auditor. Real Telegram, IMAP and SMTP have not been tested live. JobSpy is installed and returned real postings. The app is ready for the owner to start a live campaign (section 7).
 
 ## 2. What was built
 
@@ -44,7 +44,7 @@ Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboa
 | Part | Status | Note |
 | --- | --- | --- |
 | 1. Onboarding and profile | ✅ | All items built. GitHub sync hit the anonymous rate limit in Phase 3; add a token. JavaScript-only portfolio sites yield few facts. |
-| 2. Scout | ⚠️ | All source types built. JobSpy is not installed on this machine (Python 3.14 is present; run the setup script). GulfTalent, NaukriGulf and Wellfound are unreachable (bot challenges); Bayt only via JobSpy. Comeet, iCIMS, Taleo, SuccessFactors and Oracle HCM are detected, not polled. The resolver is weak: 2 of 150 aggregator links resolved to the employer's apply URL on the first live run. |
+| 2. Scout | ⚠️ | All source types built. JobSpy 1.4.1 is installed in `sidecars/jobspy/.venv` (Python 3.14, 174 MB); a real Indeed + LinkedIn search through the app's code returned 20 postings, all normalised. GulfTalent, NaukriGulf and Wellfound are unreachable (bot challenges); Bayt only via JobSpy. Comeet, iCIMS, Taleo, SuccessFactors and Oracle HCM are detected, not polled. The resolver is weak: 2 of 150 aggregator links resolved to the employer's apply URL on the first live run. |
 | 3. Matcher | ✅ | Built to the spec. Phase 3 added caps: unmet office/residency/relocation requirement is a blocker, a missing critical requirement caps at 55, a senior/staff/lead title caps at 45 for entry or junior candidates. |
 | 4. Writer | ⚠️ | Deviations chosen by the owner. The spec asks for three letter variants and a critic bar of 8. Quality mode writes two drafts and uses a bar of 5. Volume mode (the default) writes one letter, has no critic, and runs only the code truth check, not the paid auditor. Lint and the code truth check run in both modes. |
 | 5. Form engine | ⚠️ | 27/27 replicas submit with every expected value (`run-fixtures --submit`). iCIMS, Taleo and SuccessFactors adapters are untested (no replicas). Closed shadow roots are filled by focus and typing; a form with a truly unreachable required field parks as `needs_you`. Account creation and email codes are tested on fixtures only. |
@@ -62,12 +62,39 @@ Bureau v2 is built. All 12 parts of the spec exist and are wired together: onboa
 
 ## 4. Test results
 
-- **Self-checks:** `npm run selfcheck`, 587/587 pass. Offline, replay mode, hash embeddings.
+- **Self-checks:** `npm run selfcheck`, 588/588 pass. Offline, replay mode, hash embeddings.
 - **Typecheck:** clean (`npm run typecheck`).
-- **UI smoke:** `npm run build && npm run ui-smoke`, 23 steps pass on v2; 39 with the wiring agent's added steps (Forms, Inbox, Learning, mailbox card).
+- **UI smoke:** `npm run build && npm run ui-smoke`, 39/39 steps pass.
 - **Strict e2e:** `npm run e2e -- --strict`. Results below.
 
-E2E_RESULTS_PLACEHOLDER
+Run on 3 November 2026, offline (replay mode, local fixture server), 828 s: **17 passed, 0 pending, 0 failed, 0 blocked.**
+
+| Stage | Result |
+|---|---|
+| seed | ✅ |
+| profile | ✅ |
+| campaign | ✅ |
+| scout | ✅ |
+| jobs | ✅ |
+| match | ✅ |
+| write | ✅ all 13 employers written in quality mode (two drafts, critic ≥ 5, lint and truth lock pass) |
+| rehearse | ✅ |
+| submit | ✅ |
+| mail-bridge | ✅ |
+| inbox | ✅ |
+| alert | ✅ |
+| digest | ✅ |
+| crash-resume | ✅ |
+| kill-switch | ✅ |
+| external-agent | ✅ |
+| ui-smoke | ✅ 39/39 steps |
+
+Notes on the last changes before this run:
+
+- The writer now prefers, among letters that clear the critic, one that already passes the free lint (it saves a paid rewrite or a skip). The A04 checks were updated so the humanizer, lint-fix, truth-lock and final-critic gates are still each tested on a letter that needs them.
+- The e2e recordings were re-recorded from scratch for quality mode (two drafts per employer, authored from true facts only).
+- The e2e `submit` stage fills forms directly, not through the campaign worker, so it now journals each send the way the worker does; the digest is built from that journal.
+- The offline runners (e2e, UI smoke, A01) set `BUREAU_JOBSPY_PYTHON=none`, so an installed JobSpy never reaches the live web during tests.
 
 ## 5. Phase 3 rehearsal: findings and fixes
 
@@ -75,7 +102,7 @@ Setup: the owner's real profile, Sonnet 5.5 for every task, prompt caching on ev
 
 What it did:
 
-- **Scout:** one real run read 47,431 postings from 31 sources and stored 3,516 unique new ones. A second run added more after the registry grew by 154 discovered boards. JobSpy did not run: its Python venv is not installed.
+- **Scout:** one real run read 47,431 postings from 31 sources and stored 3,516 unique new ones. A second run added more after the registry grew by 154 discovered boards. JobSpy did not run then: its Python venv was not installed yet. It has been installed since (section 7, step 3).
 - **Match:** hard filters kept about 222 of the 3,516. Claude scored 40 per cycle.
 - **Write:** quality-mode letters were truthful and in the owner's voice; the critic first scored them 6.8–7.2 (see fix 6). The owner then chose volume mode for bulk and a critic bar of 5 for quality mode.
 
@@ -155,11 +182,14 @@ Start Bureau with `Bureau.cmd` (or `npm start`) and open `http://127.0.0.1:4317`
 
 **3. Optional: JobSpy** (LinkedIn, Indeed, Glassdoor, Google and more, guest search only):
 
+Already installed on this machine. To set it up elsewhere (Bureau runs without it and reports the source as unavailable):
+
 ```
-powershell -ExecutionPolicy Bypass -File scripts/setup-sidecar.ps1
+Windows:  powershell -ExecutionPolicy Bypass -File scripts/setup-sidecar.ps1
+Linux:    bash scripts/setup-sidecar.sh        (the Docker image runs this at build time)
 ```
 
-Then check Sources → Health: the `jobspy` source should no longer say "unavailable".
+This creates `sidecars/jobspy/.venv` (gitignored, about 175 MB) with `python-jobspy>=1.4.1` (wheels for Python 3.10–3.14). To use another interpreter, set `BUREAU_JOBSPY_PYTHON=<path to python>`. Check it from `sidecars/jobspy`: `.venv/Scripts/python -m jobspy_cli --check`. Then check Sources → Health: the `jobspy` source should no longer say "unavailable" (the status is cached for 10 minutes, or restart Bureau).
 
 **4. Create the campaign** (Campaigns → New campaign, or edit the rehearsal campaign):
 
@@ -190,7 +220,7 @@ All filters can change later; jobs already found are re-sorted.
 
 **Not set up or not tested live**
 
-- JobSpy is not installed (run `scripts/setup-sidecar.ps1`). Not run on a Linux host.
+- Not run on a Linux host. JobSpy is installed on Windows only so far.
 - Real Telegram, IMAP and SMTP are untested. Do one check of each before going live: Telegram "Test", mailbox "Test", then one poll.
 - No application has been submitted to a real employer yet. The first live days are the real test of the form engine.
 - Docker and `docker compose` were written but never built on this machine (CI builds them).

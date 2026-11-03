@@ -1,3 +1,4 @@
 # The JobSpy sidecar's only direct dependency. Its own deps (pandas, numpy,
-# requests, tls-client, beautifulsoup4, markdownify, pydantic) come with it.
-python-jobspy>=1.1.75,<2
+# requests, curl_cffi, beautifulsoup4, markdownify, pydantic) come with it.
+# 1.4+ dropped the old numpy/pandas pins, so wheels exist for Python 3.10-3.14.
+python-jobspy>=1.4.1,<2

@@ -15,10 +15,12 @@ $venv = Join-Path $sidecar ".venv"
 function Find-Python {
   if ($Python) { return @($Python) }
   # Prefer a version pandas/numpy ship wheels for; fall back to whatever is installed.
+  # Microsoft Store Pythons (WindowsApps) are skipped: their venvs break when the app updates.
   foreach ($v in @("3.12", "3.13", "3.11", "3.14", "3.10")) {
     if (Get-Command py -ErrorAction SilentlyContinue) {
-      try { & py "-$v" -c "import sys" *> $null } catch { }
-      if ($LASTEXITCODE -eq 0) { return @("py", "-$v") }
+      $exe = $null
+      try { $exe = & py "-$v" -c "import sys; print(sys.executable)" 2> $null } catch { }
+      if ($LASTEXITCODE -eq 0 -and $exe -and $exe -notmatch "WindowsApps") { return @("py", "-$v") }
     }
   }
   foreach ($cmd in @("python3", "python")) {
@@ -49,7 +51,7 @@ if (-not (Test-Path (Join-Path $venv "Scripts\python.exe"))) {
 }
 $vpy = Join-Path $venv "Scripts\python.exe"
 & $vpy -m pip install --disable-pip-version-check --no-cache-dir --quiet --upgrade pip 2>&1 | Out-Host
-& $vpy -m pip install --disable-pip-version-check --no-cache-dir -r (Join-Path $sidecar "requirements.txt") 2>&1 | Out-Host
+& $vpy -m pip install --disable-pip-version-check --no-cache-dir --prefer-binary -r (Join-Path $sidecar "requirements.txt") 2>&1 | Out-Host
 if ($LASTEXITCODE -ne 0) { throw "pip install failed" }
 
 Push-Location $sidecar

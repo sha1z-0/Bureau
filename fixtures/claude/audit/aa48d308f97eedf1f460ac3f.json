@@ -1,0 +1,21 @@
+{
+  "task": "audit",
+  "hash": "aa48d308f97eedf1f460ac3f",
+  "scenario": "a04",
+  "model": "claude-opus-5-5",
+  "usage": {
+    "input_tokens": 4800,
+    "output_tokens": 160,
+    "cache_read_input_tokens": 3600,
+    "cache_creation_input_tokens": 0
+  },
+  "output": {
+    "issues": [
+      {
+        "claim": "the busiest week of the year",
+        "reason": "A personal anecdote from the voice bank; not checkable against the facts, and consistent with them.",
+        "severity": "low"
+      }
+    ]
+  }
+}
