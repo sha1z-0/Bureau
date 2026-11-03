@@ -364,37 +364,45 @@ export async function structured<S extends z.ZodType>(opts: {
   }
   // Thinking shares max_tokens with the answer, so a long answer at high effort can run out of
   // room mid-JSON. That gets one more try with twice the room before it counts as a failure.
+  // create() rather than parse(): every response is metered before its JSON is read, so a
+  // cut-off or unreadable answer still counts toward the budget it was billed against.
+  const format = betaZodOutputFormat(opts.schema);
   const first = opts.maxTokens ?? 16000;
   for (const maxTokens of [first, Math.min(first * 2, 64000)]) {
+    let res: Anthropic.Beta.BetaMessage;
     try {
-      const res = await client().beta.messages.parse(
+      res = await client().beta.messages.create(
         {
           model,
           max_tokens: maxTokens,
           betas: ['server-side-fallback-2026-07-01'],
           fallbacks: 'default',
           system: cachedSystem(opts.system),
-          output_config: { effort: opts.effort ?? DEFAULT_EFFORT[opts.task], format: betaZodOutputFormat(opts.schema) },
+          output_config: { effort: opts.effort ?? DEFAULT_EFFORT[opts.task], format },
           messages: [{ role: 'user', content: opts.content }],
         },
         { timeout: 20 * 60 * 1000 },
       );
-      meter(opts.task, res.model ?? model, res.usage);
-      if (res.stop_reason === 'refusal') {
-        throw new AppError(422, 'AI_REFUSAL', `Claude declined this request${res.stop_details?.category ? ` (${res.stop_details.category})` : ''}.`);
-      }
-      if (res.stop_reason === 'max_tokens') {
-        if (maxTokens === first) continue;
-        throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
-      }
-      if (!res.parsed_output) throw new AppError(502, 'AI_PARSE', 'Claude returned something Bureau could not read.');
-      if (RECORD) saveRecording({ task: opts.task, hash, model: res.model ?? model, usage: res.usage, output: res.parsed_output });
-      return res.parsed_output as z.infer<S>;
     } catch (err) {
-      // The SDK parses before we see stop_reason: a cut-off answer arrives as a JSON syntax error.
-      if (maxTokens === first && /Failed to parse structured output/i.test((err as Error).message ?? '')) continue;
       translate(err);
     }
+    meter(opts.task, res.model ?? model, res.usage);
+    if (res.stop_reason === 'refusal') {
+      throw new AppError(422, 'AI_REFUSAL', `Claude declined this request${res.stop_details?.category ? ` (${res.stop_details.category})` : ''}.`);
+    }
+    if (res.stop_reason === 'max_tokens') {
+      if (maxTokens === first) continue;
+      throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
+    }
+    const text = res.content.map((b) => (b.type === 'text' ? b.text : '')).join('');
+    let output: z.infer<S>;
+    try {
+      output = format.parse(text) as z.infer<S>;
+    } catch {
+      throw new AppError(502, 'AI_PARSE', 'Claude returned something Bureau could not read.');
+    }
+    if (RECORD) saveRecording({ task: opts.task, hash, model: res.model ?? model, usage: res.usage, output });
+    return output;
   }
   throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
 }
