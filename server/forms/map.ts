@@ -4,7 +4,7 @@ import type { ApplicationPacket } from '../contracts/writer.ts';
 import { all, get } from '../db.ts';
 import { loadProfile } from '../services/profileStore.ts';
 import { type Candidate, candidateFrom, degreeLevel, DIAL_CODES } from './candidate.ts';
-import { bestOption, declineOption, labelNorm as normLabel, normText, optionScore, parseDate, truthy } from './normalize.ts';
+import { bestOption, declineOption, labelNorm as normLabel, normText, parseDate, sameItem, truthy } from './normalize.ts';
 import { matchSynonym, type SynEntry } from './synonyms.ts';
 
 /**
@@ -35,6 +35,8 @@ export interface JobInfo {
   source: string;
   url: string;
   ats: string | null;
+  /** The posting's text (when known): its keywords rank the candidate's skills. */
+  description?: string | null;
 }
 
 export interface MapDeps {
@@ -102,14 +104,31 @@ async function realAnswerQuestion(jobId: string, question: string, opts: { maxCh
 }
 
 export function jobInfo(jobId: string): JobInfo | null {
-  const j = get<{ id: string; title: string; company: string; source: string; url: string; apply_url_canonical: string | null; ats: string | null }>(
-    'SELECT id, title, company, source, url, apply_url_canonical, ats FROM jobs WHERE id = ?',
+  const j = get<{ id: string; title: string; company: string; source: string; url: string; apply_url_canonical: string | null; ats: string | null; description_text: string | null }>(
+    'SELECT id, title, company, source, url, apply_url_canonical, ats, description_text FROM jobs WHERE id = ?',
     jobId,
   );
-  return j ? { id: j.id, title: j.title, company: j.company, source: j.source, url: j.url, ats: j.ats } : null;
+  return j ? { id: j.id, title: j.title, company: j.company, source: j.source, url: j.url, ats: j.ats, description: j.description_text } : null;
 }
 
-type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string } };
+/**
+ * The candidate's skills, most relevant first: core-stack skills the job names,
+ * other skills the job names, the rest of the core stack, then everything else
+ * (each tier in the profile's own order). Only skills the profile lists.
+ */
+export function rankSkills(c: Pick<Candidate, 'skills' | 'coreStack'>, job: Pick<JobInfo, 'title' | 'description'> | null): string[] {
+  const text = ` ${normText([job?.title, job?.description].filter(Boolean).join(' '))} `;
+  const named = (s: string) => {
+    const n = normText(s);
+    return !!n && text.includes(` ${n} `);
+  };
+  const core = new Set((c.coreStack ?? []).map(normText));
+  const isCore = (s: string) => core.has(normText(s));
+  const tier = (s: string) => (named(s) ? (isCore(s) ? 0 : 1) : isCore(s) ? 2 : 3);
+  return c.skills.map((s, i) => ({ s, i, t: tier(s) })).sort((a, b) => a.t - b.t || a.i - b.i).map((x) => x.s);
+}
+
+type Field = FormField & { meta?: { group?: { index: number; name: string }; eeo?: boolean; maxLength?: number; multi?: boolean; multiple?: boolean; question?: string; cc?: string; hint?: string; trigger?: string; format?: string } };
 
 const SOURCE_LABELS: Record<string, string> = {
   linkedin: 'LinkedIn',
@@ -325,7 +344,9 @@ function dateFor(raw: string, f: Field): string {
 /** The profile value for a synonym key, or '' when the profile has none. */
 export function profileValue(key: string, c: Candidate, f: Field, gi: number): string {
   const w = c.work[gi];
-  const e = c.education[gi];
+  // An education entry the profile does not have stays empty (never a copy of the first one); a flat
+  // education field (or one mis-filed under another group) reads the first entry.
+  const e = groupFor(f as never).name === 'education' ? c.education[gi] : (c.education[gi] ?? c.education[0]);
   switch (key) {
     case 'first_name':
     case 'preferred_name':
@@ -370,19 +391,29 @@ export function profileValue(key: string, c: Candidate, f: Field, gi: number): s
     case 'resume_text':
       return c.cvText;
     case 'school':
-      return (e ?? c.education[0])?.school ?? '';
+      return e?.school ?? '';
     case 'degree': {
-      const d = e ?? c.education[0];
+      const d = e;
       if (!d) return '';
       if (f.options?.length) return bestOption(d.degreeName, f.options, 0.85) ?? bestOption(d.degreeLevel, f.options, 0.6) ?? bestOption(d.degree, f.options, 0.6) ?? bestOption(degreeLevel(d.degree).replace(/'s Degree$/, ''), f.options, 0.6) ?? '';
       return d.degreeName || d.degree;
     }
     case 'discipline':
-      return (e ?? c.education[0])?.discipline ?? '';
+      return e?.discipline ?? '';
     case 'edu_start':
-      return dateFor((e ?? c.education[0])?.start ?? '', f);
+      return dateFor(e?.start ?? '', f);
     case 'edu_end':
-      return dateFor((e ?? c.education[0])?.end ?? '', f);
+      return dateFor(e?.end ?? '', f);
+    case 'edu_description':
+      return e?.details ?? '';
+    case 'gpa': {
+      // Only a grade the profile states ("CGPA 3.4 / 4.0" → "3.4"); the scale goes in its own field if asked.
+      const m = (e?.details ?? '').match(/\b(?:c?gpa|grade point average)\b\s*(?:of|[:=])?\s*(\d(?:\.\d{1,2})?)(?:\s*(?:\/|out of)\s*(\d(?:\.\d{1,2})?))?/i);
+      if (!m) return '';
+      // "GPA scale" asks for the scale; "GPA (4.0 scale)" asks for the grade on that scale.
+      if (/\bscale\b/.test(f.labelNorm) && !/\d/.test(f.labelNorm)) return m[2] ?? '';
+      return m[1];
+    }
     case 'work_company':
       return w?.company ?? '';
     case 'work_title':
@@ -422,6 +453,41 @@ function val(f: Field, source: ValueSource, key: string, value: string, confiden
 
 function unknown(f: Field, reason: string, extra: Partial<MappedValue> = {}): MappedValue {
   return { fieldId: f.id, source: 'generated', key: 'unknown', value: '', confidence: 0, unknown: true, reason, ...extra };
+}
+
+/** A link field that names no particular site ("URL" under "Website 2", "Website", "Link"). */
+const GENERIC_SITE = /^(url|link|web ?site|web ?site url|website link|other url|other link|additional link|online profile)( \d+)?$/;
+
+/**
+ * Several generic website fields (Workday's "Websites": Website 1, Website 2…) each get a different one of the
+ * candidate's links, in the profile's own order, never the same link twice and never a link another field on
+ * the page asks for by name (LinkedIn). One generic field keeps the usual portfolio-first answer.
+ */
+function spreadWebsites(fields: Field[], out: MappedValue[], c: Candidate, context: FormField[]) {
+  const sites = fields.filter((f) => {
+    const v = out.find((m) => m.fieldId === f.id);
+    return v && !v.unknown && v.source === 'profile' && ['portfolio', 'other_url'].includes(v.key) && GENERIC_SITE.test(f.labelNorm || normLabel(f.label));
+  });
+  // A numbered panel ("#website-2--url", section "Website 2") says which of the list it is, whichever pass maps it.
+  const numbered = (f: Field) => {
+    const sel = (f as Field & { selectors?: string[] }).selectors ?? [];
+    const m = `${sel.join(' ')} ${f.section ?? ''}`.match(/\b(?:web ?sites?|urls?|links?)[-_ [#]*(\d{1,2})\b/i);
+    return m ? Math.max(0, Number(m[1]) - 1) : null;
+  };
+  if (sites.length < 2 && !sites.some((f) => numbered(f) !== null)) return;
+  const named = [...fields, ...context].map((f) => normText(f.label));
+  // Links that have their own field on the page (by name) are not repeated here. The page, not this call, decides,
+  // so every pass computes the same list.
+  const own: [RegExp, RegExp][] = [[/linkedin\.com/i, /\blinkedin\b/], [/github\.com/i, /\bgithub\b/], [/(twitter|x)\.com/i, /\b(twitter|x)\b/]];
+  const pool = (c.links?.length ? c.links : [c.github, c.portfolio, c.linkedin, c.twitter])
+    .filter((u) => !!u)
+    .filter((u) => !own.some(([site, label]) => site.test(u) && named.some((l) => label.test(l))));
+  sites.forEach((f, i) => {
+    const k = out.findIndex((m) => m.fieldId === f.id);
+    const url = pool[numbered(f) ?? i];
+    if (url) out[k] = { ...out[k], value: url, key: 'website', confidence: Math.min(out[k].confidence, 0.9) };
+    else out.splice(k, 1);
+  });
 }
 
 /** Fit a free value to the field's options (when it has any). Null = no honest option. */
@@ -485,6 +551,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     const v = await mapOne(f);
     if (v) out.push(v);
   }
+  if (c) spreadWebsites(fields as Field[], out, c, opts.context ?? []);
   return out;
 
   /** The saved question behind an answer-bank answer must be the same attestation (or a canonical re-wording of it). */
@@ -560,18 +627,28 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
         case 'profile': {
           if (!c) break;
           if (e.key === 'skills') {
-            // Only skills the profile really lists.
+            // Only skills the profile really lists, the most relevant to this job first.
+            const ranked = rankSkills(c, job);
+            // The same skill, not a near one: "SQL" is not "SQL Server" or "MySQL".
+            const optionFor = (sk: string) => (f.options ?? []).find((o) => sameItem(sk, o)) ?? null;
+            if (f.kind === 'combobox') {
+              // Menus hide what is already picked and creatable ones add what they lack: rank by relevance, not by
+              // the options shown, so the answer is stable across passes and the core stack is never dropped.
+              // A menu you cannot type into (a button that opens a fixed list) only offers its options.
+              const fixed = f.meta?.trigger === 'button' && !!f.options?.length;
+              const picks = [...new Set(ranked.map((sk) => optionFor(sk) ?? (fixed ? '' : sk)).filter(Boolean))];
+              // A single-pick menu with known options takes the most relevant listed one.
+              const single = !!f.options?.length && !f.meta?.multi;
+              const want = (single ? picks.filter((p) => f.options!.includes(p)).slice(0, 1) : picks.slice(0, 6)).join('; ');
+              return want ? val(f, 'profile', 'skills', want, 0.85, { synKey: e.key }) : null;
+            }
             if (f.options?.length) {
-              const hits = f.options.filter((o) => c.skills.some((sk) => optionScore(sk, o) >= 0.9));
+              const hits = [...new Set(ranked.map(optionFor).filter((o): o is string => !!o))];
               const single = f.kind === 'radio' || (f.kind === 'select' && !f.meta?.multiple);
               if (hits.length) return val(f, 'profile', 'skills', single ? hits[0] : hits.join('; '), 0.9, { synKey: e.key });
               return optional('None of the listed options is in your profile.');
             }
-            if (f.kind === 'combobox') {
-              const want = c.skills.slice(0, 6).join('; ');
-              return want ? val(f, 'profile', 'skills', want, 0.85, { synKey: e.key }) : null;
-            }
-            if (f.kind === 'text' || f.kind === 'textarea') return c.skills.length ? val(f, 'profile', 'skills', c.skills.slice(0, 10).join(', '), 0.85, { synKey: e.key }) : null;
+            if (f.kind === 'text' || f.kind === 'textarea') return ranked.length ? val(f, 'profile', 'skills', ranked.slice(0, 10).join(', '), 0.85, { synKey: e.key }) : null;
             break;
           }
           if (e.key === 'summary') {
@@ -579,6 +656,31 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             break;
           }
           let v = profileValue(e.key, c, f, g.index);
+          if (e.key === 'edu_end' && v) {
+            // The profile has the graduation year only and the field wants a month: the owner's own answer to
+            // "When did you complete your degree?" gives it, when it names the same year.
+            const have = parseDate((g.name === 'education' ? c.education[g.index] : c.education[0])?.end ?? '');
+            const wantsMonth = f.kind === 'date' || /m/i.test(String(f.meta?.format ?? '')) || /\bmonth\b/.test(f.labelNorm);
+            if (have && !have.m && wantsMonth) {
+              for (const q of ALT_QUESTIONS.graduation_date ?? []) {
+                const a = await askRaw(q, f);
+                const p = a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE ? parseDate(a.value) : null;
+                if (p && p.m && p.y === have.y) {
+                  v = dateFor(`${p.y}-${String(p.m).padStart(2, '0')}`, f);
+                  break;
+                }
+              }
+            }
+          }
+          if (v && !f.required && ['edu_start', 'edu_end', 'work_start', 'work_end'].includes(e.key)) {
+            // A year-only profile date in a field that wants a month: an optional field stays empty rather than
+            // getting an invented "01/2019".
+            const p = parseDate(v);
+            const yearField = /\byear\b/.test(f.labelNorm) || (f.options ?? []).filter((o) => /^\d{4}$/.test(o.trim())).length >= 5;
+            const fmt = String(f.meta?.format ?? '');
+            const monthField = fmt ? /m|iso/i.test(fmt) : f.kind === 'date';
+            if (p && !p.m && !yearField && monthField) return null;
+          }
           if (e.key === 'phone' && hasCountryPicker && f.kind !== 'phone') v = c.phoneNational;
           if (e.key === 'work_current' && f.kind === 'checkbox') return v ? val(f, 'profile', e.key, v, 0.92, { synKey: e.key }) : null;
           if (v && f.options?.length && choice) v = fit(f, v, 0.6) ?? '';

@@ -112,6 +112,13 @@ export function optionScore(value: string, option: string): number {
   return jac >= 0.5 ? 0.5 + jac * 0.3 : jac * 0.6;
 }
 
+/** The same item, not a near one (skills, chips): "SQL" is not "SQL Server" or "MySQL"; "Node" is "Node.js". */
+export function sameItem(a: string, b: string): boolean {
+  const compact = (s: string) => normText(s).replace(/\s+/g, '');
+  const [x, y] = [compact(a), compact(b)];
+  return !!x && (x === y || `${x}js` === y || x === `${y}js`);
+}
+
 /** The best matching option, or null when nothing is a confident match. */
 export function bestOption(value: string, options: string[], min = 0.75): string | null {
   let best: string | null = null;
@@ -243,6 +250,11 @@ export function valuesMatch(kind: FieldKind | string, intended: string, readBack
     case 'radio':
     case 'combobox':
     case 'location': {
+      // A multi-pick ("React; Node.js"): every pick must show, in whatever order and wording the widget uses.
+      if (kind === 'combobox' && /;/.test(i)) {
+        const parts = i.split(';').map((p) => p.trim()).filter(Boolean);
+        return parts.length > 0 && parts.every((p) => valuesMatch(kind, p, r, extra));
+      }
       const cands = [r, extra.display ?? ''].filter(Boolean);
       return cands.some((c) => normText(c) === normText(i) || optionScore(i, c) >= 0.85 || (normText(c).includes(normText(i)) && normText(i).length >= 3));
     }

@@ -60,7 +60,9 @@ export async function verifyFields(page: Page, fields: FormField[], intended: (F
     const fresh = (await extractStep(page, fields[0]?.step ?? 0)).fields;
     const remap = new Map<string, VField>();
     for (const m of missing) {
-      const twin = fresh.find((f) => f.signature === m.signature) ?? fresh.find((f) => f.labelNorm === m.labelNorm && f.kind === m.kind);
+      // Twins sharing a signature ("Website 1" / "Website 2" URL boxes): the same id or name first.
+      const keyed = ((m as VField & { selectors?: string[] }).selectors ?? []).filter((s) => /^#|\[name=/.test(s));
+      const twin = (keyed.length ? fresh.find((f) => f.signature === m.signature && (f.selectors ?? []).some((s) => keyed.includes(s))) : undefined) ?? fresh.find((f) => f.signature === m.signature) ??fresh.find((f) => f.labelNorm === m.labelNorm && f.kind === m.kind);
       if (twin) remap.set(m.id, twin);
     }
     if (remap.size) {

@@ -24,7 +24,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
   const W = window;
   const S = W.__bureauState || (W.__bureauState = { seq: {} });
   const norm = (s) => String(s == null ? '' : s).replace(/[ \s]+/g, ' ').trim();
-  const GENERIC = /^(attach|attach file|upload|upload file|choose( a)? files?|browse|select|select\.\.\.|select one|enter manually|or|drop files? here|drag (and|&) drop.*|paste|\+|add|remove|clear|required|optional|\*|locate me|no file chosen)$/i;
+  const GENERIC = /^(attach|attach file|upload|upload file|choose( a)? files?|browse|select|select\.\.\.|select one|enter manually|or|drop files? here|drag (and|&) drop.*|paste|\+|add|remove|delete|clear|required|optional|\*|locate me|no file chosen)$/i;
   const CONTROL_SEL = 'input:not([type=hidden]),select,textarea,[role=combobox],[role=radio],[role=checkbox],[role=textbox],[role=spinbutton],[contenteditable=""],[contenteditable=true]';
 
   function collect(root, out) {
@@ -64,6 +64,14 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           if (r === 'listbox' || r === 'option' || r === 'tooltip' || r === 'combobox') continue;
           if (t === 'BUTTON' && c.getAttribute('aria-haspopup')) continue;
           if (c.hasAttribute('data-bureau-skiptext')) continue;
+          // A <slot> shows the light-DOM content assigned to it (a label projected into a shadow <label>).
+          if (t === 'SLOT' && c.assignedNodes && c.assignedNodes({ flatten: true }).length) {
+            for (const a of c.assignedNodes({ flatten: true })) {
+              if (a.nodeType === 3) out += a.nodeValue;
+              else if (a.nodeType === 1) { walk(a); out += ' '; }
+            }
+            continue;
+          }
           if (c.getClientRects().length === 0 && getComputedStyle(c).display === 'none') continue;
           walk(c);
           out += ' ';
@@ -97,7 +105,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return norm(String(n || '').replace(/^.*[\[\.]/, '').replace(/[\]_\-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2'));
   }
   const LABELISH = 'label, legend, [class*="label" i], [data-automation-id*="formLabel"], [data-automation-id*="Label"], [id$="-label"], [id$="_label"], [class*="question" i], [class*="prompt" i], h3, h4, h5, [role="heading"]';
-  function questionLabel(el) {
+  function questionLabel(el, shared) {
     let node = parentOf(el);
     for (let i = 0; node && i < 6 && node !== document.body; i++) {
       const caps = Array.from(node.querySelectorAll(LABELISH)).filter((c) => {
@@ -107,12 +115,54 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       });
       for (let k = caps.length - 1; k >= 0; k--) {
         const t = ownText(caps[k]);
-        if (t && !GENERIC.test(t) && t.length < 600) return t;
+        if (t && !GENERIC.test(t) && t.length < 600) { if (shared) shared.v = controlCount(node) > 1; return t; }
       }
       if (node.tagName === 'FORM') break;
       node = parentOf(node);
     }
     return '';
+  }
+  /** A form-associated custom element with a closed shadow root (no light-DOM control, no reachable shadowRoot). */
+  function closedField(el) {
+    const tag = el.tagName.toLowerCase();
+    if (tag.indexOf('-') < 0 || el.shadowRoot || el.getAttribute('role') || !el.getAttribute('name')) return false;
+    if (el.querySelector(CONTROL_SEL)) return false;
+    const C = W.customElements && W.customElements.get(tag);
+    return !!(C && C.formAssociated);
+  }
+  /** What a form-associated element contributes to its form (the only way to read a closed field). */
+  function formValueOf(el) {
+    const form = el.closest('form');
+    if (!form) return '';
+    try { const v = new FormData(form).get(el.getAttribute('name')); return typeof v === 'string' ? v : ''; } catch (e) { return ''; }
+  }
+  /** The menu a menu button opens, when its items are choices (menuitemcheckbox / menuitemradio), else null. */
+  function choiceMenu(el) {
+    const pop = el.getAttribute('aria-haspopup');
+    if (pop !== 'menu' && pop !== 'true') return null;
+    const ctl = el.getAttribute('aria-controls') || el.getAttribute('aria-owns');
+    const menu = ctl && rootOf(el).getElementById ? rootOf(el).getElementById(ctl) : null;
+    return menu && menu.querySelector('[role="menuitemcheckbox"], [role="menuitemradio"]') ? menu : null;
+  }
+  /**
+   * The visible drop zone a detached file input serves (Dropzone.js appends one hidden input per zone to <body>,
+   * in zone order). Null for inputs that sit inside their form or zone.
+   */
+  function detachedZone(el) {
+    if (el.parentElement !== document.body) return null;
+    const ZONE = '.dropzone, .dz-clickable, [class*="upload-trigger" i], [data-controller*="upload" i] [role="button"], [role="button"][aria-label*="upload" i], [class*="dropzone" i]:not(input)';
+    const found = deepAll(ZONE);
+    // Visible or not: a zone hides itself once its file is attached, and the label must not change then.
+    const zones = found.filter((z) => z.tagName !== 'INPUT' && !z.querySelector('input[type=file]') && !found.some((o) => o !== z && o.contains(z)));
+    if (!zones.length) return null;
+    const detached = Array.from(document.body.children).filter((c) => c.tagName === 'INPUT' && c.type === 'file');
+    return zones[Math.max(0, detached.indexOf(el))] || zones[0];
+  }
+  /** A placeholder that names the field ("Company", "Field of Study"), not an example value or an instruction. */
+  function placeholderName(el) {
+    const ph = norm(el.getAttribute('placeholder'));
+    if (!ph || ph.length > 40 || GENERIC.test(ph) || /^(e\.?g\.?|ex(ample)?[:.]|type|enter|start typing|search)\b/i.test(ph) || /[@\d\/]|\.\.\.|…/.test(ph)) return '';
+    return ph;
   }
   function labelOf(el) {
     const by = el.getAttribute('aria-labelledby');
@@ -124,7 +174,11 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     if (wrap) { const t = ownText(wrap); if (t && !GENERIC.test(t)) return t; }
     const aria = norm(el.getAttribute('aria-label'));
     if (aria && !GENERIC.test(aria)) return aria;
-    const q = questionLabel(el);
+    const shared = { v: false };
+    const q = questionLabel(el, shared);
+    // A caption over several controls (a section heading above an entry's inputs) names the section, not this
+    // input: the input's own placeholder is the better name when it has one.
+    if (q && shared.v && placeholderName(el)) return placeholderName(el);
     if (q) return q;
     return norm(el.getAttribute('placeholder')) || norm(el.getAttribute('title')) || humanName(el.getAttribute('name') || el.id || '');
   }
@@ -212,11 +266,20 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     return 'other';
   }
   /** What a repeating block is about, from its attributes and the words in it (labels say "School", "Company"). */
+  /** A block's words: its text plus its controls' placeholders and aria-labels (entries that label inputs only by placeholder). */
+  function blockText(n) {
+    const names = Array.from(n.querySelectorAll(CONTROL_SEL)).map((c) => (c.getAttribute('placeholder') || '') + ' ' + (c.getAttribute('aria-label') || '')).join(' ');
+    return norm(n.textContent + ' ' + names);
+  }
   function blockKind(n) {
+    // The list that holds the entries names the collection ("ul#education" of "li.experience" items).
+    const p = parentOf(n);
+    const pa = p ? attrsOf(p) : '';
+    if (p && p.children && p.children.length && /educat|school|experience|employ|work|position|history|language|reference/i.test(pa) && groupKind(pa) !== 'other') return groupKind(pa);
     const a = attrsOf(n);
     const byAttr = groupKind(a);
     if (byAttr !== 'other' && /educat|school|experience|employ|work|position|history|language|reference/i.test(a)) return byAttr;
-    const t = norm(n.textContent).slice(0, 400).toLowerCase();
+    const t = blockText(n).slice(0, 400).toLowerCase();
     if (/\b(school|university|degree|field of study|major|institution|college)\b/.test(t)) return 'education';
     if (/\b(company|employer|job title|title|position|currently work)\b/.test(t)) return 'work';
     return groupKind(a + ' ' + sectionOf(n, ''));
@@ -235,7 +298,13 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: kind };
       }
       const sibs = Array.from(p.children).filter((s) => shapeKey(s) === key && s.querySelector(CONTROL_SEL));
-      if (sibs.length >= 2 && label && controlCount(node) >= 2 && sibs.filter((s) => norm(s.textContent).indexOf(label) >= 0).length >= 2) {
+      // An entry of a list that names its collection ("ul#education > li"), even the first and only one.
+      const pa = attrsOf(p);
+      if (controlCount(node) >= 2 && (p.tagName === 'UL' || p.tagName === 'OL' || /(^|[\s_-])(list|entries|items)([\s_-]|$)/i.test(pa)) && /educat|school|experience|employ|work|position|history/i.test(pa)) {
+        const kind = blockKind(node);
+        if (kind === 'work' || kind === 'education') return { index: Math.max(0, sibs.indexOf(node)), count: Math.max(1, sibs.length), name: kind };
+      }
+      if (sibs.length >= 2 && label && controlCount(node) >= 2 && sibs.filter((s) => blockText(s).indexOf(label) >= 0).length >= 2) {
         const kind = blockKind(node);
         const same = sibs.filter((s) => blockKind(s) === kind);
         if (same.length >= 2) return { index: same.indexOf(node), count: same.length, name: kind };
@@ -354,7 +423,7 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const role = el.getAttribute('role');
       const native = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
       const editable = !native && (el.getAttribute('contenteditable') === '' || el.getAttribute('contenteditable') === 'true') && !(el.parentElement && el.parentElement.isContentEditable);
-      const trigger = !native && ((tag === 'BUTTON' || role === 'button' || role === 'combobox') && el.getAttribute('aria-haspopup') === 'listbox' || role === 'combobox');
+      const trigger = !native && ((tag === 'BUTTON' || role === 'button' || role === 'combobox') && (el.getAttribute('aria-haspopup') === 'listbox' || choiceMenu(el)) || role === 'combobox');
       const custom = !native && (role === 'radio' || role === 'checkbox' || (role === 'textbox' && !el.querySelector('input,textarea')) || role === 'spinbutton' || editable || trigger);
       // Yes/No toggle buttons (Ashby and friends): a group of aria-pressed buttons is a radio question.
       if (!native && tag === 'BUTTON' && el.hasAttribute('aria-pressed') && parentOf(el)) {
@@ -366,6 +435,18 @@ export const PAGE_LIB = String.raw`(op, arg) => {
           const label = cleanLabel(raw);
           out.push({ id, kind: 'radio', rawLabel: raw, label, required: requiredMark(raw) || containerRequired(members[0]), options: members.map(optionLabel), meta: { toggle: true }, el: parentOf(el), selectors: selectorsFor(parentOf(el), label) });
         }
+        continue;
+      }
+      // A form-associated custom element whose shadow root is CLOSED: its input cannot be reached, but the host
+      // delegates focus (click + keyboard) and its value shows in the form's FormData under its name.
+      if (!native && !custom && closedField(el)) {
+        consumed.add(el);
+        if (!visible(el) || honeypot(el, '')) continue;
+        const raw = norm(el.getAttribute('label')) || norm(el.getAttribute('aria-label')) || labelOf(el) || humanName(el.getAttribute('name'));
+        const id = stampField(el, prefix);
+        el.setAttribute('data-bureau-closed', '1');
+        const label = cleanLabel(raw);
+        out.push({ id, kind: 'text', rawLabel: raw, label, required: el.hasAttribute('required') || el.getAttribute('aria-required') === 'true' || requiredMark(raw), meta: { closed: true }, el, selectors: selectorsFor(el, label) });
         continue;
       }
       if (!native && !custom) continue;
@@ -459,8 +540,10 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         let raw = labelOf(el) || '';
         // Drop zones label themselves "Upload a file…" or with the accept list: find what the upload is for.
         if (!raw || /^\s*\.\w+\s*,/.test(raw) || /^(upload|choose|drop|drag|attach|browse|select)\b/i.test(raw)) {
-          let n = parentOf(el);
-          for (let i = 0; n && i < 5; i++, n = parentOf(n)) {
+          // Dropzone.js puts its hidden input at the end of <body>, far from the zone it serves: read the zone's context.
+          const zone = detachedZone(el);
+          let n = zone || parentOf(el);
+          for (let i = 0; n && i < 5 && n !== document.body && n !== document.documentElement; i++, n = parentOf(n)) {
             const t = ownText(n);
             const m = t.match(/(resume\s*\/\s*cv|curriculum vitae|resume|\bcv\b|cover letter|motivation letter|anschreiben|lebenslauf|portfolio|transcript|photo)/i);
             if (m) { raw = m[1] + (/[*✱]/.test(t.slice(0, 60)) ? ' *' : ''); break; }
@@ -511,6 +594,12 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       if (trigger) {
         kind = 'combobox';
         meta.trigger = 'button';
+        // A menu button over menuitemcheckbox items (Teamtailor's multiple choice) picks several.
+        const menu = choiceMenu(el);
+        if (menu) {
+          if (menu.querySelector('[role="menuitemcheckbox"]')) meta.multi = true;
+          meta.options = Array.from(menu.querySelectorAll('[role="menuitemcheckbox"], [role="menuitemradio"], [role="option"]')).map((o) => norm(o.getAttribute('data-search-text') || o.textContent).replace(/^✓\s*/, '')).filter(Boolean);
+        }
       } else if (tag === 'TEXTAREA') {
         kind = 'textarea';
         if (el.maxLength > 0) meta.maxLength = el.maxLength;
@@ -646,6 +735,8 @@ export const PAGE_LIB = String.raw`(op, arg) => {
         value = on ? optionLabel(on) : '';
       } else if (members.length && kind === 'checkbox') {
         value = members.filter((m) => m.checked || m.getAttribute('aria-checked') === 'true').map(optionLabel).join('; ');
+      } else if (el.getAttribute('data-bureau-closed')) {
+        value = formValueOf(el);
       } else if (el.tagName === 'SELECT') {
         const sel = Array.from(el.selectedOptions || []).filter((o) => !isPlaceholderOption(o));
         value = sel.map((o) => norm(o.text)).join('; ');
@@ -822,9 +913,17 @@ export const PAGE_LIB = String.raw`(op, arg) => {
     // The "Save" / "Done" button of an inline sub-form opened by an "Add" button.
     const adder = byStamp('data-bureau-add', arg.adderId)[0];
     let n = adder ? parentOf(adder) : null;
+    const BTN = 'button, [role="button"], input[type=button], input[type=submit]';
     for (let i = 0; n && i < 7; i++, n = parentOf(n)) {
-      const btns = Array.from(n.querySelectorAll('button, [role="button"], input[type=button], input[type=submit]')).filter((b) => b !== adder && visible(b) && !b.disabled);
-      const hit = btns.find((b) => /^(save|done|ok|confirm|add|save (entry|position|education|experience))$/i.test(norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent)) || /save(-section)?$|-save$|^save/i.test(b.getAttribute('data-ui') || b.getAttribute('data-test') || ''));
+      // Buttons inside custom elements' open shadow roots count too (SmartRecruiters' spl-button).
+      const btns = collect(n, []).filter((b) => b.matches(BTN) && b !== adder && !(adder && adder.shadowRoot && adder.shadowRoot.contains(b)) && visible(b) && !b.disabled);
+      const hit = btns.find((b) => {
+        // A button inside a custom element shows its host's slotted text and carries the host's test ids.
+        const host = rootOf(b) !== document && rootOf(b).host ? rootOf(b).host : null;
+        const text = norm(b.tagName === 'INPUT' ? b.value : b.innerText || b.textContent) || (host ? norm(host.textContent) : '') || norm(b.getAttribute('aria-label'));
+        const tag = b.getAttribute('data-ui') || b.getAttribute('data-test') || (host && (host.getAttribute('data-ui') || host.getAttribute('data-test'))) || '';
+        return /^(save|done|ok|confirm|add|save (entry|position|education|experience)|save (position|education|experience) entry)$/i.test(text) || /save(-section)?$|-save$|^save/i.test(tag);
+      });
       if (hit) return stampAttr(hit, 'data-bureau-nav', 'sv');
       if (n.tagName === 'FORM') break;
     }
