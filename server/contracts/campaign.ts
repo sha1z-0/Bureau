@@ -35,6 +35,11 @@ export const CampaignConfigSchema = z.object({
   followUpDays: z.number().int().min(0).max(60).default(7),
   onUnknownQuestion: z.enum(['skip', 'needs_you']).default('skip'),
   scoutEveryHours: z.number().min(1).max(24).default(3),
+  /**
+   * volume: one letter, no critic, one CV per role reused across jobs; built for applying in bulk.
+   * quality: two letter drafts, a recruiter critic (bar 5/10) and one revision; for the jobs you care most about.
+   */
+  writingMode: z.enum(['volume', 'quality']).default('volume'),
 });
 export type CampaignConfig = z.infer<typeof CampaignConfigSchema>;
 

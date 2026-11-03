@@ -1,5 +1,5 @@
 import { all } from '../db.ts';
-import type { LetterStrategy } from '../contracts/writer.ts';
+import { LetterStrategy } from '../contracts/writer.ts';
 
 /**
  * Step 14: learning from outcomes. Thompson sampling over the letter
@@ -146,6 +146,18 @@ export function thompson<T extends string>(candidates: T[], stats: ArmStat[], rn
 
 export function pickLength(rng: () => number, stats = banditStats()): Pick<LengthArm> {
   return thompson(Object.keys(LENGTH_ARMS) as LengthArm[], stats.length, rng);
+}
+
+/** Which strategies to draft before any critic: `n` distinct ones, the bandit's favourites first. */
+export function pickStrategies(n: number, rng: () => number, stats = banditStats()): LetterStrategy[] {
+  const left: LetterStrategy[] = [...LetterStrategy.options];
+  const out: LetterStrategy[] = [];
+  while (out.length < n && left.length) {
+    const { choice } = thompson(left, stats.strategy, rng);
+    out.push(choice);
+    left.splice(left.indexOf(choice), 1);
+  }
+  return out;
 }
 
 /**

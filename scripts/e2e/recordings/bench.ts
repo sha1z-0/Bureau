@@ -81,7 +81,7 @@ ${tail.slice(0, 2500)}`);
     const res = run.result;
     const ok = !('skipped' in res);
     if (!ok) failed++;
-    console.log(`\n${ok ? '✓' : '✗'} ${f.id} — ${job.company}: ${ok ? `critic ${res.quality.critic.score}, lint pass, truth clean` : `SKIPPED: ${res.skipped}`}`);
+    console.log(`\n${ok ? '✓' : '✗'} ${f.id} — ${job.company}: ${ok ? `critic ${res.quality.critic?.score ?? 'none'}, lint pass, truth clean` : `SKIPPED: ${res.skipped}`}`);
     console.log(`   calls: ${calls.join(' → ')}`);
     for (const s of q?.writer.steps ?? []) console.log(`   · ${s.step}: ${s.detail}`);
     if (q?.writer.evidenceAdjustments.length) console.log(`   evidence adjustments: ${q.writer.evidenceAdjustments.join(' | ')}`);

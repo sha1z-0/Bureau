@@ -54,7 +54,9 @@ export interface WriterNotes {
   shortAnswers: Record<string, string>;
   outreach: string;
   followUp: string;
-  quality: { critic: CriticResult; lint: LintResult; truth: TruthResult } | null;
+  /** Missing on packets written before the modes existed: those were all quality. */
+  mode?: 'volume' | 'quality';
+  quality: { critic: CriticResult | null; lint: LintResult; truth: TruthResult } | null;
   cvPdfPath: string;
   letterPdfPath: string;
   cvPages: number;
@@ -272,6 +274,7 @@ export function loadPacket(applicationId: string): ApplicationPacket | null {
     shortAnswers: writer.shortAnswers,
     outreach: row.message,
     followUp: writer.followUp,
+    mode: writer.mode ?? 'quality',
     quality,
   });
 }

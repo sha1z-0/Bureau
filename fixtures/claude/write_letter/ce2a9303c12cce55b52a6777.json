@@ -1,6 +1,6 @@
 {
   "task": "write_letter",
-  "hash": "bda47dbd29412cd2d870dae9",
+  "hash": "ce2a9303c12cce55b52a6777",
   "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {

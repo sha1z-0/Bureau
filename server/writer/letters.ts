@@ -39,18 +39,19 @@ export async function writeLetters(
   evidence: EvidenceMap,
   length: LengthTarget,
   ai: WriterAi,
-  opts: { instructions?: string; fastLearning?: string | null } = {},
+  opts: { instructions?: string; fastLearning?: string | null; strategies?: LetterStrategy[] } = {},
 ): Promise<LettersOut> {
+  const strategies = opts.strategies?.length ? opts.strategies : LetterStrategy.options;
   const content = `${jobBlock(ctx)}
 
 ${evidenceForPrompt(evidence)}
 ${opts.fastLearning ? `\nProof of learning fast (use for the biggest gap, if you address it): ${opts.fastLearning}\n` : ''}${opts.instructions ? `\nThe candidate's own instructions:\n${opts.instructions}\n` : ''}
 Body length for every variant: ${length.min}–${length.max} words (not counting the greeting and sign-off).
 Sign off with: ${ctx.master.preferences.signature?.trim() || ctx.master.name}
-Write the three variants (hook, proof, story), five subject lines, the outreach note and the follow-up.`;
+Write ${strategies.length === 1 ? `one letter, the ${strategies[0]} strategy` : `${strategies.length} variants (${strategies.join(', ')})`}, five subject lines, the outreach note and the follow-up.`;
   const out = await ai.ask({ task: 'write_letter', label: 'letters', system: writerSystem(ctx, LETTERS_SYSTEM), content, schema: LettersOutSchema, maxTokens: 12000 });
   // One variant per strategy, in a fixed order.
-  const variants = LetterStrategy.options.flatMap((s) => {
+  const variants = strategies.flatMap((s) => {
     const v = out.variants.find((x) => x.strategy === s);
     return v && v.text.trim() ? [{ ...v, text: v.text.trim() }] : [];
   });

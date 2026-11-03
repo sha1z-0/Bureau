@@ -121,7 +121,7 @@ if (process.argv.includes('--verbose')) {
     ),
   );
 }
-console.log(`\n${preview ? 'Previewed' : 'Wrote'} ${written.length} recording(s). Critic ${run.result.quality.critic.score}, lint ${run.result.quality.lint.pass ? 'pass' : 'fail'}, truth ${run.result.quality.truth.pass ? 'clean' : 'not clean'}.`);
+console.log(`\n${preview ? 'Previewed' : 'Wrote'} ${written.length} recording(s). Critic ${run.result.quality.critic?.score ?? "none"}, lint ${run.result.quality.lint.pass ? 'pass' : 'fail'}, truth ${run.result.quality.truth.pass ? 'clean' : 'not clean'}.`);
 const { db } = await import('../db.ts');
 db.close();
 fs.rmSync(sandbox, { recursive: true, force: true });

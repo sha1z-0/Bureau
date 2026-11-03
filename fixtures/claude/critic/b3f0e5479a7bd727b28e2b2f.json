@@ -1,6 +1,6 @@
 {
   "task": "critic",
-  "hash": "4de908065e667cb8fd0c21b6",
+  "hash": "b3f0e5479a7bd727b28e2b2f",
   "scenario": "a04",
   "model": "claude-opus-5-5",
   "usage": {

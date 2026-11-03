@@ -391,6 +391,7 @@ export interface CampaignConfig {
   followUpDays: number;
   onUnknownQuestion: 'skip' | 'needs_you';
   scoutEveryHours: number;
+  writingMode?: 'volume' | 'quality';
 }
 
 export interface TaskRun {
@@ -771,7 +772,8 @@ export interface WriterDetail {
     shortAnswers: Record<string, string>;
     outreach: string;
     followUp: string;
-    quality: { critic: CriticResult; lint: LintResult; truth: TruthResult } | null;
+    mode?: 'volume' | 'quality';
+    quality: { critic: CriticResult | null; lint: LintResult; truth: TruthResult } | null;
     cvPdfPath: string;
     letterPdfPath: string;
     cvPages: number;

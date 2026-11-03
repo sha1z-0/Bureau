@@ -90,7 +90,11 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
     buildGapReport: async (period) => (await import('../learning/index.ts')).buildGapReport(period),
     discoverCompanies: (opts) => optional(() => import('../scout/index.ts') as Promise<Record<string, unknown>>, 'discoverCompanies', opts),
     recipeJobs: () => optional(() => import('../agent/index.ts') as Promise<Record<string, unknown>>, 'runRecipeJobs'),
-    write: async (jobId, campaignId) => (await import('../writer/index.ts')).writeApplication(jobId, campaignId),
+    write: async (jobId, campaignId) => {
+      // The campaign decides how much to spend on each application (volume or quality).
+      const c = (await import('./campaigns.ts')).getCampaign(campaignId);
+      return (await import('../writer/index.ts')).writeApplication(jobId, campaignId, { mode: c?.config.writingMode ?? 'volume', roles: c?.config.roles ?? [] });
+    },
     freshPacket: async (applicationId) => {
       const w = await import('../writer/packet.ts');
       const p = w.loadPacket(applicationId);

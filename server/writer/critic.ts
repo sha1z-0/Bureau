@@ -14,10 +14,11 @@ import { mean, round } from './text.ts';
  * The overall score is the critic's own verdict, held to its sub-scores in
  * code: it can't exceed the sub-score mean by more than half a point, and any
  * sub-score under 6 caps it at 7.5, so a letter with weak evidence or obvious
- * AI tells can never clear the 8 bar on charm alone.
+ * AI tells can never score above 7.5 on charm alone.
  */
 
-export const CRITIC_BAR = 8;
+/** Quality mode's bar. The letter's job is to get the candidate a screen, so a decent letter goes out. */
+export const CRITIC_BAR = 5;
 
 const Scores = z.object({ specificity: z.number(), evidence: z.number(), voice: z.number(), clarity: z.number(), ask: z.number(), aiTells: z.number() });
 

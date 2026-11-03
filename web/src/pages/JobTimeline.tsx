@@ -172,8 +172,8 @@ export function WriterQuality({ w, appId, inStudio }: { w: WriterDetail; appId: 
       <div className="stats">
         <div className="stat">
           <span className="label">Critic</span>
-          <strong className="num">{q ? q.critic.score.toFixed(1) : '–'}</strong>
-          <small>out of 10, needs 8</small>
+          <strong className="num">{q?.critic ? q.critic.score.toFixed(1) : '–'}</strong>
+          <small>{q && !q.critic ? 'Volume mode: no critic' : 'out of 10, needs 5'}</small>
         </div>
         <div className="stat">
           <span className="label">Lint</span>
@@ -253,7 +253,7 @@ export function WriterQuality({ w, appId, inStudio }: { w: WriterDetail; appId: 
               <Check /> Every claim traces back to a fact with a source.
             </div>
           )}
-          {q.critic.demands.length ? (
+          {q.critic?.demands.length ? (
             <>
               <span className="label">What the critic asked for</span>
               <ul className="list-dash">

@@ -265,7 +265,7 @@ export function CampaignEditor({ campaign, onDone, onCancel, startLabel = 'Save 
   const [cfg, setCfg] = useState<CampaignConfig | null>(campaign?.config ?? null);
   useEffect(() => {
     if (!cfg && defaults.data) {
-      setCfg({ ...defaults.data.config, followUpDays: defaults.data.config.followUpDays ?? 7, onUnknownQuestion: defaults.data.config.onUnknownQuestion ?? 'skip', maxAgeDays: defaults.data.config.maxAgeDays ?? 14, scoutEveryHours: defaults.data.config.scoutEveryHours ?? 3 });
+      setCfg({ ...defaults.data.config, followUpDays: defaults.data.config.followUpDays ?? 7, onUnknownQuestion: defaults.data.config.onUnknownQuestion ?? 'skip', maxAgeDays: defaults.data.config.maxAgeDays ?? 14, scoutEveryHours: defaults.data.config.scoutEveryHours ?? 3, writingMode: defaults.data.config.writingMode ?? 'volume' });
       if (!name) setName(defaults.data.name);
     }
   }, [defaults.data, cfg, name]);
@@ -390,6 +390,12 @@ export function CampaignEditor({ campaign, onDone, onCancel, startLabel = 'Save 
             }
           >
             <input className="input" type="number" min={0} max={100} value={cfg.minScore} onChange={(e) => set('minScore', Number(e.target.value))} />
+          </Field>
+          <Field label="Writing mode" help="Volume applies in bulk for cents each. Quality spends about $0.60 an application on two drafts and a recruiter critic.">
+            <select className="select" value={cfg.writingMode ?? 'volume'} onChange={(e) => set('writingMode', e.target.value as CampaignConfig['writingMode'])}>
+              <option value="volume">Volume: one letter, a CV per role, no critic</option>
+              <option value="quality">Quality: two drafts, recruiter critic, one revision</option>
+            </select>
           </Field>
           <Field label="If a form asks something you haven't answered">
             <select className="select" value={cfg.onUnknownQuestion} onChange={(e) => set('onUnknownQuestion', e.target.value as CampaignConfig['onUnknownQuestion'])}>
@@ -712,6 +718,7 @@ function CampaignDetail({ id }: { id: string }) {
                 ['Rehearsal', `${cfg.dryRunDays} days`],
                 ['Budget', cfg.budgetUsd ? usd(cfg.budgetUsd) : 'No campaign limit'],
                 ['Applies by', [cfg.channels.forms && 'form', cfg.channels.email && 'email', cfg.channels.agent && 'browser agent'].filter(Boolean).join(', ')],
+                ['Writing', (cfg.writingMode ?? 'volume') === 'volume' ? 'Volume' : 'Quality'],
                 ['Unknown questions', cfg.onUnknownQuestion === 'skip' ? 'Skip and ask' : 'Keep for me'],
                 ['Follow-up', cfg.followUpDays ? `After ${cfg.followUpDays} days` : 'Off'],
               ]}

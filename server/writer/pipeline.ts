@@ -10,8 +10,11 @@ import { emit } from '../services/bus.ts';
 import { REPLAY } from '../ai/claude.ts';
 import { defaultWriterAi, type WriterAi } from './ai.ts';
 import { lintAnswer, writeShortAnswers } from './answers.ts';
-import { LENGTH_ARMS, pickLength, pickStrategy, type LengthArm } from './bandit.ts';
+import { LENGTH_ARMS, pickLength, pickStrategies, pickStrategy, type LengthArm } from './bandit.ts';
 import { loadContext, type WriterContext } from './context.ts';
+import { cachedBrief } from '../research/index.ts';
+import { get } from '../db.ts';
+import { cachedRoleCv, ROLE_CV_INSTRUCTIONS, roleKey, saveRoleCv } from './roleCv.ts';
 import { CRITIC_BAR, critique } from './critic.ts';
 import { fitToPage, fixCv, sanitizeCv, writeCv } from './cv.ts';
 import type { TailoredCv } from './cvSchema.ts';
@@ -50,6 +53,14 @@ export interface WriteOptions {
   research?: (jobId: string) => Promise<ResearchBrief>;
   /** Studio / v1 path: allowed for jobs that never entered a campaign pipeline. */
   manual?: boolean;
+  /**
+   * volume: one letter, no critic, one CV per role (reused), research only if cached, the free
+   * code truth check without the paid auditor. quality (default): two drafts, critic (bar 5),
+   * one revision, the full truth lock.
+   */
+  mode?: 'volume' | 'quality';
+  /** The campaign's roles: volume mode keys its reused CVs on them. */
+  roles?: string[];
 }
 
 export interface WriteRun {
@@ -103,6 +114,8 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
   const ai = opts.ai ?? defaultWriterAi;
   // Replay mode must be deterministic (the bandit's picks change the prompts), so it gets a fixed seed.
   const rng = opts.rng ?? (REPLAY ? seededRng(REPLAY_SEED) : Math.random);
+  const mode = opts.mode ?? 'quality';
+  const volume = mode === 'volume';
   const tracked = enterWriting(jobId, campaignId, !!opts.manual);
   const steps: WriterStep[] = [];
   const step = (name: string, detail: string) => steps.push({ step: name, at: now(), detail });
@@ -135,6 +148,7 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
     const writer: WriterNotes = {
       version: 1,
       campaignId,
+      mode,
       status,
       skipped: reason,
       strategy: chosen?.strategy ?? null,
@@ -148,7 +162,7 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
       shortAnswers,
       outreach,
       followUp,
-      quality: status === 'written' && finalCritic && finalLint && finalTruth ? { critic: finalCritic, lint: finalLint, truth: finalTruth } : null,
+      quality: status === 'written' && (finalCritic || volume) && finalLint && finalTruth ? { critic: finalCritic, lint: finalLint, truth: finalTruth } : null,
       cvPdfPath: '',
       letterPdfPath: '',
       cvPages: 0,
@@ -182,7 +196,10 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
 
   try {
     // 0. Context and the voice bank the letters are built from.
-    ctx = await loadContext(jobId, { ...(opts.brief !== undefined ? { brief: opts.brief } : {}), research: opts.research });
+    // Volume mode never pays for a web search: it uses a brief already on file for the company, or the posting alone.
+    const company = get<{ company: string }>('SELECT company FROM jobs WHERE id = ?', jobId)?.company ?? '';
+    const brief = opts.brief !== undefined ? opts.brief : volume ? cachedBrief(company) : undefined;
+    ctx = await loadContext(jobId, { ...(brief !== undefined ? { brief } : {}), research: opts.research });
     step('context', `${ctx.master.facts.length} facts, ${ctx.master.voiceBank.length} voice passages, research ${ctx.brief ? 'loaded' : 'unavailable'}`);
     if (ctx.master.voiceBank.length < 2) throw new Skip('the voice bank needs at least two passages: letters are built by editing your own writing');
     const fingerprint = ctx.master.style ?? fingerprintOf(ctx.master.voiceBank.map((v) => v.text));
@@ -197,20 +214,33 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
     step('evidence', `${evidence.items.length} requirements (${Object.entries(framings).map(([k, v]) => `${v} ${k}`).join(', ')}), ${evidence.hooks.length} hook(s)`);
 
     // 4. CV.
-    const cvOut = await writeCv(ctx, evidence, ai, opts.instructions ?? '');
+    let cvOut;
+    let cvReused = '';
+    if (volume) {
+      const key = roleKey(ctx.job.title, opts.roles ?? []);
+      const hit = cachedRoleCv(key, ctx);
+      if (hit) {
+        cvOut = hit;
+        cvReused = key;
+      } else {
+        cvOut = await writeCv(ctx, evidence, ai, [ROLE_CV_INSTRUCTIONS, opts.instructions ?? ''].filter(Boolean).join('\n'));
+        saveRoleCv(key, ctx, cvOut, jobId);
+      }
+    } else cvOut = await writeCv(ctx, evidence, ai, opts.instructions ?? '');
     const clean = sanitizeCv(cvOut.cv, ctx, evidence);
     const fitted = await fitToPage(clean.cv, ctx.master.yearsExperience, paperFor(ctx.master.location));
     cv = fitted.cv;
     cvChanges = [...clean.changes, ...fitted.trimmed];
     emphasis = cvOut.emphasis;
     keywords = cvOut.keywordsUsed;
-    step('cv', `${fitted.pages} page(s)${cvChanges.length ? `; ${cvChanges.length} code correction(s)` : ''}`);
+    step('cv', `${cvReused ? `reused the ${cvReused} CV, ` : ''}${fitted.pages} page(s)${cvChanges.length ? `; ${cvChanges.length} code correction(s)` : ''}`);
 
     // 5. Letters, subject lines, outreach and follow-up.
     const lengthPick = pickLength(rng);
     lengthArm = lengthPick.choice;
     const band = { arm: lengthArm, ...LENGTH_ARMS[lengthArm] };
-    const lettersOut = await writeLetters(ctx, evidence, band, ai, { instructions: opts.instructions, fastLearning });
+    const strategies = pickStrategies(volume ? 1 : 2, rng);
+    const lettersOut = await writeLetters(ctx, evidence, band, ai, { instructions: opts.instructions, fastLearning, strategies });
     subjects = lettersOut.subjects.map((s) => s.trim()).filter(Boolean).slice(0, 5);
     outreach = lettersOut.outreach.trim();
     followUp = lettersOut.followUp.trim();
@@ -240,7 +270,12 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
     for (const d of lettersOut.variants) variants.set(d.strategy, record(d, null));
     step('letters', `${variants.size} variant(s), ${band.min}–${band.max} words (${lengthArm}${lengthPick.explored ? ', explored' : ''})`);
 
-    // 6. Critic, demands applied once, re-score.
+    // 6. Critic, demands applied once, re-score. Volume mode sends its one letter without a critic.
+    if (volume) {
+      chosen = variants.get(lettersOut.variants[0].strategy)!;
+      chosen.chosen = true;
+      step('choose', `${chosen.strategy} (volume mode: no critic)`);
+    } else {
     const first = await critique(ctx, evidence, lettersOut.variants, subjects, ai, 'critic');
     subjectIndex = first.bestSubject;
     for (const d of lettersOut.variants) variants.get(d.strategy)!.critic = first.results.get(d.strategy) ?? null;
@@ -265,8 +300,9 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
     chosen = variants.get(pick.choice)!;
     chosen.chosen = true;
     finalCritic = chosen.critic;
-    const scoredText = chosen.text;
     step('choose', `${chosen.strategy} (${chosen.critic!.score})${explored ? ' by exploration' : ''}`);
+    }
+    const scoredText = chosen.text;
 
     // 7. Humanizer pass on the offending spans.
     let letter = chosen.text;
@@ -326,7 +362,7 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
       followUp,
       shortAnswers: Object.entries(shortAnswers).map(([key, answer]) => ({ key, answer })),
     });
-    const audit = (label: string): Promise<CodeIssue[]> => truthLock(ctx!, ai, label, texts(), cv, evidence);
+    const audit = (label: string): Promise<CodeIssue[]> => truthLock(ctx!, ai, label, texts(), cv, evidence, { auditor: !volume });
     truthIssues = await audit('audit');
     let truth = truthResult(truthIssues);
     if (!truth.pass) {
@@ -365,19 +401,20 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
     finalLint = lint;
 
     // Final critic gate on the exact text being saved.
-    if (chosen.text !== scoredText) {
+    if (!volume && chosen.text !== scoredText) {
       const final = await critique(ctx, evidence, [{ strategy: chosen.strategy, text: chosen.text }], subjects, ai, 'critic_final');
       finalCritic = final.results.get(chosen.strategy)!;
       chosen.critic = finalCritic;
       step('critic_final', `${finalCritic.score}`);
     }
-    if (!finalCritic || finalCritic.score < CRITIC_BAR) throw new Skip(`critic: final letter scored ${finalCritic?.score ?? 0}/10 (needs ${CRITIC_BAR})`);
+    if (!volume && (!finalCritic || finalCritic.score < CRITIC_BAR)) throw new Skip(`critic: final letter scored ${finalCritic?.score ?? 0}/10 (needs ${CRITIC_BAR})`);
 
-    assertGates(finalCritic, finalLint, finalTruth);
+    assertGates(finalCritic, finalLint, finalTruth, mode);
     const applicationId = await persist('written', null);
-    if (tracked) transition(jobId, 'written', { campaignId, reason: `writer: ${chosen.strategy} letter, critic ${finalCritic.score}` });
+    const verdict = finalCritic ? `critic ${finalCritic.score}` : 'volume mode';
+    if (tracked) transition(jobId, 'written', { campaignId, reason: `writer: ${chosen.strategy} letter, ${verdict}` });
     run("UPDATE jobs SET stage = CASE WHEN stage = 'found' THEN 'drafted' ELSE stage END, updated_at = ? WHERE id = ?", now(), jobId);
-    logEvent('writer', `Wrote the application for ${ctx.job.title} at ${ctx.job.company}: ${chosen.strategy} letter, critic ${finalCritic.score}`, jobId);
+    logEvent('writer', `Wrote the application for ${ctx.job.title} at ${ctx.job.company}: ${chosen.strategy} letter, ${verdict}`, jobId);
     emit({ type: 'activity', message: `Application written for ${ctx.job.title} at ${ctx.job.company}`, jobId });
     emit({ type: 'application', id: applicationId, status: 'draft' });
     return { result: loadPacket(applicationId)!, applicationId };
@@ -406,8 +443,8 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
 }
 
 /** The last line of defence: nothing is saved as written unless every gate passed on the saved text. */
-export function assertGates(critic: CriticResult | null, lint: LintResult | null, truth: TruthResult | null) {
-  if (!critic || critic.score < CRITIC_BAR) throw new Skip(`gate: critic ${critic?.score ?? 'missing'} < ${CRITIC_BAR}`);
+export function assertGates(critic: CriticResult | null, lint: LintResult | null, truth: TruthResult | null, mode: 'volume' | 'quality' = 'quality') {
+  if (mode === 'quality' && (!critic || critic.score < CRITIC_BAR)) throw new Skip(`gate: critic ${critic?.score ?? 'missing'} < ${CRITIC_BAR}`);
   if (!lint?.pass) throw new Skip('gate: lint did not pass');
   if (!truth?.pass) throw new Skip('gate: truth lock not clean');
 }

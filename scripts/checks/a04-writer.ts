@@ -294,7 +294,7 @@ export default async function a04({ check, section }: Harness) {
   await check('critic score is held to its sub-scores: any sub-score under 6 caps it at 7.5', () => {
     assert.equal(normalizeCritic({ score: 9.5, scores: { specificity: 9, evidence: 9, voice: 9, clarity: 9, ask: 9, aiTells: 5 }, demands: [] }).score, 7.5);
     assert.equal(normalizeCritic({ score: 10, scores: { specificity: 8, evidence: 8, voice: 8, clarity: 8, ask: 8, aiTells: 8 }, demands: [] }).score, 8.5);
-    assert.equal(CRITIC_BAR, 8);
+    assert.equal(CRITIC_BAR, 5);
   });
   await check('subject lines: under 70 characters, no clickbait, caps, emoji or "!"', () => {
     for (const s of R.SUBJECTS) assert.deepEqual(subjectProblems(s), [], s);
@@ -316,10 +316,11 @@ export default async function a04({ check, section }: Harness) {
   bus.off('event', onEvent);
   const appId = first.applicationId!;
   const packet = 'skipped' in first.result ? null : first.result;
-  await check('writes a packet that passes every gate (critic ≥ 8, lint, truth lock)', () => {
+  await check('writes a packet that passes every gate (critic ≥ 5, lint, truth lock)', () => {
     assert.ok(packet, JSON.stringify(first.result));
     ApplicationPacketSchema.parse(packet);
-    assert.ok(packet!.quality.critic.score >= 8);
+    assert.ok(packet!.quality.critic!.score >= CRITIC_BAR);
+    assert.equal(packet!.mode, 'quality');
     assert.ok(packet!.quality.lint.pass);
     assert.ok(packet!.quality.truth.pass);
     assert.equal(packet!.coverLetter, R.LETTER_STORY);
@@ -334,13 +335,15 @@ export default async function a04({ check, section }: Harness) {
     const log = all<{ to_state: string; reason: string }>('SELECT to_state, reason FROM pipeline_log WHERE job_id = ? ORDER BY id', F.JOB_ID).map((r) => r.to_state);
     assert.deepEqual(log.slice(-2), ['writing', 'written']);
   });
-  await check('persists the application with campaign_id and variant_id, and three variants with passages, critic, lint and style tags', () => {
+  await check('persists the application with campaign_id and variant_id, and two variants with passages, critic, lint and style tags', () => {
     const app = get<{ campaign_id: string; variant_id: string; status: string; cover_letter: string }>('SELECT campaign_id, variant_id, status, cover_letter FROM applications WHERE id = ?', appId)!;
     assert.equal(app.campaign_id, F.CAMPAIGN_ID);
     assert.equal(app.status, 'draft');
     const rows = all<{ id: string; variant: string; text: string; passages_used: string; critic: string; lint: string; style_tags: string; chosen: number }>('SELECT * FROM letter_variants WHERE application_id = ?', appId);
-    assert.equal(rows.length, 3);
-    assert.deepEqual(rows.map((r) => r.variant).sort(), ['hook', 'proof', 'story']);
+    // Quality mode drafts two strategies (the bandit's picks), not three.
+    assert.equal(rows.length, 2);
+    assert.equal(new Set(rows.map((r) => r.variant)).size, 2);
+    assert.ok(rows.every((r) => ['hook', 'proof', 'story'].includes(r.variant)));
     const chosen = rows.filter((r) => r.chosen === 1);
     assert.equal(chosen.length, 1);
     assert.equal(chosen[0].id, app.variant_id);
@@ -349,7 +352,7 @@ export default async function a04({ check, section }: Harness) {
       const passages = JSON.parse(r.passages_used) as string[];
       assert.ok(passages.length >= 2, `${r.variant} adapted ${passages.length} passages`);
       for (const p of passages) assert.ok(voice.some((v) => v.id === p));
-      assert.ok(JSON.parse(r.critic).score >= 8);
+      assert.ok(JSON.parse(r.critic).score >= CRITIC_BAR);
       assert.ok(JSON.parse(r.lint).checks.length >= 10);
       const tags = JSON.parse(r.style_tags) as string[];
       assert.ok(tags.includes(`strategy:${r.variant}`) && tags.includes('len:medium'));
@@ -445,21 +448,23 @@ export default async function a04({ check, section }: Harness) {
 
   section('A04 writer: variants and regenerate');
   await check('choosing another variant re-runs the gates and switches the packet', async () => {
-    const hook = W.loadVariants(appId).find((v) => v.strategy === 'hook')!;
-    const res = await chooseVariant(appId, hook.id, fakeAi({ audit_choose: { issues: [] } }));
+    const before = W.loadVariants(appId);
+    const was = before.find((v) => v.chosen)!;
+    const other = before.find((v) => !v.chosen)!;
+    const res = await chooseVariant(appId, other.id, fakeAi({ audit_choose: { issues: [] } }));
     assert.equal(res.changed, true);
-    assert.equal(get<{ variant_id: string }>('SELECT variant_id FROM applications WHERE id = ?', appId)!.variant_id, hook.id);
-    assert.equal(W.loadPacket(appId)!.coverLetter, R.LETTER_HOOK);
-    run("UPDATE letter_variants SET critic = json_set(critic, '$.score', 7) WHERE application_id = ? AND variant = 'proof'", appId);
-    const proof = W.loadVariants(appId).find((v) => v.strategy === 'proof')!;
-    await assert.rejects(() => chooseVariant(appId, proof.id, fakeAi({ audit_choose: { issues: [] } })), (e: unknown) => e instanceof AppError && e.code === 'GATE_CRITIC');
+    assert.equal(get<{ variant_id: string }>('SELECT variant_id FROM applications WHERE id = ?', appId)!.variant_id, other.id);
+    assert.equal(W.loadPacket(appId)!.coverLetter, other.text);
+    // A variant under the critic bar can't be chosen.
+    run("UPDATE letter_variants SET critic = json_set(critic, '$.score', 4) WHERE id = ?", was.id);
+    await assert.rejects(() => chooseVariant(appId, was.id, fakeAi({ audit_choose: { issues: [] } })), (e: unknown) => e instanceof AppError && e.code === 'GATE_CRITIC');
   });
   await check('regenerating a written job goes written → selected → writing → written and replaces the variants', async () => {
     const again = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, { rng: seededRng(F.SEED) });
     assert.ok(!('skipped' in again.result));
     assert.equal(again.applicationId, appId);
     assert.equal(pipelineState(F.JOB_ID)?.state, 'written');
-    assert.equal(all('SELECT id FROM letter_variants WHERE application_id = ?', appId).length, 3);
+    assert.equal(all('SELECT id FROM letter_variants WHERE application_id = ?', appId).length, 2);
   });
 
   // ── The gates reject bad letters end to end ───────────────────────────────
@@ -480,12 +485,12 @@ export default async function a04({ check, section }: Harness) {
     assert.ok((JSON.parse(app.notes) as { issues: { claim: string }[] }).issues.some((i) => i.claim === 'Quality gate'));
     return { r, calls };
   };
-  const allLow = { variants: ['hook', 'proof', 'story'].map((strategy) => ({ strategy, score: 7.4, scores: { specificity: 7, evidence: 8, voice: 7, clarity: 8, ask: 7, aiTells: 7 }, demands: [] })), bestSubject: 0 };
-  await check('critic under 8 for every letter → skipped with the reason', async () => {
-    const { calls } = await skippedRun({ critic: allLow }, /^critic: best letter scored 7\.4/);
+  const allLow = { variants: ['hook', 'proof', 'story'].map((strategy) => ({ strategy, score: 4.4, scores: { specificity: 4, evidence: 5, voice: 4, clarity: 5, ask: 4, aiTells: 4 }, demands: [] })), bestSubject: 0 };
+  await check('critic under 5 for every letter → skipped with the reason', async () => {
+    const { calls } = await skippedRun({ critic: allLow }, /^critic: best letter scored 4\.4/);
     assert.ok(!calls.includes('revise') && !calls.includes('audit'));
   });
-  await check('critic demands applied once but still under 8 → skipped', async () => {
+  await check('critic demands applied once but still under 5 → skipped', async () => {
     const lowAgain = { variants: allLow.variants.slice(0, 2), bestSubject: 0 };
     const { calls } = await skippedRun({ critic: { ...allLow, variants: allLow.variants.map((v) => ({ ...v, demands: ['Be specific.'] })) }, revise: canned.revise, critic_rescore: lowAgain }, /^critic/);
     assert.equal(calls.filter((c) => c === 'revise').length, 1);
@@ -522,8 +527,28 @@ export default async function a04({ check, section }: Harness) {
     const auditorHigh = { issues: [{ claim: 'balance sheet on his phone', reason: 'Not supported by any fact.', severity: 'high' }] };
     await skippedRun({ audit: auditorHigh, truth_fix: fixed(R.LETTER_STORY), audit_recheck: auditorHigh }, /^truth lock: balance sheet/);
   });
-  await check('a final critic score under 8 after edits → skipped (the gate holds on the saved text)', async () => {
-    await skippedRun({ critic_final: { variants: [{ strategy: 'story', score: 7.2, scores: { specificity: 7, evidence: 7, voice: 8, clarity: 8, ask: 7, aiTells: 7 }, demands: [] }], bestSubject: 1 } }, /^critic: final letter scored 7\.2/);
+  await check('a final critic score under 5 after edits → skipped (the gate holds on the saved text)', async () => {
+    await skippedRun({ critic_final: { variants: [{ strategy: 'story', score: 4.2, scores: { specificity: 4, evidence: 5, voice: 4, clarity: 5, ask: 4, aiTells: 4 }, demands: [] }], bestSubject: 1 } }, /^critic: final letter scored 4\.2/);
+  });
+  await check('volume mode: one letter, no critic or paid auditor, and one CV per role reused across jobs', async () => {
+    F.seedScenario();
+    const opts = (calls: string[]) => ({ ai: fakeAi({}, calls), rng: seededRng(F.SEED), mode: 'volume' as const, roles: ['Backend Engineer'] });
+    const calls: string[] = [];
+    const r = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, opts(calls));
+    assert.ok(!('skipped' in r.result), JSON.stringify(r.result));
+    const p = r.result as { mode?: string; quality: { critic: unknown; lint: { pass: boolean }; truth: { pass: boolean } } };
+    assert.equal(p.mode, 'volume');
+    assert.equal(p.quality.critic, null);
+    assert.ok(p.quality.lint.pass && p.quality.truth.pass);
+    assert.ok(!calls.some((c) => /critic|revise|audit/.test(c)), calls.join(', '));
+    assert.equal(calls.filter((c) => c === 'cv').length, 1);
+    assert.equal(get<{ n: number }>('SELECT count(*) AS n FROM letter_variants WHERE application_id = ?', r.applicationId!)?.n, 1);
+    assert.equal(pipelineState(F.JOB_ID)?.state, 'written');
+    // The next job of the same role reuses the tailored CV: no CV call at all.
+    const again: string[] = [];
+    const r2 = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, opts(again));
+    assert.ok(!('skipped' in r2.result), JSON.stringify(r2.result));
+    assert.ok(!again.includes('cv'), again.join(', '));
   });
   await check('fewer than two voice-bank passages → skipped (letters are built from the candidate\'s writing)', async () => {
     F.seedScenario();
@@ -615,12 +640,12 @@ export default async function a04({ check, section }: Harness) {
     assert.equal(res.statusCode, 200);
     const b = res.json() as { runs: { applicationId: string; critic: number; lintPass: boolean; truthPass: boolean }[]; totals: { written: number } };
     const r = b.runs.find((x) => x.applicationId === id)!;
-    assert.ok(r.critic >= 8 && r.lintPass && r.truthPass);
+    assert.ok(r.critic >= CRITIC_BAR && r.lintPass && r.truthPass);
   });
   await check('GET /api/writer/applications/:id, /variants, /cv.pdf and /letter.pdf', async () => {
     assert.equal((await app.inject({ method: 'GET', url: `/api/writer/applications/${id}` })).statusCode, 200);
     const v = (await app.inject({ method: 'GET', url: `/api/writer/applications/${id}/variants` })).json() as { variants: unknown[] };
-    assert.equal(v.variants.length, 3);
+    assert.equal(v.variants.length, 2);
     const pdf = await app.inject({ method: 'GET', url: `/api/writer/applications/${id}/cv.pdf` });
     assert.equal(pdf.headers['content-type'], 'application/pdf');
     assert.equal(pdf.rawPayload.subarray(0, 5).toString(), '%PDF-');
@@ -635,7 +660,7 @@ export default async function a04({ check, section }: Harness) {
     assert.equal(b.strategy.length, 3);
     assert.equal(b.exploreRate, 0.2);
     const m = (await app.inject({ method: 'GET', url: '/api/writer/meta' })).json() as { rules: unknown[]; criticBar: number };
-    assert.equal(m.criticBar, 8);
+    assert.equal(m.criticBar, 5);
     assert.ok(m.rules.length >= 15);
     const l = (await app.inject({ method: 'POST', url: '/api/writer/lint', payload: { text: R.LETTER_STORY, company: F.COMPANY, role: 'Backend Engineer, Payments' } })).json() as { lint: { pass: boolean } };
     assert.equal(l.lint.pass, true);

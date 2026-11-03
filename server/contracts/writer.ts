@@ -95,7 +95,9 @@ export const ApplicationPacketSchema = z.object({
   strategy: LetterStrategy.optional(),
   /** Measured on the rendered PDF. */
   cvPages: z.number().int().optional(),
-  quality: z.object({ critic: CriticResultSchema, lint: LintResultSchema, truth: TruthResultSchema }),
+  /** Which writing mode produced it. Volume packets have no critic score. */
+  mode: z.enum(['volume', 'quality']).optional(),
+  quality: z.object({ critic: CriticResultSchema.nullable(), lint: LintResultSchema, truth: TruthResultSchema }),
 });
 export type ApplicationPacket = z.infer<typeof ApplicationPacketSchema>;
 

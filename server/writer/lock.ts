@@ -26,7 +26,12 @@ export interface LockTexts {
   shortAnswers: { key: string; answer: string }[];
 }
 
-export async function truthLock(ctx: WriterContext, ai: WriterAi, label: string, t: LockTexts, cv: TailoredCv | null, evidence: EvidenceMap | null): Promise<CodeIssue[]> {
+/**
+ * `auditor: false` (volume mode) runs the code check alone: it costs nothing and still catches
+ * invented skills, employers, titles, dates, numbers and certifications. The independent
+ * auditor is the paid second opinion that quality mode adds.
+ */
+export async function truthLock(ctx: WriterContext, ai: WriterAi, label: string, t: LockTexts, cv: TailoredCv | null, evidence: EvidenceMap | null, opts: { auditor?: boolean } = {}): Promise<CodeIssue[]> {
   const code = codeTruth(
     {
       cv,
@@ -49,6 +54,7 @@ export async function truthLock(ctx: WriterContext, ai: WriterAi, label: string,
     ...t.shortAnswers.map((a) => `ANSWER (${a.key}):\n${a.answer}`),
     cv ? `CV:\n${JSON.stringify(cv, null, 1)}` : '',
   ].filter(Boolean);
+  if (opts.auditor === false) return code;
   const auditor = await ai.ask({
     task: 'audit',
     label,

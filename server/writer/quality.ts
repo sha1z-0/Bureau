@@ -50,7 +50,7 @@ function summarize(r: Row, w: WriterNotes): RunSummary {
     strategy: w.strategy,
     lengthArm: w.lengthArm,
     explored: w.explored,
-    critic: w.quality?.critic.score ?? chosen?.critic?.score ?? (variants.length ? Math.max(...variants.map((v) => v.critic?.score ?? 0)) : null),
+    critic: w.quality?.critic?.score ?? chosen?.critic?.score ?? (variants.length ? Math.max(...variants.map((v) => v.critic?.score ?? 0)) : null),
     lintPass: lint ? lint.pass : null,
     lintFailing: lint ? lint.checks.filter((c) => !c.pass).map((c) => c.id) : [],
     truthPass: w.quality?.truth.pass ?? null,

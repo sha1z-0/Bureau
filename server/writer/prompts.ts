@@ -47,7 +47,7 @@ TASK: write the tailored CV for this job as structured data.
 
 export const LETTERS_SYSTEM = `${TAILOR_RULES}
 
-TASK: write three cover-letter variants, each a different strategy, by EDITING the candidate's voice-bank passages. Research shows AI-generated letters carry a stylometric footprint that "sound human" prompts do not remove, while AI-edited human writing reads as human. So you are an editor, not an author.
+TASK: write the cover-letter variants the request names, each with its strategy, by EDITING the candidate's voice-bank passages. Research shows AI-generated letters carry a stylometric footprint that "sound human" prompts do not remove, while AI-edited human writing reads as human. So you are an editor, not an author.
 - hook: open with a concrete company hook from the research (name it), then the proof.
 - proof: open with the most relevant result the candidate has, tied to this role.
 - story: open with a short story from the voice bank that fits this job.
