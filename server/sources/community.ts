@@ -52,7 +52,8 @@ export const hackernews: Connector = {
       const parts = header.split('|').map((p) => p.trim()).filter(Boolean);
       const company = parts[0]?.replace(/\(.*?\)/g, '').trim().slice(0, 80) || c.author || 'HN poster';
       const roleish = parts.find((p, i) => i > 0 && /engineer|developer|designer|lead|scientist|security|sre|devops|architect|programmer|analyst|manager/i.test(p));
-      const locationish = parts.find((p, i) => i > 0 && p !== roleish && /remote|onsite|on-site|hybrid|,|\b[A-Z]{2}\b/.test(p));
+      // A header run straight into the first paragraph puts prose in the last segment; a place is a few words.
+      const locationish = parts.find((p, i) => i > 0 && p !== roleish && p.length <= 80 && p.split(/\s+/).length <= 10 && /remote|onsite|on-site|hybrid|,|\b[A-Z]{2}\b/.test(p));
       return {
         source: 'hackernews',
         externalId: c.objectID,
