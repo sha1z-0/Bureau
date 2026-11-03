@@ -16,8 +16,17 @@ Baseline: the strict e2e log of 2026-11-02 (`e2e-strict-2026-11-02.log`, "Live s
 | workday | 50/52 (gradeAverage "3.4 / 4.0", website-1 = portfolio) | 52/52 |
 | widget-shadow-dom | needs_you: "Please fix the highlighted fields" | submitted, 9/9 |
 
-All replicas: **27/27 forms as expected** (`npx tsx scripts/a05/run-fixtures.ts --submit --seed-address`). `npm run selfcheck -- a05`
-passes all 62 checks, plus the new unit checks below. The full `npm run selfcheck` passes: 581 checks, 1 skipped. `npm run typecheck` is clean.
+All replicas: **27/27 forms as expected** (`npx tsx scripts/a05/run-fixtures.ts --submit --seed-address`).
+
+e2e (`npm run e2e -- --only scout,match,write,rehearse,submit`, 2026-11-03):
+- **submit: 26 of 27 forms pass with every expected value exact**, and there is no double submit and no canary or honeypot value. The only failure is personio-job (the missing owner answer, the other agent's item).
+- rehearse: the same result, every other form fully verified.
+- `write` was pending: it is missing `evidence`/`research` recordings (other agent's area). So that run used fallback packets, which is why lever `comments` and SmartRecruiters `hiringManagerMessage` passed there.
+
+Checks:
+- `npm run selfcheck -- a05`: all 65 checks pass, including 3 new ones.
+- Full `npm run selfcheck`: 581 passed, 1 skipped. That run was before the 3 new A05 unit checks were added; the A05 run above includes them.
+- `npm run typecheck`: clean.
 
 ## Each item: cause and fix
 
@@ -66,7 +75,8 @@ passes all 62 checks, plus the new unit checks below. The full `npm run selfchec
 ### 5. workday: GPA and websites
 
 - **GPA.** The manifest expects `profile:gpa` = "3.4" (`fixtures/profile/expected.json`). The quirks list "GPA with scale" among the planted parse errors. The profile states "CGPA 3.4 / 4.0", so "3.4" is truthful. A05 had GPA on the never-enter list, which left the parser's "3.4 / 4.0" in place.
-  - Fix: `gpa` is now a profile key. The value comes only from the education entry's details (`CGPA 3.4 / 4.0` → `3.4`; a "GPA scale" field gets `4.0`). No GPA in the profile means empty, or an unknown question if the field is required.
+  - Fix: `gpa` is now a profile key. The value comes only from the education entry's details (`CGPA 3.4 / 4.0` → `3.4`). No GPA in the profile means empty, or an unknown question if the field is required.
+  - A bare "GPA scale" label does not match the GPA key, because the dictionary skips 3-letter variants in "contains" matching. So it is never given the grade; it goes to the bank or becomes an unknown question.
 - **Websites.** Workday's "Websites" panels label every box just "URL". The parser had pre-filled github then portfolio, in the same order the profile lists them, and the manifest expects that order. There were two causes:
   - the mapper gave every generic URL box the portfolio;
   - after a re-render, the engine's `refind()` matched website-1 by signature, and the twin boxes share one, so it typed into website-2.
