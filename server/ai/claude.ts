@@ -362,27 +362,41 @@ export async function structured<S extends z.ZodType>(opts: {
     }
     return parsed.data as z.infer<S>;
   }
-  try {
-    const res = await client().beta.messages.parse({
-      model,
-      max_tokens: opts.maxTokens ?? 16000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      system: cachedSystem(opts.system),
-      output_config: { effort: opts.effort ?? DEFAULT_EFFORT[opts.task], format: betaZodOutputFormat(opts.schema) },
-      messages: [{ role: 'user', content: opts.content }],
-    });
-    meter(opts.task, res.model ?? model, res.usage);
-    if (res.stop_reason === 'refusal') {
-      throw new AppError(422, 'AI_REFUSAL', `Claude declined this request${res.stop_details?.category ? ` (${res.stop_details.category})` : ''}.`);
+  // Thinking shares max_tokens with the answer, so a long answer at high effort can run out of
+  // room mid-JSON. That gets one more try with twice the room before it counts as a failure.
+  const first = opts.maxTokens ?? 16000;
+  for (const maxTokens of [first, Math.min(first * 2, 64000)]) {
+    try {
+      const res = await client().beta.messages.parse(
+        {
+          model,
+          max_tokens: maxTokens,
+          betas: ['server-side-fallback-2026-07-01'],
+          fallbacks: 'default',
+          system: cachedSystem(opts.system),
+          output_config: { effort: opts.effort ?? DEFAULT_EFFORT[opts.task], format: betaZodOutputFormat(opts.schema) },
+          messages: [{ role: 'user', content: opts.content }],
+        },
+        { timeout: 20 * 60 * 1000 },
+      );
+      meter(opts.task, res.model ?? model, res.usage);
+      if (res.stop_reason === 'refusal') {
+        throw new AppError(422, 'AI_REFUSAL', `Claude declined this request${res.stop_details?.category ? ` (${res.stop_details.category})` : ''}.`);
+      }
+      if (res.stop_reason === 'max_tokens') {
+        if (maxTokens === first) continue;
+        throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
+      }
+      if (!res.parsed_output) throw new AppError(502, 'AI_PARSE', 'Claude returned something Bureau could not read.');
+      if (RECORD) saveRecording({ task: opts.task, hash, model: res.model ?? model, usage: res.usage, output: res.parsed_output });
+      return res.parsed_output as z.infer<S>;
+    } catch (err) {
+      // The SDK parses before we see stop_reason: a cut-off answer arrives as a JSON syntax error.
+      if (maxTokens === first && /Failed to parse structured output/i.test((err as Error).message ?? '')) continue;
+      translate(err);
     }
-    if (res.stop_reason === 'max_tokens') throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
-    if (!res.parsed_output) throw new AppError(502, 'AI_PARSE', 'Claude returned something Bureau could not read.');
-    if (RECORD) saveRecording({ task: opts.task, hash, model: res.model ?? model, usage: res.usage, output: res.parsed_output });
-    return res.parsed_output as z.infer<S>;
-  } catch (err) {
-    translate(err);
   }
+  throw new AppError(502, 'AI_TRUNCATED', 'Claude ran out of room before finishing. Try again.');
 }
 
 /** Free-form call with Anthropic's web search tool, resuming paused turns. Returns the final text. */
