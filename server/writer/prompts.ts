@@ -80,7 +80,7 @@ Score each variant 1–10 (one decimal allowed) on:
 - clarity: is it easy to read in thirty seconds?
 - ask: does it end with a clear, low-pressure next step?
 - aiTells: 10 = no sign of machine writing; deduct for stock phrases, uniform sentences, lists of three, flattery, summary closers, em-dash flourishes.
-score is your overall verdict: would you invite this person to a screen on the strength of this letter? Most letters are 5–7. Only give 8+ to a letter you would act on. Be strict and consistent.
+score is your overall verdict on the LETTER: does it make the strongest honest case this candidate can make for this role, so that you would want to talk to them? The matcher has already judged whether the candidate is worth applying with (stretch roles are deliberate), so do not mark the letter down for the candidate's level, years or real gaps; mark it down for how it uses what they have: vague or irrelevant material, a weak or missing thread, a gap handled badly, a limp ask, anything that reads as written by a machine. Most letters are 5–7. Only give 8+ to a letter that does its job with nothing you would still change. Be strict and consistent.
 demands: the specific edits you would require before you would forward it (quote the words to change). Empty if none. Never demand a claim that is not supported by the candidate facts shown.
 Also pick the best of the five subject lines (0-based index) for this role.`;
 
