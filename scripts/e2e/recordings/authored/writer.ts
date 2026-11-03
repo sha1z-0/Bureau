@@ -178,7 +178,8 @@ export function writerStep(task: string, text: string): string {
     case 'write_cv':
       return text.includes('<tailored_cv>') ? 'cv_fix' : 'cv';
     case 'write_letter':
-      if (/Write the three variants/.test(text)) return 'letters';
+      // "Write 2 variants (hook, proof), …" in quality mode, "Write one letter, the proof strategy, …" in volume mode.
+      if (/Write (?:the three variants|\d+ variants \(|one letter, the [a-z]+ strategy)/.test(text)) return 'letters';
       if (/Apply the demands/.test(text)) return 'revise';
       return 'truth_fix';
     case 'critic':

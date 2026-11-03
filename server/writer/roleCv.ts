@@ -2,7 +2,6 @@ import crypto from 'node:crypto';
 import { db, get, now, run } from '../db.ts';
 import type { CvOut } from './cv.ts';
 import type { WriterContext } from './context.ts';
-import { contentWords } from './text.ts';
 
 /**
  * Volume mode tailors one CV per role, not per job: the first job of a role
@@ -23,8 +22,10 @@ db.exec(`CREATE TABLE IF NOT EXISTS role_cvs (
 export const ROLE_CV_INSTRUCTIONS =
   'This CV is reused for every application to this kind of role, not just this posting. Write the summary and choose the bullets for the role in general: never name this company, its products or this posting.';
 
-const LEVEL = new Set(['senior', 'junior', 'sr', 'jr', 'lead', 'principal', 'staff', 'intern', 'internship', 'trainee', 'entry', 'level', 'associate', 'mid', 'remote', 'hybrid', 'contract', 'full', 'time', 'part']);
-const core = (t: string) => [...new Set(contentWords(t).filter((w) => !LEVEL.has(w)))];
+const LEVEL = new Set(['senior', 'junior', 'sr', 'jr', 'lead', 'principal', 'staff', 'intern', 'internship', 'trainee', 'entry', 'level', 'associate', 'mid', 'remote', 'hybrid', 'contract', 'time', 'part', 'and', 'the', 'for', 'with']);
+const GENERIC = new Set(['engineer', 'engineers', 'developer', 'developers', 'programmer', 'software']);
+/** Title words that say what the job is: "AI", "ML", "QA" and "UI" count; seniority and contract words don't. */
+const core = (t: string) => [...new Set((t.toLowerCase().match(/[a-z0-9+#.]+/g) ?? []).map((w) => w.replace(/\.+$/, '')).filter((w) => w.length >= 2 && !LEVEL.has(w) && !/^\d+$/.test(w)))];
 
 /** The campaign role a job title belongs to (half its words present), else the title's own core words. */
 export function roleKey(title: string, roles: string[]): string {
@@ -33,6 +34,8 @@ export function roleKey(title: string, roles: string[]): string {
   let bestScore = 0;
   for (const r of roles) {
     const rw = core(r);
+    // "Engineer" alone doesn't make a Backend Engineer an AI Engineer: a distinctive word has to match.
+    if (!rw.some((w) => tw.has(w) && !GENERIC.has(w))) continue;
     const score = rw.length ? rw.filter((w) => tw.has(w)).length / rw.length : 0;
     if (score > bestScore) {
       best = rw;

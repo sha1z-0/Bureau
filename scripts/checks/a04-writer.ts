@@ -544,6 +544,12 @@ export default async function a04({ check, section }: Harness) {
     assert.equal(calls.filter((c) => c === 'cv').length, 1);
     assert.equal(get<{ n: number }>('SELECT count(*) AS n FROM letter_variants WHERE application_id = ?', r.applicationId!)?.n, 1);
     assert.equal(pipelineState(F.JOB_ID)?.state, 'written');
+    // Jobs map to the campaign role by a distinctive word, never by "engineer" alone.
+    const { roleKey } = await import('../../server/writer/roleCv.ts');
+    const roles = ['Full Stack Developer (Junior)', 'Junior AI Engineer', 'Flutter Developer'];
+    assert.equal(roleKey('Senior AI Engineer (LLM)', roles), roleKey('AI Engineer', roles));
+    assert.equal(roleKey('Full-Stack Engineer (MERN)', roles), roleKey('Full Stack Developer', roles));
+    assert.notEqual(roleKey('Backend Engineer', roles), roleKey('AI Engineer', roles));
     // The next job of the same role reuses the tailored CV: no CV call at all.
     const again: string[] = [];
     const r2 = await writeApplicationRun(F.JOB_ID, F.CAMPAIGN_ID, opts(again));
