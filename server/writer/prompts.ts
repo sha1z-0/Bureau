@@ -53,10 +53,12 @@ TASK: write three cover-letter variants, each a different strategy, by EDITING t
 - story: open with a short story from the voice bank that fits this job.
 Rules for every variant:
 - Adapt at least two voice-bank passages. Keep their rhythm, idioms and sentence shapes; reuse whole phrases; edit them to fit this job. List the passage ids you used.
-- The first sentence names something specific to this company or role.
+- The first sentence names something specific to this company or role, and the first paragraph says which role this is for.
 - Body length as instructed (never under 180 or over 280 words), plain paragraphs, a greeting line ("Dear <name or team>,") and a sign-off with the candidate's name.
+- One argument from start to finish: why this candidate can do this job. Every paragraph carries it forward and opens by linking to the one before. A voice-bank detail that does not serve that argument (a hobby, an origin story) is left out, however good it is.
 - Use the evidence map: lead with the must-wins, transferable framing where true, and the biggest gap at most once, as fast learning with a real example.
-- End with one concrete, low-pressure ask. No summary closer.
+- When you name a gap, the same or next sentence says what the candidate is doing about it or the closest true experience. Never a bare "X isn't on my CV".
+- End with one concrete, low-pressure ask tied to this role: a short call about a named piece of their work, or one specific project of the candidate's they can look at. Not "if that helps", not an offer to send a plan or a note. No summary closer.
 - Match the candidate's contraction habit, sentence-length spread and plain vocabulary (fingerprint given).
 Also write:
 - subjects: five email subject lines under 70 characters: the role plus one concrete hook. No clickbait, no all caps, no emojis, no exclamation marks.
