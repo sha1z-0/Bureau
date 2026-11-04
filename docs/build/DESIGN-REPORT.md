@@ -129,7 +129,14 @@ The prompt expected 588 self-checks; the suite now has 642, and all pass.
 
 The "Second pass" section describes work by the separate session "Job hunting panel application". At the end of the scheduled run that work was uncommitted in this worktree: `design/DESIGN.md`, `design/design-book.html`, `design/build-book.mjs`, `design/design-book.src.html`, `web/src/styles/app.css`, `web/src/styles/tokens.css`, and `Dispatch.tsx`, `Forms.tsx` and `SourceHealth.tsx` in `web/src/pages/`. The scheduled run neither committed, reviewed nor tested it, and the screenshots in `design/shots/overhaul/` show `8b313e6`, not this work. Its own results go below.
 
-GATE_RESULTS
+Run on the final design, 4 November 2026:
+
+- `npm run typecheck`: clean.
+- `npm run build`: clean.
+- `npm run e2e -- --strict`: **17 passed, 0 pending, 0 failed, 0 blocked** in 841 s. This includes the UI smoke test.
+- `npm run selfcheck`: **642/642 passed**.
+- Contrast tool: 0 failures on the new palette.
+- Overflow audit: no horizontal page scroll on 40 routes at 320, 375, 414 and 768 px (light theme; dark on sample pages).
 
 ## What I would still improve
 

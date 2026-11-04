@@ -74,9 +74,9 @@ export function HealthPanel() {
                   <td>
                     <span className={`tag ${HEALTH_TONE[s.status] ?? ''}`}>{HEALTH_LABEL[s.status] ?? s.status}</span>
                   </td>
-                  <td className="num">{s.found.toLocaleString()}</td>
-                  <td className="num">{s.added.toLocaleString()}</td>
-                  <td className="num hide-phone">{s.dupes.toLocaleString()}</td>
+                  <td className={`num ${s.found ? '' : 'nil'}`}>{s.found.toLocaleString()}</td>
+                  <td className={`num ${s.added ? '' : 'nil'}`}>{s.added.toLocaleString()}</td>
+                  <td className={`num hide-phone ${s.dupes ? '' : 'nil'}`}>{s.dupes.toLocaleString()}</td>
                   <td className="num hide-phone">{s.ms ? `${(s.ms / 1000).toFixed(0)} s` : ''}</td>
                   <td className="muted hide-phone">{s.lastRunAt ? ago(s.lastRunAt) : 'Never'}</td>
                 </tr>

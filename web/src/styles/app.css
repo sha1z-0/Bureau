@@ -185,6 +185,12 @@ code {
   color: var(--text);
   overflow-y: auto;
   scrollbar-width: none;
+  /* Above the page, because the kill switch's dialog opens from inside the rail. */
+  z-index: 20;
+}
+
+:root[data-theme='dark'] .sidebar {
+  box-shadow: inset -1px 0 0 var(--line);
 }
 
 .brand {
@@ -253,13 +259,18 @@ code {
   margin-right: calc(var(--s-3) * -1);
   padding-right: calc(10px + var(--s-3));
   border-radius: 10px 0 0 10px;
-  background: var(--bg);
-  color: var(--page-ink);
+  background: linear-gradient(108deg, var(--rail-tab) 0 74%, var(--rail-tab-fold) 74%);
+  color: var(--rail-tab-ink);
   font-weight: 640;
 }
 
 .nav a[aria-current='page'] svg {
-  color: var(--page-accent);
+  color: var(--rail-tab-icon);
+}
+
+.nav a[aria-current='page']:hover {
+  background: linear-gradient(108deg, var(--rail-tab) 0 74%, var(--rail-tab-fold) 74%);
+  color: var(--rail-tab-ink);
 }
 
 .nav a[aria-current='page']::before,
@@ -274,12 +285,12 @@ code {
 
 .nav a[aria-current='page']::before {
   top: -10px;
-  background: radial-gradient(circle at 0 0, transparent 10px, var(--bg) 10.5px);
+  background: radial-gradient(circle at 0 0, transparent 10px, var(--rail-tab-fold) 10.5px);
 }
 
 .nav a[aria-current='page']::after {
   bottom: -10px;
-  background: radial-gradient(circle at 0 100%, transparent 10px, var(--bg) 10.5px);
+  background: radial-gradient(circle at 0 100%, transparent 10px, var(--rail-tab-fold) 10.5px);
 }
 
 .nav .numeral {
@@ -300,6 +311,11 @@ code {
   color: var(--on-accent);
 }
 
+.nav a[aria-current='page'] .count {
+  background: var(--rail-tab-count);
+  color: var(--rail-tab-count-ink);
+}
+
 .sidebar-foot {
   margin-top: auto;
   display: grid;
@@ -309,7 +325,7 @@ code {
 }
 
 .sidebar-foot .kill {
-  justify-self: start;
+  justify-self: stretch;
 }
 
 .scan-chip {
@@ -329,7 +345,8 @@ code {
   min-width: 0;
   max-width: 1520px;
   margin-inline: auto;
-  padding: var(--s-6) clamp(var(--s-4), 3.5vw, var(--s-7)) var(--s-8);
+  --gutter: clamp(var(--s-4), 3.5vw, var(--s-7));
+  padding: var(--s-6) var(--gutter) var(--s-8);
 }
 
 .page-head {
@@ -525,7 +542,23 @@ code {
   align-items: center;
   justify-content: space-between;
   gap: var(--s-3);
-  padding: var(--s-4) var(--s-5) var(--s-3);
+  padding: var(--s-5) var(--s-5) var(--s-3);
+}
+
+.card-head > .btn {
+  margin-block: -4px;
+}
+
+/* A quiet button's text lines up with the edge above it, not its invisible box. */
+.card-head > .btn.ghost:last-child,
+.section-head > .btn.ghost:last-child,
+.detail-head .row.wrap > .btn.ghost:last-child,
+.card-pad > .row > .spacer + .btn.ghost:last-child {
+  margin-right: -10px;
+}
+
+.row.wrap:has(> .spacer) > .btn.ghost:not(.sm):first-child {
+  margin-left: -14px;
 }
 
 .card-head h2,
@@ -698,6 +731,11 @@ code {
   color: var(--bg);
 }
 
+.chip[aria-pressed='true'] .faint {
+  color: inherit;
+  opacity: 0.74;
+}
+
 /* ── Forms ────────────────────────────────────────────────────────── */
 
 .field {
@@ -810,7 +848,48 @@ input[type='radio'] {
 }
 
 input[type='range'] {
+  appearance: none;
+  height: 22px;
+  margin: 0;
+  background: transparent;
   cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--well-strong);
+}
+
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--well-strong);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 2px rgb(var(--shadow-tint) / 0.35);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 2px rgb(var(--shadow-tint) / 0.35);
+}
+
+input[type='range']:focus-visible {
+  outline-offset: 3px;
+  border-radius: var(--r-tag);
 }
 
 .switch {
@@ -899,7 +978,7 @@ input[type='range'] {
 
 .board {
   display: grid;
-  grid-template-columns: minmax(340px, 0.85fr) minmax(0, 1.3fr);
+  grid-template-columns: minmax(380px, 1fr) minmax(0, 1.2fr);
   gap: var(--s-4);
   align-items: start;
 }
@@ -947,6 +1026,7 @@ input[type='range'] {
 
 .job-row .meta {
   margin-top: 3px;
+  gap: 0 10px;
 }
 
 .job-row .verdict {
@@ -987,6 +1067,19 @@ input[type='range'] {
   top: var(--s-5);
   max-height: calc(100vh - 48px);
   overflow: auto;
+  container-type: inline-size;
+}
+
+/* In a narrow panel the title takes the full width and the score sits under it. */
+@container (max-width: 600px) {
+  .detail-head > .row:first-child {
+    flex-direction: column;
+    gap: var(--s-4) !important;
+  }
+  .detail-head > .row:first-child > :first-child {
+    flex: none !important;
+    width: 100%;
+  }
 }
 
 .detail-head {
@@ -1216,6 +1309,7 @@ input[type='range'] {
 .summary span {
   font-size: var(--t-xs);
   color: var(--text-2);
+  text-wrap: balance;
 }
 
 .summary a:hover strong {
@@ -1281,6 +1375,8 @@ input[type='range'] {
 }
 
 .ledger {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1288,8 +1384,10 @@ input[type='range'] {
 
 .ledger li {
   display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: var(--s-3);
+  grid-column: 1 / -1;
+  /* One time column for the whole list, as wide as its longest time. */
+  grid-template-columns: subgrid;
+  column-gap: var(--s-4);
   padding: 10px var(--s-5);
   border-top: 1px solid var(--line);
   font-size: var(--t-sm);
@@ -1299,6 +1397,23 @@ input[type='range'] {
   font-size: var(--t-xs);
   color: var(--text-3);
   padding-top: 1px;
+  white-space: nowrap;
+}
+
+/* A dozen "Open the job" links stay quiet until the pointer is on one. */
+.ledger a {
+  color: var(--text-2);
+  text-decoration-color: var(--line-strong);
+  white-space: nowrap;
+}
+
+.ledger a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.ledger + div > .btn.ghost:first-child {
+  margin-left: -14px;
 }
 
 .console {
@@ -1432,25 +1547,25 @@ input[type='range'] {
   gap: var(--s-2);
 }
 
-.hunt.on .btn {
+.hunt.on .btn:not(.scrim *) {
   background: color-mix(in oklab, #fff 13%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in oklab, #fff 20%, transparent);
   color: var(--text);
 }
 
-.hunt.on .btn:hover:not(:disabled) {
+.hunt.on .btn:hover:not(:disabled):not(.scrim *) {
   background: color-mix(in oklab, #fff 23%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in oklab, #fff 34%, transparent);
   color: var(--text);
 }
 
-.hunt.on .btn.primary {
+.hunt.on .btn.primary:not(.scrim *) {
   background: #fff6ee;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
   color: var(--sash-deep);
 }
 
-.hunt.on .btn.primary:hover:not(:disabled) {
+.hunt.on .btn.primary:hover:not(:disabled):not(.scrim *) {
   background: #fff;
   color: var(--sash-deep);
 }
@@ -1513,7 +1628,11 @@ input[type='range'] {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--s-4) var(--s-5);
   padding: 0 var(--s-6) var(--s-5);
-  align-items: end;
+  align-items: start;
+}
+
+.band-stats .meter {
+  gap: 10px;
 }
 
 .band-actions {
@@ -1550,6 +1669,19 @@ input[type='range'] {
 
 .hunt.on a {
   color: inherit;
+}
+
+/* The sash has no room for a crimson hover. */
+.hunt.on a.stat:hover strong {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The kill switch's dialog opens from inside the band, so the band rises with it. */
+.hunt:has(.scrim) {
+  z-index: 40;
 }
 
 /* ── Studio ───────────────────────────────────────────────────────── */
@@ -1622,6 +1754,11 @@ input[type='range'] {
   background: var(--surface);
   box-shadow: 0 1px 2px rgb(var(--shadow-tint) / 0.16), 0 0 0 1px var(--line);
   color: var(--text);
+}
+
+:root[data-theme='dark'] .tabs button[aria-selected='true'] {
+  background: var(--well-strong);
+  box-shadow: 0 1px 2px rgb(var(--shadow-tint) / 0.4), 0 0 0 1px var(--line-strong);
 }
 
 .tab-count {
@@ -1733,7 +1870,9 @@ input[type='range'] {
   grid-auto-columns: minmax(252px, 1fr);
   gap: var(--s-3);
   overflow-x: auto;
-  padding: 2px 2px var(--s-3);
+  /* Lanes run off the edge of the window rather than stopping short of it. */
+  margin: 0 calc(var(--gutter) * -1) 0 -2px;
+  padding: 2px var(--gutter) var(--s-3) 2px;
   align-items: start;
 }
 
@@ -1772,7 +1911,7 @@ input[type='range'] {
   gap: 6px;
   padding: var(--s-3);
   border-radius: var(--r-control);
-  background: var(--surface);
+  background: var(--raised);
   box-shadow: var(--e-1);
   cursor: grab;
   transition: box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease);
@@ -1785,6 +1924,29 @@ input[type='range'] {
 
 .kcard:active {
   cursor: grabbing;
+  transform: none;
+  box-shadow: var(--e-1);
+}
+
+.kcard .row {
+  flex-wrap: nowrap;
+}
+
+/* In the list, scores and states each keep their own column. */
+.list[aria-label='Jobs'] .list-row > .row:last-child {
+  flex: none;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.list[aria-label='Jobs'] .list-row > .row:last-child .num {
+  min-width: 2ch;
+  text-align: right;
+}
+
+.list[aria-label='Jobs'] .list-row > .row:last-child .tag {
+  min-width: 76px;
+  justify-content: center;
 }
 
 .kcard.dragging {
@@ -1804,11 +1966,16 @@ input[type='range'] {
   animation: fade var(--med) var(--ease);
 }
 
+:root[data-theme='dark'] .scrim {
+  background: rgb(0 0 0 / 0.62);
+}
+
 .modal {
   width: min(600px, 100%);
   max-height: calc(100vh - 48px);
   overflow: auto;
-  background: var(--surface);
+  background: var(--raised);
+  color: var(--text);
   border-radius: var(--r-sheet);
   box-shadow: var(--e-3);
   animation: rise var(--med) var(--ease);
@@ -1854,7 +2021,7 @@ input[type='range'] {
   min-width: 280px;
   max-width: 420px;
   padding: 12px var(--s-4);
-  border-radius: 10px;
+  border-radius: var(--r-control);
   background: var(--slip);
   color: var(--slip-ink);
   box-shadow: var(--e-3);
@@ -1920,25 +2087,43 @@ input[type='range'] {
 
 /* ── Tables ───────────────────────────────────────────────────────── */
 
+/* --edge lines the outer cells up with the sheet; cells inside keep to --cell. */
 .table {
+  --edge: var(--s-5);
+  --cell: var(--s-3);
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: var(--t-sm);
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .table th {
   text-align: left;
   font-weight: 620;
   font-size: var(--t-xs);
+  line-height: 1.3;
   color: var(--text-2);
-  padding: 8px var(--s-5);
+  padding: 10px var(--cell);
   border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+  vertical-align: bottom;
 }
 
 .table td {
-  padding: 11px var(--s-5);
+  padding: 10px var(--cell);
   border-top: 1px solid var(--line);
-  vertical-align: top;
+  vertical-align: baseline;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: var(--edge);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: var(--edge);
 }
 
 .table tr:first-child td {
@@ -1980,16 +2165,43 @@ input[type='range'] {
 
 /* ── Skeletons ────────────────────────────────────────────────────── */
 
+/* A sheet of ruled rows waiting for its text, so the page keeps its shape while it loads. */
 .skeleton {
-  background: linear-gradient(90deg, var(--well) 0%, var(--hover) 50%, var(--well) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
   border-radius: var(--r-panel);
+  background-color: var(--surface);
+  background-image: linear-gradient(var(--line) 0 1px, transparent 1px);
+  background-size: 100% 72px;
+  background-position: 0 -1px;
+  box-shadow: var(--e-1);
+}
+
+.skeleton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg, var(--well) 42%, var(--well-strong) 50%, var(--well) 58%);
+  background-size: 220% 100%;
+  animation: shimmer 1.8s linear infinite;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='72'%3E%3Crect y='23' width='196' height='11' rx='5.5'/%3E%3Crect y='43' width='292' height='8' rx='4'/%3E%3C/svg%3E") 24px 0 / 300px 72px repeat-y;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='72'%3E%3Crect y='23' width='196' height='11' rx='5.5'/%3E%3Crect y='43' width='292' height='8' rx='4'/%3E%3C/svg%3E") 24px 0 / 300px 72px repeat-y;
+}
+
+.card .skeleton,
+.detail .skeleton,
+.drawer .skeleton,
+.modal .skeleton {
+  background-color: transparent;
+  box-shadow: none;
 }
 
 @keyframes shimmer {
+  from {
+    background-position: 120% 0;
+  }
   to {
-    background-position: -200% 0;
+    background-position: -20% 0;
   }
 }
 
@@ -2372,8 +2584,16 @@ a.stat:hover strong {
   display: flex;
   flex-direction: column;
   background: var(--surface);
+  color: var(--text);
   box-shadow: var(--e-3);
   animation: slide-in var(--med) var(--ease);
+}
+
+@media (min-width: 821px) {
+  .drawer {
+    overflow: hidden;
+    border-radius: var(--r-sheet) 0 0 var(--r-sheet);
+  }
 }
 
 .drawer.wide {
@@ -2786,7 +3006,7 @@ a.stat:hover strong {
     gap: var(--s-2);
     position: sticky;
     top: 0;
-    z-index: 30;
+    z-index: 35;
     padding: 8px var(--s-3) 8px var(--s-4);
     padding-top: max(8px, env(safe-area-inset-top));
     background: var(--rail);
@@ -2853,6 +3073,7 @@ a.stat:hover strong {
     box-shadow: 0 0 0 2px var(--surface);
   }
   .main {
+    --gutter: var(--s-4);
     padding: var(--s-4) var(--s-4) calc(92px + env(safe-area-inset-bottom));
   }
   .page-head {
@@ -2888,6 +3109,9 @@ a.stat:hover strong {
   .summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding: var(--s-4);
+  }
+  .summary > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
   .contract,
   .ledger li,
@@ -2990,7 +3214,7 @@ a.stat:hover strong {
 }
 
 /* The theme button lines up with the rest of the rail foot. */
-.sidebar-foot .btn.ghost {
+.sidebar-foot > .row > .btn.ghost:first-child {
   margin-left: -10px;
 }
 
@@ -3056,6 +3280,10 @@ a.stat:hover strong {
   border-radius: var(--r-control);
 }
 
+.nav a[aria-current='page']:focus-visible {
+  border-radius: 10px 0 0 10px;
+}
+
 /* A short laptop screen still fits the whole rail. */
 @media (max-height: 760px) and (min-width: 821px) {
   .sidebar {
@@ -3115,8 +3343,890 @@ a.stat:hover strong {
   }
 }
 
+@media (max-width: 620px) {
+  .stats > .meter {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 420px) {
   .row {
     flex-wrap: wrap;
+  }
+}
+
+/* ── Setup wizard: the spine of steps ─────────────────────────────── */
+
+.steps button {
+  min-height: 40px;
+}
+
+.steps button:focus-visible {
+  outline-offset: -2px;
+}
+
+.step-mark {
+  flex: none;
+}
+
+.steps button[aria-current='step'] .step-mark:not(.done) {
+  background: var(--accent-fill);
+  color: var(--on-accent);
+}
+
+@media (min-width: 1001px) {
+  /* A thread between the marks: the steps are a sequence, not a menu. */
+  .steps li {
+    position: relative;
+  }
+  .steps li + li::before {
+    content: '';
+    position: absolute;
+    left: 20.25px;
+    top: -11px;
+    width: 1.5px;
+    height: 20px;
+    background: var(--line-strong);
+    pointer-events: none;
+  }
+  .steps li:has(.step-mark.done) + li:has(.step-mark.done)::before {
+    background: color-mix(in oklab, var(--good) 50%, transparent);
+  }
+}
+
+@media (min-width: 821px) {
+  /* On a long step the way forward stays in reach. */
+  .wizard-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 0 calc(var(--s-6) * -1) calc(var(--s-6) * -1);
+    padding: var(--s-3) var(--s-6);
+    background: var(--surface);
+    border-radius: 0 0 var(--r-panel) var(--r-panel);
+  }
+}
+
+/* ── Questions ────────────────────────────────────────────────────── */
+
+[data-testid='question'] .chips {
+  gap: var(--s-2);
+}
+
+[data-testid='question'] .chip {
+  height: 34px;
+  padding: 0 14px;
+  font-size: var(--t-sm);
+}
+
+/* The card's one action takes the sash once there is an answer to save. */
+[data-testid='question'] .btn:not(.ghost):not(:disabled) {
+  background: var(--accent-fill);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(var(--shadow-tint) / 0.3);
+  color: var(--on-accent);
+}
+
+[data-testid='question'] .btn:not(.ghost):not(:disabled):hover {
+  background: var(--accent-fill-hover);
+  color: var(--on-accent);
+}
+
+/* ── Inbox ────────────────────────────────────────────────────────── */
+
+[data-testid='inbox-message'] {
+  align-items: flex-start;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+[data-testid='inbox-message'] .btn.ghost {
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+[data-testid='inbox-message'] .btn.ghost:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text) 42%, transparent);
+}
+
+[data-testid='inbox-message'] .muted {
+  max-width: 76ch;
+}
+
+/* A count inside a pressed chip follows the chip's own ink. */
+.chip[aria-pressed='true'] .faint {
+  color: inherit;
+}
+
+/* ── Touch ────────────────────────────────────────────────────────── */
+
+/* Anything a thumb presses gets 44 px. Small things keep their look and
+   grow an invisible hit area, so dense rows stay dense. */
+@media (max-width: 820px), (pointer: coarse) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .btn {
+    height: 44px;
+    font-size: 0.9375rem;
+  }
+  .btn.icon {
+    flex: none;
+    width: 44px;
+  }
+  .btn.sm,
+  .chip,
+  .hint-btn,
+  .tag > button {
+    position: relative;
+  }
+  .btn.sm {
+    height: 36px;
+    min-width: 44px;
+    padding: 0 12px;
+    font-size: var(--t-sm);
+    border-radius: var(--r-control);
+  }
+  .btn.sm.icon {
+    width: 44px;
+  }
+  .chip,
+  [data-testid='question'] .chip {
+    height: 36px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 14px;
+    font-size: var(--t-sm);
+  }
+  .chips {
+    gap: var(--s-2);
+  }
+  .btn.sm::after,
+  .chip::after {
+    content: '';
+    position: absolute;
+    inset: -4px 0;
+  }
+  .hint-btn::after {
+    content: '';
+    position: absolute;
+    inset: -13px;
+  }
+  .input,
+  .select {
+    min-height: 44px;
+  }
+  /* A removable tag is a control: larger, with the cross a real target. */
+  .tag:has(> button) {
+    min-height: 36px;
+    padding-left: 10px;
+    font-size: var(--t-sm);
+  }
+  .tag > button {
+    min-width: 32px;
+    min-height: 36px;
+    place-items: center;
+  }
+  .tag > button::after {
+    content: '';
+    position: absolute;
+    inset: -4px -6px -4px -8px;
+  }
+  .switch {
+    width: 48px;
+    height: 28px;
+  }
+  .switch::after {
+    width: 22px;
+    height: 22px;
+  }
+  .switch:checked::after {
+    transform: translateX(20px);
+  }
+  .switch::before {
+    content: '';
+    position: absolute;
+    inset: -8px -2px;
+  }
+  input[type='range'] {
+    height: 44px;
+  }
+  /* Ticks drawn by hand: a native box cannot carry a larger hit area. */
+  input[type='checkbox']:not(.switch) {
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    border-radius: 6px;
+    background: var(--field);
+    box-shadow: inset 0 0 0 1.5px var(--text-3);
+    transition: background-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+  }
+  input[type='checkbox']:not(.switch):checked {
+    background: var(--accent-fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff6ee' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 16px no-repeat;
+    box-shadow: none;
+  }
+  input[type='checkbox']:not(.switch)::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+  }
+  input[type='checkbox']:not(.switch):focus-visible {
+    border-radius: 6px;
+  }
+  .job-row input[type='checkbox'] {
+    margin-top: 6px;
+  }
+  /* Short links in a line of details: a taller box, so neighbours stay apart. */
+  .meta a,
+  a.faint {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+  }
+  .meta a::after,
+  a.faint::after {
+    content: '';
+    position: absolute;
+    inset: -8px -6px;
+  }
+  a.faint {
+    min-width: 32px;
+    justify-content: center;
+  }
+  .steps button {
+    min-height: 44px;
+  }
+  /* A message's title is the row's main target, and wins over a neighbouring link. */
+  [data-testid='inbox-message'] a.title {
+    position: relative;
+    z-index: 1;
+    margin-block: -6px;
+    padding-block: 11px;
+  }
+}
+
+@media (min-width: 821px) and (pointer: coarse) {
+  .nav a {
+    height: 44px;
+  }
+}
+
+/* A finger leaves no hover behind, and gets an answer when it presses. */
+@media (hover: none) {
+  .table tbody tr:hover {
+    background: transparent;
+  }
+  .list-row:active:not(.static),
+  .menu-nav a:active {
+    background: var(--hover);
+  }
+  .tabbar a:active svg {
+    background: var(--well);
+  }
+}
+
+/* ── Phone and tablet ─────────────────────────────────────────────── */
+
+@media (max-width: 820px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+  /* A ghost button's label lines up with the text above it. */
+  .page-actions > .btn.ghost:first-child {
+    margin-left: -14px;
+  }
+  .main {
+    padding-left: max(var(--s-4), env(safe-area-inset-left));
+    padding-right: max(var(--s-4), env(safe-area-inset-right));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  /* The leather top bar. */
+  .topbar {
+    min-height: 56px;
+    padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
+    padding-top: max(var(--s-1), env(safe-area-inset-top));
+    padding-left: max(var(--s-4), env(safe-area-inset-left));
+    padding-right: max(var(--s-1), env(safe-area-inset-right));
+  }
+  .topbar .brand {
+    min-height: 44px;
+  }
+  .topbar .btn.icon {
+    flex: none;
+  }
+
+  /* The tab bar. */
+  .tabbar {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tabbar a {
+    min-height: 60px;
+    transition: color var(--fast) var(--ease);
+  }
+  .tabbar a:focus-visible {
+    outline-offset: -3px;
+  }
+  .drawer-body {
+    padding-bottom: calc(var(--s-7) + env(safe-area-inset-bottom));
+  }
+  .drawer-head {
+    padding-left: max(var(--s-4), env(safe-area-inset-left));
+    padding-right: max(var(--s-2), env(safe-area-inset-right));
+  }
+  .drawer-head .btn.icon {
+    flex: none;
+  }
+  .drawer-head h2 {
+    font-size: 1.4375rem;
+  }
+
+  /* The whole live strip is the link; the phone has Stop in the top bar. */
+  .livebar {
+    position: relative;
+    min-height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .livebar a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* A sliding strip never widens the sheet it sits in. */
+  .card-pad > *,
+  .wizard-card > *,
+  .row > .tabs {
+    min-width: 0;
+  }
+
+  /* Tabs run in one line and slide; a shadow says when more lie past the edge. */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    background:
+      linear-gradient(to right, var(--well) 40%, transparent) left / 28px 100% no-repeat local,
+      linear-gradient(to left, var(--well) 40%, transparent) right / 28px 100% no-repeat local,
+      linear-gradient(to right, color-mix(in oklab, var(--text) 20%, transparent), transparent) left / 10px 100% no-repeat scroll,
+      linear-gradient(to left, color-mix(in oklab, var(--text) 20%, transparent), transparent) right / 10px 100% no-repeat scroll,
+      var(--well);
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tabs button {
+    position: relative;
+    flex: none;
+    height: 38px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 14px;
+    font-size: var(--t-sm);
+  }
+  .tabs button::after {
+    content: '';
+    position: absolute;
+    inset: -3px 0;
+  }
+  .tabs button:focus-visible {
+    outline-offset: -2px;
+  }
+  .tabs button[aria-selected='true'] {
+    scroll-initial-target: nearest;
+  }
+
+  /* Wide tables slide inside their sheet, with the same shadow at the edge. */
+  .table-wrap,
+  .card > .table {
+    overscroll-behavior-x: contain;
+    background:
+      linear-gradient(to right, var(--edge, var(--surface)) 30%, transparent) left / 32px 100% no-repeat local,
+      linear-gradient(to left, var(--edge, var(--surface)) 30%, transparent) right / 32px 100% no-repeat local,
+      linear-gradient(to right, color-mix(in oklab, var(--text) 14%, transparent), transparent) left / 10px 100% no-repeat scroll,
+      linear-gradient(to left, color-mix(in oklab, var(--text) 14%, transparent), transparent) right / 10px 100% no-repeat scroll;
+  }
+  .card .card,
+  .wizard-card .card,
+  .card .list {
+    --edge: var(--bg);
+  }
+  .table .tag {
+    white-space: nowrap;
+  }
+
+  .kanban {
+    scroll-snap-type: x proximity;
+    scroll-padding-left: var(--s-2);
+  }
+  .lane {
+    scroll-snap-align: start;
+  }
+
+  .dispatch-row .row.wrap {
+    gap: var(--s-2) !important;
+  }
+  .card-head .select {
+    min-height: 44px !important;
+    font-size: var(--t-sm) !important;
+  }
+
+  .textarea.letter {
+    min-height: 320px;
+  }
+  .pdf-frame {
+    height: 72vh;
+  }
+
+  /* The wizard's way forward: Continue takes the thumb's whole line. */
+  .wizard-foot .btn.primary,
+  .wizard-foot [data-testid='wizard-finish'] {
+    flex: 1 0 100%;
+  }
+  .wizard-foot [data-testid='wizard-finish'] {
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+}
+
+/* A tablet in the hand has room: two columns of fields, a wider margin, the steps in view. */
+@media (min-width: 621px) and (max-width: 820px) {
+  .main {
+    --gutter: var(--s-5);
+    padding-top: var(--s-5);
+    padding-left: max(var(--s-5), env(safe-area-inset-left));
+    padding-right: max(var(--s-5), env(safe-area-inset-right));
+  }
+  .topbar {
+    padding-left: max(var(--s-5), env(safe-area-inset-left));
+  }
+  .tabbar {
+    padding-left: max(env(safe-area-inset-left), calc((100% - 600px) / 2));
+    padding-right: max(env(safe-area-inset-right), calc((100% - 600px) / 2));
+  }
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .choice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .card-pad {
+    padding: 20px;
+  }
+  .card-head {
+    padding: var(--s-4) 20px var(--s-3);
+  }
+  .list-row {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .wizard .steps {
+    display: grid;
+    position: static;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .wizard .steps button {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 7px;
+    padding: 6px 7px;
+    font-size: var(--t-xs);
+    line-height: 1.2;
+  }
+  .wizard-phone-progress {
+    display: none;
+  }
+  .wizard-card {
+    padding: var(--s-5);
+  }
+  .summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: var(--s-4) 20px;
+  }
+  .wizard-foot .btn.primary,
+  .wizard-foot [data-testid='wizard-finish'] {
+    flex: 0 0 auto;
+  }
+}
+
+/* A phone in the hand. */
+@media (max-width: 620px) {
+  .page-head p,
+  .wizard-card > header p {
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4) var(--s-3);
+  }
+  /* Bottom sheet: dialogs rise from the thumb's end of the screen. */
+  .scrim:not(.drawer-scrim) {
+    place-items: end stretch;
+    padding: 0;
+  }
+  .modal {
+    width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  }
+  .modal-head {
+    padding: var(--s-4) var(--s-2) 0 var(--s-4);
+  }
+  .modal-body {
+    padding: var(--s-3) var(--s-4) var(--s-4);
+  }
+  .modal-foot {
+    padding: 0 var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom));
+    flex-wrap: wrap;
+  }
+  .modal-foot .btn {
+    flex: 1 1 auto;
+  }
+  /* A row of label and control stacks when the label would be crushed. */
+  .toggle-row:has(> .select, > select, > .input) {
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .toggle-row:has(> .select, > select, > .input) > :first-child {
+    flex: 1 1 100%;
+  }
+  .toggle-row > .select,
+  .toggle-row > select,
+  .toggle-row > .input {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  /* A select shares its wrapped line with no spacer. */
+  .row.wrap > .select {
+    flex: 100 1 auto;
+  }
+  /* Tables keep readable columns and slide, instead of breaking words. */
+  .table td {
+    min-width: 6.5rem;
+  }
+  .table td:first-child {
+    min-width: 9rem;
+  }
+  .table td.num,
+  .table td:has(> .tag:only-child) {
+    min-width: 0;
+  }
+
+  /* Inbox: the message takes the full line, Done sits under it. */
+  [data-testid='inbox-message'] > :first-child {
+    flex-basis: 100%;
+  }
+  [data-testid='inbox-message'] > .btn {
+    margin-left: auto;
+  }
+  [data-testid='inbox-message'] a.title {
+    flex-basis: 100%;
+  }
+
+  /* Questions: saving is the wide, easy press. */
+  [data-testid='question'] .row.wrap > .btn:first-child {
+    flex: 1 1 auto;
+  }
+
+  .prompt-block {
+    padding: var(--s-3);
+  }
+}
+
+@media (max-width: 420px) {
+  /* A table of settings stacks: the control takes the whole line. */
+  .table tbody:has(> tr > td > .select) {
+    display: block;
+  }
+  .table tr:has(> td > .select) {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-3) var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .table tr:has(> td > .select):first-child {
+    border-top: 0;
+  }
+  .table tr:has(> td > .select) > td {
+    display: block;
+    width: auto !important;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+  .page-actions {
+    width: 100%;
+  }
+  .page-actions > .btn:not(.ghost) {
+    flex: 1 1 auto;
+  }
+}
+
+/* The smallest phones: a little more of the screen for the content. */
+@media (max-width: 360px) {
+  :root {
+    --t-2xl: 1.875rem;
+  }
+  .main {
+    --gutter: var(--s-3);
+    padding-left: max(var(--s-3), env(safe-area-inset-left));
+    padding-right: max(var(--s-3), env(safe-area-inset-right));
+  }
+  .card-pad {
+    padding: 14px;
+  }
+  .card-head {
+    padding: var(--s-3) 14px var(--s-2);
+  }
+  .list-row {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .wizard-card {
+    padding: var(--s-4) 14px;
+  }
+  .table tr:has(> td > .select) {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .wizard-card .card-pad,
+  .wizard-card .card {
+    padding: var(--s-3);
+  }
+  .topbar .brand-name {
+    font-size: 1.25rem;
+  }
+}
+
+/* ── Data pages: tables, figures, long forms ──────────────────────── */
+
+/* A zero or an empty figure recedes, so the numbers that mean something stand out. */
+.table td.nil {
+  color: var(--text-3);
+}
+
+/* Rows holding a control or a mark centre on it; text rows share a baseline. */
+.table tr:has(.select) td,
+.table tr:has(.seal) td,
+.table tr:has(.ok-mark) td {
+  vertical-align: middle;
+}
+
+@media (min-width: 821px) {
+  .table .select {
+    min-height: 34px;
+    padding-block: 5px;
+    font-size: var(--t-sm);
+  }
+  .table td:has(> .select) {
+    padding-block: 8px;
+  }
+}
+
+@media (max-width: 820px) {
+  .table {
+    --edge: var(--s-4);
+    --cell: 10px;
+  }
+}
+
+/* Inside a padded sheet or a drawer the table lines up with the text around it. */
+.card-pad .table,
+.tl .table,
+.modal-body .table,
+.drawer-body .table,
+.detail-body .table {
+  --edge: 0px;
+}
+
+.card-pad .table tbody tr:hover {
+  background: transparent;
+}
+
+/* An icon and a word in a cell still sit on the row's baseline. */
+.table td > .row {
+  align-items: baseline;
+  flex-wrap: nowrap;
+}
+
+.table td > .row > svg {
+  align-self: center;
+}
+
+/* A table that is its own sheet keeps the sheet's fill under the phone's scroll hint. */
+.card.table-wrap {
+  background-color: var(--surface);
+}
+
+/* Rows reach the edge of their sheet, so the sheet clips their hover tone. */
+.card:has(> .table, > .list-row, > .dispatch-row, > .toggle-row) {
+  overflow: clip;
+}
+
+/* A hairline under the sheet's title, whichever kind of row comes next. */
+.card-head:has(+ .dispatch-row),
+.card-head:has(+ .toggle-row),
+.card-head:has(+ .table > tbody:first-child),
+.card-head:has(+ .table-wrap > .table > tbody:first-child) {
+  border-bottom: 1px solid var(--line);
+}
+
+.dispatch-row:last-child {
+  border-bottom: 0 !important;
+}
+
+/* The older-tasks button lines up with the rows above it. */
+.table-wrap + div > .btn.ghost:first-child {
+  margin-left: -10px;
+}
+
+/* A row of figures gets its own sheet, like the Overview summary. */
+.stats-sheet {
+  padding: var(--s-4) var(--s-5);
+  background: var(--surface);
+  border-radius: var(--r-panel);
+  box-shadow: var(--e-1);
+}
+
+/* Sheets inside a sheet take the next size of corner down. */
+.card .card,
+.card .list,
+.card .dropzone,
+.wizard-card .card,
+.prompt-block {
+  border-radius: 10px;
+}
+
+/* Code chips keep their padding across a line break. */
+code {
+  color: var(--text);
+  overflow-wrap: break-word;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+code[style*='block'] {
+  border-radius: var(--r-control);
+}
+
+/* Config snippets keep their shape and scroll inside their slip. */
+pre.console {
+  white-space: pre;
+}
+
+@media (min-width: 821px) {
+  .card-pad .tabs button {
+    padding: 0 10px;
+  }
+}
+
+/* Long forms: one weight for every setting's name, the control stays on its line. */
+.toggle-row > :first-child {
+  flex: 1 1 auto;
+}
+
+.toggle-row > .row {
+  flex: none;
+  flex-wrap: nowrap;
+}
+
+.toggle-row > span:first-child,
+.toggle-row > div:first-child > :is(strong, span):first-child {
+  font-weight: 600;
+}
+
+.tag button:focus-visible {
+  outline-offset: 0;
+  border-radius: 3px;
+}
+
+/* Fields side by side share their rows: a two-line label never pushes one input lower than its neighbour. */
+@supports (grid-template-rows: subgrid) {
+  .form-grid {
+    row-gap: 0;
+    margin-bottom: calc(var(--s-4) * -1);
+  }
+  .form-grid > * {
+    margin-bottom: var(--s-4);
+  }
+  .form-grid > .field {
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+    align-self: stretch;
+    margin-bottom: 0;
+    padding-bottom: var(--s-4);
+  }
+  .form-grid > .field > label {
+    align-self: end;
+    margin-bottom: 6px;
+  }
+  .form-grid > .field > .help {
+    margin-top: 6px;
+  }
+  /* A button beside fields sits on the fields' row and matches their height. */
+  .form-grid > .field > .btn:only-child {
+    grid-row: 2;
+    height: auto;
+    align-self: stretch;
+  }
+}
+
+/* A long address among the facts takes two columns, so it breaks less often. */
+@media (min-width: 821px) {
+  .facts div:has(> dd > a[target]) {
+    grid-column: span 2;
+  }
+}
+
+/* Charts: a floor for the bars, and labels that fit on one line. */
+.daybars {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.arm-row {
+  grid-template-columns: 148px minmax(0, 1fr) 56px 56px;
+}
+
+@media (max-width: 820px) {
+  .stats-sheet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: var(--s-4);
+  }
+  .arm-row {
+    grid-template-columns: 124px minmax(0, 1fr) 48px;
+  }
+}
+
+@media (max-width: 620px) {
+  /* A heading with a long note beside it gives the note its own line. */
+  .card-head {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 620px) {
+  /* In one column a button beside the fields has no neighbour to match: it keeps its own height. */
+  .form-grid > .field > .btn:only-child {
+    grid-row: auto;
+    height: 44px;
   }
 }

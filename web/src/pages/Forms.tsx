@@ -228,7 +228,7 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
   const liveSent = summary.last30Days.reduce((n, r) => n + (r.live?.submitted ?? 0), 0);
   return (
     <div className="stack" style={{ gap: 'var(--s-4)' }}>
-      <div className="stats">
+      <div className="stats stats-sheet">
         <Stat label="Adapters" value={summary.adapters.length} sub="ATS families with hand-written support" />
         <Stat label="Recipes" value={total} sub={`${summary.recipes.active ?? 0} active, ${summary.recipes.demoted ?? 0} demoted`} />
         <Stat label="Label variants known" value={summary.synonyms.toLocaleString()} sub="Ways a form asks for the same thing" />
@@ -253,12 +253,12 @@ function Coverage({ summary, recipes }: { summary: FormsSummary; recipes: Recipe
               <tr key={c.ats}>
                 <td style={{ fontWeight: 600 }}>{c.ats === 'unknown' ? 'Not recognised' : atsLabel(c.ats)}</td>
                 <td>{c.adapter ? <span className="tag olive">{c.adapter.accounts ? 'Yes, with accounts' : 'Yes'}</span> : <span className="faint">None</span>}</td>
-                <td className="num">{c.recipes}</td>
-                <td className="num">{c.active}</td>
-                <td className="num">{c.runs?.runs ?? 0}</td>
-                <td className="num hide-phone">{c.runs?.rehearsal?.runs ? `${c.runs.rehearsal.verified} of ${c.runs.rehearsal.runs}` : '–'}</td>
-                <td className="num hide-phone">{c.runs?.live?.runs ? `${c.runs.live.submitted} of ${c.runs.live.runs}` : '–'}</td>
-                <td className="num">{pct(c.runs?.live?.rate)}</td>
+                <td className={`num ${c.recipes ? '' : 'nil'}`}>{c.recipes}</td>
+                <td className={`num ${c.active ? '' : 'nil'}`}>{c.active}</td>
+                <td className={`num ${c.runs?.runs ? '' : 'nil'}`}>{c.runs?.runs ?? 0}</td>
+                <td className={`num hide-phone ${c.runs?.rehearsal?.runs ? '' : 'nil'}`}>{c.runs?.rehearsal?.runs ? `${c.runs.rehearsal.verified} of ${c.runs.rehearsal.runs}` : '–'}</td>
+                <td className={`num hide-phone ${c.runs?.live?.runs ? '' : 'nil'}`}>{c.runs?.live?.runs ? `${c.runs.live.submitted} of ${c.runs.live.runs}` : '–'}</td>
+                <td className={`num ${c.runs?.live?.runs ? '' : 'nil'}`}>{pct(c.runs?.live?.rate)}</td>
               </tr>
             ))}
           </tbody>

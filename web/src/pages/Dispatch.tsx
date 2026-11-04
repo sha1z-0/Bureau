@@ -232,7 +232,7 @@ function ManualRow({ app, onSend }: { app: Application; onSend: () => void }) {
   const mark = useMutation({ mutationFn: () => post(`/api/applications/${app.id}/mark-applied`), onSuccess: () => (toast.success('Marked as applied.'), refresh()), onError: toast.error });
   const unapprove = useMutation({ mutationFn: () => put(`/api/applications/${app.id}`, {}), onSuccess: refresh, onError: toast.error });
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '40px minmax(0,1fr) auto', gap: 'var(--s-4)', padding: 'var(--s-4) var(--s-5)', borderBottom: '1px solid var(--line)', alignItems: 'center' }}>
+    <div className="dispatch-row" style={{ display: 'grid', gap: 'var(--s-4)', padding: 'var(--s-4) var(--s-5)', borderBottom: '1px solid var(--line)', alignItems: 'center' }}>
       <Seal grade={app.job?.grade ?? null} />
       <div style={{ minWidth: 0 }}>
         <div style={{ fontWeight: 600 }}>{app.job?.title}</div>

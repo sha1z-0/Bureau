@@ -4,7 +4,11 @@
   Every colour and size in the app comes from this file.
 */
 
-:root {
+/* A dialog opened from the rail or the sash takes the page's colours, never the local ones. */
+:root,
+.sidebar .scrim,
+.topbar .scrim,
+.hunt.on .scrim {
   /* House colours */
   --parchment: #f3ecdf;
   --vellum: #e9e0cf;
@@ -28,6 +32,13 @@
   --bg: var(--parchment);
   --page-ink: var(--ink);
   --page-accent: var(--sash);
+  /* The current page in the rail: cut from the leather into the page by day, a strip of the sash by night. */
+  --rail-tab: var(--bg);
+  --rail-tab-fold: var(--bg);
+  --rail-tab-ink: var(--page-ink);
+  --rail-tab-icon: var(--page-accent);
+  --rail-tab-count: var(--accent-fill);
+  --rail-tab-count-ink: var(--on-accent);
   --rail: #2b1d15;
   --surface: var(--linen);
   --raised: var(--linen);
@@ -123,10 +134,19 @@
 }
 
 /* Night in Rome: opt-in. Cream is the house colour, so it stays the default. */
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+:root[data-theme='dark'] .sidebar .scrim,
+:root[data-theme='dark'] .topbar .scrim,
+:root[data-theme='dark'] .hunt.on .scrim {
   --bg: #17110e;
   --page-ink: #f3eadc;
   --page-accent: #ec8173;
+  --rail-tab: #b22f2d;
+  --rail-tab-fold: #972526;
+  --rail-tab-ink: #fff6ee;
+  --rail-tab-icon: #fff6ee;
+  --rail-tab-count: #fff6ee;
+  --rail-tab-count-ink: #8c1a1f;
   --rail: #0f0a08;
   --surface: #221a15;
   --raised: #2b221c;
@@ -230,7 +250,10 @@
 }
 
 @media (max-width: 820px) {
-  :root {
+  :root,
+  .sidebar .scrim,
+  .topbar .scrim,
+  .hunt.on .scrim {
     /* Sixteen pixels on phones: anything less makes iOS zoom into a field. */
     --t-md: 1rem;
     --t-2xl: 2.125rem;

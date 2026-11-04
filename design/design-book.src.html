@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bureau design book</title>
+<style>
+/*FONTS*/
+/*APP*/
+/*NIGHT*/
+/*PHONE*/
+
+/* ── The book's own furniture ──────────────────────────────────────── */
+html { scroll-behavior: smooth; scroll-padding-top: var(--s-5); }
+.bk-night { background: var(--bg); color: var(--text); }
+.main { max-width: 1240px; }
+.bk-sec { padding-top: var(--s-7); }
+.bk-sec > h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 500; letter-spacing: -0.014em; line-height: 1.12; }
+.bk-sec > p { margin-top: var(--s-2); max-width: 68ch; color: var(--text-2); }
+.bk-sec > h3 { margin-top: var(--s-6); margin-bottom: var(--s-3); font-size: var(--t-lg); font-weight: 640; }
+.bk-sec > :is(.bk-pair, .bk-cols, .bk-palette, .card, .table) { margin-top: var(--s-4); }
+.bk-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.bk-pair.wide { grid-template-columns: minmax(0, 1fr); }
+.bk-panel { min-width: 0; padding: var(--s-5); border-radius: var(--r-panel); background: var(--bg); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.bk-panel.bk-day { background: var(--bg); }
+.bk-tag { margin-bottom: var(--s-4); font-size: var(--t-xs); font-weight: 600; color: var(--text-3); }
+.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.bk-row + .bk-row, .bk-stack > * + * { margin-top: var(--s-3); }
+.bk-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); align-items: start; }
+.bk-cols.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bk-cols > * { min-width: 0; }
+.bk-cols p + p { margin-top: var(--s-3); }
+.section-title + * { margin-top: var(--s-2); }
+.bk-cols .section-title + .callout, .bk-stack .section-title { margin-top: var(--s-3); }
+.bk-cols > div > .callout { margin-top: var(--s-3); }
+.bk-cover { padding-top: var(--s-5); }
+.bk-cover h1 { font-family: var(--font-display); font-size: clamp(3rem, 8vw, 5rem); font-weight: 500; letter-spacing: -0.02em; line-height: 1; margin-top: var(--s-4); }
+.bk-cover p { margin-top: var(--s-4); max-width: 60ch; font-family: var(--font-display); font-size: 1.375rem; line-height: 1.35; color: var(--text-2); }
+.bk-cover small { display: block; margin-top: var(--s-4); color: var(--text-3); font-size: var(--t-sm); }
+
+/* Palette */
+.bk-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--s-4) var(--s-3); }
+.bk-sw { display: grid; gap: 1px; font-size: var(--t-xs); color: var(--text-2); }
+.bk-sw b { margin-top: var(--s-2); font-size: var(--t-sm); font-weight: 640; color: var(--text); }
+.bk-sw code { justify-self: start; }
+.bk-sw small { color: var(--text-3); font-size: var(--t-xs); }
+.bk-chip { display: grid; grid-template-columns: 1fr 1fr; height: 64px; border-radius: var(--r-control); overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+
+/* Type */
+.bk-type { width: 100%; border-collapse: collapse; }
+.bk-type td { padding: var(--s-3) var(--s-3) var(--s-3) 0; border-top: 1px solid var(--line); vertical-align: baseline; }
+.bk-type tr:first-child td { border-top: 0; }
+.bk-type td:first-child { width: 150px; font-size: var(--t-xs); color: var(--text-2); }
+.bk-type td:first-child code { display: block; width: fit-content; margin-bottom: 2px; }
+
+/* Space, radius, elevation */
+.bk-bars { display: grid; gap: var(--s-2); }
+.bk-bars div { display: flex; align-items: center; gap: var(--s-3); font-size: var(--t-xs); color: var(--text-2); }
+.bk-bars i { display: block; height: 12px; background: var(--leather); border-radius: 2px; }
+.bk-radii { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); font-size: var(--t-xs); color: var(--text-2); }
+.bk-radii i { display: block; height: 64px; margin-bottom: var(--s-1); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.bk-lift { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+.bk-lift div { display: grid; place-items: center; height: 96px; border-radius: var(--r-panel); background: var(--surface); font-size: var(--t-sm); color: var(--text-2); }
+.bk-lift code { background: none; }
+
+/* Rail and phone */
+.bk-rail { display: flex; overflow: hidden; border-radius: var(--r-panel); box-shadow: 0 0 0 1px var(--line); background: var(--bg); min-height: 400px; }
+.bk-rail .sidebar { display: flex; position: static; flex: none; width: 236px; height: auto; }
+.bk-rail > div { padding: var(--s-5); min-width: 0; font-family: var(--font-display); font-size: 1.75rem; line-height: 1.1; }
+.bk-phone { width: 100%; max-width: 375px; margin-inline: auto; overflow: hidden; border-radius: 24px; background: var(--bg); box-shadow: 0 0 0 1px var(--line-strong), var(--e-2); }
+.bk-phone .topbar { position: static; }
+.bk-phone .tabbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: static; }
+.bk-phone .tabbar svg { width: 46px; height: 26px; padding: 3px 13px; }
+.bk-phone .bk-body { padding: var(--s-4); }
+.bk-phone h1 { font-family: var(--font-display); font-size: 2.125rem; font-weight: 500; letter-spacing: -0.016em; line-height: 1.08; }
+.bk-phone p { margin-top: 6px; color: var(--text-2); font-size: 0.9375rem; line-height: 1.45; }
+
+/* Lifted from the first book: the hunt, the engine, security */
+.bk-spec { font-size: var(--t-sm); }
+.bk-spec th, .bk-spec td { padding: 9px var(--s-3); }
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); margin-top: var(--s-4); }
+.step { display: grid; align-content: start; gap: 2px; padding: var(--s-3) var(--s-4); border-radius: var(--r-control); background: var(--surface); box-shadow: var(--e-1); }
+.step.ai { background: var(--selected); }
+.step.human { background: var(--warn-soft); }
+.step .n { display: none; }
+.step small { color: var(--text-2); font-size: var(--t-xs); line-height: 1.4; }
+.formula { padding: var(--s-4); border-radius: var(--r-control); background: var(--well); font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+.layer { display: grid; gap: 2px; padding: var(--s-3) 0; border-top: 1px solid var(--line); font-size: var(--t-sm); }
+.layer:first-child { border-top: 0; }
+.layer .ix { display: none; }
+.layer div { display: grid; gap: 2px; }
+.layer span { color: var(--text-2); }
+
+@media (max-width: 820px) {
+  .bk-spec, .bk-panel .table { display: block; overflow-x: auto; }
+}
+@media (max-width: 1100px) {
+  .bk-pair, .bk-cols, .bk-cols.three { grid-template-columns: minmax(0, 1fr); }
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .bk-panel { padding: var(--s-4); }
+  .bk-rail .sidebar { width: 180px; }
+  .bk-type td:first-child { width: 96px; }
+  .bk-lift { grid-template-columns: minmax(0, 1fr); }
+  .flow { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@page { size: 297mm 210mm; margin: 12mm; }
+@media print {
+  .shell { display: block; }
+  .shell > .sidebar { display: none; }
+  .main { max-width: none; padding: 0; }
+  .bk-sec { break-before: page; padding-top: 0; }
+  .bk-panel, .card { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="#top"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="var(--accent)"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="color-mix(in oklab, var(--accent) 70%, black)"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="var(--gold)"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="var(--text)"/><rect x="29" y="51" width="6" height="5" fill="var(--gold)"/></svg><div class="brand-name">Bureau</div></a>
+    <nav class="nav" aria-label="Sections">
+      <div class="nav-group">
+        <a href="#concept">The concept</a>
+        <a href="#insignia">The insignia</a>
+        <a href="#colour">Colour</a>
+        <a href="#type">Type</a>
+        <a href="#space">Space and lift</a>
+      </div>
+      <div class="nav-group">
+        <a href="#buttons">Buttons</a>
+        <a href="#fields">Fields</a>
+        <a href="#tags">Tags, chips, seals</a>
+        <a href="#tables">Tables and lists</a>
+        <a href="#sheets">Sheets</a>
+      </div>
+      <div class="nav-group">
+        <a href="#rail">The rail and the sash</a>
+        <a href="#phone">On a phone</a>
+        <a href="#craft">Motion and access</a>
+        <a href="#voice">Voice</a>
+      </div>
+      <div class="nav-group">
+        <a href="#hunt">The hunt</a>
+        <a href="#engine">The engine</a>
+        <a href="#security">Security</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main" id="top">
+    <header class="bk-cover">
+      <svg width="72" height="72" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="var(--accent)"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="color-mix(in oklab, var(--accent) 70%, black)"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="var(--gold)"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="var(--text)"/><rect x="29" y="51" width="6" height="5" fill="var(--gold)"/></svg>
+      <h1>Bureau design book</h1>
+      <p>Cream robe, crimson sash, saddle leather, brass and iron-gall ink. Everything below is drawn by the stylesheet the app ships, by day and by night.</p>
+      <small>Built <!--DATE--> from web/src/styles. Rebuild with: node design/build-book.mjs</small>
+    </header>
+
+    <section class="bk-sec" id="concept">
+      <h2>The concept</h2>
+      <p>A working tool before it is a costume. The kit gives Bureau its character, but every flourish has a job: a seal is a grade, the sash marks what is live, brass marks where you are. When style and clarity disagree, clarity wins.</p>
+      <div class="bk-cols">
+    <div>
+      <p class="lead">In Renaissance Rome, a master assassin ran a hidden bureau: scouts went out across the city, contracts came in, each one was studied, prepared for, and struck with precision, often without the master lifting a finger. Bureau runs your job hunt the same way.</p>
+      <p>The visual language is drawn from that era's most recognisable kit: the master's cream hooded robe, the crimson sash and cape lining, the oiled leather of bracers and belts, the brass of buckles and insignia, the steel of a concealed blade, and the parchment pages of a polymath inventor's codex. Bureau's insignia, palette and type are our own; nothing is borrowed from any game's trademarks.</p>
+    </div>
+    <table class="table bk-spec">
+      <tr><th>In the bureau</th><th>In the app</th><th>Why the metaphor holds</th></tr>
+      <tr><td>The hunt</td><td>Autonomous loop</td><td>One switch: it scouts, weighs, tailors and applies on a timer</td></tr>
+      <tr><td>Scouts</td><td>Sources</td><td>16 connectors and a Claude deep scan that go out and report back</td></tr>
+      <tr><td>Contracts</td><td>Jobs</td><td>Every role is weighed before you commit time to it</td></tr>
+      <tr><td>Synchronisation</td><td>Fit score</td><td>How closely a role syncs with your real CV, 0–100</td></tr>
+      <tr><td>Wax seal</td><td>Grade</td><td>S · A · B · C · D, pressed only after Claude's assessment</td></tr>
+      <tr><td>Atelier</td><td>Studio</td><td>Where letters and tailored CVs are drafted</td></tr>
+      <tr><td>Codex</td><td>Profile</td><td>Your CV as the single source of truth</td></tr>
+      <tr><td>Dispatch</td><td>Outbox</td><td>What the hunt sent, and the few it hands back to you</td></tr>
+      <tr><td>Ledger</td><td>Pipeline</td><td>Every move recorded, from found to offer</td></tr>
+      <tr><td>Armory</td><td>Settings</td><td>Keys, engines and safeguards</td></tr>
+    </table>
+  </div>
+    </section>
+
+    <section class="bk-sec" id="insignia">
+      <h2>The insignia</h2>
+      <p>A hood, a blade, a strap, on a 64-unit grid. Keep clear space equal to the strap height on every side. Minimum size is 16 px on screen.</p>
+      <!--pair-->
+        <div class="bk-row" style="gap: var(--s-5)">
+          <svg width="96" height="96" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="var(--accent)"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="color-mix(in oklab, var(--accent) 70%, black)"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="var(--gold)"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="var(--text)"/><rect x="29" y="51" width="6" height="5" fill="var(--gold)"/></svg>
+          <svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="var(--accent)"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="var(--gold)"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="var(--text)"/></svg>
+          <svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="var(--accent)"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="var(--gold)"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="var(--text)"/></svg>
+        </div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="colour">
+      <h2>Colour</h2>
+      <p>Each tile shows the day value on the left and the night value on the right. Cream is the house colour and always the default; Night in Rome is designed in its own right, with real surface steps and separate fill and text accents. Values are read from tokens.css when the book is built.</p>
+      <div class="bk-palette">
+<!--PALETTE-->
+      </div>
+      <h3>Contrast, measured</h3>
+      <table class="table bk-spec">
+        <thead><tr><th>Pair</th><th class="num">Day</th><th class="num">Night</th><th class="num">Needed</th></tr></thead>
+        <tbody><!--CONTRAST--></tbody>
+      </table>
+    </section>
+
+    <section class="bk-sec" id="type">
+      <h2>Type</h2>
+      <p>Newsreader for page titles, the campaign status line, dialog and drawer titles, empty states and the letters themselves. Hanken Grotesk for everything else, including every number. IBM Plex Mono only for code and the raw scan log. Scale: <!--SCALE-->.</p>
+      <!--pair-->
+        <table class="bk-type">
+          <tr><td><code>--t-3xl</code>Band status</td><td style="font-family: var(--font-display); font-size: var(--t-3xl); line-height: 1.05; font-weight: 500">Resting until 09:00</td></tr>
+          <tr><td><code>--t-2xl</code>Page title</td><td style="font-family: var(--font-display); font-size: var(--t-2xl); line-height: 1.08; font-weight: 500">Questions</td></tr>
+          <tr><td><code>--t-xl</code>Drawer, dialog</td><td style="font-family: var(--font-display); font-size: var(--t-xl); font-weight: 500">Stop everything now?</td></tr>
+          <tr><td><code>--t-lg</code>Sheet heading</td><td style="font-size: var(--t-lg); font-weight: 640">Best matches waiting</td></tr>
+          <tr><td><code>--t-md</code>Body</td><td style="font-size: var(--t-md)">Answer once and every later form gets it.</td></tr>
+          <tr><td><code>--t-sm</code>Buttons, meta</td><td style="font-size: var(--t-sm); font-weight: 580">Save and re-queue</td></tr>
+          <tr><td><code>--t-xs</code>Labels, help</td><td style="font-size: var(--t-xs); color: var(--text-2)">Shown in the activity log and the digest.</td></tr>
+          <tr><td>Numbers</td><td style="font-size: var(--t-xl); font-weight: 640">$0.37 of $15.00 &nbsp; 1,204</td></tr>
+          <tr><td>Letter</td><td style="font-family: var(--font-display); font-size: 1.125rem; line-height: 1.6">Dear Daftar Pay team, your post on moving the ledger to PostgreSQL describes a problem I know.</td></tr>
+          <tr><td>Code</td><td><code>POST /api/v1/answers</code></td></tr>
+        </table>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="space">
+      <h2>Space, radius and lift</h2>
+      <p>Space runs 4, 8, 12, 16, 24, 32, 48 and 64 px. Smaller things have smaller corners. Sheets rest on the desk, lifted things hover over it, overlays float. A sheet inside a sheet is a tone step, never a second shadow.</p>
+      <!--pair:wide-->
+        <div class="bk-cols three">
+          <div class="bk-bars">
+            <div><i style="width: var(--s-1)"></i>4</div><div><i style="width: var(--s-2)"></i>8</div><div><i style="width: var(--s-3)"></i>12</div><div><i style="width: var(--s-4)"></i>16</div><div><i style="width: var(--s-5)"></i>24</div><div><i style="width: var(--s-6)"></i>32</div><div><i style="width: var(--s-7)"></i>48</div><div><i style="width: var(--s-8)"></i>64</div>
+          </div>
+          <div class="bk-radii">
+            <div><i style="border-radius: var(--r-tag)"></i>Tag 5</div><div><i style="border-radius: var(--r-control)"></i>Control 8</div><div><i style="border-radius: var(--r-panel)"></i>Sheet 14</div><div><i style="border-radius: var(--r-sheet)"></i>Band 18</div>
+          </div>
+          <div class="bk-lift">
+            <div style="box-shadow: var(--e-1)"><code>--e-1</code></div><div style="box-shadow: var(--e-2)"><code>--e-2</code></div><div style="box-shadow: var(--e-3)"><code>--e-3</code></div>
+          </div>
+        </div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="buttons">
+      <h2>Buttons</h2>
+      <p>Controls look like controls: secondary buttons are outlined linen, and disabled ones really look disabled. On a touch screen every button is 44 px; small ones keep their look and grow an invisible hit area.</p>
+      <!--pair-->
+        <div class="bk-row">
+          <button class="btn primary">Continue</button>
+          <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Save and re-queue</button>
+          <button class="btn ghost">Skip for now</button>
+        </div>
+        <div class="bk-row">
+          <button class="btn danger">Delete this draft</button>
+          <button class="btn leather">Open the plan</button>
+          <button class="btn primary" disabled>Continue</button>
+          <button class="btn" disabled>Disabled</button>
+        </div>
+        <div class="bk-row">
+          <button class="btn sm">Small</button>
+          <button class="btn sm ghost">Done</button>
+          <button class="btn sm primary"><span class="spinner"></span>Working</button>
+          <button class="btn icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="fields">
+      <h2>Fields</h2>
+      <p>Sixteen pixels on phones, so iOS never zooms a field. The brass ring appears on focus and nowhere else; the sash marks a field that needs correcting.</p>
+      <!--pair-->
+        <div class="bk-stack">
+          <div class="field"><label>Name</label><input class="input" value="My campaign" /><div class="help">Shown in the activity log and the digest.</div></div>
+          <div class="form-grid">
+            <div class="field"><label>With focus</label><input class="input" value="Lahore" style="border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft)" /></div>
+            <div class="field"><label>Needs fixing</label><input class="input" value="not a date" aria-invalid="true" /></div>
+            <div class="field"><label>Placeholder</label><input class="input" placeholder="e.g. Kubernetes" /></div>
+            <div class="field"><label>Disabled</label><input class="input" value="Locked" disabled /></div>
+            <div class="field"><label>Select</label><select class="select"><option>Every campaign</option></select></div>
+            <div class="field"><label>Search</label><div class="search" style="flex: none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" placeholder="Search title or company" /></div></div>
+          </div>
+          <textarea class="textarea" rows="2" placeholder="Your answer, exactly as it should go on the form"></textarea>
+          <div class="toggle-row"><span>Remote only</span><input type="checkbox" class="switch" checked aria-label="On" /></div>
+          <div class="toggle-row"><span>Email me the daily digest</span><input type="checkbox" class="switch" aria-label="Off" /></div>
+          <div class="tabs" role="tablist" aria-label="Sample"><button role="tab" aria-selected="true">Open <span class="tab-count">3</span></button><button role="tab" aria-selected="false">Answered</button><button role="tab" aria-selected="false">Ignored</button></div>
+        </div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="tags">
+      <h2>Tags, chips and seals</h2>
+      <p>Tags always carry a word, so colour never carries meaning alone. Chips filter and answer. Seals are grades, pressed only after Claude's assessment.</p>
+      <!--pair-->
+        <div class="bk-row"><span class="tag">Draft</span><span class="tag crimson"><span class="dot"></span>Interview</span><span class="tag brass">Reply drafted</span><span class="tag olive">Verified</span><span class="tag steel">Rejection</span></div>
+        <div class="bk-row"><button class="chip" aria-pressed="true">Everything</button><button class="chip" aria-pressed="false">Interview <span class="faint">2</span></button><button class="chip" aria-pressed="true">Offer <span class="faint">1</span></button><button class="chip" aria-pressed="false">Other <span class="faint">1</span></button></div>
+        <div class="bk-row" style="gap: var(--s-3)"><span class="seal S">S</span><span class="seal A">A</span><span class="seal B">B</span><span class="seal C">C</span><span class="seal D">D</span><span class="seal none">?</span><span class="seal sm A">A</span><span class="seal lg S">S</span></div>
+        <div class="bk-row"><div class="score-mark"><span class="seal lg A">A</span><strong class="num">84 <small>of 100</small></strong></div></div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="tables">
+      <h2>Tables and lists</h2>
+      <p>A strong header line, one hairline between rows, right-aligned numbers. On a phone a wide table slides inside its own sheet, and a soft shadow at the edge says there is more.</p>
+      <!--pair-->
+        <div class="card">
+          <div class="card-head"><h2>Coverage</h2><span class="faint num">3</span></div>
+          <table class="table">
+            <thead><tr><th>ATS</th><th>Adapter</th><th class="num">Recipes</th></tr></thead>
+            <tbody>
+              <tr><td>Greenhouse</td><td><span class="tag olive">Yes</span></td><td class="num">3</td></tr>
+              <tr><td>Workday</td><td><span class="tag olive">Yes, with accounts</span></td><td class="num">0</td></tr>
+              <tr><td>Remotive</td><td><span class="tag">Off</span></td><td class="num">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <section class="list" aria-label="Sample rows" style="margin-top: var(--s-3)">
+          <div class="list-row static"><div><div class="title">Next steps: a call with the platform team</div><div class="meta"><span>Quillfeather Labs</span><span>2h ago</span><a href="#tables">Crash plan</a></div></div><button class="btn sm ghost">Done</button></div>
+          <div class="list-row static"><div><div class="title">Your application to Bramblewick</div><div class="meta"><span>Bramblewick</span><span>3d ago</span></div></div><button class="btn sm ghost">Done</button></div>
+        </section>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="sheets">
+      <h2>Sheets and overlays</h2>
+      <p>Linen sheets rest on parchment. Notes, callouts and slips say what happened in words, with no coloured side borders or glows.</p>
+      <!--pair-->
+        <div class="card card-pad bk-stack">
+          <h2 class="section-title">A sheet</h2>
+          <p class="muted">Holds one job. A sheet inside it is a tone step.</p>
+          <div class="card card-pad">A nested sheet</div>
+          <div class="callout"><span>Bureau wasn't sure about this one. Check the kind below.</span></div>
+          <div class="callout crimson"><span>Held for review: this message looks like an imitation.</span></div>
+          <div class="callout olive"><span>Every number in this draft appears in your CV.</span></div>
+        </div>
+        <div class="modal" style="margin-top: var(--s-3); animation: none">
+          <div class="modal-head"><h2>Stop everything now?</h2></div>
+          <div class="modal-body"><p>The form in progress is closed without submitting, and every campaign pauses.</p></div>
+          <div class="modal-foot"><button class="btn ghost">Keep running</button><button class="btn primary">Stop everything</button></div>
+        </div>
+        <div class="card" style="margin-top: var(--s-3)"><div class="empty"><h3>Nothing to answer</h3><p>When a form asks something your answer bank doesn't cover, it lands here.</p></div></div>
+        <div class="toast" style="margin-top: var(--s-3); animation: none">Saved to your answer bank.</div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="rail">
+      <h2>The rail and the sash</h2>
+      <p>The shell's one signature: a dark leather rail in both themes, with the current page a tab cut from the rail into the page itself. The one bold element: when a campaign is live, a crimson sash with a darker fold runs across the Overview. Nothing else gets that colour at that scale.</p>
+      <!--pair-->
+        <div class="bk-rail">
+          <aside class="sidebar">
+            <div class="brand"><div class="brand-name">Bureau</div></div>
+            <div class="nav"><div class="nav-group">
+              <a href="#rail" tabindex="-1">Overview</a>
+              <a href="#rail" tabindex="-1">Campaigns</a>
+              <a href="#rail" tabindex="-1" aria-current="page">Questions <span class="count">3</span></a>
+              <a href="#rail" tabindex="-1">Inbox <span class="count">4</span></a>
+              <a href="#rail" tabindex="-1">Digests</a>
+            </div></div>
+          </aside>
+          <div>Questions</div>
+        </div>
+      <!--/pair-->
+      <!--pair:wide-->
+        <section class="hunt on">
+          <div class="hunt-main">
+            <div style="min-width: 0"><h2 class="hunt-title">Rehearsing. Resting until 09:00.</h2><p class="hunt-lede">Backend Engineer, Platform Engineer, Remote. Applies when the chance of passing the screen is 60 or more, up to 8 a day.</p></div>
+            <div class="band-actions"><button class="btn">Pause</button><button class="btn danger kill">Stop everything</button></div>
+          </div>
+          <div class="band-stats">
+            <div class="stat"><span class="label">Today</span><strong class="num">0 of 8</strong><small>0 rehearsed</small></div>
+            <div class="stat"><span class="label">Next</span><strong class="num">09:00</strong><small>Scout in 1 h 29 min</small></div>
+            <div class="stat"><span class="label">Mode</span><strong class="num">Rehearsal, day 2</strong><small>Live Nov 5</small></div>
+            <div class="meter"><div class="meter-head"><span class="label">Budget</span><span class="num">$0.37<span class="faint"> of $15.00</span></span></div><div class="meter-track"><i style="width: 3%"></i></div></div>
+          </div>
+          <div class="hunt-ready" style="display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center"><span>Backend roles, November runs until Dec 1.</span><span class="spacer"></span><button class="btn sm">Run now</button><a class="btn sm ghost" href="#rail">Open the campaign</a></div>
+        </section>
+        <section class="hunt" style="margin-top: var(--s-3)">
+          <div class="hunt-main"><div style="min-width: 0"><h2 class="hunt-title">No campaign yet.</h2><p class="hunt-lede">A campaign tells Bureau what to look for, how picky to be and when to stop.</p></div></div>
+        </section>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="phone">
+      <h2>On a phone</h2>
+      <p>A leather top bar and five tabs with a pill behind the active icon. Safe areas are respected on every edge. Tabs slide, dialogs rise from the bottom, tables slide inside their sheet, and every target is at least 44 px, from 320 px up.</p>
+      <!--pair-->
+        <div class="bk-phone">
+          <header class="topbar"><span class="brand"><span class="brand-name">Bureau</span></span><span class="spacer"></span><button class="btn sm danger kill">Stop</button><button class="btn ghost icon" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
+          <div class="bk-body">
+            <h1>Questions</h1>
+            <p>Things a form asked that Bureau couldn't answer truthfully on its own.</p>
+            <div class="card card-pad bk-stack" style="margin-top: var(--s-4)">
+              <div style="font-weight: 600; font-size: var(--t-lg); line-height: 1.35">Which shift pattern can you work?</div>
+              <div class="chips"><button class="chip" aria-pressed="true">Day</button><button class="chip" aria-pressed="false">Night</button><button class="chip" aria-pressed="false">Rotating</button></div>
+              <button class="btn primary" style="width: 100%">Save and re-queue</button>
+            </div>
+          </div>
+          <nav class="tabbar" aria-label="Sample">
+            <a href="#phone" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg><span>Campaigns</span></a>
+            <a href="#phone" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 8v6M15 8v3"/></svg><span>Pipeline</span></a>
+            <a href="#phone" tabindex="-1" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h0"/></svg><span>Questions</span></a>
+            <a href="#phone" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 13h5l2 3h4l2-3h5"/></svg><span>Inbox</span></a>
+            <a href="#phone" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="14" height="18" rx="2"/><path d="M10 8h6M10 12h6"/></svg><span>Digests</span></a>
+          </nav>
+        </div>
+      <!--/pair-->
+    </section>
+
+    <section class="bk-sec" id="craft">
+      <h2>Motion and access</h2>
+      <div class="bk-cols">
+        <div class="card card-pad">
+          <h3 class="section-title">Motion</h3>
+          <ul class="list-dash"><li>One easing curve, 140 to 220 ms, none of it required to read the page.</li><li>One authored moment: the sash drawing across when a campaign goes live. A thin moving line shows a round in progress. Nothing bounces.</li><li>Reduced-motion settings turn all of it off.</li></ul>
+        </div>
+        <div class="card card-pad">
+          <h3 class="section-title">Access</h3>
+          <ul class="list-dash"><li>Text at least 4.5:1 and focus rings at least 3:1 in both themes, inside the rail and on the sash.</li><li>Brass focus ring on every control, drawn inward on rows inside clipped sheets.</li><li>Touch targets of at least 44 px, with labelled roles on tabs, switches, dialogs and live regions.</li><li>States never rely on colour alone.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="bk-sec" id="voice">
+      <h2>Voice</h2>
+      <p>Speaks like a mentor, not a mascot.</p>
+      <div class="bk-cols three">
+    <div class="card card-pad"><h3 class="section-title">Plain first</h3><p>Navigation and buttons use ordinary words: Jobs, Studio, Dispatch, "Draft application". The Renaissance flavour lives in the look and the empty states, never in a control you need to understand.</p></div>
+    <div class="card card-pad"><h3 class="section-title">Honest always</h3><p>Bureau never inflates. Scores come with their working. A missing must-have is shown as missing. The fact lock calls out invented claims, even in our own drafts.</p></div>
+    <div class="card card-pad"><h3 class="section-title">Brief and warm</h3><p>Short sentences, active voice, no exclamation marks, no hype. A good line reads like a trusted colleague: "4 strong matches await your eye."</p></div>
+  </div>
+  <div class="bk-cols">
+    <table class="table bk-spec">
+      <tr><th>Write</th><th>Not</th></tr>
+      <tr><td>The scouts are out. Results will appear as they come in.</td><td class="muted">🚀 Scanning started!!</td></tr>
+      <tr><td>Claude declined this request (cyber).</td><td class="muted">Oops! Something went wrong.</td></tr>
+      <tr><td>The fact lock found 2 claims your CV doesn't support.</td><td class="muted">Your letter is ready to wow recruiters!</td></tr>
+      <tr><td>Nothing here yet. Loosen the filters, or run a scan.</td><td class="muted">No data.</td></tr>
+    </table>
+    <div>
+      <h3 class="section-title">Applications sound like you</h3>
+      <p>Claude reads your CV once and writes down how you write. Every letter follows that voice plus your tone setting. The house bans: "passionate", "fast-paced", "team player", "leverage", "synergy", "I am writing to apply", flattery, and em-dash flourishes.</p>
+      <div class="callout olive">Every number and employer in a draft must appear in your CV, or the fact lock flags it.</div>
+    </div>
+  </div>
+    </section>
+
+    <section class="bk-sec" id="hunt">
+      <h2>The hunt</h2>
+      <p>One campaign band on the Overview. Each round it scouts, has Claude weigh what's new, tailors a CV and letter for every role above the bar, and applies by email or through the company's own form in a real browser.</p>
+      <div class="card card-pad bk-stack"><h3 class="section-title">What it will and won't do</h3>
+      <ul class="list-dash">
+        <li>Applies through employers' own logged-out forms (Greenhouse, Lever, Ashby, Workable…) and by email. It never logs in to LinkedIn or Indeed.</li>
+        <li>Claude answers each form from your profile and standing answers. Demographic questions get "decline to self-identify".</li>
+        <li>Never solves a CAPTCHA and never guesses. Those roles go to <b>Needs you</b> with the form filled; "Finish in browser" opens it for your click.</li>
+        <li>Only sends when the fact lock is clean. One automatic rewrite, then it stops and holds the draft for you.</li>
+        <li>Daily cap, a stop button, and Rehearsal mode (fills forms, keeps screenshots, doesn't submit).</li>
+      </ul>
+      <h3 class="section-title">What it costs</h3>
+      <table class="table bk-spec">
+        <tr><td>Scoring a role</td><td class="mono">≈ $0.001</td><td class="muted">Haiku 5.5</td></tr>
+        <tr><td>One application</td><td class="mono">≈ $0.34</td><td class="muted">Opus 5.5: draft, audit, form answers</td></tr>
+        <tr><td>Defaults, running all day</td><td class="mono">≤ $3.65/day</td><td class="muted">8 rounds × 40 roles + 10 applications</td></tr>
+      </table>
+      <p class="muted">Shown live in Settings, from your own spend once there's history. The monthly budget pauses the hunt when it's reached.</p>
+    </div>
+    </section>
+
+    <section class="bk-sec" id="engine">
+      <h2>The engine</h2>
+      <p>Every step, in order. Linen steps are code, tinted steps are Claude, the brass step is you.</p>
+      <div class="flow">
+    <div class="step"><span class="n">i</span><b>Scout</b><small>16 public sources: ATS boards, aggregators, HN, Reddit RSS, game-dev feeds. Plus a Claude web deep scan.</small></div>
+    <div class="step"><span class="n">ii</span><b>Gate</b><small>Free filters: is it tech, which discipline, dedupe by URL and fingerprint, freshness, deal-breakers.</small></div>
+    <div class="step"><span class="n">iii</span><b>Pre-score</b><small>Discipline, title, skills overlap, logistics, recency, seniority. No tokens spent.</small></div>
+    <div class="step ai"><span class="n">iv</span><b>Assess</b><small>Haiku 5.5. Pass 1: requirements from the posting alone. Pass 2: matched against the CV, with proof.</small></div>
+    <div class="step ai"><span class="n">v</span><b>Tailor</b><small>Letter, outreach note, ATS-safe CV, in your voice, from your facts.</small></div>
+    <div class="step ai"><span class="n">vi</span><b>Fact lock</b><small>Code checks every figure and employer; a fresh auditor lists unsupported claims. One rewrite, or it holds.</small></div>
+    <div class="step ai"><span class="n">vii</span><b>Apply</b><small>Email from your inbox, or the company form in a real browser: fields answered, CV uploaded, submitted.</small></div>
+    <div class="step human"><span class="n">viii</span><b>Needs you</b><small>CAPTCHAs and questions only you can answer, pre-filled. One click finishes them.</small></div>
+  </div>
+  <div class="bk-cols">
+    <div>
+      <h3 class="section-title">The score is computed in code</h3>
+      <div class="formula">requirements = Σ weight × match / Σ weight
+  weight: <b>critical 3</b> · important 2 · nice 1
+  match:  met 1 · partial ½ · missing 0
+dimensions = skills .30 + experience .20 + domain .15
+           + logistics .15 + pay .10 + growth .10
+<b>score</b> = .45 × requirements + .35 × dimensions + .20 × pre-filter
+caps: stated must-have missing → ≤ 64 · dealbreaker → ≤ 40
+      low legitimacy −25 · under-levelled −8</div>
+    </div>
+    <div>
+      <h3 class="section-title">Why it's built this way</h3>
+      <ul class="list-dash">
+        <li>Claude judges; code weighs. The same assessment always gives the same number, and the weights can be tuned.</li>
+        <li>The free gate cuts thousands of listings to the few dozen worth tokens. Prompt caching keeps the rubric and profile warm across a whole scan.</li>
+        <li>Job postings are treated as untrusted data. Injection attempts are flagged as red flags, never obeyed.</li>
+        <li>Haiku 5.5 scores in volume; Opus 5.5 writes everything a hiring manager reads. Server-side fallback on refusals, a model per task, and a monthly budget cap.</li>
+      </ul>
+    </div>
+  </div>
+    </section>
+
+    <section class="bk-sec" id="security">
+      <h2>Security</h2>
+      <p>Built to leave localhost safely.</p>
+      <div class="bk-cols">
+    <div>
+      <div class="layer"><span class="ix">i</span><div><b>Loopback by default</b><span>Listens on 127.0.0.1 only. It refuses to bind elsewhere unless a passphrase is set.</span></div></div>
+      <div class="layer"><span class="ix">ii</span><div><b>Host, Origin &amp; path guard</b><span>Unknown Host headers are refused (defeats DNS rebinding), cross-site requests rejected, and every request guarded on its decoded path, so encoded URLs can't slip past.</span></div></div>
+      <div class="layer"><span class="ix">iii</span><div><b>Session + CSRF</b><span>256-bit HttpOnly, SameSite=Strict cookie; every change needs a per-session token a hostile page can't read.</span></div></div>
+      <div class="layer"><span class="ix">iv</span><div><b>Passphrase lock</b><span>scrypt (N=2¹⁵) hashed, rate-limited, session rotated on login.</span></div></div>
+      <div class="layer"><span class="ix">v</span><div><b>Secrets vault</b><span>API key and SMTP password encrypted with AES-256-GCM; the master key is sealed with Windows DPAPI. Secrets are never sent to the browser and are redacted from logs.</span></div></div>
+    </div>
+    <div>
+      <div class="layer"><span class="ix">vi</span><div><b>SSRF guard</b><span>All outbound fetches validate every resolved IP at connect time, re-check each redirect, and block private, loopback, link-local and metadata ranges.</span></div></div>
+      <div class="layer"><span class="ix">vii</span><div><b>Hostile content</b><span>Job HTML sanitised on the server (sanitize-html) and again in the browser (DOMPurify), under a strict CSP: no inline scripts, no third-party origins.</span></div></div>
+      <div class="layer"><span class="ix">viii</span><div><b>Uploads</b><span>10 MB cap, type checked by magic bytes, stored under random names outside the web root.</span></div></div>
+      <div class="layer"><span class="ix">ix</span><div><b>Prompt-injection posture</b><span>Postings are fenced as data and can't forge the prompt's tags. An apply address is trusted only if it appears in that job's own text. The fact lock and the daily cap bound what the hunt can send.</span></div></div>
+      <div class="layer"><span class="ix">x</span><div><b>The hunt's browser</b><span>Every request it makes passes the same private-network guard. Fresh context per application, downloads off. It never logs in to LinkedIn or Indeed, so your accounts can't be banned for it.</span></div></div>
+    </div>
+  </div>
+    </section>
+  </main>
+</div>
+<script>
+  // Marks the section in view as the current page, so the rail's cut tab follows the reader.
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.shell > .sidebar .nav a'));
+    if (!('IntersectionObserver' in window)) return;
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) {
+          if (a.getAttribute('href') === '#' + e.target.id) a.setAttribute('aria-current', 'page');
+          else a.removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('.bk-sec').forEach(function (s) { seen.observe(s); });
+  })();
+</script>
+</body>
+</html>
