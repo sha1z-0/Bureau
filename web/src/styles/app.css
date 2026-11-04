@@ -3000,16 +3000,30 @@ a.stat:hover strong {
 }
 
 /* A row with controls keeps its title readable: the controls wrap below it instead. */
-.list-row.static {
+.list-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
 }
 
-.list-row.static > :first-child {
-  flex: 1 1 9rem;
+.list-row > :first-child {
+  flex: 1 1 12rem;
   min-width: 0;
+}
+
+/* Rows of labels and tags wrap rather than crush the name. */
+.toggle-row .row,
+.list-row .row {
+  flex-wrap: wrap;
+}
+
+.toggle-row > :first-child {
+  min-width: 0;
+}
+
+.dispatch-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
 }
 
 /* Sheets inside a sheet are a tone step, never a second shadow. */
@@ -3062,5 +3076,47 @@ a.stat:hover strong {
   .table td.muted,
   .table td.num {
     white-space: nowrap;
+  }
+}
+
+/* The wizard's two columns need more room than a narrow window beside the rail. */
+@media (max-width: 1000px) and (min-width: 821px) {
+  .wizard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .steps {
+    position: static;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+  .choice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .dispatch-row {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .dispatch-row > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 820px) {
+  /* On a phone a hint opens as a slip above the tab bar, never off the edge. */
+  .hint-pop {
+    position: fixed;
+    left: var(--s-4);
+    right: var(--s-4);
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .row {
+    flex-wrap: wrap;
   }
 }

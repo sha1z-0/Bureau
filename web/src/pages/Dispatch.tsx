@@ -178,7 +178,7 @@ function NeedsYouRow({ app, onShot }: { app: Application; onShot: () => void }) 
   const drop = useMutation({ mutationFn: () => del(`/api/applications/${app.id}`), onSuccess: refresh, onError: toast.error });
   const isForm = app.channel === 'ats';
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '40px minmax(0,1fr) auto', gap: 'var(--s-4)', padding: 'var(--s-4) var(--s-5)', borderBottom: '1px solid var(--line)', alignItems: 'start' }}>
+    <div className="dispatch-row" style={{ display: 'grid', gap: 'var(--s-4)', padding: 'var(--s-4) var(--s-5)', borderBottom: '1px solid var(--line)', alignItems: 'start' }}>
       <Seal grade={app.job?.grade ?? null} />
       <div style={{ minWidth: 0 }}>
         <div style={{ fontWeight: 600 }}>{app.job?.title}</div>
