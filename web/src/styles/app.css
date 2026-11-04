@@ -2981,3 +2981,86 @@ a.stat:hover strong {
     display: none;
   }
 }
+
+/* ── Refinements ──────────────────────────────────────────────────── */
+
+/* Page furniture keeps its distance from the live strip. */
+.livebar + * {
+  margin-top: var(--s-5);
+}
+
+/* The theme button lines up with the rest of the rail foot. */
+.sidebar-foot .btn.ghost {
+  margin-left: -10px;
+}
+
+/* A paragraph never sits hard against the field it introduces. */
+.card-pad:not(.stack) > p + * {
+  margin-top: var(--s-3);
+}
+
+/* A row with controls keeps its title readable: the controls wrap below it instead. */
+.list-row.static {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-row.static > :first-child {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+/* Sheets inside a sheet are a tone step, never a second shadow. */
+.card .card,
+.wizard-card .card,
+.card .list {
+  background: var(--bg);
+  box-shadow: none;
+}
+
+/* The lock screen is the one sheet on an empty desk. */
+.lock-card {
+  padding: var(--s-6);
+  border-radius: var(--r-sheet);
+  background: var(--surface);
+  box-shadow: var(--e-2);
+}
+
+/* Rows live inside clipped sheets, so their focus ring is drawn inward. */
+.job-row:focus-visible,
+.list-row:focus-visible,
+.draft-item:focus-visible,
+.contract:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0;
+}
+
+.nav a:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--r-control);
+}
+
+/* A short laptop screen still fits the whole rail. */
+@media (max-height: 760px) and (min-width: 821px) {
+  .sidebar {
+    gap: var(--s-2);
+    padding-top: var(--s-3);
+  }
+  .nav {
+    gap: var(--s-2);
+  }
+  .nav a {
+    height: 31px;
+  }
+}
+
+@media (max-width: 820px) {
+  /* Short cells stay on one line; a wide table scrolls inside its sheet. */
+  .table th,
+  .table td.muted,
+  .table td.num {
+    white-space: nowrap;
+  }
+}

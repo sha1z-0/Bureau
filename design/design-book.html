@@ -4,24 +4,19 @@
 <meta charset="utf-8" />
 <title>Bureau — Application Design Book</title>
 <style>
-  @font-face { font-family: 'Cormorant Garamond'; font-weight: 500; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'Cormorant Garamond'; font-weight: 500; font-style: italic; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2') format('woff2'); }
-  @font-face { font-family: 'Cormorant Garamond'; font-weight: 600; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'Cormorant Garamond'; font-weight: 700; src: url('../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-700-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'IBM Plex Sans'; font-weight: 400; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'IBM Plex Sans'; font-weight: 500; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'IBM Plex Sans'; font-weight: 600; src: url('../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Newsreader'; font-weight: 300 700; src: url('../web/src/assets/fonts/newsreader-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Hanken Grotesk'; font-weight: 300 800; src: url('../web/src/assets/fonts/hanken-grotesk-latin.woff2') format('woff2'); }
   @font-face { font-family: 'IBM Plex Mono'; font-weight: 400; src: url('../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); }
 
   @page { size: 297mm 210mm; margin: 0; }
   :root {
-    --cream-50: #fffdf8; --cream-100: #faf6ee; --cream-200: #f2eadb; --cream-300: #e8dcc6; --cream-400: #d8c7a8;
-    --ink: #211a15; --ink-700: #4a3e35; --ink-500: #6b5d51; --ink-300: #a39383;
-    --crimson: #8e1b1b; --crimson-700: #5e1111; --crimson-600: #7a1616; --crimson-100: #f3dedb;
-    --leather: #5c3b26; --leather-800: #3b281b; --leather-400: #8a6244; --leather-100: #eadccd;
-    --brass: #a8842f; --brass-600: #8a6a22; --brass-200: #e9ddbc;
+    --cream-50: #fffdf8; --cream-100: #fefbf6; --cream-200: #f3ecdf; --cream-300: #e9e0cf; --cream-400: #dbcfb9;
+    --ink: #1e1611; --ink-700: #4a3e35; --ink-500: #6b5d51; --ink-300: #a39383;
+    --crimson: #8c1a1f; --crimson-700: #5e1111; --crimson-600: #7a1616; --crimson-100: #f3dedb;
+    --leather: #5a3a27; --leather-800: #3b281b; --leather-400: #8a6244; --leather-100: #eadccd;
+    --brass: #8a6514; --brass-600: #8a6a22; --brass-200: #e9ddbc;
     --steel: #5f666d; --olive: #56653a; --olive-100: #e4e8d6;
-    --display: 'Cormorant Garamond', Georgia, serif; --ui: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+    --display: 'Newsreader', Georgia, serif; --ui: 'Hanken Grotesk', sans-serif; --mono: 'IBM Plex Mono', monospace;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: #ddd; }
@@ -111,7 +106,7 @@
 <!-- I. COVER -->
 <section class="page cover">
   <div>
-    <svg width="64" height="64" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/><rect x="29" y="51" width="6" height="5" fill="#a8842f"/></svg>
+    <svg width="64" height="64" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8c1a1f"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#8a6514"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#1e1611"/><rect x="29" y="51" width="6" height="5" fill="#8a6514"/></svg>
     <div class="eyebrow" style="margin-top:10mm">Application design book · Version 1.0 · October 2026</div>
     <h1 style="margin-top:4mm">Bureau</h1>
     <div class="sub">The job hunt atelier</div>
@@ -130,7 +125,7 @@
       <tr><td class="mono">IV</td><td>The insignia</td><td class="muted">Construction, clear space, misuse</td></tr>
       <tr><td class="mono">V</td><td>Colour</td><td class="muted">Robe, sash, leather, brass, steel</td></tr>
       <tr><td class="mono">VI</td><td>Colour in use</td><td class="muted">Proportion, meaning, Night in Rome</td></tr>
-      <tr><td class="mono">VII</td><td>Typography</td><td class="muted">Cormorant, Plex Sans, Plex Mono</td></tr>
+      <tr><td class="mono">VII</td><td>Typography</td><td class="muted">Newsreader, Hanken Grotesk, Plex Mono</td></tr>
       <tr><td class="mono">VIII</td><td>Voice</td><td class="muted">How Bureau speaks</td></tr>
       <tr><td class="mono">IX</td><td>Signature components</td><td class="muted">Seals, the dial, buttons</td></tr>
       <tr><td class="mono">X</td><td>Everyday components</td><td class="muted">Tags, chips, fields, callouts</td></tr>
@@ -180,8 +175,8 @@
   <div class="cols" style="grid-template-columns: 1.1fr 1fr 1fr; align-items:start">
     <div class="card" style="display:grid;place-items:center;height:110mm;background:var(--cream-50);position:relative">
       <svg width="250" height="250" viewBox="0 0 64 64">
-        <g stroke="#a8842f" stroke-width=".15" stroke-dasharray=".6 .6" fill="none"><rect x="12" y="6" width="40" height="50"/><line x1="32" y1="0" x2="32" y2="64"/><line x1="0" y1="47" x2="64" y2="47"/><circle cx="32" cy="34" r="13"/></g>
-        <path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/><rect x="29" y="51" width="6" height="5" fill="#a8842f"/>
+        <g stroke="#8a6514" stroke-width=".15" stroke-dasharray=".6 .6" fill="none"><rect x="12" y="6" width="40" height="50"/><line x1="32" y1="0" x2="32" y2="64"/><line x1="0" y1="47" x2="64" y2="47"/><circle cx="32" cy="34" r="13"/></g>
+        <path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8c1a1f"/><path d="M32 6 L52 47 L48 47 L32 14 Z" fill="#5e1111"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#8a6514"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#1e1611"/><rect x="29" y="51" width="6" height="5" fill="#8a6514"/>
       </svg>
       <div class="eyebrow" style="position:absolute;bottom:5mm">Construction on a 64-unit grid</div>
     </div>
@@ -199,9 +194,9 @@
     <div>
       <h3>On every ground</h3>
       <div class="cols c3" style="gap:3mm">
-        <div class="card" style="padding:4mm;display:grid;place-items:center"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8e1b1b"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#a8842f"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#211a15"/></svg></div>
+        <div class="card" style="padding:4mm;display:grid;place-items:center"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#8c1a1f"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#8a6514"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#1e1611"/></svg></div>
         <div class="card" style="padding:4mm;display:grid;place-items:center;background:#15110e"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#c4473d"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#cfae5c"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#efe6d6"/></svg></div>
-        <div class="card" style="padding:4mm;display:grid;place-items:center;background:#8e1b1b"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#fffdf8"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#e9ddbc"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#fffdf8"/></svg></div>
+        <div class="card" style="padding:4mm;display:grid;place-items:center;background:#8c1a1f"><svg width="56" height="56" viewBox="0 0 64 64"><path d="M32 6 L52 47 L41.5 47 L32 27.5 L22.5 47 L12 47 Z" fill="#fffdf8"/><path d="M32 34 L36.5 47 L27.5 47 Z" fill="#e9ddbc"/><rect x="12" y="51" width="40" height="5" rx="2.5" fill="#fffdf8"/></svg></div>
       </div>
       <div class="rule">◆</div>
       <h3>Never</h3>
@@ -220,16 +215,16 @@
 <section class="page">
   <div class="head"><div><div class="eyebrow">V · Colour</div><h2>Robe, sash, leather, <em>brass</em>, steel</h2></div><p class="muted" style="max-width:95mm;margin:0">Six families, each lifted from one piece of the kit. Cream is the house colour and always the default theme.</p></div>
   <div class="cols" style="grid-template-columns: repeat(6, 1fr); gap: 4mm">
-    <div class="sw"><div class="chip" style="background:#f2eadb"></div><div class="meta"><b>Parchment</b><span>#F2EADB · the page</span><span>Robe &amp; codex</span></div></div>
-    <div class="sw"><div class="chip" style="background:#211a15"></div><div class="meta"><b>Iron-gall ink</b><span>#211A15 · text</span><span>The codex hand</span></div></div>
-    <div class="sw"><div class="chip" style="background:linear-gradient(180deg,#8e1b1b,#5e1111)"></div><div class="meta"><b>Sash crimson</b><span>#8E1B1B · accent</span><span>Sash &amp; cape lining</span></div></div>
-    <div class="sw"><div class="chip" style="background:#5c3b26"></div><div class="meta"><b>Saddle leather</b><span>#5C3B26 · structure</span><span>Bracers &amp; belts</span></div></div>
-    <div class="sw"><div class="chip" style="background:#a8842f"></div><div class="meta"><b>Brass</b><span>#A8842F · focus, ornament</span><span>Buckles &amp; insignia</span></div></div>
+    <div class="sw"><div class="chip" style="background:#f3ecdf"></div><div class="meta"><b>Parchment</b><span>#F3ECDF · the page</span><span>Robe &amp; codex</span></div></div>
+    <div class="sw"><div class="chip" style="background:#1e1611"></div><div class="meta"><b>Iron-gall ink</b><span>#211A15 · text</span><span>The codex hand</span></div></div>
+    <div class="sw"><div class="chip" style="background:linear-gradient(180deg,#8c1a1f,#5e1111)"></div><div class="meta"><b>Sash crimson</b><span>#8E1B1B · accent</span><span>Sash &amp; cape lining</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5a3a27"></div><div class="meta"><b>Saddle leather</b><span>#5C3B26 · structure</span><span>Bracers &amp; belts</span></div></div>
+    <div class="sw"><div class="chip" style="background:#8a6514"></div><div class="meta"><b>Brass</b><span>#A8842F · focus, ornament</span><span>Buckles &amp; insignia</span></div></div>
     <div class="sw"><div class="chip" style="background:#5f666d"></div><div class="meta"><b>Blade steel</b><span>#5F666D · neutral data</span><span>The concealed blade</span></div></div>
   </div>
   <div class="cols c3" style="margin-top:8mm;gap:6mm">
-    <div><div class="eyebrow">Parchment ramp · 50 → 400</div><div class="ramp"><i style="background:#fffdf8"></i><i style="background:#faf6ee"></i><i style="background:#f2eadb"></i><i style="background:#e8dcc6"></i><i style="background:#d8c7a8"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Hood white for raised surfaces, linen for cards, parchment for the page, vellum for wells, folded edge for strong borders.</p></div>
-    <div><div class="eyebrow">Crimson · leather · brass</div><div class="ramp"><i style="background:#f3dedb"></i><i style="background:#8e1b1b"></i><i style="background:#5e1111"></i><i style="background:#eadccd"></i><i style="background:#8a6244"></i><i style="background:#3b281b"></i><i style="background:#e9ddbc"></i><i style="background:#8a6a22"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Each accent has a soft tint for backgrounds and a deep tone for pressed states and text on tints.</p></div>
+    <div><div class="eyebrow">Parchment ramp · 50 → 400</div><div class="ramp"><i style="background:#fffdf8"></i><i style="background:#fefbf6"></i><i style="background:#f3ecdf"></i><i style="background:#e9e0cf"></i><i style="background:#dbcfb9"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Hood white for raised surfaces, linen for cards, parchment for the page, vellum for wells, folded edge for strong borders.</p></div>
+    <div><div class="eyebrow">Crimson · leather · brass</div><div class="ramp"><i style="background:#f3dedb"></i><i style="background:#8c1a1f"></i><i style="background:#5e1111"></i><i style="background:#eadccd"></i><i style="background:#8a6244"></i><i style="background:#3b281b"></i><i style="background:#e9ddbc"></i><i style="background:#8a6a22"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">Each accent has a soft tint for backgrounds and a deep tone for pressed states and text on tints.</p></div>
     <div><div class="eyebrow">Olive · the only green</div><div class="ramp"><i style="background:#e4e8d6"></i><i style="background:#56653a"></i><i style="background:#4a5832"></i></div><p class="muted" style="margin-top:2mm;font-size:8.5pt">An Italian olive rather than a digital green, kept for "met", "sent" and "verified". It never competes with crimson.</p></div>
   </div>
   <div class="folio"><span>Bureau</span><span>Colour</span><span>V</span></div>
@@ -239,7 +234,7 @@
 <section class="page">
   <div class="head"><div><div class="eyebrow">VI · Colour in use</div><h2>Mostly robe, <em>a little</em> blood</h2></div></div>
   <div class="eyebrow">Proportion</div>
-  <div class="ramp" style="height:16mm;border-radius:3mm"><i style="flex:60;background:#f2eadb;border:.25mm solid rgba(0,0,0,.08)"></i><i style="flex:22;background:#211a15"></i><i style="flex:10;background:#5c3b26"></i><i style="flex:3;background:#a8842f"></i><i style="flex:5;background:#8e1b1b"></i></div>
+  <div class="ramp" style="height:16mm;border-radius:3mm"><i style="flex:60;background:#f3ecdf;border:.25mm solid rgba(0,0,0,.08)"></i><i style="flex:22;background:#1e1611"></i><i style="flex:10;background:#5a3a27"></i><i style="flex:3;background:#8a6514"></i><i style="flex:5;background:#8c1a1f"></i></div>
   <div class="mono muted" style="display:flex;font-size:7.5pt;margin-top:1.5mm"><span style="flex:60">60 · parchment &amp; linen</span><span style="flex:22">22 · ink</span><span style="flex:10">10 · leather</span><span style="flex:3">3</span><span style="flex:5">5 · crimson</span></div>
   <div class="cols c2" style="margin-top:9mm">
     <div>
@@ -247,7 +242,7 @@
       <table class="spec">
         <tr><td><span class="tag crimson">crimson</span></td><td>The one thing to do next (primary button), where you are (the sash), grades A and S, critical requirements, failure.</td></tr>
         <tr><td><span class="tag brass">brass</span></td><td>Focus rings, ornaments, important-but-not-critical, grade B. Never used for body text.</td></tr>
-        <tr><td><span class="tag" style="background:#eadccd;color:#5c3b26;border-color:transparent">leather</span></td><td>Structure and quantity: progress bars, the pre-filter, the scan console.</td></tr>
+        <tr><td><span class="tag" style="background:#eadccd;color:#5a3a27;border-color:transparent">leather</span></td><td>Structure and quantity: progress bars, the pre-filter, the scan console.</td></tr>
         <tr><td><span class="tag olive">olive</span></td><td>Verified facts, met requirements, sent applications.</td></tr>
         <tr><td><span class="tag steel">steel</span></td><td>Neutral metadata: sources, counts, unscored states.</td></tr>
       </table>
@@ -268,15 +263,15 @@
   <div class="head"><div><div class="eyebrow">VII · Typography</div><h2>A scholar's hand, an <em>engineer's</em> tools</h2></div></div>
   <div class="cols" style="grid-template-columns: 1.4fr 1fr 1fr">
     <div>
-      <div class="eyebrow">Display · Cormorant Garamond 500 / 600 / italic</div>
+      <div class="eyebrow">Display · Newsreader 500 / 600 / italic</div>
       <div style="font-family:var(--display);font-size:64pt;line-height:.9;margin-top:3mm">Every role,<br><em style="font-style:italic">weighed.</em></div>
-      <p class="muted" style="margin-top:5mm">A Garamond revival with high contrast and generous italics: the voice of a Renaissance codex. It's used for page titles, verdicts, letters, numerals and seals, never for dense UI.</p>
+      <p class="muted" style="margin-top:5mm">A sturdy text serif with optical sizes: the voice of a codex, and readable from a page title down to a letter.</p>
     </div>
     <div>
-      <div class="eyebrow">Interface · IBM Plex Sans 400 / 500 / 600</div>
+      <div class="eyebrow">Interface · Hanken Grotesk 400 / 500 / 600</div>
       <div style="font-size:22pt;font-weight:500;margin-top:3mm;line-height:1.15">Senior Security Engineer, Offensive Security</div>
-      <p class="muted" style="margin-top:4mm">Plex Sans' slightly mechanical shapes sit well beside Cormorant and stay legible at 13 px in dense lists.</p>
-      <div class="eyebrow" style="margin-top:6mm">Numbers: IBM Plex Sans, tabular</div>
+      <p class="muted" style="margin-top:4mm">Hanken Grotesk stays crisp at 13 px in dense lists and has true tabular figures; Newsreader's optical sizes carry both the page titles and the letters.</p>
+      <div class="eyebrow" style="margin-top:6mm">Numbers: Hanken Grotesk, tabular</div>
       <div style="font-size:16pt;font-weight:600;margin-top:2mm">79 &nbsp; USD 180k–240k</div>
       <p class="muted" style="margin-top:3mm">IBM Plex Mono appears only in the raw scan log.</p>
     </div>
@@ -329,7 +324,7 @@
     <div class="card">
       <h3>Wax seal · grade</h3>
       <div style="display:flex;gap:4mm;margin:4mm 0 5mm">
-        <div class="seal" style="--c:#7a1616">S</div><div class="seal" style="--c:#8e1b1b">A</div><div class="seal" style="--c:#8a6a22">B</div><div class="seal" style="--c:#5c3b26">C</div><div class="seal" style="--c:#5f666d">D</div><div class="seal" style="--c:#b8a990;font-size:6mm">·</div>
+        <div class="seal" style="--c:#7a1616">S</div><div class="seal" style="--c:#8c1a1f">A</div><div class="seal" style="--c:#8a6a22">B</div><div class="seal" style="--c:#5a3a27">C</div><div class="seal" style="--c:#5f666d">D</div><div class="seal" style="--c:#b8a990;font-size:6mm">·</div>
       </div>
       <table class="spec"><tr><td>S ≥ 88</td><td>A ≥ 78</td><td>B ≥ 65</td><td>C ≥ 50</td><td>D &lt; 50</td></tr></table>
       <table class="spec" style="margin-top:2mm"><tr><td colspan="2">Apply</td><td>Consider</td><td>Research</td><td>Skip</td></tr></table>
@@ -338,13 +333,13 @@
     <div class="card">
       <h3>Score mark</h3>
       <div style="display:flex;align-items:center;gap:4mm;margin:6mm 0 5mm">
-        <div class="seal" style="--c:#8e1b1b;--s:17mm">A</div>
+        <div class="seal" style="--c:#8c1a1f;--s:17mm">A</div>
         <div><div style="font-size:24pt;font-weight:600;line-height:1">79<span style="font-size:10pt;color:var(--ink-300);font-weight:500"> / 100</span></div><div class="muted" style="font-size:9pt">Apply</div></div>
       </div>
       <p class="muted" style="font-size:8.5pt">The seal and a plain number, with the decision in words. It replaced a progress ring that only decorated the score.</p>
       <div class="rule"></div>
       <h3>Numbers</h3>
-      <p class="muted" style="font-size:8.5pt">Every figure is set in IBM Plex Sans with tabular numerals. The serif never labels or measures.</p>
+      <p class="muted" style="font-size:8.5pt">Every figure is set in Hanken Grotesk with tabular numerals. The serif never labels or measures.</p>
     </div>
     <div class="card">
       <h3>Buttons</h3>
@@ -378,7 +373,7 @@
       <h3>Fields</h3>
       <div class="eyebrow" style="margin-bottom:1.5mm">Rest</div><div class="input">Search title, company, stack…</div>
       <div class="eyebrow" style="margin:3mm 0 1.5mm">Focus · brass ring</div><div class="input focus">Penetration Tester</div>
-      <div class="eyebrow" style="margin:3mm 0 1.5mm">Letter · Cormorant 18px on hood white</div>
+      <div class="eyebrow" style="margin:3mm 0 1.5mm">Letter · Newsreader 18px on hood white</div>
       <div class="input" style="height:auto;padding:3mm;font-family:var(--display);font-size:12pt;color:var(--ink);line-height:1.4">I ran 40 pentests across 12 web apps at Acme…</div>
     </div>
     <div class="card">
@@ -587,7 +582,7 @@ caps: stated must-have missing → ≤ 64 · dealbreaker → ≤ 40
       <h3 style="margin-top:6mm">Accessibility</h3>
       <ul class="dash olive"><li>Ink on parchment ≈ 14:1; crimson on parchment ≈ 7.8:1; white on crimson ≈ 9:1.</li><li>Brass focus ring on every interactive element; full keyboard paths; selection, caret and scrollbars themed from the palette.</li><li>Roles and labels on lists, tabs, switches, dialogs and live regions.</li><li>States never rely on colour alone.</li></ul>
       <h3 style="margin-top:6mm">Colophon</h3>
-      <p class="muted" style="font-size:8.8pt">Set in Cormorant Garamond, IBM Plex Sans and IBM Plex Mono. Built with Node 24, Fastify, SQLite, React 19, Vite, Playwright (driving your own Chrome or Edge) and the Anthropic TypeScript SDK. Icons from Lucide at a 1.8 stroke. Insignia and palette are original work for Bureau.</p>
+      <p class="muted" style="font-size:8.8pt">Set in Newsreader, Hanken Grotesk and IBM Plex Mono. Built with Node 24, Fastify, SQLite, React 19, Vite, Playwright (driving your own Chrome or Edge) and the Anthropic TypeScript SDK. Icons from Lucide at a 1.8 stroke. Insignia and palette are original work for Bureau.</p>
     </div>
     <div>
       <img class="shot" src="shots/overview-night.png" alt="Overview in Night in Rome theme" />
