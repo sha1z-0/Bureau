@@ -131,7 +131,7 @@ function useTheme() {
       /* private mode */
     }
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#1f1915' : '#e7dcc7');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f0a08' : '#2b1d15');
   }, [theme]);
   const dark = theme === 'dark';
   return { dark, toggle: () => setTheme(dark ? 'light' : 'dark') };

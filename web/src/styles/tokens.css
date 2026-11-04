@@ -1,83 +1,96 @@
 /*
   Bureau tokens. See design/DESIGN.md.
   Cream robe, crimson sash, saddle leather, brass, iron-gall ink.
+  Every colour and size in the app comes from this file.
 */
 
 :root {
-  --parchment: #f2eadb;
-  --vellum: #e7dcc7;
-  --vellum-deep: #ddd0b7;
-  --linen: #fbf8f1;
-  --ink: #211a15;
-  --ink-2: #5b4d42;
-  --ink-3: #8a7a6b;
-  --sash: #8e1b1b;
-  --sash-deep: #6f1414;
-  --sash-tint: #f1dcd6;
-  --brass: #a8842f;
-  --brass-tint: #efe3c4;
-  --leather: #5c3b26;
-  --leather-soft: #9b7656;
-  --olive: #4f5f33;
-  --olive-tint: #e2e6d2;
-  --steel: #5f666d;
+  /* House colours */
+  --parchment: #f3ecdf;
+  --vellum: #e9e0cf;
+  --vellum-deep: #dbcfb9;
+  --linen: #fefbf6;
+  --ink: #1e1611;
+  --ink-2: #54453a;
+  --ink-3: #6e5e50;
+  --sash: #8c1a1f;
+  --sash-deep: #6e1217;
+  --sash-tint: #f6e0da;
+  --brass: #8a6514;
+  --brass-tint: #f3e6c6;
+  --leather: #5a3a27;
+  --leather-soft: #94704f;
+  --olive: #3f5226;
+  --olive-tint: #e3e9d2;
+  --steel: #59616a;
 
   /* Semantic */
   --bg: var(--parchment);
-  --rail: var(--vellum);
+  --page-ink: var(--ink);
+  --page-accent: var(--sash);
+  --rail: #2b1d15;
   --surface: var(--linen);
+  --raised: var(--linen);
+  --field: #fffdfa;
   --well: var(--vellum);
-  --hover: color-mix(in oklab, var(--vellum) 55%, var(--linen));
-  --selected: color-mix(in oklab, var(--sash-tint) 55%, var(--linen));
-  --line: color-mix(in oklab, var(--ink) 10%, transparent);
-  --line-strong: color-mix(in oklab, var(--ink) 20%, transparent);
+  --well-strong: var(--vellum-deep);
+  --lane: #eae1d0;
+  --hover: #f6efe2;
+  --selected: #f9e9e1;
+  --line: color-mix(in oklab, var(--ink) 11%, transparent);
+  --line-strong: color-mix(in oklab, var(--ink) 25%, transparent);
   --text: var(--ink);
   --text-2: var(--ink-2);
   --text-3: var(--ink-3);
   --accent: var(--sash);
   --accent-strong: var(--sash-deep);
   --accent-soft: var(--sash-tint);
-  --on-accent: #fbf3ea;
+  --accent-fill: var(--sash);
+  --accent-fill-hover: var(--sash-deep);
+  --on-accent: #fff6ee;
   --focus: var(--brass);
-  --warn: #8a6a22;
+  --focus-soft: color-mix(in oklab, var(--brass) 24%, transparent);
+  --warn: #6b4e0c;
   --warn-soft: var(--brass-tint);
   --good: var(--olive);
   --good-soft: var(--olive-tint);
   --bad: var(--sash);
   --bad-soft: var(--sash-tint);
-
-  /* Back-compat aliases used by inline styles */
   --gold: var(--brass);
   --gold-soft: var(--brass-tint);
-  --raised: var(--linen);
-  --cream-50: #fffdf8;
-  --cream-100: var(--linen);
-  --cream-300: var(--vellum);
-  --cream-400: var(--vellum-deep);
-  --ink-900: var(--ink);
-  --ink-300: var(--ink-3);
-  --leather-400: var(--leather-soft);
-  --leather-600: var(--leather);
-  --leather-800: #3b281b;
-  --leather-100: #eadccd;
-  --brass-200: var(--brass-tint);
-  --brass-500: var(--brass);
-  --crimson-500: var(--sash);
-  --crimson-700: var(--sash-deep);
-  --olive-500: var(--olive);
-  --steel-500: var(--steel);
-  --steel-600: #4c535a;
+  --switch-off: #a0907e;
+  --switch-knob: #fffdf8;
 
-  --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  /* The dark slip used by toasts, hints and the scan log, in both themes. */
+  --slip: #2b1d15;
+  --slip-ink: #f6ecdd;
+  --slip-good: #34421f;
+  --slip-bad: var(--sash-deep);
+
+  /* Grade seals */
+  --seal-s: #6e1217;
+  --seal-a: #8c1a1f;
+  --seal-b: #7a5a12;
+  --seal-c: #5a3a27;
+  --seal-d: #59616a;
+  --on-seal: #fff6ee;
+
+  /* The sash on the campaign band, with the darker fold that crosses it. */
+  --sash-band: var(--sash);
+  --sash-fold: #7c151b;
+  --sash-foot: #5f0f14;
+
+  --font-display: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
 
   --t-xs: 0.8125rem;
   --t-sm: 0.875rem;
-  --t-md: 1rem;
-  --t-lg: 1.125rem;
-  --t-xl: 1.375rem;
-  --t-2xl: 2.25rem;
+  --t-md: 0.9375rem;
+  --t-lg: 1.0625rem;
+  --t-xl: 1.4375rem;
+  --t-2xl: 2.5rem;
+  --t-3xl: 3rem;
 
   --s-1: 4px;
   --s-2: 8px;
@@ -88,48 +101,140 @@
   --s-7: 48px;
   --s-8: 64px;
 
-  --r-control: 6px;
-  --r-panel: 10px;
+  --r-tag: 5px;
+  --r-control: 8px;
+  --r-panel: 14px;
+  --r-sheet: 18px;
+  --radius-m: var(--r-control);
+  --r-full: 999px;
 
-  /* Depth only for things that float above the page. */
-  --overlay-shadow: 0 18px 48px -18px color-mix(in oklab, #3b281b 55%, transparent), 0 2px 6px -2px color-mix(in oklab, #3b281b 25%, transparent);
+  /* Sheets rest on the desk (e-1), lifted things hover over it (e-2), overlays float (e-3). */
+  --shadow-tint: 43 29 21;
+  --e-1: 0 0 0 1px var(--line), 0 1px 2px rgb(var(--shadow-tint) / 0.05);
+  --e-2: 0 0 0 1px var(--line), 0 2px 4px rgb(var(--shadow-tint) / 0.07), 0 10px 22px -12px rgb(var(--shadow-tint) / 0.3);
+  --e-3: 0 0 0 1px var(--line), 0 24px 56px -20px rgb(var(--shadow-tint) / 0.5), 0 4px 10px -4px rgb(var(--shadow-tint) / 0.18);
+  --overlay-shadow: var(--e-3);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --fast: 160ms;
-  --med: 240ms;
+  --fast: 140ms;
+  --med: 220ms;
 
   color-scheme: light;
 }
 
-/* Night in Rome — opt-in. Cream is the house colour, so it stays the default. */
+/* Night in Rome: opt-in. Cream is the house colour, so it stays the default. */
 :root[data-theme='dark'] {
-  --bg: #17120f;
-  --rail: #1f1915;
-  --surface: #241d18;
-  --well: #2c241e;
-  --hover: #2a221c;
-  --selected: color-mix(in oklab, #c4473d 16%, #241d18);
-  --line: color-mix(in oklab, #efe6d6 10%, transparent);
-  --line-strong: color-mix(in oklab, #efe6d6 20%, transparent);
-  --text: #efe6d6;
-  --text-2: #bba98f;
-  --text-3: #85776a;
-  --accent: #c4473d;
-  --accent-strong: #e0675c;
-  --accent-soft: color-mix(in oklab, #c4473d 22%, transparent);
-  --on-accent: #fff7f0;
-  --focus: #cfae5c;
-  --warn: #cfae5c;
-  --warn-soft: color-mix(in oklab, #cfae5c 18%, transparent);
-  --good: #a2b47a;
-  --good-soft: color-mix(in oklab, #a2b47a 18%, transparent);
-  --bad: #e0675c;
-  --bad-soft: color-mix(in oklab, #c4473d 20%, transparent);
-  --gold: #cfae5c;
-  --gold-soft: color-mix(in oklab, #cfae5c 18%, transparent);
-  --raised: #241d18;
-  --vellum: #2c241e;
-  --leather-soft: #a8825f;
-  --overlay-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.75);
+  --bg: #17110e;
+  --page-ink: #f3eadc;
+  --page-accent: #ec8173;
+  --rail: #0f0a08;
+  --surface: #221a15;
+  --raised: #2b221c;
+  --field: #1a130f;
+  --well: #30261f;
+  --well-strong: #3d3128;
+  --lane: #1e1712;
+  --hover: #2b211b;
+  --selected: #3a211c;
+  --line: color-mix(in oklab, #f3eadc 11%, transparent);
+  --line-strong: color-mix(in oklab, #f3eadc 26%, transparent);
+  --text: #f3eadc;
+  --text-2: #cdbca6;
+  --text-3: #a99887;
+  --accent: #ec8173;
+  --accent-strong: #f49c90;
+  --accent-soft: #46211c;
+  --accent-fill: #ad2d2c;
+  --accent-fill-hover: #c23a37;
+  --on-accent: #fff6ee;
+  --focus: #dcb763;
+  --focus-soft: color-mix(in oklab, #dcb763 26%, transparent);
+  --warn: #e0bd6c;
+  --warn-soft: #3a2d16;
+  --good: #b4c78a;
+  --good-soft: #2a3119;
+  --bad: #ec8173;
+  --bad-soft: #46211c;
+  --gold: #dcb763;
+  --gold-soft: #3a2d16;
+  --leather: #bb9270;
+  --leather-soft: #94745a;
+  --steel: #98a1aa;
+  --switch-off: #75665a;
+  --switch-knob: #f6ecdd;
+
+  --slip: #3a2d24;
+  --slip-good: #34421f;
+  --slip-bad: #7d1c1f;
+
+  --seal-s: #a32429;
+  --seal-a: #8f2528;
+  --seal-b: #86661b;
+  --seal-c: #6b4a33;
+  --seal-d: #5c646d;
+
+  --sash-band: #7d1d1e;
+  --sash-fold: #701819;
+  --sash-foot: #561012;
+
+  --shadow-tint: 0 0 0;
+  --e-1: 0 0 0 1px var(--line), 0 1px 2px rgb(var(--shadow-tint) / 0.3);
+  --e-2: 0 0 0 1px var(--line-strong), 0 10px 22px -12px rgb(var(--shadow-tint) / 0.75);
+  --e-3: 0 0 0 1px var(--line), 0 28px 64px -20px rgb(var(--shadow-tint) / 0.85);
+
   color-scheme: dark;
+}
+
+/* Inside the leather rail the interface takes the rail's own colours, in both themes. */
+.sidebar,
+.topbar {
+  --text: #f6ecdd;
+  --text-2: #d3c2ad;
+  --text-3: #b3a18e;
+  --accent: #e8695c;
+  --bad: #f6b3a8;
+  --bad-soft: #51241d;
+  --surface: #3a2a20;
+  --field: #3a2a20;
+  --well: #3f2e24;
+  --well-strong: #4c382c;
+  --hover: #3f2e24;
+  --line: color-mix(in oklab, #f6ecdd 14%, transparent);
+  --line-strong: color-mix(in oklab, #f6ecdd 28%, transparent);
+  --focus: #e6c374;
+  --focus-soft: color-mix(in oklab, #e6c374 28%, transparent);
+  --gold: #d9b35c;
+}
+
+:root[data-theme='dark'] .sidebar,
+:root[data-theme='dark'] .topbar {
+  --surface: #241a15;
+  --field: #241a15;
+  --well: #2a1f19;
+  --well-strong: #362921;
+  --hover: #241a15;
+}
+
+/* The same on the live sash. */
+.hunt.on {
+  --text: #fff6ee;
+  --text-2: #fbe2d8;
+  --text-3: #f7d4c8;
+  --line: color-mix(in oklab, #fff6ee 22%, transparent);
+  --line-strong: color-mix(in oklab, #fff6ee 36%, transparent);
+  --focus: #f6d68a;
+  --focus-soft: color-mix(in oklab, #f6d68a 34%, transparent);
+  --well: color-mix(in oklab, #000 18%, transparent);
+  --leather: #fff6ee;
+  --bad: #fff6ee;
+}
+
+@media (max-width: 820px) {
+  :root {
+    /* Sixteen pixels on phones: anything less makes iOS zoom into a field. */
+    --t-md: 1rem;
+    --t-2xl: 2.125rem;
+    --t-3xl: 2.25rem;
+    --r-panel: 12px;
+  }
 }
