@@ -66,6 +66,15 @@ export default async function contracts({ check, section }: Harness) {
       sources: {},
     });
   });
+  await check('active hours are real clock times, and apply emails skip privacy and no-reply mailboxes', async () => {
+    const hours = (start: string) => CampaignConfigSchema.shape.activeHours.safeParse({ tz: 'UTC', start, end: '18:00' }).success;
+    assert.ok(hours('00:00') && hours('23:59'));
+    assert.ok(!hours('25:99') && !hours('24:00') && !hours('9:00'));
+    const { firstEmail } = await import('../../server/sources/util.ts');
+    assert.equal(firstEmail('See privacy@acme.io for data requests. Apply: jobs@acme.io'), 'jobs@acme.io');
+    assert.equal(firstEmail('Questions? no-reply@acme.io only'), null);
+    assert.equal(firstEmail('Email hiring@acme.io'), 'hiring@acme.io');
+  });
   await check('every pipeline state has a transition list', () => {
     for (const s of PIPELINE_STATES) assert.ok(Array.isArray(TRANSITIONS[s]), s);
     assert.equal(TRANSITIONS.submitted.length, 0);

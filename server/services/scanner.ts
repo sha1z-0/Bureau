@@ -11,6 +11,7 @@ import { ingestSync } from '../scout/ingest.ts';
 import { mineResearch } from '../scout/discovery.ts';
 import type { Category, RawJob } from '../sources/types.ts';
 import { apiKey } from '../ai/claude.ts';
+import { killState, stopFilePresent } from '../campaign/kill.ts';
 import { emit } from './bus.ts';
 import { prefilterScore } from './classify.ts';
 import { loadProfile } from './profileStore.ts';
@@ -108,7 +109,7 @@ export async function runScan(kind: 'sources' | 'deep', options: { only?: string
         const { scoreThreshold } = scanSettings();
         const scoreLimit = options.scoreLimit ?? scanSettings().scoreLimit;
         const candidates = all<{ id: string }>(
-          `SELECT id FROM jobs WHERE ai_score IS NULL AND status != 'dismissed' AND prefilter_score >= ?
+          `SELECT id FROM jobs WHERE ai_score IS NULL AND match IS NULL AND status != 'dismissed' AND prefilter_score >= ?
            ORDER BY prefilter_score DESC, found_at DESC LIMIT ?`,
           kind === 'deep' ? 0 : scoreThreshold,
           scoreLimit,
@@ -153,11 +154,11 @@ export async function scanAndWait(kind: 'sources' | 'deep', options: { only?: st
 }
 
 /** Re-runs a source scan when the configured interval has passed. Checks every five minutes while Bureau is open. */
-/** Plain re-scans when the hunt is off. When it's on, the hunt's own timer drives scanning. */
+/** Plain re-scans when the hunt is off. When it's on, the hunt's own timer drives scanning. The kill switch stops them too. */
 export function startScheduler(huntEnabled: () => boolean) {
   const tick = () => {
     const { intervalHours } = scanSettings();
-    if (huntEnabled() || !intervalHours || running) return;
+    if (huntEnabled() || !intervalHours || running || killState() || stopFilePresent()) return;
     const last = get<{ started_at: string }>("SELECT started_at FROM scans WHERE kind = 'sources' ORDER BY started_at DESC LIMIT 1");
     if (last && Date.now() - new Date(last.started_at).getTime() < intervalHours * 3_600_000) return;
     runScan('sources').catch(() => {});

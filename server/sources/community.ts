@@ -1,7 +1,7 @@
 import { getJson } from './http.ts';
 import { cleanHtml } from '../security/sanitize.ts';
 import type { Connector, RawJob } from './types.ts';
-import { firstEmail, htmlToText, isRemote, pool, toIso } from './util.ts';
+import { firstEmail, htmlToText, isRemote, looksLikeSeekerPost, pool, toIso } from './util.ts';
 import { detectAts, findAtsUrls } from '../scout/detect.ts';
 
 /**
@@ -45,7 +45,7 @@ export const hackernews: Connector = {
     const comments = pages.flatMap((p) => p?.hits ?? []).filter((c) => c.parent_id === storyId && c.comment_text);
     ctx.log(`HN: ${comments.length} top-level posts in "${thread.title}"`);
     ctx.discover?.(comments.flatMap((c) => findAtsUrls(c.comment_text ?? '')), 'hackernews');
-    return comments.map<RawJob>((c) => {
+    return comments.filter((c) => !looksLikeSeekerPost(htmlToText(cleanHtml(c.comment_text!)))).map<RawJob>((c) => {
       const html = cleanHtml(c.comment_text!);
       const text = htmlToText(html);
       const header = text.split('\n')[0];

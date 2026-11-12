@@ -4,7 +4,7 @@ import { emit } from '../services/bus.ts';
 import type { Campaign } from '../contracts/campaign.ts';
 import type { FillOutcome } from '../contracts/forms.ts';
 import type { ApplicationPacket } from '../contracts/writer.ts';
-import { activityFor, byCompany, recentSubmissions } from '../match/companies.ts';
+import { activityFor, byCompany, maybeSentSql, recentSubmissions } from '../match/companies.ts';
 import { activeClaim, claimJob, releaseClaim } from './claims.ts';
 import type { EngineDeps } from './deps.ts';
 import { isNotImplemented } from './deps.ts';
@@ -89,12 +89,23 @@ function updateApplication(appId: string | null, status: string, fields: { reaso
 
 const EMAIL_RE = /^[^\s@<>()"',;:]+@[^\s@<>()"',;:]+\.[a-z]{2,}$/i;
 
-export type Route = { kind: 'email'; to: string } | { kind: 'form'; url: string } | { kind: 'none'; reason: string };
+/** Sites Bureau never applies on (logged-in automation breaks their terms); the form engine refuses them too. */
+const NOT_AUTOMATED = /^https?:\/\/([a-z0-9-]+\.)*(linkedin|indeed)\.[a-z.]+\//i;
+/** A discussion thread (HN "Who is hiring", Reddit) holds no form; with no email in it, there is nothing to send. */
+const THREAD_PAGE = /^https?:\/\/(news\.ycombinator\.com\/item|(www\.|old\.)?reddit\.com\/r\/)/i;
+/**
+ * Remote-job boards whose listing pages only link out to the employer (first live night: none of seven went through;
+ * Cloudflare walls or an off-site apply button). Used when the resolver found no employer form for the listing.
+ */
+const LINK_OUT_BOARD = /^https?:\/\/(www\.)?(remoteok\.com|weworkremotely\.com|himalayas\.app|jobicy\.com|4dayweek\.io|workingnomads\.com|remotive\.com|jobspresso\.co|python\.org\/jobs|larajobs\.com)\//i;
+
+export type Route ={ kind: 'email'; to: string } | { kind: 'form'; url: string } | { kind: 'none'; reason: string };
 
 export function chooseRoute(j: JobRow, c: Campaign, emailReady: boolean): Route {
   const ch = c.config.channels;
   if (ch.email && j.apply_email && EMAIL_RE.test(j.apply_email) && emailReady) return { kind: 'email', to: j.apply_email };
-  const url = j.apply_url_canonical || j.url;
+  // Canonical links stored before the case fix lowercased Ashby slugs: when the two differ only in case, the original works.
+  const url = j.apply_url_canonical && j.apply_url_canonical.toLowerCase() === j.url.toLowerCase() ? j.url : j.apply_url_canonical || j.url;
   if (ch.forms && url && /^https?:\/\//i.test(url)) return { kind: 'form', url };
   if (ch.email && j.apply_email && !emailReady) return { kind: 'none', reason: 'This role applies by email and no email account is connected.' };
   return { kind: 'none', reason: 'No automatic route: no form this campaign may use and no email address.' };
@@ -107,7 +118,7 @@ export function uniquenessProblem(jobId: string, c: Campaign, nowMs: number): st
   if (j.apply_url_canonical) {
     const dup = get<{ job_id: string }>(
       `SELECT p.job_id FROM pipeline p JOIN jobs x ON x.id = p.job_id
-        WHERE x.apply_url_canonical = ? AND p.job_id != ? AND p.state = 'submitted' LIMIT 1`,
+        WHERE x.apply_url_canonical = ? AND p.job_id != ? AND (p.state = 'submitted' OR (p.state = 'needs_you' AND ${maybeSentSql('p.job_id')})) LIMIT 1`,
       j.apply_url_canonical,
       jobId,
     );
@@ -191,6 +202,65 @@ export async function applyOne(ctx: WorkerCtx, item: QueueItem): Promise<JobResu
 
     // ── Write ──
     let packet = loadPacket(jobId);
+    // A job with no route Bureau may use (only a LinkedIn or Indeed link, no form, no email) is set aside before
+    // anything is paid for: writing it would only end in "needs you".
+    if (row.state === 'selected' && !packet) {
+      // The campaign's free filters as they stand now (they may have changed since the job was picked).
+      const ruled = ruledOutNow(jobId, item.campaign.config);
+      if (ruled) {
+        transition(jobId, 'skipped', { reason: `No longer fits the campaign: ${ruled}` });
+        recordStep(clock.now(), { campaignId, jobId, step: 'skip', status: 'ruled_out', detail: { reason: ruled } });
+        return 'quick';
+      }
+      const pre = chooseRoute(j, item.campaign, deps.emailReady());
+      const why =
+        pre.kind === 'none'
+          ? pre.reason
+          : pre.kind === 'form' && NOT_AUTOMATED.test(pre.url)
+            ? `It applies only through ${new URL(pre.url).hostname}, which Bureau never automates. Apply there yourself if you want it.`
+            : pre.kind === 'form' && THREAD_PAGE.test(pre.url)
+              ? 'The posting is a discussion thread with no form and no email to apply to. Use the link in the post yourself if you want it.'
+              : pre.kind === 'form' && LINK_OUT_BOARD.test(pre.url)
+                ? `${new URL(pre.url).hostname} only links out to the employer, and Bureau found no employer form for it. Apply from the listing yourself if you want it.`
+                : null;
+      if (why) {
+        transition(jobId, 'skipped', { reason: why });
+        recordStep(clock.now(), { campaignId, jobId, step: 'skip', status: 'no_route', detail: { reason: why } });
+        ctx.say(`Set aside ${label(jobId)} before writing: ${why}`, 'info', jobId);
+        return 'quick';
+      }
+      // Boards close roles between a scout and the apply: check the posting is still there before paying to write.
+      // The same employer's form asked questions that are still waiting on the owner: its next form asks them too.
+      const waiting = get<{ n: number }>(
+        `SELECT COUNT(*) AS n FROM unknown_questions q JOIN jobs x ON x.id = q.job_id
+          WHERE q.status = 'open' AND q.job_id != ? AND (x.company = ? OR (x.company_id IS NOT NULL AND x.company_id = ?))`,
+        jobId,
+        j.company,
+        get<{ company_id: string | null }>('SELECT company_id FROM jobs WHERE id = ?', jobId)?.company_id ?? '',
+      )?.n;
+      if (waiting) {
+        const held = `${j.company}'s form has ${waiting} question${waiting === 1 ? '' : 's'} waiting for your answer (Questions). Its other roles wait until you answer.`;
+        transition(jobId, 'skipped', { reason: held });
+        recordStep(clock.now(), { campaignId, jobId, step: 'skip', status: 'questions_open', detail: { reason: held } });
+        ctx.say(`Set aside ${label(jobId)} before writing: ${held}`, 'info', jobId);
+        return 'quick';
+      }
+      const formUrl = pre.kind === 'form' ? pre.url : null;
+      const posting = formUrl && deps.postingOpen ? await deps.postingOpen(formUrl) : 'unknown';
+      if (formUrl) recordStep(clock.now(), { campaignId, jobId, step: 'route', status: `posting_${posting}`, detail: { url: formUrl } });
+      if (formUrl && (posting === 'closed' || posting === 'blocked' || posting === 'unreachable')) {
+        const why =
+          posting === 'closed'
+            ? 'The posting has closed since it was found.'
+            : posting === 'unreachable'
+              ? `The job is listed, but its page at ${new URL(formUrl).hostname} is switched off (the company takes applications on its own careers site). Apply there yourself if you want it.`
+              : `${new URL(formUrl).hostname} puts a bot check in front of the page, which Bureau never solves. Apply there yourself if you want it.`;
+        transition(jobId, 'skipped', { reason: why });
+        recordStep(clock.now(), { campaignId, jobId, step: 'skip', status: posting, detail: { url: formUrl } });
+        ctx.say(`Set aside ${label(jobId)} before writing: ${why}`, 'info', jobId);
+        return 'quick';
+      }
+    }
     if (row.state === 'selected' || (row.state === 'writing' && !packet) || (row.state === 'written' && !packet)) {
       if (row.state === 'written') row = transition(jobId, 'selected', { reason: 'Packet missing; writing again' });
       ctx.setStep('Writing');
@@ -347,6 +417,7 @@ async function viaForm(ctx: WorkerCtx, item: QueueItem, packet: ApplicationPacke
       submit: live,
       campaignId,
       onUnknown: campaign.config.onUnknownQuestion,
+      allowAgent: campaign.config.channels.agent,
       signal: ctx.signal,
     });
   } catch (err) {
@@ -360,6 +431,7 @@ async function viaForm(ctx: WorkerCtx, item: QueueItem, packet: ApplicationPacke
     }
     if (aborted && live) {
       recordStep(clock.now(), { campaignId, jobId, step: 'recover', status: 'killed_mid_submit' });
+      recordStep(clock.now(), { campaignId, jobId, step: 'maybe_sent', status: 'killed_mid_submit' });
       transition(jobId, 'needs_you', { reason: 'Stopped by the kill switch during a live fill. Check the employer site before retrying.' });
       updateApplication(packet.applicationId, 'needs_you', { reason: 'Stopped mid-fill by the kill switch.' });
       return 'stopped';
@@ -379,6 +451,7 @@ async function viaForm(ctx: WorkerCtx, item: QueueItem, packet: ApplicationPacke
     // A thrown error from a live fill: we cannot be sure the form was not sent.
     if (live) {
       recordStep(clock.now(), { campaignId, jobId, step: 'outcome', status: 'error', detail: { message } });
+      recordStep(clock.now(), { campaignId, jobId, step: 'maybe_sent', status: 'crashed_mid_fill' });
       transition(jobId, 'needs_you', { reason: `The form engine crashed during a live fill (${message}). Check before retrying.` });
       updateApplication(packet.applicationId, 'needs_you', { reason: message });
       return 'worked';
@@ -437,6 +510,8 @@ export async function settleOutcome(ctx: Pick<WorkerCtx, 'deps' | 'say' | 'breac
   }
 
   if (outcome.status === 'needs_you') {
+    // Submit was pressed, then a CAPTCHA, a form error or no confirmation: it may have gone out.
+    if (live && outcome.submitPressed) recordStep(clock.now(), { campaignId, jobId, step: 'maybe_sent', status: 'no_confirmation' });
     transition(jobId, 'needs_you', { reason: outcome.reason });
     updateApplication(packet.applicationId, 'needs_you', { ...appFields, reason: outcome.reason });
     ctx.say(`Needs you: ${label(jobId)}. ${outcome.reason}`, 'info', jobId);
@@ -510,6 +585,7 @@ export function recoverJob(jobId: string, campaign: Campaign | null, nowMs: numb
   }
   if (intent) {
     // It may or may not have gone out. Never guess "no".
+    recordStep(nowMs, { campaignId, jobId, step: 'maybe_sent', status: 'interrupted' });
     transition(jobId, 'needs_you', { reason: 'Bureau stopped while submitting. Check the employer site or your inbox before applying again.' });
     note('needs_you', { intent: intent.status });
     if (packet) updateApplication(packet.applicationId, 'needs_you', { reason: 'Interrupted during submit; may already be sent.' });

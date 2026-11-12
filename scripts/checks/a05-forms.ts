@@ -144,6 +144,35 @@ export default async function a05({ check, section, sandbox, sharedBrowser }: Ha
     assert.equal((await one(field('I agree to the privacy policy', 'consent')))?.value, 'true');
     assert.equal((await one(field('Send me job alerts and future opportunities', 'checkbox')))?.value, 'false');
   });
+  await check('a "certify" box that attests a legal fact is never ticked on its own', async () => {
+    const box = await one(field('I certify that I am legally authorized to work in the United States and will not require sponsorship', 'consent'));
+    assert.ok(box?.unknown && box.value !== 'true', JSON.stringify(box));
+    assert.equal((await one(field('I certify that the information in this application is accurate', 'consent')))?.value, 'true');
+    const own = await one(field('During this application process I agree to use only my own words. I understand that plagiarism, the use of AI or other generated content will disqualify my application.', 'consent'));
+    assert.ok(own?.unknown && own.value !== 'true', 'a "no AI" promise is never made for the owner');
+  });
+  await check("voluntary questions use the owner's own saved answer when there is one", async () => {
+    bank.set('Gender (voluntary self-identification)', 'Male');
+    bank.set('Veteran status (voluntary self-identification)', 'I am not a protected veteran');
+    assert.equal((await one(field('Gender', 'select', { options: ['Male', 'Female', 'Decline To Self Identify'] })))?.value, 'Male');
+    assert.equal((await one(field('Veteran Status', 'radio', { options: ['I am a protected veteran', 'I am not a protected veteran', "I don't wish to answer"] })))?.value, 'I am not a protected veteran');
+    // No saved answer: still declined.
+    assert.equal((await one(field('Disability Status', 'select', { options: ['Yes', 'No', 'I do not want to answer'] })))?.value, 'I do not want to answer');
+    bank.delete('Gender (voluntary self-identification)');
+    bank.delete('Veteran status (voluntary self-identification)');
+  });
+  await check('a required "referred by" name box says "No referral" when the owner was not referred', async () => {
+    const q = 'Have you been referred by an Acme Employee? If yes, please enter their name below.';
+    bank.set(q, 'No');
+    assert.equal((await one(field(q, 'text')))?.value, 'No referral');
+    bank.delete(q);
+  });
+  await check('a privacy confirmation as a menu is acknowledged; a dial code reads back as its country', async () => {
+    const menu = await one(field("Please confirm that you have read and agree to Canonical's Recruitment Privacy Notice and Privacy Policy.", 'combobox', { options: ['Acknowledge/Confirm'] }));
+    assert.equal(menu?.value, 'Acknowledge/Confirm');
+    assert.ok(N.valuesMatch('combobox', 'Pakistan +92', '+92'));
+    assert.ok(!N.valuesMatch('combobox', 'Pakistan +92', '+44'));
+  });
   await check('long-form: the packet’s pre-written answers, skills only from the profile', async () => {
     assert.equal((await one(field('Why do you want to work at Acme?', 'textarea')))?.value, 'Because of the ledger work.');
     assert.equal((await one(field('Which of these have you used?', 'checkbox', { options: ['PostgreSQL', 'Elixir', 'Docker'] })))?.value, 'PostgreSQL; Docker');

@@ -2,6 +2,7 @@
   "name": "bureau",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Bureau — a local-first, Claude-powered job hunting atelier.",
   "type": "module",
   "engines": {

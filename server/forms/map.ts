@@ -148,7 +148,12 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const LONG_FORM = /\?$|^(why|what|how|describe|tell|explain|share|please (describe|tell|explain|share|provide)|give|list|briefly|in a few|anything else|additional information|is there anything)/i;
-const ATTESTATION = /\b(authori[sz]ed to work|eligible to work|right to work|work permit|sponsor|visa|citizen|convicted|criminal|felony|clearance|non ?compete|at least 18|over 18|background check|drug (test|screen)|legally)\b/i;
+export const ATTESTATION = /\b(authori[sz]ed to work|eligible to work|right to work|work permit|sponsor|visa|citizen|convicted|criminal|felony|clearance|non ?compete|at least 18|over 18|background check|drug (test|screen)|legally)\b/i;
+/**
+ * Promises about how the application itself was written ("only my own words", "no AI"). Bureau's letters are drafted
+ * with Claude, so it never makes them: like an attestation, only the owner's own saved answer can.
+ */
+export const AUTHORSHIP = /\b(own words|plagiari\w*|use of (ai|artificial intelligence|chatgpt|generative)|(ai|machine)[- ]generated|generated content|without (the )?(use|help) of (ai|artificial))\b/i;
 
 /** Canonical wordings to retry in the answer bank when the form's own wording finds nothing. */
 const ALT_QUESTIONS: Record<string, string[]> = {
@@ -160,6 +165,12 @@ const ALT_QUESTIONS: Record<string, string[]> = {
   sponsorship: ['Will you now or in the future require sponsorship for employment visa status?', 'Do you require visa sponsorship?'],
   how_heard: ['How did you hear about us?'],
   referred_by: ['Were you referred by a current employee?'],
+  // Voluntary self-identification: used only when the owner chose to answer in the answer bank, else declined.
+  gender: ['Gender (voluntary self-identification)'],
+  race: ['Race / ethnicity (voluntary self-identification)'],
+  hispanic: ['Are you Hispanic or Latino? (voluntary self-identification)'],
+  veteran: ['Veteran status (voluntary self-identification)'],
+  disability: ['Disability status (voluntary self-identification)'],
   relocation: ['Are you willing to relocate?'],
   remote: ['Are you comfortable working fully remotely?', 'Are you open to hybrid or onsite work?'],
   timezone: ['What timezone are you in?'],
@@ -613,8 +624,13 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
       return optional(`Bureau has no "${f.label}" document to upload.`);
     }
 
-    // 2. Voluntary self-identification: always decline.
+    // 2. Voluntary self-identification: the owner's own saved answer when they chose to give one, else decline.
     if (e?.source === 'eeo' || (f.meta?.eeo && !e && (f.options?.length ?? 0) > 0 && declineOption(f.options!))) {
+      const mine = e?.key && ALT_QUESTIONS[e.key] ? await ask(f, e.key, (x) => x.source === 'answer_bank') : null;
+      if (mine && mine.source === 'answer_bank' && mine.confidence >= MIN_CONFIDENCE) {
+        const pick = f.options?.length ? bestOption(mine.value, f.options) : f.kind === 'checkbox' || f.kind === 'consent' ? null : mine.value;
+        if (pick) return val(f, 'answer_bank', mine.key, pick, mine.confidence, { synKey: e?.key });
+      }
       if (f.options?.length) {
         const d = declineOption(f.options);
         if (d) return val(f, 'generated', `eeo:${e?.key ?? 'decline'}`, d, 0.95, { synKey: e?.key });
@@ -629,10 +645,17 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     // 3. Sensitive data: never entered by Bureau.
     if (e?.source === 'never') return optional(`Bureau never enters "${f.label}". It needs you.`);
 
-    // 4. Consent / certification boxes.
-    if (f.kind === 'consent' || ((f.kind === 'checkbox' && !f.options?.length) && e?.source === 'consent')) {
+    // 4. Consent / certification boxes. "I certify that I am authorised to work in…" is a legal attestation, not
+    // consent: it falls through to the attestation rules below, which take only the owner's own saved answer.
+    const attests = ATTESTATION.test(f.label) || AUTHORSHIP.test(f.label) || !!e?.attestation;
+    if (!attests && (f.kind === 'consent' || ((f.kind === 'checkbox' && !f.options?.length) && e?.source === 'consent'))) {
       if (e?.key === 'consent_marketing') return val(f, 'generated', 'consent:marketing', 'false', 0.95, { synKey: e.key });
       if (e?.key === 'certify_accurate' || e?.key === 'consent_privacy' || f.kind === 'consent') return val(f, 'generated', `consent:${e?.key ?? 'privacy'}`, 'true', 0.9, { synKey: e?.key });
+    }
+    // The same privacy / accuracy confirmation as a yes-no menu ("Please confirm you have read our privacy notice").
+    if (!attests && (e?.key === 'consent_privacy' || e?.key === 'certify_accurate') && (f.kind === 'select' || f.kind === 'radio' || f.kind === 'combobox')) {
+      const yes = f.options?.find((o) => /^(yes|i agree|agree|i accept|accept|i confirm|confirm|i have read|acknowledged?)\b/i.test(o.trim()));
+      if (yes || (f.kind === 'combobox' && !f.options?.length)) return val(f, 'generated', `consent:${e.key}`, yes ?? 'Yes', 0.9, { synKey: e.key });
     }
 
     // 5. Synonym keys.
@@ -742,7 +765,8 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
             return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true, synKey: key }) : null;
           }
           // "Were you referred?" -> "No" is not a referrer's name or code.
-          if (a && key === 'referred_by' && !f.options?.length && truthy(a.value) === false) return null;
+          // A required box ("If yes, please enter their name below") still needs something truthful in it.
+          if (a && key === 'referred_by' && !f.options?.length && truthy(a.value) === false) return f.required ? val(f, a.source, a.key, 'No referral', a.confidence, { synKey: key }) : null;
           if (a && a.confidence >= MIN_CONFIDENCE) {
             let v = a.value;
             if (numeric && money) v = toNumber(v) ?? v;
@@ -762,7 +786,7 @@ export async function mapFieldsWith(fields: FormField[], packet: ApplicationPack
     }
 
     // 6. Attestation-like wording without a dictionary hit: answer bank only.
-    if (ATTESTATION.test(f.label)) {
+    if (attests) {
       const a = await ask(f, undefined, (x) => x.source === 'answer_bank' && attestOk(f, x));
       if (a && a.source === 'answer_bank' && a.confidence >= MIN_CONFIDENCE && attestOk(f, a)) return val(f, a.source, a.key, a.value, a.confidence, { attestation: true });
       return f.required ? unknown(f, 'Legal attestation: only your own saved answer can answer it.', { attestation: true }) : null;

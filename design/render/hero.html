@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bureau hero render</title>
+<!--
+  Source of design/shots/hero.png, the picture at the top of the README.
+  Every screen in it is demo data (a made-up candidate and made-up companies).
+  Re-render with: node design/render/render.mjs
+-->
+<style>
+  @font-face { font-family: Newsreader; src: url(../../web/src/assets/fonts/newsreader-latin.woff2) format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: Hanken; src: url(../../web/src/assets/fonts/hanken-grotesk-latin.woff2) format('woff2'); font-weight: 100 900; }
+  :root {
+    --parchment: #f3ecdf; --vellum: #e9e0cf; --linen: #fefbf6;
+    --ink: #1e1611; --ink-2: #54453a; --ink-3: #6e5e50;
+    --sash: #8c1a1f; --sash-deep: #6e1217; --sash-tint: #f6e0da;
+    --brass: #8a6514; --brass-tint: #f3e6c6; --leather: #5a3a27;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; }
+  body {
+    position: relative;
+    background:
+      radial-gradient(1100px 700px at 78% 30%, #fbf6ee 0%, transparent 70%),
+      var(--parchment);
+    font-family: Hanken, system-ui, sans-serif;
+    color: var(--ink);
+  }
+  /* The crimson sash across the canvas, as on the app's hunt card. */
+  .sash {
+    position: absolute; inset: 0;
+    background: linear-gradient(118deg, transparent 0 52%, var(--sash) 52% 71%, var(--sash-deep) 71% 74%, transparent 74%);
+    opacity: .96;
+  }
+  .grain {
+    position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply;
+    background-image: radial-gradient(rgba(90,58,39,.08) 1px, transparent 1px);
+    background-size: 5px 5px;
+  }
+
+  .copy { position: absolute; left: 76px; top: 70px; width: 520px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand svg { width: 52px; height: 52px; filter: drop-shadow(0 6px 14px rgba(110,18,23,.25)); }
+  .brand b { font-family: Newsreader, serif; font-weight: 500; font-size: 40px; letter-spacing: -.01em; }
+  .brand span { margin-left: 6px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--sash); border: 1.5px solid var(--sash); border-radius: 999px; padding: 4px 10px; }
+  h1 {
+    margin-top: 38px;
+    font-family: Newsreader, serif; font-weight: 500; font-size: 56px; line-height: 1.04; letter-spacing: -.02em;
+  }
+  h1 em { font-style: italic; color: var(--sash); }
+  .lede { margin-top: 22px; font-size: 19px; line-height: 1.5; color: var(--ink-2); max-width: 470px; }
+  .chips { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 9px; max-width: 500px; }
+  .chip { font-size: 14px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: var(--linen); border: 1px solid #dbcfb9; color: var(--ink-2); }
+  .chip.red { background: var(--sash); border-color: var(--sash); color: #fff6ee; }
+
+  /* Windows */
+  .win {
+    position: absolute; border-radius: 14px; overflow: hidden; background: var(--linen);
+    box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 40px 80px -20px rgba(46,22,12,.45), 0 12px 28px -8px rgba(46,22,12,.25);
+    border: 1px solid rgba(90,58,39,.18);
+  }
+  .bar { height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #e9e0cf; border-bottom: 1px solid #dbcfb9; }
+  .bar i { width: 12px; height: 12px; border-radius: 50%; background: #c9b9a0; display: block; }
+  .bar i:first-child { background: #c0473f; } .bar i:nth-child(2) { background: #d4a43c; } .bar i:nth-child(3) { background: #7c8f4e; }
+  .bar .url { margin-left: 14px; flex: 1; max-width: 340px; height: 24px; border-radius: 7px; background: var(--linen); font-size: 12.5px; color: var(--ink-3); display: flex; align-items: center; padding: 0 12px; gap: 6px; }
+  .win.dark { background: #17110e; border-color: rgba(0,0,0,.4); }
+  .win.dark .bar { background: #221a15; border-color: #33271f; }
+  .win.dark .bar .url { background: #17110e; color: #a99887; }
+  .shot { display: block; overflow: hidden; }
+  .shot img { display: block; transform-origin: 0 0; }
+
+  .main { left: 640px; top: 64px; width: 900px; }
+  .main .shot { width: 900px; height: 700px; position: relative; }
+  .main .shot::after { content: ""; position: absolute; left: 0; top: 561px; width: 166px; bottom: 0; background: #2c1f18; }
+  .main .shot img { width: 1280px; transform: scale(.703125); }
+
+  .pipe { left: 76px; top: 630px; width: 600px; }
+  .pipe .shot { width: 600px; height: 340px; }
+  .pipe .shot img { width: 1280px; transform: translate(-152px, -88px) scale(.62); }
+
+  .phone {
+    position: absolute; left: 1338px; top: 404px; width: 228px; height: 470px;
+    border-radius: 36px; padding: 9px; background: #1e1611;
+    box-shadow: 0 40px 70px -18px rgba(46,22,12,.55), 0 0 0 1.5px #54453a inset;
+  }
+  .phone .screen { width: 100%; height: 100%; border-radius: 28px; overflow: hidden; background: var(--parchment); position: relative; }
+  .phone .screen img { width: 375px; transform: scale(.56); transform-origin: 0 0; display: block; }
+  .phone .notch { position: absolute; top: 8px; left: 50%; width: 70px; height: 18px; margin-left: -35px; background: #1e1611; border-radius: 10px; z-index: 2; }
+
+  .note {
+    position: absolute; left: 700px; top: 800px; width: 300px;
+    background: var(--linen); border-radius: 12px; padding: 14px 16px; border: 1px solid #dbcfb9;
+    box-shadow: 0 24px 50px -16px rgba(46,22,12,.45);
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .note .tick { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #e3e9d2; color: #3f5226; display: grid; place-items: center; font-weight: 800; }
+  .note b { display: block; font-size: 14.5px; }
+  .note small { display: block; margin-top: 3px; font-size: 13px; line-height: 1.4; color: var(--ink-3); }
+  .note.two { left: 1050px; top: 842px; width: 270px; }
+  .note.two .tick { background: var(--sash-tint); color: var(--sash); }
+</style>
+</head>
+<body>
+  <div class="sash"></div>
+  <div class="grain"></div>
+
+  <div class="copy">
+    <div class="brand">
+      <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#F2EADB"/><path d="M32 8 L50 46 L40 46 L32 30 L24 46 L14 46 Z" fill="#8E1B1B"/><path d="M32 36 L36 46 L28 46 Z" fill="#A8842F"/><rect x="14" y="50" width="36" height="4" rx="2" fill="#211A15"/></svg>
+      <b>Bureau</b><span>Open source</span>
+    </div>
+    <h1>Your job hunt,<br>run by <em>an agent</em><br>that won't lie for you.</h1>
+    <p class="lede">A local-first, Claude-powered job hunter. It scouts thousands of roles, scores them against your CV, writes each application in your voice, fact-checks every claim and applies through the employer's own form or inbox.</p>
+    <div class="chips">
+      <span class="chip red">MIT licensed</span>
+      <span class="chip">Runs on your machine</span>
+      <span class="chip">Truth lock</span>
+      <span class="chip">No CAPTCHA solving</span>
+      <span class="chip">Greenhouse · Lever · Ashby · Workday</span>
+    </div>
+  </div>
+
+  <div class="win main">
+    <div class="bar"><i></i><i></i><i></i><div class="url">127.0.0.1:4317 / overview</div></div>
+    <div class="shot"><img src="../shots/overhaul/after-overview-1280-light.png" alt=""></div>
+  </div>
+
+  <div class="win dark pipe">
+    <div class="bar"><i></i><i></i><i></i><div class="url">127.0.0.1:4317 / pipeline</div></div>
+    <div class="shot"><img src="../shots/overhaul/after-pipeline-1280-dark.png" alt=""></div>
+  </div>
+
+  <div class="phone"><div class="notch"></div><div class="screen"><img src="../shots/overhaul/after-overview-375-light.png" alt=""></div></div>
+
+  <div class="note">
+    <div class="tick">✓</div>
+    <div><b>Facts verified</b><small>Every figure and employer in the letter is backed by your CV.</small></div>
+  </div>
+  <div class="note two">
+    <div class="tick">!</div>
+    <div><b>Needs you: CAPTCHA</b><small>Form filled. One click from you to submit.</small></div>
+  </div>
+</body>
+</html>

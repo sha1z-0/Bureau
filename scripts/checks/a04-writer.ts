@@ -88,6 +88,29 @@ export default async function a04({ check, section }: Harness) {
     assert.equal(r.checks.length, 15);
     assert.ok(r.checks.every((c) => typeof c.value === 'number' || typeof c.value === 'string'));
   });
+  await check('"Jr." in a role title does not end the opening sentence', async () => {
+    const { splitSentences } = await import('../../server/profile/voice.ts');
+    assert.deepEqual(splitSentences('Your Jr. UI Developer role centres on UI components. I rebuilt a clinic app.'), ['Your Jr. UI Developer role centres on UI components.', 'I rebuilt a clinic app.']);
+  });
+  await check('a bundled keyword ("Git and GitHub") is backed only when every tool in it is', async () => {
+    const { factBacks } = await import('../../server/writer/truth.ts');
+    const facts = 'Skills: Git, GitHub, React, HTML5/CSS3';
+    assert.ok(factBacks('Git and GitHub', facts));
+    assert.ok(factBacks('React/Git', facts));
+    assert.ok(!factBacks('Git and Kubernetes', facts));
+  });
+  await check('volume mode tolerates style measures only; a hard check still blocks', async () => {
+    const { tolerateStyle } = await import('../../server/writer/pipeline.ts');
+    const base = lintOf(GOOD);
+    const soft = { ...base, pass: false, checks: base.checks.map((c) => (c.id === 'burstiness' || c.id === 'rule_of_three' ? { ...c, pass: false } : c)) };
+    assert.equal(tolerateStyle(soft).pass, true);
+    const hard = { ...soft, checks: soft.checks.map((c) => (c.id === 'banned_phrases' ? { ...c, pass: false } : c)) };
+    assert.equal(tolerateStyle(hard).pass, false);
+    const long = (words: number) => ({ ...soft, checks: soft.checks.map((c) => (c.id === 'length' ? { ...c, pass: false, value: words, target: '180–280 words' } : c)) });
+    assert.equal(tolerateStyle(long(290)).pass, true, '10 words over is within 10%');
+    assert.equal(tolerateStyle(long(323)).pass, true, '323 words is within 20%');
+    assert.equal(tolerateStyle(long(360)).pass, false);
+  });
   await check('length: under 180 words fails', () => {
     const c = checkOf(GOOD.split('\n\n').slice(0, 2).join('\n\n'), 'length');
     assert.equal(c.pass, false);
@@ -209,6 +232,10 @@ export default async function a04({ check, section }: Harness) {
     assert.ok(high(truthOf(['It took nine months to ship.'])).length);
     assert.ok(high(truthOf(['It now posts about 4,000 entries a day.'])).some((i) => i.claim.includes('4,000')));
     assert.equal(high(truthOf(['It posts about 400 entries a day and closing takes 2 hours instead of 3 days.'])).length, 0);
+  });
+  await check('a tool the letter already says the candidate has not used is not a claim when mentioned again', () => {
+    assert.equal(high(truthOf(["I haven't used Terraform yet. Terraform should go the same way, since I've built backends before."])).filter((i) => i.claim === 'Terraform').length, 0);
+    assert.ok(high(truthOf(["Terraform should go the same way, since I've built backends before."])).some((i) => i.claim === 'Terraform'));
   });
   await check('catches an invented skill, in the CV and in prose', () => {
     const cv = structuredClone(cleanCv);

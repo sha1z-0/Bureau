@@ -256,6 +256,9 @@ export function valuesMatch(kind: FieldKind | string, intended: string, readBack
         return parts.length > 0 && parts.every((p) => valuesMatch(kind, p, r, extra));
       }
       const cands = [r, extra.display ?? ''].filter(Boolean);
+      // A phone country picker shows only the dial code once a country is chosen: "Pakistan +92" reads back "+92".
+      const dial = i.match(/\+\d{1,4}\b/)?.[0];
+      if (dial && cands.some((c) => c.trim() === dial)) return true;
       return cands.some((c) => normText(c) === normText(i) || optionScore(i, c) >= 0.85 || (normText(c).includes(normText(i)) && normText(i).length >= 3));
     }
     case 'richtext':

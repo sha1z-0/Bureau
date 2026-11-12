@@ -58,6 +58,8 @@ export interface EngineDeps {
    * gates, undefined when the application wasn't written by the v2 writer.
    */
   freshPacket?(applicationId: string): Promise<ApplicationPacket | null | undefined>;
+  /** Is the posting still open? Asked before paying to write. Absent (tests): assume open. */
+  postingOpen?(url: string): Promise<'open' | 'closed' | 'blocked' | 'unreachable' | 'unknown'>;
   keepAwake: KeepAwake;
   /** Close anything holding a browser (kill switch). */
   closeBrowsers(reason: string): Promise<void>;
@@ -110,6 +112,7 @@ export function realDeps(over: Partial<EngineDeps> = {}): EngineDeps {
       const row = get<{ notes: string }>('SELECT notes FROM applications WHERE id = ?', applicationId);
       return row && w.readNotes(row.notes).writer?.status === 'written' ? null : undefined;
     },
+    postingOpen: async (url) => (await import('../scout/liveness.ts')).postingOpen(url),
     fill: async (packet, opts) => (await import('../forms/index.ts')).fillApplication(packet, opts),
     sendEmail: async ({ to, packet }) => {
       const file = packet.cvPdfPath;

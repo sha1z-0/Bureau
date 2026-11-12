@@ -2,6 +2,7 @@ import { all, now as nowIso } from '../db.ts';
 import { transition } from '../campaign/pipeline.ts';
 import type { CampaignConfig } from '../contracts/campaign.ts';
 import { activityFor, byCompany, companyKeys, inFlight, recentSubmissions } from './companies.ts';
+import { SENIORITY_CAP } from './scoring.ts';
 import { setDecision, type StoredMatch } from './store.ts';
 
 /**
@@ -54,8 +55,10 @@ export function planSelection(cfg: CampaignConfig, campaignId: string, slots: nu
   const rows = all<Row>(
     `SELECT p.job_id, p.campaign_id, j.title, j.company, j.company_id, j.category, j.posted_at, j.status, j.match
        FROM pipeline p JOIN jobs j ON j.id = p.job_id
-      WHERE p.state = 'scored' AND (p.campaign_id = ? OR p.campaign_id IS NULL)`,
+      WHERE p.state = 'scored'
+        AND (p.campaign_id = ? OR p.campaign_id IS NULL OR p.campaign_id IN (SELECT id FROM campaigns WHERE status = 'ended' OR ends_at <= ?))`,
     campaignId,
+    now,
   );
 
   const submitted = byCompany(recentSubmissions(Math.max(cfg.companyCooldownDays, 7), now));
@@ -101,6 +104,13 @@ export function planSelection(cfg: CampaignConfig, campaignId: string, slots: nu
     }
     if (m.stretch.blockers.length) {
       drop(`blocker: ${m.stretch.blockers.join('; ')}`);
+      continue;
+    }
+    // A senior, staff or lead title is years away for an entry or junior candidate. Its score is capped at 45, and a
+    // low campaign minimum must not let that cap through: never applied to.
+    const senior = m.explain?.breakdown?.caps?.find((c) => c.cap === SENIORITY_CAP);
+    if (senior) {
+      drop(`${senior.reason}: years away, never applied to`);
       continue;
     }
     if (m.screenPassScore < cfg.minScore) {

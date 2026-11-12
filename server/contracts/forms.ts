@@ -118,6 +118,8 @@ export const FillOutcomeSchema = z.object({
   via: z.enum(['recipe', 'adapter', 'agent', 'generic']).nullable().default(null),
   recipeId: z.string().nullable().default(null),
   url: z.string().nullable().default(null),
+  /** Submit was pressed on a live run, whatever happened after: a needs_you outcome with this set may have gone out. */
+  submitPressed: z.boolean().optional(),
 });
 export type FillOutcome = z.infer<typeof FillOutcomeSchema>;
 

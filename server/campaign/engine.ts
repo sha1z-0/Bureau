@@ -24,6 +24,7 @@ import { pipelineState, transition } from './pipeline.ts';
 import { autopilotSettings, type AutopilotSettings } from './settings.ts';
 import { hhmm, inEmployerHours, employerTimeZone, inWindow, isoWeek, localParts, localTimeOnDay, nextWindowStart, startOfLocalDay } from './time.ts';
 import { withCampaign } from '../ai/claude.ts';
+import { maybeSent } from '../match/companies.ts';
 import { applyOne, HOLDER, recoverJob, type JobResult, type QueueItem } from './worker.ts';
 
 /**
@@ -650,7 +651,7 @@ export class Engine {
   /** An answered question re-queues the job that asked it. */
   requeueAnswered(jobId: string, questionId?: string) {
     const row = pipelineState(jobId);
-    if (!row) return;
+    if (!row || maybeSent(jobId)) return;
     // Wait until every question this job raised is answered; re-filling earlier would only stop at the next one.
     if (get("SELECT 1 FROM unknown_questions WHERE job_id = ? AND status = 'open'", jobId)) return;
     try {

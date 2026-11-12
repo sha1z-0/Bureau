@@ -376,6 +376,11 @@ export default async function a08Campaign({ check, section }: Harness) {
       };
       const nearby = skippedBy('Lahore, Pakistan', 'location');
       const scam = skippedBy('Lahore, Pakistan', 'legitimacy');
+      const far = skippedBy('Toronto, Canada', 'location');
+      // A change the hard filters do not care about reopens nothing they still rule out.
+      C.updateCampaign(c.id, { config: { minScore: 40 } });
+      assert.equal(pipelineState(far)?.state, 'skipped', 'still outside the places: not reopened by a new minimum');
+      assert.equal(pipelineState(nearby)?.state, 'skipped');
       const abroad = mkJob({ location: 'Berlin, Germany' });
       toSelected(abroad, c.id);
       C.updateCampaign(c.id, { config: { locations: ['Lahore'] } });
@@ -446,6 +451,86 @@ export default async function a08Campaign({ check, section }: Harness) {
     assert.equal(pipelineState(b)?.state, 'skipped');
     assert.match(get<{ reason: string }>("SELECT reason FROM pipeline_log WHERE job_id = ? AND to_state = 'skipped'", b)?.reason ?? '', /cooldown/);
     assert.equal(ledger.submitted.get(b), undefined);
+  });
+  await check('a LinkedIn-only job is set aside before anything is written for it', async () => {
+    const { engine, c, ledger } = scenario();
+    const j = mkJob({ url: 'https://www.linkedin.com/jobs/view/4486359648' });
+    toSelected(j, c.id);
+    engine.startCampaign(c.id);
+    await step(engine);
+    assert.equal(pipelineState(j)?.state, 'skipped');
+    assert.equal(ledger.writes.get(j), undefined);
+    assert.match(get<{ reason: string }>("SELECT reason FROM pipeline_log WHERE job_id = ? AND to_state = 'skipped'", j)?.reason ?? '', /linkedin/i);
+  });
+  await check('a Hacker News thread post or a link-out board listing with no employer form is set aside before writing', async () => {
+    for (const url of ['https://news.ycombinator.com/item?id=50365279', 'https://remoteok.com/remote-jobs/remote-ai-developer-salvo-software-1']) {
+      const { engine, c, ledger } = scenario();
+      const j = mkJob({ url });
+      toSelected(j, c.id);
+      engine.startCampaign(c.id);
+      await step(engine);
+      assert.equal(pipelineState(j)?.state, 'skipped', url);
+      assert.equal(ledger.writes.get(j), undefined);
+    }
+  });
+  await check('a posting that closed since the scout is set aside before writing', async () => {
+    const { engine, c, ledger, clock } = scenario();
+    engine.deps.postingOpen = async (url) => (url.includes('walled') ? 'blocked' : 'closed');
+    const j = mkJob();
+    const walled = mkJob({ url: 'https://walled.example.com/jobs/1' });
+    toSelected(j, c.id);
+    toSelected(walled, c.id);
+    engine.startCampaign(c.id);
+    await step(engine);
+    clock.set(clock.now() + 30 * MIN);
+    await step(engine);
+    assert.equal(pipelineState(j)?.state, 'skipped');
+    assert.equal(ledger.writes.get(j), undefined);
+    assert.equal(pipelineState(walled)?.state, 'skipped');
+    assert.equal(ledger.writes.get(walled), undefined);
+    assert.match(get<{ reason: string }>("SELECT reason FROM pipeline_log WHERE job_id = ? AND to_state = 'skipped'", walled)?.reason ?? '', /bot check/);
+  });
+  await check("a company whose form left questions open has its next role held before writing", async () => {
+    const { engine, c, ledger } = scenario();
+    const company = uid('Askco');
+    const first = mkJob({ company });
+    const next = mkJob({ company });
+    run("INSERT INTO unknown_questions (id, question_raw, question_norm, job_id, field_kind, options, status, created_at) VALUES (?, 'How did you do in maths?', 'how did you do in maths', ?, 'select', '[]', 'open', ?)", uid('q'), first, dbNow());
+    toSelected(next, c.id);
+    engine.startCampaign(c.id);
+    await step(engine);
+    assert.equal(pipelineState(next)?.state, 'skipped');
+    assert.equal(ledger.writes.get(next), undefined);
+  });
+  await check('switching off the browser agent reaches the form engine', async () => {
+    const { engine, c } = scenario({ config: { channels: { email: false, forms: true, agent: false } } });
+    let allow: boolean | undefined;
+    const real = engine.deps.fill;
+    engine.deps.fill = async (p, o) => ((allow = o.allowAgent), real(p, o));
+    const j = mkJob();
+    toSelected(j, c.id);
+    engine.startCampaign(c.id);
+    await step(engine);
+    assert.equal(allow, false);
+  });
+  await check('a live submit with no confirmation counts as sent: no second role at that company, never re-queued', async () => {
+    const { engine, c, ledger, clock } = scenario({ config: { companyCooldownDays: 30 } });
+    const company = uid('Acme');
+    const a = mkJob({ company, score: 90 });
+    const b = mkJob({ company, score: 85 });
+    toSelected(a, c.id);
+    toSelected(b, c.id);
+    const real = engine.deps.fill;
+    engine.deps.fill = async (p, o) => (p.jobId === a ? { ...outcome('needs_you', true, 'Submitted, but no confirmation appeared.'), submitPressed: true } : real(p, o));
+    engine.startCampaign(c.id);
+    await step(engine);
+    clock.set(clock.now() + 5 * MIN);
+    await step(engine);
+    assert.equal(pipelineState(a)?.state, 'needs_you');
+    assert.equal(pipelineState(b)?.state, 'skipped');
+    assert.equal(ledger.submitted.get(b), undefined);
+    engine.requeueAnswered(a);
+    assert.equal(pipelineState(a)?.state, 'needs_you');
   });
   await check('the same posting listed twice is applied to once', async () => {
     const { engine, c, ledger, clock } = scenario({ config: { companyCooldownDays: 0 } });

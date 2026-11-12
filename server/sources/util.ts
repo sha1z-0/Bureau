@@ -18,9 +18,22 @@ export function num(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/** Mailboxes that never take applications: privacy, legal, support, accessibility requests and no-reply senders. */
+const NOT_APPLY = /^(privacy|dpo|gdpr|legal|abuse|security|support|help|info@?|noreply|no-reply|donotreply|do-not-reply|accommodations?|accessibility|press|media|billing|sales|unsubscribe|postmaster|webmaster)([._+-]|$)/i;
+
+/** The first address in a posting that could take an application (null when there is none). */
 export function firstEmail(text: string): string | null {
-  const m = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  return m ? m[0] : null;
+  for (const m of text.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)) if (!NOT_APPLY.test(m[0].split('@')[0])) return m[0];
+  return null;
+}
+
+/**
+ * A job seeker's own post ("Location: … Remote: Yes / Willing to relocate: No / Technologies: …"), the format of
+ * HN's "Who wants to be hired?" thread, sometimes posted in "Who is hiring?" by mistake. It is not a job.
+ */
+export function looksLikeSeekerPost(text: string): boolean {
+  const head = text.slice(0, 600);
+  return /willing to relocate\s*:/i.test(head) || (/^\s*location\s*:/im.test(head) && /\bremote\s*:\s*(yes|no)\b/i.test(head));
 }
 
 export function withinDays(iso: string | null | undefined, days: number): boolean {

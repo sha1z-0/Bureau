@@ -21,8 +21,8 @@ export const CampaignConfigSchema = z.object({
   activeHours: z.object({
     tz: z.string(),
     /** "HH:MM", local to tz. */
-    start: z.string().regex(/^\d\d:\d\d$/),
-    end: z.string().regex(/^\d\d:\d\d$/),
+    start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
   }),
   pacingMinutes: z.object({ min: z.number().min(0), max: z.number().min(0) }),
   budgetUsd: z.number().min(0),

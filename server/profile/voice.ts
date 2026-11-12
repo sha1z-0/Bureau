@@ -123,7 +123,8 @@ export function splitSentences(text: string): string[] {
   return text
     .replace(/\r/g, '')
     .split(/\n{2,}|\n(?=[-•*\d])/)
-    .flatMap((para) => para.replace(/\s+/g, ' ').split(/(?<=[.!?…])["'”’)]?\s+(?=["'“‘(]?[A-Z0-9])/))
+    // "Your Jr. UI Developer role…" is one sentence: a title or abbreviation's full stop does not end it.
+    .flatMap((para) => para.replace(/\s+/g, ' ').split(/(?<!\b(?:Jr|Sr|Mr|Mrs|Ms|Dr|Prof|Inc|Ltd|Co|St|vs|No|e\.g|i\.e)\.)(?<=[.!?…])["'”’)]?\s+(?=["'“‘(]?[A-Z0-9])/))
     .map((s) => s.trim())
     .filter((s) => (s.match(WORD) ?? []).length > 0);
 }

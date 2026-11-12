@@ -343,8 +343,12 @@ async function refind(r: Run, step: number, f: ExtractedField): Promise<Extracte
 
 /** A wizard page counts as a form when it has fields, or a field and a way forward. */
 function stepPresent(ex: StepExtract): boolean {
-  return formPresent(ex.fields) || (ex.fields.length > 0 && ex.navs.some((n) => n.kind === 'next' || n.kind === 'submit'));
+  const looksLikeForm = formPresent(ex.fields) || (ex.fields.length > 0 && ex.navs.some((n) => n.kind === 'next' || n.kind === 'submit'));
+  // A job board's search box ("Location" + Search) is a form too. An application asks who you are or for your CV.
+  return looksLikeForm && ex.fields.some((f) => f.kind === 'email' || f.kind === 'file' || f.kind === 'tel' || f.kind === 'phone' || APPLICANT_FIELD.test(f.label));
 }
+
+const APPLICANT_FIELD = /\b(name|e-?mail|phone|mobile|resume|résumé|cv|linkedin|cover letter)\b/i;
 
 /** Add entries to repeating sections ("Add another") until the profile's entries fit. */
 async function repeaters(r: Run, step: number, ex: StepExtract, rec: StepRecord): Promise<StepExtract> {
@@ -592,6 +596,7 @@ function finish(r: Run | null, base: Partial<FillOutcome> & Pick<FillOutcome, 's
     via: r?.via ?? null,
     recipeId: r?.recipe?.id ?? null,
     url: extra.url ?? (r ? r.page.url() : null),
+    ...(base.submitPressed ? { submitPressed: true } : {}),
   };
   const runId = r?.id ?? extra.runId;
   if (runId) {
@@ -714,7 +719,8 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
     }
 
     // Login wall (it can take a moment to render after Apply).
-    const wallWait = Date.now() + (r.adapter.account ? 6000 : 0);
+    // Workday-style single-page apps can take several seconds to draw the sign-in step after Apply.
+    const wallWait = Date.now() + (r.adapter.account ? 12_000 : 0);
     let needsLogin = false;
     while (r.adapter.account && !(needsLogin = await r.adapter.account.needed(page)) && Date.now() < wallWait) await page.waitForTimeout(250);
     if (needsLogin) {
@@ -876,7 +882,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
         break;
       }
       const ch = await challengeOn(page);
-      if (ch.found) return finish(r, { status: 'needs_you', reason: `A CAPTCHA (${ch.kind}) appeared on submit. It needs your click.`, shotPath: await proofShot(page, packet.applicationId), verified: true });
+      if (ch.found) return finish(r, { status: 'needs_you', reason: `A CAPTCHA (${ch.kind}) appeared on submit. It needs your click.`, shotPath: await proofShot(page, packet.applicationId), verified: true, submitPressed: true });
     }
     const shot = await proofShot(page, packet.applicationId);
     if (ok) {
@@ -889,7 +895,7 @@ export async function runFill(packet: ApplicationPacket, opts: FillOptions, deps
       const bad = (await fr.evaluate(`Array.from(document.querySelectorAll('input:invalid, select:invalid, textarea:invalid')).map((e) => e.name || e.id || e.type).slice(0, 5)`).catch(() => [])) as string[];
       if (bad.length) errors.push(`the browser refused: invalid ${bad.join(', ')}`);
     }
-    return finish(r, { status: 'needs_you', reason: errors.length ? `The form reported: ${errors.slice(0, 3).join(' · ').slice(0, 300)}` : 'Submitted, but no confirmation appeared. Check before applying again.', shotPath: shot, verified: true });
+    return finish(r, { status: 'needs_you', reason: errors.length ? `The form reported: ${errors.slice(0, 3).join(' · ').slice(0, 300)}` : 'Submitted, but no confirmation appeared. Check before applying again.', shotPath: shot, verified: true, submitPressed: true });
   } catch (err) {
     if ((err as Error).name === 'AbortError' || opts.signal?.aborted) throw err;
     if (err instanceof UnverifiedSubmitError) throw err;

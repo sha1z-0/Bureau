@@ -40,6 +40,9 @@ export const ADAPTERS: Adapter[] = [
     // Lever's location box is a suggestion typeahead (a pick fills the hidden selectedLocation).
     fixField: (f) => (f.selectors.some((s) => /location-input|name="location"/.test(s)) && f.kind === 'text' ? { ...f, kind: 'location' } : f),
     confirm: { text: /application submitted|thank(s| you) for applying/i, selectors: ['[data-qa=msg-submit-success]'], url: /\/thanks|__confirm/i },
+    // The location typeahead leaves "Please try again ⚠️" from a failed lookup even after a valid pick (seen live on
+    // two forms); the location value itself is read back and checked like any field.
+    ignoreErrors: /^please try again\.?\s*(⚠️?)?$/iu,
   },
   {
     ats: 'ashby',

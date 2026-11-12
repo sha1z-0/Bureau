@@ -43,10 +43,14 @@ export function selectForCampaign(cfg: CampaignConfig, campaignId: string, slots
 
 /** Jobs waiting for the matcher (pipeline `found` or `filtered`), oldest first, for this campaign or unassigned. */
 export function pendingForMatch(campaignId: string | null = null, limit = 500): string[] {
+  // Jobs a finished campaign found (ended, or past its end date) are free for the next one.
+  // Freshest postings first: a backlog of older finds must not hold back today's roles.
   return all<{ job_id: string }>(
-    `SELECT job_id FROM pipeline WHERE state IN ('found', 'filtered') AND (campaign_id IS ? OR campaign_id IS NULL)
-     ORDER BY updated_at ASC, job_id ASC LIMIT ?`,
+    `SELECT p.job_id FROM pipeline p JOIN jobs j ON j.id = p.job_id WHERE p.state IN ('found', 'filtered')
+       AND (p.campaign_id IS ? OR p.campaign_id IS NULL OR p.campaign_id IN (SELECT id FROM campaigns WHERE status = 'ended' OR ends_at <= ?))
+     ORDER BY COALESCE(j.posted_at, j.found_at) DESC, p.job_id ASC LIMIT ?`,
     campaignId,
+    new Date().toISOString(),
     limit,
   ).map((r) => r.job_id);
 }

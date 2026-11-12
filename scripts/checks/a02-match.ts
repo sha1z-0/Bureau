@@ -167,6 +167,9 @@ export default async function a02Match({ check, section }: Harness) {
     // The same title for a senior candidate, or a junior title for an entry one, is not capped.
     assert.ok(scoreMatch(input(perfect, { ...strong, title: 'Senior Full Stack Developer', candidateSeniority: 'senior' })).screenPassScore > 90);
     assert.ok(scoreMatch(input(perfect, { ...strong, title: 'Junior Full Stack Developer', candidateSeniority: 'entry' })).screenPassScore > 90);
+    // A manager title is years away too; an associate or assistant one is not.
+    assert.equal(scoreMatch(input(perfect, { ...strong, title: 'Devices & IOT Field Engineering Manager', candidateSeniority: 'entry' })).screenPassScore, SENIORITY_CAP);
+    assert.ok(scoreMatch(input(perfect, { ...strong, title: 'Associate Product Manager', candidateSeniority: 'entry' })).screenPassScore > 90);
   });
   await check('a blocker the candidate meets (e.g. holds the licence) does not cap', () => {
     const r = scoreMatch(input([req({ importance: 'critical', blocker: true, blockerKind: 'licence', text: 'Licence' }), req({})]));
@@ -330,6 +333,32 @@ export default async function a02Match({ check, section }: Harness) {
     assert.equal(verdict({ salaryMin: 30_000, salaryMax: 40_000, salaryCurrency: 'USD' }).pass, true);
     assert.equal(verdict({ salaryMin: 100_000, salaryMax: 150_000, salaryCurrency: 'PKR' }).pass, true);
     assert.equal(verdict({}).pass, true);
+    assert.equal(verdict({ title: 'API Integration Engineer (Remote) - $15,000/year USD' }).code, 'salary', 'pay stated only in the title counts');
+  });
+  await check('a language the candidate does not speak rules the job out; hybrid is not remote', async () => {
+    assert.equal(verdict({ descriptionText: 'Your profile: React, Node. Sehr gute Deutsch- und Englischkenntnisse in Wort und Schrift.' }).code, 'language');
+    assert.equal(verdict({ descriptionText: 'Fluent German is required for client calls. We use TypeScript and React every day.' }).code, 'language');
+    const german = 'Wir suchen einen Entwickler für unser Team. Du arbeitest mit React und Node und bist für die Weiterentwicklung der Plattform verantwortlich. '.repeat(6);
+    assert.equal(verdict({ descriptionText: german }).code, 'language');
+    assert.equal(verdict({ descriptionText: 'Fluent English. German is useful but not required. We build with React and Node.' }).pass, true);
+    const ukrainian = 'Ми шукаємо інженера даних у нашу команду. Можливість обирати між роботою в офісі та remote-first форматом. '.repeat(4);
+    assert.match(verdict({ descriptionText: ukrainian }).reason ?? '', /Cyrillic/);
+    assert.equal(verdict({ remote: true, location: 'South Africa' }).code, 'remote_region');
+    assert.equal(verdict({ remote: true, location: 'Remote in Pichincha, Buenos Aires' }).code, 'remote_region');
+    assert.equal(verdict({ remote: true, location: 'Anywhere in the World' }).pass, true);
+    assert.equal(verdict({ remote: true, location: 'Pune, IN' }).code, 'remote_region');
+    assert.equal(verdict({ remote: true, location: 'Toronto' }).code, 'remote_region');
+    assert.equal(verdict({ remote: true, location: 'Paris, Berlin' }).code, 'remote_region');
+    assert.equal(verdict({ remote: true, location: 'Remote - Bulgaria' }).code, 'remote_region');
+    assert.match(verdict({ title: "https://www.scento.com/careersScento is Europe's largest perfume decant website" }).reason ?? '', /readable job title/);
+    const seeker = 'Location: Estonia Remote:Yes\nWilling to relocate: No\nTechnologies: React, Vue\nContact info: someone [at] gmail [dot] com';
+    assert.match(verdict({ descriptionText: seeker }).reason ?? '', /job seeker/);
+    const { toMatchJob } = await import('../../server/match/jobs.ts');
+    const { normalizeJob } = await import('../../server/scout/normalize.ts');
+    assert.equal(toMatchJob({ remote: 1, tags: '["mode:hybrid","level:mid"]' } as never).remote, false);
+    assert.equal(toMatchJob({ remote: 1, tags: '["mode:remote"]' } as never).remote, true);
+    assert.equal(normalizeJob({ source: 'ashby', externalId: 'x', title: 'Engineer', company: 'Faculty', location: 'London', url: 'https://x', remote: true, tags: ['mode:hybrid'] }).remote, false);
+    assert.equal(normalizeJob({ source: 'jobspresso', externalId: 'y', title: 'Happiness Engineer, Support &#038; Success', company: 'A &amp; B', location: '', url: 'https://y', remote: true }).title, 'Happiness Engineer, Support & Success');
   });
   await check('excluded companies and keywords; ghost and scam listings; stale posts; other categories', () => {
     assert.equal(verdict({ company: 'Shadyco Inc' }).code, 'excluded_company');
@@ -588,6 +617,16 @@ export default async function a02Match({ check, section }: Harness) {
   await check('the next pass takes the next best, still holding the busy company', () => {
     assert.deepEqual(selectForCampaign(cfgOf(), C, 3), ['sel-d']);
     assert.equal(pipelineState('sel-a2')?.state, 'scored');
+  });
+  await check('a senior title capped for an entry-level candidate is never chosen, even under a low minimum', () => {
+    const S = 'camp-sel-senior';
+    const id = scored('sel-senior', 'Sequoia Tech', 'web', 45, S);
+    const m = readMatch(id)!;
+    m.explain.breakdown = { ...(m.explain.breakdown ?? ({} as never)), caps: [{ reason: 'a senior role for an entry-level candidate', cap: 45 }] };
+    run('UPDATE jobs SET match = ? WHERE id = ?', JSON.stringify(m), id);
+    const plan = planSelection(cfgOf({ minScore: 40 }), S, 3, FIXTURE_NOW);
+    assert.deepEqual(plan.chosen, []);
+    assert.match(plan.skipped.find((x) => x.jobId === id)?.reason ?? '', /years away/);
   });
   await check('with no cooldown, at most 2 per company per week', () => {
     const K = 'camp-sel-2';

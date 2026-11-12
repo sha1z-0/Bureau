@@ -43,7 +43,7 @@ function skipCause(match: string | null): { code: FilterCode | null; belowMinimu
 }
 
 /** Settings the owner can narrow while a written application waits to go out. */
-const GATE_CODES = new Set<FilterCode>(['category', 'location', 'remote_only', 'remote_region']);
+const GATE_CODES = new Set<FilterCode>(['category', 'location', 'remote_only', 'remote_region', 'language', 'salary', 'legitimacy']);
 
 /** Why the campaign's current settings rule this job out, or null when it still fits. */
 export function ruledOutNow(jobId: string, cfg: CampaignConfig): string | null {
@@ -104,11 +104,18 @@ export function refilterCampaign(campaignId: string, cfg: CampaignConfig): Refil
     }
   }
 
-  // Set aside by the old settings: back to the matcher.
-  for (const r of rows) {
-    if (r.state !== 'skipped') continue;
-    const cause = skipCause(r.match);
-    if (!cause.belowMinimum && !(cause.code && REOPEN_CODES.has(cause.code))) continue;
+  // Set aside by the old settings: back to the matcher. A hard-filter skip is checked against the new settings first
+  // (free, in process), so a change that cannot help it (a lower minimum score for a stale posting) reopens nothing.
+  const skipped = rows.filter((r) => r.state === 'skipped').map((r) => ({ ...r, cause: skipCause(r.match) }));
+  const refilterable = skipped.filter((r) => r.cause.code && REOPEN_CODES.has(r.cause.code) && r.cause.code !== 'weak_match');
+  const stillOut = new Set<string>();
+  if (profile && refilterable.length) {
+    const fctx = buildFilterContext(cfg, profile, nowIso(), matchSettings().legitimacyFloor);
+    for (const j of loadJobs(refilterable.map((r) => r.job_id))) if (!hardFilter(j, fctx).pass) stillOut.add(j.id);
+  }
+  for (const r of skipped) {
+    if (!r.cause.belowMinimum && !(r.cause.code && REOPEN_CODES.has(r.cause.code))) continue;
+    if (stillOut.has(r.job_id)) continue;
     transition(r.job_id, 'found', { campaignId, reason });
     out.reopened++;
   }

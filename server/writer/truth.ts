@@ -108,6 +108,9 @@ function mentions(text: string, term: string): boolean {
 export function factBacks(term: string, factText: string): boolean {
   const t = term.trim();
   if (CASE_SENSITIVE.has(t) ? mentions(factText, t) : hasTerm(factText, t)) return true;
+  // A posting keyword that bundles tools ("Git and GitHub", "HTML/CSS") is backed when every tool in it is.
+  const parts = t.split(/\s*(?:,|\/|&|\band\b)\s*/i).filter(Boolean);
+  if (parts.length > 1) return parts.every((p) => factBacks(p, factText));
   return aliasesOf(t)
     .filter((a) => a !== t.toLowerCase())
     .some((a) => {
@@ -307,6 +310,9 @@ export function codeTruth(input: TruthInput, src: TruthSource): CodeIssue[] {
       if (!mentions(text, term)) continue;
       if (factBacks(term, factText)) continue;
       const sentences = splitSentences(text).filter((s) => mentions(s, term));
+      // Once the text says plainly that the candidate hasn't used it ("I haven't used AWS or Docker yet"), a later
+      // mention ("AWS and Docker should go the same way") is about learning it, not a claim.
+      if (sentences.some((s) => GAP_CUE.test(s))) continue;
       for (const s of sentences) {
         const learning = onLearningList(term, src);
         if (learning && LEARNING_CUE.test(s)) continue;

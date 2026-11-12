@@ -15,6 +15,8 @@ export type StepName =
   | 'fill'
   | 'submit_intent'
   | 'submit_done'
+  /** A live submit that may have gone out; counts as sent until the owner settles it. */
+  | 'maybe_sent'
   | 'outcome'
   | 'rehearsed'
   | 'submitted'

@@ -841,6 +841,10 @@ export const PAGE_LIB = String.raw`(op, arg) => {
       const t = norm(e.innerText || e.textContent);
       if (t.length < 2 || t.length > 300) continue;
       if (/captcha/i.test(String(e.className))) continue;
+      // Spell-check underlines in a text editor ("production", "NIfTI") are not validation messages; a lone word
+      // only counts when it reads like one ("Required", "Invalid").
+      if (/spell|grammar|misspel/i.test(String(e.className)) || e.closest('[contenteditable="true"], textarea')) continue;
+      if (!/\s/.test(t) && !/required|invalid|error|missing|incorrect/i.test(t)) continue;
       if (msgs.indexOf(t) < 0) msgs.push(t);
     }
     const invalid = deepAll('[aria-invalid="true"]').filter(visible).map((e) => labelOf(e)).filter(Boolean);

@@ -47,10 +47,11 @@ interface Row {
   url: string;
   apply_url_canonical: string | null;
   apply_email: string | null;
+  tags?: string | null;
 }
 
 const COLS = `id, title, company, company_id, location, remote, category, description_text, salary_min, salary_max, salary_currency,
-  posted_at, found_at, prefilter_score, legitimacy, priority, status, url, apply_url_canonical, apply_email`;
+  posted_at, found_at, prefilter_score, legitimacy, priority, status, url, apply_url_canonical, apply_email, tags`;
 
 export function toMatchJob(r: Row): MatchJob {
   return {
@@ -59,7 +60,8 @@ export function toMatchJob(r: Row): MatchJob {
     company: r.company,
     companyId: r.company_id ?? null,
     location: r.location ?? '',
-    remote: !!r.remote,
+    // Stored before hybrid stopped counting as remote: the work-mode tag wins over the flag.
+    remote: !!r.remote && !/"mode:(hybrid|onsite)"/.test(r.tags ?? ''),
     category: r.category,
     descriptionText: r.description_text ?? '',
     salaryMin: r.salary_min ?? null,

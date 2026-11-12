@@ -98,15 +98,19 @@ export function computeScore(a: z.infer<typeof JobAssessment>, prefilter: number
   };
 }
 
-/** Score jobs with Claude (v2 matcher, metered as the v1 `score` task). Returns how many were scored. */
-export async function scoreJobs(ids: string[], profile: Profile, onProgress?: (done: number) => void): Promise<number> {
+/**
+ * Score jobs with Claude (v2 matcher, metered as the v1 `score` task). Returns how many were scored.
+ * The profile's hard filters run first (free): an on-site role abroad or a remote role closed to the owner's
+ * country is recorded as ruled out, never paid for. Jobs the owner picked by hand (`skipFilters`) are always scored.
+ */
+export async function scoreJobs(ids: string[], profile: Profile, onProgress?: (done: number) => void, opts: { skipFilters?: boolean } = {}): Promise<number> {
   if (!ids.length) return 0;
   const mp = matchProfileFrom(profile);
   const run = await runMatch(ids, defaultMatchConfig(mp), {
     profile: mp,
     task: 'score',
     movePipeline: false,
-    skipFilters: true,
+    skipFilters: opts.skipFilters ?? false,
     assessLimit: ids.length,
     onProgress,
   });

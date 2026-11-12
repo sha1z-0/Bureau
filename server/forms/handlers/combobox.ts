@@ -96,8 +96,9 @@ async function pickOne(c: HandlerCtx, want: string, strict = false): Promise<{ p
     if (hit) return { picked: await pickPath(c, want, hit) };
   }
   await closeMenus(c.page);
-  // Free-text typeaheads (no suggestion list at all) keep what was typed.
-  if (!lastShown && !c.field.options?.length) {
+  // Free-text typeaheads (no suggestion list at all) keep what was typed. A location box whose suggestions never
+  // matched keeps the full place too, never the last short query ("Rawa" for "Rawalpindi, Pakistan").
+  if ((!lastShown || location) && !c.field.options?.length) {
     await l.fill(want).catch(() => {});
     await blur(c.frame, c.field.id);
     return { picked: want, note: 'no suggestions; kept the typed text' };

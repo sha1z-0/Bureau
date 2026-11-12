@@ -4,6 +4,7 @@ import { AnswerScope, type AnswerEntry, type UnknownQuestion } from '../contract
 import { canTransition, pipelineState, transition } from '../campaign/pipeline.ts';
 import type { PipelineState } from '../contracts/campaign.ts';
 import { all, get, logEvent, now, run } from '../db.ts';
+import { maybeSent } from '../match/companies.ts';
 import { AppError } from '../errors.ts';
 import { emit } from '../services/bus.ts';
 import { answerFor, upsertAnswer } from './answers.ts';
@@ -103,6 +104,8 @@ const PARKED: PipelineState[] = ['skipped', 'needs_you', 'failed'];
 export function requeueJob(jobId: string, reason = 'unknown question answered'): boolean {
   const st = pipelineState(jobId);
   if (!st || !PARKED.includes(st.state) || !canTransition(st.state, 'selected')) return false;
+  // A job that may already have been sent is the owner's to settle, never re-applied.
+  if (maybeSent(jobId)) return false;
   const stillOpen = get("SELECT 1 FROM unknown_questions WHERE job_id = ? AND status = 'open' LIMIT 1", jobId);
   if (stillOpen) return false;
   transition(jobId, 'selected', { reason });

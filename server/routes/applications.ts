@@ -5,6 +5,7 @@ import { all, get, logEvent, now, run } from '../db.ts';
 import { AppError } from '../errors.ts';
 import { cvPdfFor, highIssues, loadApplication, sendByEmail, type ApplicationRow } from '../services/applications.ts';
 import { emit } from '../services/bus.ts';
+import { canTransition, pipelineState, transition } from '../campaign/pipeline.ts';
 import { body, json } from './util.ts';
 
 function present(a: ApplicationRow & { title?: string; company?: string; url?: string; ai_score?: number | null; ai_grade?: string | null }) {
@@ -106,6 +107,9 @@ export async function applicationRoutes(app: FastifyInstance) {
     const a = loadApplication(id);
     run("UPDATE applications SET status = 'sent', sent_at = ?, updated_at = ? WHERE id = ?", now(), now(), id);
     run("UPDATE jobs SET stage = 'applied', updated_at = ? WHERE id = ?", now(), a.job_id);
+    // A campaign job the owner finished by hand (a CAPTCHA, an emailed code) leaves "needs you" for good.
+    const st = pipelineState(a.job_id);
+    if (st && st.state !== 'submitted' && canTransition(st.state, 'submitted')) transition(a.job_id, 'submitted', { reason: 'Finished and sent by you' });
     const job = get<{ title: string; company: string }>('SELECT title, company FROM jobs WHERE id = ?', a.job_id);
     logEvent('applied', `Applied to ${job?.title} at ${job?.company} (${a.channel})`, a.job_id);
     emit({ type: 'jobs-changed' });

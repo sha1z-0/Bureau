@@ -219,7 +219,17 @@ export interface ScoreInput {
 export const SENIORITY_CAP = 45;
 /** A critical requirement the candidate simply doesn't meet: just under the usual bar of 60. */
 export const CRITICAL_CAP = 55;
-const SENIOR_TITLE = /\b(senior|sr\.?|staff|principal|lead|head of|director|architect|middle\+)/i;
+const SENIOR_TITLE = /\b(senior|sr\.?|staff|principal|lead|head of|director|architect|middle\+|manager)/i;
+/** An entry-level qualifier anywhere in the title ("Associate Product Manager") keeps a manager title within reach. */
+const ENTRY_TITLE = /\b(associate|junior|jr\.?|assistant|trainee|intern|graduate)\b/i;
+
+/** The word that makes a title senior for an entry or junior candidate, or null. */
+function seniorWord(title: string): string | null {
+  const m = title.match(SENIOR_TITLE);
+  if (!m) return null;
+  if (m[1].toLowerCase() === 'manager' && ENTRY_TITLE.test(title)) return null;
+  return m[1].toLowerCase();
+}
 /** Being somewhere: an office, a country, a move. Unmet, it rules the job out like any blocker. */
 const PRESENCE = /\b(on-?site|in[- ]office|office in|in the \w+ office|hybrid|days? (?:a|per) week|-based|based in|located in|must (?:live|reside|be located)|residen(?:t|cy|ce)|relocat\w*|work permit for|right to work in|authori[sz]ed to work in)/i;
 
@@ -317,8 +327,9 @@ export function scoreMatch(input: ScoreInput): ScoreOutput {
   };
   if (blockers.length) capAt(BLOCKER_CAP, `blocker: ${blockers.join('; ')}`);
   if (unmetCritical) capAt(CRITICAL_CAP, `${unmetCritical} critical requirement(s) not met`);
-  if (input.title && (input.candidateSeniority === 'entry' || input.candidateSeniority === 'junior') && SENIOR_TITLE.test(input.title)) {
-    capAt(SENIORITY_CAP, `a ${input.title.match(SENIOR_TITLE)![1].toLowerCase()} role for an ${input.candidateSeniority}-level candidate`);
+  const senior = input.title && (input.candidateSeniority === 'entry' || input.candidateSeniority === 'junior') ? seniorWord(input.title) : null;
+  if (senior) {
+    capAt(SENIORITY_CAP, `a ${senior} role for an ${input.candidateSeniority}-level candidate`);
   }
   if (d.logistics === 0) capAt(LOGISTICS_CAP, 'logistics dealbreaker stated in the posting');
   if (input.legitimacy === 'ghost') capAt(30, 'ghost listing');

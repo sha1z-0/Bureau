@@ -152,7 +152,7 @@ export async function jobRoutes(app: FastifyInstance) {
     const { ids } = body(z.object({ ids: z.array(z.string().max(64)).min(1).max(60) }), req.body);
     const profile = loadProfile();
     if (!profile) throw new AppError(412, 'NO_PROFILE', 'Upload your CV in Profile first.');
-    const scored = await scoreJobs(ids, profile);
+    const scored = await scoreJobs(ids, profile, undefined, { skipFilters: true });
     emit({ type: 'jobs-changed' });
     return { scored };
   });
@@ -178,7 +178,7 @@ export async function jobRoutes(app: FastifyInstance) {
       throw new AppError(422, 'NOT_TECH', 'That does not look like a tech role, so Bureau skipped it.');
     }
     const profile = loadProfile();
-    if (profile) await scoreJobs(added, profile).catch(() => 0);
+    if (profile) await scoreJobs(added, profile, undefined, { skipFilters: true }).catch(() => 0);
     logEvent('capture', `Captured ${raw.title} at ${raw.company}`, added[0]);
     emit({ type: 'jobs-changed' });
     return { id: added[0], duplicate: false };

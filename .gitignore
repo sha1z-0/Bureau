@@ -5,3 +5,6 @@ data/
 *.log
 sidecars/jobspy/.venv/
 __pycache__/
+
+# Personal run reports (never published)
+reports/

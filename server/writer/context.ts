@@ -116,7 +116,9 @@ export async function loadContext(jobId: string, opts: ContextOptions = {}): Pro
     learning: master.learning,
     targetCompany: job.company,
     employerText: `${job.title}\n${job.company}\n${job.description_text ?? ''}\n${briefText(brief)}`,
-    watchTerms: match?.atsKeywords ?? [],
+    // The role's own title ("Happiness Engineer") names the job applied for, not a claim; tools in it stay watched
+    // through the lexicon.
+    watchTerms: (match?.atsKeywords ?? []).filter((t) => !job.title.toLowerCase().includes(t.toLowerCase())),
   };
   return { job, match, master, brief, learning, source };
 }

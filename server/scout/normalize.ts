@@ -154,11 +154,24 @@ export function seniority(title: string): Level {
   return 'mid';
 }
 
+const NAMED: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', ndash: '–', mdash: '—', rsquo: '’', lsquo: '‘', hellip: '…' };
+
+/** RSS feeds send titles still HTML-encoded ("Support &#038; Success"). Plain text only; nothing is rendered. */
+export function decodeEntities(s: string): string {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
+    if (e[0] === '#') {
+      const n = e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : Number(e.slice(1));
+      return Number.isFinite(n) && n > 0 && n < 0x110000 ? String.fromCodePoint(n) : m;
+    }
+    return NAMED[e.toLowerCase()] ?? m;
+  });
+}
+
 /** Apply every normaliser to one posting. Pure: returns a new object. */
 export function normalizeJob(job: RawJob, now = Date.now()): RawJob {
   const out: RawJob = { ...job, tags: [...(job.tags ?? [])] };
-  out.title = out.title.replace(/\s+/g, ' ').trim();
-  out.company = out.company.replace(/\s+/g, ' ').trim() || 'Unknown';
+  out.title = decodeEntities(out.title).replace(/\s+/g, ' ').trim();
+  out.company = decodeEntities(out.company).replace(/\s+/g, ' ').trim() || 'Unknown';
   out.location = (out.location ?? '').replace(/\s+/g, ' ').trim();
 
   // Dates: ISO already, or a relative phrase some boards give.
@@ -180,6 +193,8 @@ export function normalizeJob(job: RawJob, now = Date.now()): RawJob {
 
   const mode = workMode(out);
   if (mode === 'remote') out.remote = true;
+  // A board that says hybrid or on-site in its own work-mode field means it, whatever its remote flag says.
+  if (mode !== 'remote' && (out.tags ?? []).some((t) => /^mode:(hybrid|onsite|on-site|in.?office)/i.test(t))) out.remote = false;
   const visa = visaMention(`${out.title}\n${out.descriptionText ?? ''}`);
   const tags = (out.tags ?? []).filter((t) => !/^(mode|visa|level):/.test(t) && t.trim());
   out.tags = [mode ? `mode:${mode}` : '', visa ? `visa:${visa}` : '', `level:${seniority(out.title)}`, ...tags].filter(Boolean);

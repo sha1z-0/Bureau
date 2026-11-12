@@ -12,7 +12,7 @@ import { detectOnPage } from '../forms/detect.ts';
 import { type ExtractedField, extractStep, frameByKey, frameFor, type StepExtract } from '../forms/extract.ts';
 import { armSubmitGuard, withSubmitAllowed } from '../forms/guard.ts';
 import { fillField } from '../forms/handlers/index.ts';
-import { jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from '../forms/map.ts';
+import { ATTESTATION, jobInfo, type JobInfo, type MapOptions, type MappedValue, mapFieldsWith, MIN_CONFIDENCE } from '../forms/map.ts';
 import { labelNorm, valuesMatch } from '../forms/normalize.ts';
 import { inFrame, type ReadResult } from '../forms/page.ts';
 import { findRecipe, recordRecipeRun } from '../forms/recipes.ts';
@@ -519,7 +519,10 @@ export async function agentFill(ctx: AgentCtx, deps: AgentDeps = {}): Promise<Ag
             break;
           }
           const question = (a.question || f.label).replace(/\s+/g, ' ').trim().slice(0, 300);
-          const synthetic: ExtractedField = { ...f, label: question, labelNorm: labelNorm(question) };
+          // A legal attestation or a tick box is answered on the page's own wording, never the agent's paraphrase:
+          // "authorised to work in the US?" must not answer a field that asks about Germany.
+          const attests = f.kind === 'consent' || f.kind === 'checkbox' || ATTESTATION.test(f.label) || ATTESTATION.test(question);
+          const synthetic: ExtractedField = attests ? f : { ...f, label: question, labelNorm: labelNorm(question) };
           const got = (await mapFieldsWith([synthetic], packet, { writer: true, job, cache, deps: mapDeps }).catch(() => [] as MappedValue[]))[0];
           if (!got || got.unknown || !got.value || got.confidence < MIN_CONFIDENCE) {
             say(`no truthful answer: ${got?.reason ?? 'nothing in the profile, answer bank or writer'}`);

@@ -197,6 +197,8 @@ export default async function scout({ check, section }: Harness) {
     assert.equal(canonicalApplyUrl('https://boards.greenhouse.io/Stripe/jobs/7737124?gh_src=x&utm_source=y'), 'https://job-boards.greenhouse.io/stripe/jobs/7737124');
     assert.equal(canonicalApplyUrl('https://jobs.lever.co/ivo/3CE9DC16-90fd-4b99-b4b9-dfd48ec1a50d/apply'), 'https://jobs.lever.co/ivo/3ce9dc16-90fd-4b99-b4b9-dfd48ec1a50d');
     assert.equal(canonicalApplyUrl('https://jobs.ashbyhq.com/openai/1f8425be-cd39-4397-a9c1-6511ecfc39fc/application'), 'https://jobs.ashbyhq.com/openai/1f8425be-cd39-4397-a9c1-6511ecfc39fc');
+    // Ashby slugs are case-sensitive: "PostHog" works, "posthog" is a 404.
+    assert.equal(canonicalApplyUrl('https://jobs.ashbyhq.com/PostHog/20ab9628-20ff-4ae3-bd6a-46ae7e9dc6b8'), 'https://jobs.ashbyhq.com/PostHog/20ab9628-20ff-4ae3-bd6a-46ae7e9dc6b8');
     assert.equal(canonicalApplyUrl('https://jobs.smartrecruiters.com/ServiceNow/744000159057430-staff-software-engineer?oga=true'), 'https://jobs.smartrecruiters.com/ServiceNow/744000159057430');
     assert.equal(canonicalApplyUrl('https://apply.workable.com/tickpick/j/5840eceb50/apply'), 'https://apply.workable.com/tickpick/j/5840ECEB50');
     assert.equal(canonicalApplyUrl('https://www.example.com/careers/123/?utm_campaign=z#apply'), 'https://example.com/careers/123');

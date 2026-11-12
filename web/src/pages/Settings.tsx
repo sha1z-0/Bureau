@@ -31,7 +31,7 @@ const TASK_LABEL: Record<string, [string, string]> = {
   match: ['Matching jobs', 'Runs the most, so it defaults to Haiku 5.5.'],
   evidence: ['Evidence map', 'Pairs each requirement with your best true evidence.'],
   write_cv: ['Tailored CV', 'Your CV in their vocabulary, nothing added.'],
-  write_letter: ['Letters', 'Three variants built from your voice bank.'],
+  write_letter: ['Letters', 'Written from your voice bank: one draft in volume mode, two in quality.'],
   critic: ['Recruiter critic', 'Picks the strongest letter, or holds it back.'],
   humanize: ['Humanizer', 'Removes the tells of machine writing.'],
   form_map: ['Mapping form fields', 'Matches each field to a stored answer.'],

@@ -28,7 +28,13 @@ export const workday: Adapter = {
     }
   },
   account: {
-    needed: async (page) => (await visible(page, aid('createAccountPage'))) || (await visible(page, aid('signInPage'))) || (await visible(page, aid('verifyAccountPage'))),
+    needed: async (page) =>
+      (await visible(page, aid('createAccountPage'))) ||
+      (await visible(page, aid('signInPage'))) ||
+      (await visible(page, aid('verifyAccountPage'))) ||
+      // Newer tenants put "Create Account / Sign In" in the wizard itself, without the page markers: an email and a
+      // password box on the same screen is the wall.
+      ((await visible(page, 'input[type=password]')) && ((await visible(page, aid('email'))) || (await visible(page, 'input[type=email]')))),
   },
   beforeStep: async (page, run) => {
     // Resume-parse correction: the parser invents entries (a side project as a job); keep only as many as the profile has.

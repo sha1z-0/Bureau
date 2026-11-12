@@ -394,8 +394,12 @@ export function canonicalApplyUrl(raw: string): string {
         return `https://job-boards.${eu ? 'eu.' : ''}greenhouse.io/${slug}/jobs/${h.jobId}`;
       case 'lever':
         return `https://jobs.${eu ? 'eu.' : ''}lever.co/${slug}/${h.jobId.toLowerCase()}`;
-      case 'ashby':
-        return `https://jobs.ashbyhq.com/${slug}/${h.jobId.toLowerCase()}`;
+      case 'ashby': {
+        // Ashby's board slug is case-sensitive ("PostHog" works, "posthog" is a 404): keep it as the link had it.
+        const original = u.hostname.toLowerCase() === 'jobs.ashbyhq.com' ? u.pathname.split('/').filter(Boolean)[0] : null;
+        const keep = original && original.toLowerCase() === slug.toLowerCase() ? original : slug;
+        return `https://jobs.ashbyhq.com/${keep}/${h.jobId.toLowerCase()}`;
+      }
       case 'workday': {
         const wp = workdayParts(h.token);
         if (wp) return `${wp.boardUrl}${h.jobId}`;

@@ -4,6 +4,8 @@ import type { Legitimacy } from '../contracts/job.ts';
 import { activityFor, byCompany, recentSubmissions, type CompanyActivity } from './companies.ts';
 import type { MatchJob } from './jobs.ts';
 import type { MatchProfile } from './profile.ts';
+import { parseSalaryText, annualise as annualiseFor } from '../scout/normalize.ts';
+import { looksLikeSeekerPost } from '../sources/util.ts';
 
 /**
  * Hard filters: free, code-only, and run before any token is spent. A filter
@@ -25,6 +27,7 @@ export type FilterCode =
   | 'remote_region'
   | 'visa'
   | 'salary'
+  | 'language'
   | 'cooldown'
   | 'weak_match';
 
@@ -60,18 +63,18 @@ const wordRe = (s: string) => new RegExp(`(^|[^a-z0-9])${escapeRe(lc(s).trim())}
 
 /** Country-level regions a remote posting can be restricted to. Broad blocs (EMEA, APAC, LATAM) are too fuzzy to filter on. */
 const REGIONS: Record<string, string[]> = {
-  'United States': ['united states', 'usa', 'u.s.a', 'u.s.'],
-  'United Kingdom': ['united kingdom', 'uk', 'u.k.', 'great britain', 'britain', 'england', 'scotland', 'wales'],
-  Canada: ['canada'],
+  'United States': ['united states', 'usa', 'u.s.a', 'u.s.', 'nyc', 'san francisco', 'bay area', 'seattle', 'austin', 'boston', 'chicago', 'los angeles', 'denver', 'atlanta', 'miami'],
+  'United Kingdom': ['united kingdom', 'uk', 'u.k.', 'great britain', 'britain', 'england', 'scotland', 'wales', 'london', 'manchester', 'edinburgh', 'cambridge, uk', 'bristol'],
+  Canada: ['canada', 'toronto', 'vancouver', 'montreal', 'montréal', 'ottawa', 'calgary', 'waterloo'],
   'European Union': ['european union', 'eu', 'europe', 'eea'],
-  Germany: ['germany', 'deutschland'],
-  France: ['france'],
-  Netherlands: ['netherlands', 'holland'],
-  Spain: ['spain'],
-  Portugal: ['portugal'],
-  Poland: ['poland'],
-  Ireland: ['ireland'],
-  India: ['india'],
+  Germany: ['germany', 'deutschland', 'berlin', 'munich', 'münchen', 'hamburg', 'frankfurt', 'cologne', 'köln', 'stuttgart'],
+  France: ['france', 'paris', 'lyon', 'marseille', 'toulouse'],
+  Netherlands: ['netherlands', 'holland', 'amsterdam', 'rotterdam', 'utrecht', 'the hague', 'eindhoven'],
+  Spain: ['spain', 'madrid', 'barcelona', 'valencia'],
+  Portugal: ['portugal', 'lisbon', 'porto'],
+  Poland: ['poland', 'warsaw', 'krakow', 'kraków', 'wroclaw', 'wrocław'],
+  Ireland: ['ireland', 'dublin', 'cork'],
+  India: ['india', 'pune', 'bangalore', 'bengaluru', 'hyderabad', 'mumbai', 'delhi', 'new delhi', 'chennai', 'gurgaon', 'gurugram', 'noida', 'kolkata', 'ahmedabad'],
   Australia: ['australia'],
   Brazil: ['brazil'],
   Mexico: ['mexico'],
@@ -79,6 +82,56 @@ const REGIONS: Record<string, string[]> = {
   'United Arab Emirates': ['united arab emirates', 'uae', 'dubai', 'abu dhabi'],
   'Saudi Arabia': ['saudi arabia', 'ksa', 'riyadh'],
   Singapore: ['singapore'],
+  // Seen in live remote postings that are open to one country only.
+  'South Africa': ['south africa', 'johannesburg', 'cape town'],
+  Ukraine: ['ukraine', 'kyiv', 'kiev', 'lviv'],
+  Argentina: ['argentina', 'buenos aires'],
+  Ecuador: ['ecuador', 'pichincha', 'quito'],
+  Colombia: ['colombia', 'bogota', 'bogotá', 'medellin', 'medellín'],
+  Chile: ['chile', 'santiago'],
+  Peru: ['peru', 'lima'],
+  Uruguay: ['uruguay', 'montevideo'],
+  'Costa Rica': ['costa rica'],
+  Philippines: ['philippines', 'manila'],
+  Indonesia: ['indonesia', 'jakarta'],
+  Vietnam: ['vietnam', 'viet nam', 'ho chi minh', 'hanoi'],
+  Malaysia: ['malaysia', 'kuala lumpur'],
+  Thailand: ['thailand', 'bangkok'],
+  Japan: ['japan', 'tokyo'],
+  'South Korea': ['south korea', 'korea', 'seoul'],
+  China: ['china', 'shanghai', 'beijing', 'shenzhen'],
+  'New Zealand': ['new zealand'],
+  Nigeria: ['nigeria', 'lagos'],
+  Kenya: ['kenya', 'nairobi'],
+  Egypt: ['egypt', 'cairo'],
+  Morocco: ['morocco'],
+  Turkey: ['turkey', 'türkiye', 'istanbul'],
+  Israel: ['israel', 'tel aviv'],
+  Italy: ['italy', 'italia', 'milan', 'rome'],
+  Sweden: ['sweden', 'stockholm'],
+  Norway: ['norway', 'oslo'],
+  Denmark: ['denmark', 'copenhagen'],
+  Finland: ['finland', 'helsinki'],
+  Switzerland: ['switzerland', 'schweiz', 'zurich', 'zürich', 'bern', 'geneva'],
+  Austria: ['austria', 'vienna'],
+  Belgium: ['belgium', 'brussels'],
+  Romania: ['romania', 'bucharest'],
+  Czechia: ['czechia', 'czech republic', 'prague'],
+  Greece: ['greece', 'athens'],
+  Serbia: ['serbia', 'belgrade'],
+  Estonia: ['estonia', 'tallinn'],
+  Bulgaria: ['bulgaria', 'sofia'],
+  Hungary: ['hungary', 'budapest'],
+  Croatia: ['croatia', 'zagreb'],
+  Slovakia: ['slovakia', 'bratislava'],
+  Slovenia: ['slovenia', 'ljubljana'],
+  Lithuania: ['lithuania', 'vilnius'],
+  Latvia: ['latvia', 'riga'],
+  Cyprus: ['cyprus', 'limassol', 'nicosia'],
+  Malta: ['malta'],
+  Luxembourg: ['luxembourg'],
+  Bangladesh: ['bangladesh', 'dhaka'],
+  'Sri Lanka': ['sri lanka', 'colombo'],
 };
 const EU_MEMBERS = ['germany', 'france', 'netherlands', 'spain', 'portugal', 'poland', 'ireland', 'italy', 'belgium', 'austria', 'sweden', 'denmark', 'finland', 'czech', 'romania', 'greece', 'hungary', 'croatia', 'estonia', 'latvia', 'lithuania', 'slovakia', 'slovenia', 'bulgaria', 'luxembourg', 'malta', 'cyprus'];
 const US_STATES = /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming|, (ca|ny|tx|wa|ma|il|co|fl|ga|nc|va|or|pa|nj|az|mn|ut))\b/i;
@@ -199,11 +252,20 @@ export function hardFilter(job: MatchJob, ctx: FilterContext): FilterVerdict {
 
   if (prefs.needsSponsorship && NO_SPONSOR.some((re) => re.test(job.descriptionText))) return reject('visa', 'the posting says it does not sponsor visas');
 
-  if (prefs.minSalary > 0 && (job.salaryMax || job.salaryMin)) {
-    const cur = (job.salaryCurrency ?? '').trim().toUpperCase();
-    if (cur && cur === prefs.currency.trim().toUpperCase()) {
-      const top = annualise(Number(job.salaryMax || job.salaryMin));
-      if (top < prefs.minSalary) return reject('salary', `pays up to ${Math.round(top).toLocaleString('en-US')} ${cur} a year, below your floor of ${prefs.minSalary.toLocaleString('en-US')}`);
+  if (looksLikeSeekerPost(job.descriptionText)) return reject('legitimacy', "a job seeker's own post, not a job");
+  // A link or a run-on sentence where the title should be: the listing was mis-read, and a letter would quote it.
+  if (/https?:\/\/|www\./i.test(job.title) || job.title.length > 120) return reject('legitimacy', 'the listing has no readable job title');
+
+  const language = missingLanguage(job, profile);
+  if (language) return reject('language', language);
+
+  if (prefs.minSalary > 0) {
+    // Structured pay first; some boards only put it in the title ("… - $15,000/year USD").
+    const titled = !job.salaryMax && !job.salaryMin ? parseSalaryText(job.title) : null;
+    const top = job.salaryMax || job.salaryMin ? annualise(Number(job.salaryMax || job.salaryMin)) : titled ? annualiseFor(titled.max ?? titled.min, titled.period) : null;
+    const cur = ((job.salaryMax || job.salaryMin ? job.salaryCurrency : titled?.currency) ?? '').trim().toUpperCase();
+    if (top && cur && cur === prefs.currency.trim().toUpperCase() && top < prefs.minSalary) {
+      return reject('salary', `pays up to ${Math.round(top).toLocaleString('en-US')} ${cur} a year, below your floor of ${prefs.minSalary.toLocaleString('en-US')}`);
     }
   }
 
@@ -215,4 +277,44 @@ export function hardFilter(job: MatchJob, ctx: FilterContext): FilterVerdict {
   }
 
   return { pass: true };
+}
+
+/** Languages a posting can require that the profile must list to apply. */
+const LANGS: { name: string; words: string; stop: RegExp }[] = [
+  { name: 'German', words: 'german|deutsch', stop: /\b(und|der|die|das|wir|sie|mit|für|bei|ist|eine?n?|unser(e|en)?|sowie|kenntnisse|erfahrung)\b/gi },
+  { name: 'French', words: 'french|français|francais', stop: /\b(et|les|des|nous|vous|avec|pour|une|dans|est|sur|notre|votre)\b/gi },
+  { name: 'Dutch', words: 'dutch|nederlands', stop: /\b(en|het|een|wij|jij|met|voor|zijn|naar|onze|bij|ervaring)\b/gi },
+];
+
+const SCRIPTS: [string, RegExp, RegExp][] = [
+  ['Cyrillic script', /\p{Script=Cyrillic}/gu, /russian|ukrainian|bulgarian|serbian|macedonian|kazakh|belarusian/i],
+  ['Chinese', /\p{Script=Han}/gu, /chinese|mandarin|cantonese|japanese/i],
+  ['Japanese', /[\p{Script=Hiragana}\p{Script=Katakana}]/gu, /japanese/i],
+  ['Korean', /\p{Script=Hangul}/gu, /korean/i],
+];
+
+const LEVEL = String.raw`fluent|fluency|native|excellent|very good|strong|business[- ]level|professional|proficien\w*|sehr gute?n?|fließende?s?|verhandlungssichere?s?`;
+const MUST = String.raw`required|a must|mandatory|essential|erforderlich|vorausgesetzt|c1|c2`;
+
+/**
+ * A posting written in a language the candidate doesn't list, or one that asks for fluency in it, rules the job out:
+ * "Sehr gute Deutschkenntnisse" is a hard requirement, not a stretch.
+ */
+export function missingLanguage(job: Pick<MatchJob, 'title' | 'descriptionText'>, profile: Pick<MatchProfile, 'languages'>): string | null {
+  const spoken = profile.languages.join(' ').toLowerCase();
+  const text = `${job.title}\n${job.descriptionText}`.slice(0, 12_000);
+  const words = text.split(/\s+/).length;
+  // Mostly another script: Cyrillic (Ukrainian, Russian…), or Chinese, Japanese and Korean.
+  const letters = text.match(/\p{L}/gu)?.length ?? 0;
+  for (const [name, re, langs] of SCRIPTS) {
+    if (langs.test(spoken) || letters < 200) continue;
+    if ((text.match(re)?.length ?? 0) / letters > 0.3) return `the posting is written in ${name}, which is not among your languages`;
+  }
+  for (const l of LANGS) {
+    if (new RegExp(String.raw`\b(${l.words})\b`, 'i').test(spoken)) continue;
+    const asks = new RegExp(String.raw`\b(${LEVEL})\s+(\w+\s+){0,3}(${l.words})|\b(${l.words})(\s*(-|kenntnisse|language|skills))*\s*(\w+\s+){0,3}(is |are )?(${MUST})\b`, 'i');
+    if (asks.test(text)) return `asks for ${l.name}, which is not among your languages`;
+    if (words > 80 && (text.match(l.stop)?.length ?? 0) / words > 0.06) return `the posting is written in ${l.name}`;
+  }
+  return null;
 }

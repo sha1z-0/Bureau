@@ -1,4 +1,4 @@
-import { all } from '../db.ts';
+import { all, get } from '../db.ts';
 
 /**
  * Company identity and history across every campaign: the cooldown ("no second
@@ -60,10 +60,26 @@ export function recentSubmissions(days: number, nowIso: string): CompanyActivity
   const piped = all<{ job_id: string; company: string; company_id: string | null; at: string }>(
     `SELECT p.job_id, j.company, j.company_id, p.updated_at AS at
        FROM pipeline p JOIN jobs j ON j.id = p.job_id
-      WHERE p.state = 'submitted' AND p.updated_at >= ?`,
+      WHERE (p.state = 'submitted' OR (p.state = 'needs_you' AND ${maybeSentSql('p.job_id')})) AND p.updated_at >= ?`,
     since,
   );
   return expand([...apps, ...piped], 'submitted');
+}
+
+/**
+ * A live submit that may have gone out (crash or kill mid-submit, a click with no confirmation) is journaled as
+ * `maybe_sent`. Until the owner settles it, it counts as sent: no duplicate listing, no second role at that company.
+ * The journal table belongs to the campaign engine; without it nothing can be in doubt.
+ */
+const journalExists = () => !!get("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'campaign_steps'");
+
+/** SQL condition: the job in `jobCol` may already have been sent. */
+export function maybeSentSql(jobCol: string): string {
+  return journalExists() ? `EXISTS (SELECT 1 FROM campaign_steps s WHERE s.job_id = ${jobCol} AND s.step = 'maybe_sent')` : '0';
+}
+
+export function maybeSent(jobId: string): boolean {
+  return journalExists() && !!get("SELECT 1 FROM campaign_steps WHERE job_id = ? AND step = 'maybe_sent' LIMIT 1", jobId);
 }
 
 /** Jobs currently on their way to an application (selected … rehearsed), across all campaigns. */

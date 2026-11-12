@@ -25,7 +25,7 @@ import { letterNeed, type LetterNeed } from './letterNeed.ts';
 import { lintLetter, lintShort, type LintContext } from './lint.ts';
 import { loadPacket, renderPacketFiles, saveApplication, setPacketPaths, type AuditIssueV1, type VariantRecord, type WriterNotes, type WriterStep } from './packet.ts';
 import { truthLock } from './lock.ts';
-import { truthResult, type CodeIssue } from './truth.ts';
+import { codeTruth, truthResult, type CodeIssue } from './truth.ts';
 import { seededRng } from './text.ts';
 
 /**
@@ -354,6 +354,7 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
       lint = lintLetter(letter, lintCtx(passagesUsed));
       step('lint', `rewrite for ${failing.map((c) => c.id).join(', ')} → ${lint.pass ? 'pass' : 'still failing'}`);
     } else step('lint', 'pass');
+    if (volume) lint = tolerateStyle(lint, step);
     chosen.text = letter;
     chosen.lint = lint;
     if (!lint.pass) throw new Skip(`lint: ${lint.checks.filter((c) => !c.pass).map((c) => `${c.id} ${c.value} (target ${c.target})`).join('; ')}`);
@@ -369,7 +370,10 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
 
     // 10 & 12. Subject, outreach, follow-up through their short gates.
     if (!noLetter) {
-    const okSubjects = subjects.map((s, i) => ({ s, i })).filter((x) => !subjectProblems(x.s).length && lintShort(x.s, { maxChars: 69 }).pass);
+    // A subject is one line: of the five drafted, one with an unbacked figure or claim gives way to a clean one.
+    const okSubjects = subjects
+      .map((s, i) => ({ s, i }))
+      .filter((x) => !subjectProblems(x.s).length && lintShort(x.s, { maxChars: 69 }).pass && !codeTruth({ texts: [{ label: 'Subject', text: x.s }] }, ctx!.source).length);
     if (!okSubjects.some((x) => x.i === subjectIndex)) subjectIndex = okSubjects[0]?.i ?? -1;
     if (subjectIndex < 0) {
       subjects.push(`${ctx.job.title} application: ${ctx.master.name}`.slice(0, 69));
@@ -427,6 +431,7 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
         // The rewritten letter must still pass the lint.
         if (chosen && lintCtxFor) {
           lint = lintLetter(chosen.text, lintCtxFor(passagesUsed));
+          if (volume) lint = tolerateStyle(lint, step);
           chosen.lint = lint;
           if (!lint.pass) throw new Skip(`lint after truth rewrite: ${lint.checks.filter((c) => !c.pass).map((c) => `${c.id} ${c.value}`).join('; ')}`);
         }
@@ -483,6 +488,27 @@ async function run_(jobId: string, campaignId: string | null, opts: WriteOptions
 }
 
 /** The last line of defence: nothing is saved as written unless every gate passed on the saved text. */
+/**
+ * Statistical style measures: how a letter reads, not what it claims or whether it is fit to send. In volume mode a
+ * letter that still misses only these after its one rewrite goes out, noted in the log; anything else still blocks.
+ */
+const SOFT_STYLE = new Set(['burstiness', 'lexical_diversity', 'contractions', 'nominalizations', 'rule_of_three', 'em_dashes']);
+
+/** A length just outside its range ("320 words, target 180–280": within 10% short, 20% long) reads the same to a recruiter. */
+function nearLength(c: LintResult['checks'][number]): boolean {
+  if (c.id !== 'length' || typeof c.value !== 'number') return false;
+  const m = c.target.match(/(\d+)\s*[–-]\s*(\d+)/);
+  return !!m && c.value >= Number(m[1]) * 0.9 && c.value <= Number(m[2]) * 1.2;
+}
+
+export function tolerateStyle(lint: LintResult, note?: (stage: string, detail: string) => void): LintResult {
+  if (lint.pass) return lint;
+  const failing = lint.checks.filter((c) => !c.pass);
+  if (failing.some((c) => !SOFT_STYLE.has(c.id) && !nearLength(c))) return lint;
+  note?.('lint', `volume mode: sent with style notes (${failing.map((c) => c.id).join(', ')})`);
+  return { ...lint, pass: true };
+}
+
 export function assertGates(critic: CriticResult | null, lint: LintResult | null, truth: TruthResult | null, mode: 'volume' | 'quality' = 'quality', hasLetter = true) {
   if (mode === 'quality' && hasLetter && (!critic || critic.score < CRITIC_BAR)) throw new Skip(`gate: critic ${critic?.score ?? 'missing'} < ${CRITIC_BAR}`);
   if (!lint?.pass) throw new Skip('gate: lint did not pass');
